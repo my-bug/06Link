@@ -1,0 +1,1 @@
+package com.shilapi.xcertplay.usbbt;public class UsbBtControllerInfo{}

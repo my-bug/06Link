@@ -1,0 +1,1 @@
+package com.shilapi.xcertplay.network; public class EcarxConnectedIphoneLookup {public EcarxConnectedIphoneLookup(android.content.Context c) {} public void ensureBound() {} public java.util.List<EcarxConnectedDevice> connectedDevices(long t) {return null;} }

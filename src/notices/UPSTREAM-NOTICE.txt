@@ -1,0 +1,5 @@
+Free Auto %1$s 基于开源项目 DiPlay 0.2.8（GPL-3.0）。接收器基于采用 GPL-3.0 许可的 xcertplay。DiPlay 界面沿用采用 AGPL-3.0 许可的 DiAuto 设计。
+
+项目包含 AndroidX、Kotlin、Bouncy Castle、JmDNS、SLF4J、Concentus（Opus，BSD 许可）、ZXing（二维码，Apache-2.0 许可）、OpenJDK 库的向下移植（GPL-2.0 附 Classpath 例外）和 FFmpeg 7.1.5（LGPL-2.1 或更新版本；源代码见 ffmpeg.org）。本版本附有源代码和许可声明。
+
+CarPlay 和 CarPlay 图标归 Apple Inc. 所有。Free Auto 是独立项目。

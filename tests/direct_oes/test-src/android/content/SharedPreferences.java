@@ -1,0 +1,1 @@
+package android.content;public interface SharedPreferences{boolean getBoolean(String k,boolean d);String getString(String k,String d);int getInt(String k,int d);}

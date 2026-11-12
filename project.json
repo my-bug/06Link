@@ -1,0 +1,161 @@
+{
+  "schema": 3,
+  "display_name": "06Link",
+  "version_name": "1.2.34",
+  "version_code": 139,
+  "application_id": "com.sixlink.car",
+  "architecture": "Source build: Java + Smali + XML/resources; native and crypto dependencies. No application APK or method-patch input.",
+  "source_origin": {
+    "version_name": "1.2.33",
+    "version_code": 138,
+    "sha256": "6106d8a71e50c6cbfe17f788111499bba8116f8de342ecf8a10c4b7c54fc0ada",
+    "role": "One-time migration reference; not a build input"
+  },
+  "android_api": 22,
+  "min_sdk": 14,
+  "target_sdk": 36,
+  "sources": {
+    "java_root": "src/e01",
+    "default_java_dex": "classes2.dex",
+    "java_dex": {
+      "com/shilapi/xcertplay/E01AmapAccess": "classes2.dex",
+      "com/shilapi/xcertplay/E01AmapCompatibility": "classes2.dex",
+      "com/shilapi/xcertplay/E01AmapOutput": "classes2.dex",
+      "com/shilapi/xcertplay/E01OemBluetooth": "classes2.dex",
+      "com/shilapi/xcertplay/E01PrivilegedShell": "classes2.dex",
+      "com/shilapi/xcertplay/E01ServiceAccessUi": "classes2.dex",
+      "com/shilapi/xcertplay/E01WiredUi": "classes.dex",
+      "com/shilapi/xcertplay/E01HotspotControl": "classes2.dex",
+      "com/shilapi/xcertplay/E01WiredPort": "classes2.dex",
+      "com/shilapi/xcertplay/E01WiredStartState": "classes2.dex",
+      "com/shilapi/xcertplay/E01WiredShutdown": "classes2.dex",
+      "com/shilapi/xcertplay/E01WiredConfiguration": "classes2.dex",
+      "com/shilapi/xcertplay/E01TunClose": "classes2.dex",
+      "com/shilapi/xcertplay/E01MicrophoneSource": "classes2.dex",
+      "com/shilapi/xcertplay/E01WheelKeys": "classes2.dex",
+      "com/shilapi/xcertplay/E01WheelSettings": "classes2.dex",
+      "com/shilapi/xcertplay/E01SiriKey": "classes2.dex",
+      "com/shilapi/xcertplay/LatestVideoOutput": "classes4.dex",
+      "com/shilapi/xcertplay/E01VideoCrypto": "classes2.dex",
+      "com/shilapi/xcertplay/transport/LegacyBulkReader": "classes.dex",
+      "com/shilapi/xcertplay/E01AudioRoute": "classes2.dex",
+      "com/shilapi/xcertplay/E01AudioSettings": "classes2.dex",
+      "com/shilapi/xcertplay/E01BtPersistent": "classes2.dex",
+      "com/shilapi/xcertplay/E01LogPolicy": "classes2.dex",
+      "com/shilapi/xcertplay/E01VideoEvidence": "classes.dex",
+      "com/shilapi/xcertplay/E01BtLegacyRelease": "classes2.dex",
+      "com/shilapi/xcertplay/E01NativeUi": "classes2.dex",
+      "com/shilapi/xcertplay/E01NativeSettings": "classes2.dex",
+      "com/shilapi/xcertplay/E01Dialogs": "classes2.dex",
+      "com/shilapi/xcertplay/E01ConnectionPanel": "classes2.dex",
+      "com/shilapi/xcertplay/E01AvcReorder": "classes2.dex",
+      "com/shilapi/xcertplay/E01MtkCompat": "classes2.dex",
+      "com/shilapi/xcertplay/E01PreparedConnection": "classes2.dex",
+      "com/shilapi/xcertplay/E01ComponentLog": "classes2.dex",
+      "com/shilapi/xcertplay/E01SmoothVideo": "classes.dex",
+      "com/shilapi/xcertplay/E01DirectInFlight": "classes2.dex",
+      "com/shilapi/xcertplay/E01MapCard": "classes2.dex",
+      "com/shilapi/xcertplay/E01ClusterIntro": "classes2.dex",
+      "com/shilapi/xcertplay/E01VideoOutput": "classes2.dex",
+      "com/shilapi/xcertplay/E01GlOutput": "classes2.dex",
+      "com/shilapi/xcertplay/E01DisplayState": "classes2.dex",
+      "com/shilapi/xcertplay/E01DisplayClock": "classes2.dex",
+      "com/shilapi/xcertplay/E01DirectOutputClock": "classes2.dex",
+      "com/shilapi/xcertplay/E01VideoVisibility": "classes2.dex",
+      "com/shilapi/xcertplay/E01VideoIngress": "classes.dex",
+      "com/shilapi/xcertplay/E01IngressEvidence": "classes2.dex",
+      "com/shilapi/xcertplay/E01GpsDiagnostic": "classes2.dex",
+      "com/shilapi/xcertplay/E01GpsLinkProbe": "classes2.dex",
+      "com/shilapi/xcertplay/E01ClusterMode": "classes2.dex",
+      "com/shilapi/xcertplay/E01CardDiagnostic": "classes2.dex",
+      "com/shilapi/xcertplay/E01LaneDiagnostic": "classes2.dex",
+      "com/shilapi/xcertplay/E01ClusterPower": "classes2.dex",
+      "com/shilapi/xcertplay/E01LaneCapability": "classes2.dex",
+      "com/shilapi/xcertplay/E01AudioScene": "classes2.dex",
+      "com/shilapi/xcertplay/E01AudioMixDiagnostic": "classes2.dex",
+      "com/shilapi/xcertplay/E01InstrumentStyle": "classes2.dex",
+      "com/shilapi/xcertplay/E01MistInstrument": "classes2.dex",
+      "com/shilapi/xcertplay/E01DisplayConfig": "classes2.dex",
+      "com/shilapi/xcertplay/E01MusicCard": "classes2.dex",
+      "com/shilapi/xcertplay/E01InstrumentPreview": "classes2.dex",
+      "com/shilapi/xcertplay/E01NavigationAudioProbe": "classes2.dex",
+      "com/shilapi/xcertplay/E01ClusterVideoGate": "classes2.dex",
+      "com/shilapi/xcertplay/E01WirelessAudioHandoff": "classes2.dex",
+      "com/shilapi/xcertplay/E01VideoResume": "classes2.dex",
+      "com/shilapi/xcertplay/E01WiredVpn": "classes.dex",
+      "com/shilapi/xcertplay/E01SmoothSettings": "classes.dex",
+      "com/shilapi/xcertplay/E01PacingClock": "classes.dex",
+      "com/shilapi/xcertplay/E01MtkTuning": "classes.dex",
+      "com/shilapi/xcertplay/E01BacklogRecovery": "classes.dex",
+      "com/shilapi/xcertplay/E01MtkRuntime": "classes.dex",
+      "com/shilapi/xcertplay/E01Realtime": "classes2.dex",
+      "com/shilapi/xcertplay/E01TbtPackets": "classes2.dex",
+      "com/shilapi/xcertplay/E01MapOptions": "classes2.dex",
+      "com/shilapi/xcertplay/E01Artwork": "classes2.dex",
+      "com/shilapi/xcertplay/E01RouteSummary": "classes2.dex",
+      "com/shilapi/xcertplay/E01HotspotSettings": "classes2.dex",
+      "com/shilapi/xcertplay/E01MapZoom": "classes2.dex",
+      "com/shilapi/xcertplay/E01BuildVariant": "classes.dex"
+    },
+    "smali_roots": {
+      "classes.dex": "src/core/smali/classes",
+      "classes2.dex": "src/core/smali/classes2",
+      "classes3.dex": "src/core/smali/classes3",
+      "classes4.dex": "src/core/smali/classes4"
+    },
+    "manifest": "src/main/AndroidManifest.xml",
+    "resources": "src/main/res",
+    "resource_ids": "src/main/resource-ids.txt",
+    "assets": "src/main/assets",
+    "native_libs": "src/main/jniLibs",
+    "runtime_resources": "src/main/resources"
+  },
+  "file_assets": [
+    {
+      "entry": "assets/oem-bt-permanent/gocsdk",
+      "source": "src/oem-bluetooth/permanent/gocsdk",
+      "sha256": "1f0c60e5d292ef9be94b92fe530d8550846dea614234c6d324eb1c740387b130"
+    },
+    {
+      "entry": "assets/oem-bt-permanent/persistent.sh",
+      "source": "src/oem-bluetooth/permanent/persistent.sh",
+      "sha256": "3882bc1b985b6fdf7e71d4dad08fc11679b949a8f9861a2b4ca9abb1e3e53077"
+    },
+    {
+      "entry": "assets/display-clock/session.sh",
+      "source": "src/display-clock/session.sh",
+      "sha256": "c6df49402515a797f8f715f13ef9d8951f29e1e4fbb6cc3f117aae826e0344e1"
+    },
+    {
+      "entry": "assets/offline-mfi/identity.pk8",
+      "source": ".private/runtime-assets/assets/offline-mfi/identity.pk8",
+      "sha256": "bd50eda2d8dd95a8464440f1aebca7068dcab46a2461ecaf826c7f98f5621a75",
+      "variants": [
+        "release"
+      ]
+    },
+    {
+      "entry": "assets/offline-mfi/certificate.p7b",
+      "source": ".private/runtime-assets/assets/offline-mfi/certificate.p7b",
+      "sha256": "634a93dd6c4338080524025411752597ecb828591839cd062a8292fd7e9e844e",
+      "variants": [
+        "release"
+      ]
+    }
+  ],
+  "crypto_dependency": {
+    "file": "tooling/vendor/conscrypt-android-2.8.0.aar",
+    "sha256": "752044c289bc98e2dcabc00a1f88ca158b3aa3f505b38f124552bf4b2a0902b1",
+    "source": "https://repo.maven.apache.org/maven2/org/conscrypt/conscrypt-android/2.8.0/conscrypt-android-2.8.0.aar",
+    "dex": "classes5.dex",
+    "abis": [
+      "armeabi-v7a",
+      "arm64-v8a"
+    ],
+    "notice": "src/notices/conscrypt-NOTICE.txt"
+  },
+  "signing_certificate_sha256": "c114ae6f08ed304a43548ffaa62f03dc8124b97c5d11b9e60c3e4f6741aae4c4",
+  "signing_alias": "06link-release",
+  "signing_keystore": ".private/06link-release.p12",
+  "signing_password_file": ".private/06link-release-password.txt"
+}

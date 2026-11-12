@@ -1,0 +1,1 @@
+package com.shilapi.xcertplay.iap2.wire;public class Iap2Frame{public int getMessageId(){return 0;}public byte[] getPayload(){return null;}}

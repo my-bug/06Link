@@ -1,0 +1,1 @@
+package com.shilapi.xcertplay.transport; public interface UsbfsReadOps {long submitRead(int fd,int ep,int size);int awaitRead(long h,byte[] b,int t);void discardRead(int fd,long h);void freeRead(long h);}

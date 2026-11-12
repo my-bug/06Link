@@ -1,0 +1,1 @@
+package com.shilapi.xcertplay.network;public class FreeAutoHotspotName {public static final FreeAutoHotspotName INSTANCE=new FreeAutoHotspotName();public String name(android.content.Context c,String s){return "";}public String persistedPassword(android.content.Context c){return null;}}

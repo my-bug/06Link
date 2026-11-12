@@ -1,0 +1,1 @@
+package com.shilapi.xcertplay.orchestration;public enum ManualHotspotSecurity{OPEN,WPA2}

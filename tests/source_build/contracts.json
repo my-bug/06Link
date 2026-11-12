@@ -1,0 +1,668 @@
+{
+  "wired-transport": {
+    "dex": "classes.dex",
+    "class": "com/shilapi/xcertplay/orchestration/CarPlayRuntimeConfig.smali",
+    "method": "getTransport()Lcom/shilapi/xcertplay/orchestration/CarPlayTransport;",
+    "sha256": "d44453d5cba1139868a5621046d7c492e803a107caa3a11b00644d8b46aef99b"
+  },
+  "wired-start-diagnostic-0": {
+    "dex": "classes.dex",
+    "class": "com/shilapi/xcertplay/CarPlayHostActivity.smali",
+    "method": "maybeStartCarPlay()V",
+    "sha256": "a106a38740b677280e61eadf2f9b7e9fd6242c4d1ecd1148a52dc584630eabe9"
+  },
+  "wired-start-diagnostic-1": {
+    "dex": "classes.dex",
+    "class": "com/shilapi/xcertplay/CarPlayHostActivity.smali",
+    "method": "requestStartupPrerequisites()V",
+    "sha256": "044896b82f00fc2c98e7354213f0b1328bd8f8af8e93b56e706a5776b46dae7c"
+  },
+  "wired-presence-startUsbPresenceWatch": {
+    "dex": "classes.dex",
+    "class": "com/shilapi/xcertplay/CarPlayHostActivity.smali",
+    "method": "startUsbPresenceWatch()V",
+    "sha256": "e38d17ef2145fd2410730421088bb06fecee6a1ac1aa754c6cba1daf716994a3"
+  },
+  "wired-presence-onIphoneUsbAttached": {
+    "dex": "classes.dex",
+    "class": "com/shilapi/xcertplay/CarPlayHostActivity.smali",
+    "method": "onIphoneUsbAttached()V",
+    "sha256": "79dc8f4b870208aadd9c308a8a81c752a792dec272d04884878eff09bc2b90a2"
+  },
+  "wired-presence-onIphoneUsbDetached": {
+    "dex": "classes.dex",
+    "class": "com/shilapi/xcertplay/CarPlayHostActivity.smali",
+    "method": "onIphoneUsbDetached()V",
+    "sha256": "1eabd72df655d7ed96f95f6165730c3427d42d9c13d959199ada1bab82273e3a"
+  },
+  "wired-shutdown-order": {
+    "dex": "classes.dex",
+    "class": "com/shilapi/xcertplay/CarPlayHostActivity.smali",
+    "method": "stopForPerson$common_release(Ljava/lang/String;)V",
+    "sha256": "50cf2458c7c6f4568734a65585a7edbdd0da1c35ac95b830f71104993e692725"
+  },
+  "wired-configuration-retry": {
+    "dex": "classes.dex",
+    "class": "com/shilapi/xcertplay/transport/IphoneUsbHost.smali",
+    "method": "openIap2UsbSession(Landroid/hardware/usb/UsbDevice;)Lcom/shilapi/xcertplay/transport/Iap2UsbSession;",
+    "sha256": "61d53aec3b4e5e54dd1f8707ccb6a71a579df96f02476ab81367032e88b9e6b2"
+  },
+  "wired-out-status": {
+    "dex": "classes.dex",
+    "class": "com/shilapi/xcertplay/transport/NcmUsbBridge.smali",
+    "method": "send([BI)V",
+    "sha256": "bc519a7996fadfbf8f704c9e3df22d9b238be6c92a51dc9855174de4cc6908e4"
+  },
+  "wired-tun-close": {
+    "dex": "classes.dex",
+    "class": "com/shilapi/xcertplay/network/Ipv6NcmBridge.smali",
+    "method": "close()V",
+    "sha256": "d0250cefbbd17232c392e85a82c869eb115b1295adea4546e142a049f6abc0e0"
+  },
+  "e01-siri-source": {
+    "dex": "classes.dex",
+    "class": "com/shilapi/xcertplay/media/MicrophoneTuning.smali",
+    "method": "sourceFor(Ljava/lang/String;Lcom/shilapi/xcertplay/media/MicrophoneTuning$Settings;)I",
+    "sha256": "121e4d13595f9c6e6e85d08f111138d1ef24035e3d60ab39f5e25fe8f515bff1"
+  },
+  "ncm-read-ahead": {
+    "dex": "classes.dex",
+    "class": "com/shilapi/xcertplay/transport/NcmUsbBridge.smali",
+    "method": "<init>(Landroid/hardware/usb/UsbDeviceConnection;Landroid/hardware/usb/UsbEndpoint;Landroid/hardware/usb/UsbEndpoint;Landroid/hardware/usb/UsbEndpoint;Ljava/util/List;[B)V",
+    "sha256": "9140de15f29176a2bde9fe522705f7afd6d99ced57566a89c4557fab904c87bc"
+  },
+  "native-video-crypto": {
+    "dex": "classes.dex",
+    "class": "com/shilapi/xcertplay/airplay/AirPlayCrypto.smali",
+    "method": "chachaOpen([B[B[B[B)[B",
+    "sha256": "6b338dc6631ee3d5558a9d59af1c31be87c26657752eba2d855040681497614b"
+  },
+  "e01-audio-0": {
+    "dex": "classes.dex",
+    "class": "com/shilapi/xcertplay/media/AudioRenderer.smali",
+    "method": "channelOverride(Lcom/shilapi/xcertplay/media/AudioChannel;)I",
+    "sha256": "218f8a98c928317a53191d580b3ca9e020aee4f4df23acb1a82b888df19e8e73"
+  },
+  "e01-audio-1": {
+    "dex": "classes.dex",
+    "class": "com/shilapi/xcertplay/media/AudioRenderer.smali",
+    "method": "createTrack()V",
+    "sha256": "4838336ed5b29cdadb1b0dd94f64bacd9403d857edd579ba938f151317ce8fd8"
+  },
+  "e01-audio-2": {
+    "dex": "classes.dex",
+    "class": "com/shilapi/xcertplay/media/AudioFocusCoordinator$Companion.smali",
+    "method": "legacyFocusStream(Lcom/shilapi/xcertplay/media/AudioChannel;IZ)Ljava/lang/Integer;",
+    "sha256": "87437c5834cbc666fa43b2d728f159997e5e8a8af05accdcb53da3677f069401"
+  },
+  "e01-audio-3": {
+    "dex": "classes.dex",
+    "class": "com/shilapi/xcertplay/CarPlayMediaKeys.smali",
+    "method": "regainFocusLocked(Z)V",
+    "sha256": "ec605e8aa87686d91595d0e06f060ba14f28faf2e9ec4d08dcb55778e70b183e"
+  },
+  "e01-audio-settings": {
+    "dex": "classes.dex",
+    "class": "com/shilapi/xcertplay/DiPlayActivity.smali",
+    "method": "settings$lambda$216(Lcom/shilapi/xcertplay/DiPlayActivity;Landroid/widget/LinearLayout;)Lkotlin/Unit;",
+    "sha256": "c472ff96a5d9ccb322313a63f03da386bccd866dd18adbb4a8c79b3b0e05a93a"
+  },
+  "log-budget-CrashRecorder-18": {
+    "dex": "classes.dex",
+    "class": "com/shilapi/xcertplay/CrashRecorder.smali",
+    "method": "startMainWatch$lambda$21(Lcom/shilapi/xcertplay/CrashRecorder$MainStallWatch;Ljava/io/File;)V",
+    "sha256": "9adfa0c124c87a30f83285412080f5ff394f8af894b0da213f70ead834a0a30b"
+  },
+  "log-budget-CrashRecorder-19": {
+    "dex": "classes.dex",
+    "class": "com/shilapi/xcertplay/CrashRecorder.smali",
+    "method": "writeCrash(Ljava/io/File;Ljava/lang/Thread;Ljava/lang/Throwable;)V",
+    "sha256": "523e4a71213c0f336d0d1ab2de2f7b05c8bd91a0b4abef0e8d394c94c178455e"
+  },
+  "log-budget-CrashRecorder-20": {
+    "dex": "classes.dex",
+    "class": "com/shilapi/xcertplay/CrashRecorder.smali",
+    "method": "writeExitInfo(Landroid/content/Context;Ljava/io/File;)V",
+    "sha256": "6c48a14ec333b83f229f8f3d148813ef0015bb8a63f18ade9eaa773ab80aedac"
+  },
+  "log-budget-SessionLogFile-21": {
+    "dex": "classes.dex",
+    "class": "com/shilapi/xcertplay/SessionLogFile.smali",
+    "method": "reset(Ljava/lang/String;)V",
+    "sha256": "ef37a8ae8ae4ac729ad1aa24dfe2e4045c5a26c8a5700125f2cc0a515761348f"
+  },
+  "remove-legacy-goc-0": {
+    "dex": "classes.dex",
+    "class": "com/shilapi/xcertplay/DiPlayActivity.smali",
+    "method": "bluetoothSettings$gocShaThen(Lcom/shilapi/xcertplay/DiPlayActivity;Lkotlin/jvm/functions/Function1;)Lcom/shilapi/xcertplay/network/RootShell$Result;",
+    "sha256": "4a6868c77a88d32136332bf7b6b6ceac6c215524b31a0ddc0f1cfe704d84099c"
+  },
+  "remove-legacy-goc-1": {
+    "dex": "classes.dex",
+    "class": "com/shilapi/xcertplay/DiPlayActivity.smali",
+    "method": "bluetoothSettings$lambda$273$lambda$272(Lcom/shilapi/xcertplay/DiPlayActivity;)Lcom/shilapi/xcertplay/network/RootShell$Result;",
+    "sha256": "149ad9ed5114b59506edeae355ebb633dc2a2389d01328d119a10cdcbdc013ef"
+  },
+  "remove-legacy-goc-2": {
+    "dex": "classes.dex",
+    "class": "com/shilapi/xcertplay/DiPlayActivity.smali",
+    "method": "bluetoothSettings$lambda$278$lambda$277$lambda$276$lambda$275(Lcom/shilapi/xcertplay/DiPlayActivity;Ljava/lang/String;)Lcom/shilapi/xcertplay/network/RootShell$Result;",
+    "sha256": "41d7316b607d9b22d90d5561628e70f7bc31d3ff137059504a68d78c99048b02"
+  },
+  "remove-legacy-goc-3": {
+    "dex": "classes.dex",
+    "class": "com/shilapi/xcertplay/DiPlayActivity.smali",
+    "method": "bluetoothSettings$lambda$283$lambda$282$lambda$281$lambda$280(Lcom/shilapi/xcertplay/DiPlayActivity;Ljava/lang/String;)Lcom/shilapi/xcertplay/network/RootShell$Result;",
+    "sha256": "a9f225e946971c89f51e573ea54b6bcedb73c43b65c4d1ca039a48067781ac82"
+  },
+  "native-ui-0": {
+    "dex": "classes.dex",
+    "class": "com/shilapi/xcertplay/DiPlayActivity.smali",
+    "method": "render()V",
+    "sha256": "af44d12c15ee037becdf23c04567d79179b5a86d3ed2583ea1264b532af8e46d"
+  },
+  "native-ui-1": {
+    "dex": "classes.dex",
+    "class": "com/shilapi/xcertplay/DiPlayActivity.smali",
+    "method": "refreshStatus()V",
+    "sha256": "cf8b4cabcac65da69e7c1e51355ba3ba624423dab8023e21db6b135c54aaa0a8"
+  },
+  "native-ui-2": {
+    "dex": "classes.dex",
+    "class": "com/shilapi/xcertplay/DiPlayActivity.smali",
+    "method": "goBack()V",
+    "sha256": "430340cceb49265262701b34f06ab99780ce9a4ff8d31143a1f68790088bafb4"
+  },
+  "native-ui-3": {
+    "dex": "classes.dex",
+    "class": "com/shilapi/xcertplay/DiPlayActivity.smali",
+    "method": "showFirstRunNotice()V",
+    "sha256": "748c79ad0331671e28acdd0a0e86994355d23bd314a6e28f793aa5326f56e13f"
+  },
+  "native-ui-4": {
+    "dex": "classes.dex",
+    "class": "com/shilapi/xcertplay/DiPlayActivity.smali",
+    "method": "runPendingAutoConnect()V",
+    "sha256": "0b0de60ff80663f9c8e5ec53b73c6d442cef5f8a77998e82031d12dd47029184"
+  },
+  "native-ui-5": {
+    "dex": "classes.dex",
+    "class": "com/shilapi/xcertplay/CarPlayHostActivity.smali",
+    "method": "adaptVideoLoad(ILcom/shilapi/xcertplay/media/VideoLoadGuard$Adaptation;)V",
+    "sha256": "509e6da239e71a6e283749e5a6085851dfcf568460ebee7badbaf9b04d854041"
+  },
+  "native-ui-6": {
+    "dex": "classes.dex",
+    "class": "com/shilapi/xcertplay/CarPlayHostActivity.smali",
+    "method": "adaptVideoLoadForSession(Ljava/lang/String;)V",
+    "sha256": "bde13a0d1e6f4d7c3be28f124c903faf1261241a24d79194e9fceda30c78d056"
+  },
+  "native-ui-7": {
+    "dex": "classes.dex",
+    "class": "com/shilapi/xcertplay/CarPlayHostActivity.smali",
+    "method": "createMediaSink$lambda$356(Lcom/shilapi/xcertplay/media/VideoLoadGuard;Lcom/shilapi/xcertplay/media/FrameRateWatch;Lcom/shilapi/xcertplay/CarPlayHostActivity;ILandroid/content/Context;Lcom/shilapi/xcertplay/SessionLogFile;Lcom/shilapi/xcertplay/media/VideoWindow;)Lkotlin/Unit;",
+    "sha256": "fbfbb1e25344776d564fafd622a799f4928f875c7d3fbac9e8687e3bc3a5bc2c"
+  },
+  "native-ui-8": {
+    "dex": "classes.dex",
+    "class": "com/shilapi/xcertplay/AirPlayPersistence.smali",
+    "method": "saveFps60Unsustainable(Landroid/content/Context;)V",
+    "sha256": "2843cece692df5606d00b8d8c13425d63c04d32041defd61c1b2c9222f832b9d"
+  },
+  "native-ui-appearance-mode": {
+    "dex": "classes.dex",
+    "class": "com/shilapi/xcertplay/Appearance.smali",
+    "method": "mode(Landroid/content/Context;)Lcom/shilapi/xcertplay/Appearance$Mode;",
+    "sha256": "2296f16b44a400eab2bd910c4be536da9d9cf28bc9738fdb5b6b4e5882c107d2"
+  },
+  "native-ui-appearance-save": {
+    "dex": "classes.dex",
+    "class": "com/shilapi/xcertplay/Appearance.smali",
+    "method": "save(Landroid/content/Context;Lcom/shilapi/xcertplay/Appearance$Mode;)V",
+    "sha256": "9c7a4f8c172ba31f1077b1bf288e3f845c907f83c3deff232a23d2e6b49ffc76"
+  },
+  "native-waiting-build": {
+    "dex": "classes.dex",
+    "class": "com/shilapi/xcertplay/CarPlayHostActivity.smali",
+    "method": "buildConnectionPanel()Landroid/view/View;",
+    "sha256": "77b0e592ad3842fec7f036cdfb5afe98e72ae3b9db6599e2aaf6fb3cad617829"
+  },
+  "native-waiting-update": {
+    "dex": "classes.dex",
+    "class": "com/shilapi/xcertplay/CarPlayHostActivity.smali",
+    "method": "renderPanelRow()V",
+    "sha256": "aef8299eebdcd177f62106056cb49f080c3706037faa8f7bdbdb55876e505c98"
+  },
+  "native-waiting-no-extras": {
+    "dex": "classes.dex",
+    "class": "com/shilapi/xcertplay/CarPlayHostActivity.smali",
+    "method": "renderPanelExtras(Lcom/shilapi/xcertplay/ConnectionUi$Input;Z)V",
+    "sha256": "e04e4405390bd69eeffa8ea94f7d63275f4dc3dd8175c00dc95ff568eb40ed96"
+  },
+  "native-waiting-no-expand-CarPlayHostActivity": {
+    "dex": "classes.dex",
+    "class": "com/shilapi/xcertplay/CarPlayHostActivity.smali",
+    "method": "onPanelRowAction(Lcom/shilapi/xcertplay/ConnectionUi$RowAction;)V",
+    "sha256": "acc99f19a3dea56e4a4fdb6073f4358498e2fcec673304eda36a82026d88f2fc"
+  },
+  "native-waiting-no-expand-DiPlayActivity": {
+    "dex": "classes.dex",
+    "class": "com/shilapi/xcertplay/DiPlayActivity.smali",
+    "method": "onRowAction(Lcom/shilapi/xcertplay/ConnectionUi$RowAction;)V",
+    "sha256": "e647a04914f795d66dee8d6cb2afd7a4590251edf9f32b71b357009904d7fc2a"
+  },
+  "speed-controller-close": {
+    "dex": "classes.dex",
+    "class": "com/shilapi/xcertplay/orchestration/CarPlayController.smali",
+    "method": "close()V",
+    "sha256": "c5261c13d77aba2ba35d3258b6bbf1dc96c32edea8cbbe13c3dc3bfa2a1b9d7c"
+  },
+  "speed-disable-phone-diagnostics": {
+    "dex": "classes.dex",
+    "class": "com/shilapi/xcertplay/orchestration/CarPlayController.smali",
+    "method": "runStack(Lcom/shilapi/xcertplay/transport/Iap2UsbSession;Lcom/shilapi/xcertplay/transport/NcmUsbBridge;)V",
+    "sha256": "1673d7263acaa8ce360c897659a3037ad8be06f748813be467620e25c23caf0e"
+  },
+  "speed-wired-control-write": {
+    "dex": "classes.dex",
+    "class": "com/shilapi/xcertplay/orchestration/CarPlayController$runStack$tracedCarkit$1.smali",
+    "method": "send([B)V",
+    "sha256": "fae6372473848d33672b7343ceea5fda239e82efa513013713f6a0c8a20454e7"
+  },
+  "speed-wireless-cleanup": {
+    "dex": "classes.dex",
+    "class": "com/shilapi/xcertplay/orchestration/CarPlayController.smali",
+    "method": "closeWirelessStack(Lcom/shilapi/xcertplay/network/CarPlayVpnService;)V",
+    "sha256": "f174990f88076d2c5a7d55e37b851cc1a1952266c8259f26158c70f2b33da8ec"
+  },
+  "speed-wireless-prepare": {
+    "dex": "classes.dex",
+    "class": "com/shilapi/xcertplay/orchestration/CarPlayController.smali",
+    "method": "runWireless(I)V",
+    "sha256": "a1ceccac8d67a25f0b501ab65d7536a5ee4882cefaa22497f3a925eaae9fc959"
+  },
+  "e01-input-pump": {
+    "dex": "classes.dex",
+    "class": "com/shilapi/xcertplay/media/VideoDecoder.smali",
+    "method": "feed$lambda$21(Landroid/media/MediaCodec;)I",
+    "sha256": "84732d782972390b1b8026079e4065c4580797d4af13a71f2b198332a94ae02c"
+  },
+  "e01-dedicated-drain": {
+    "dex": "classes.dex",
+    "class": "com/shilapi/xcertplay/media/VideoDecoder.smali",
+    "method": "drainOutput(Landroid/media/MediaCodec;)V",
+    "sha256": "0ef72e98dda2581de6634dc6717f3e00a4de08923e04b32430b5892af5929afc"
+  },
+  "e01-dedicated-release": {
+    "dex": "classes.dex",
+    "class": "com/shilapi/xcertplay/media/VideoDecoder.smali",
+    "method": "releaseDecoder()V",
+    "sha256": "c601c47046a9b6e5c67a4f361faf8e6cf77a6126f26ccce95fd0319be17569ca"
+  },
+  "e01-output-recovery": {
+    "dex": "classes.dex",
+    "class": "com/shilapi/xcertplay/media/VideoDecoder.smali",
+    "method": "run()V",
+    "sha256": "7baea2e0937299f54bec533ac1a8002e5da90e0ec50618da1a65501f4d063ce5"
+  },
+  "e01-gl-input-cancel": {
+    "dex": "classes.dex",
+    "class": "com/shilapi/xcertplay/media/VideoDecoder.smali",
+    "method": "feed([B)V",
+    "sha256": "ad615a9461d0581b5cb4c53eb5bd021603372e13f91e0686f0c371cbb7b4b4ab"
+  },
+  "e01-gl-configure-release": {
+    "dex": "classes.dex",
+    "class": "com/shilapi/xcertplay/media/VideoDecoder.smali",
+    "method": "tryConfigure(Ljava/lang/String;Ljava/util/List;Landroid/view/Surface;Lcom/shilapi/xcertplay/media/VideoDecoderAttempts$Attempt;)Landroid/media/MediaCodec;",
+    "sha256": "47acea5fb716caaf18acba5da9ac429deed5d883248d840625883cdcae509439"
+  },
+  "e01-gl-stop-error": {
+    "dex": "classes.dex",
+    "class": "com/shilapi/xcertplay/media/VideoDecoder.smali",
+    "method": "run()V",
+    "sha256": "7baea2e0937299f54bec533ac1a8002e5da90e0ec50618da1a65501f4d063ce5"
+  },
+  "video-visibility-home": {
+    "dex": "classes.dex",
+    "class": "com/shilapi/xcertplay/CarPlayHostActivity.smali",
+    "method": "showDiPlayHome(Ljava/lang/String;Z)V",
+    "sha256": "8c717058684411e2c47d0683bcded9dc8c5289a81fec207b2cca8993069d8bbe"
+  },
+  "video-visibility-pause": {
+    "dex": "classes.dex",
+    "class": "com/shilapi/xcertplay/CarPlayHostActivity.smali",
+    "method": "onPause()V",
+    "sha256": "a353442832f823a8e5a83b4bb51ae85b63d61650e882e1d1c838ecc7112675b9"
+  },
+  "video-visibility-destroy": {
+    "dex": "classes.dex",
+    "class": "com/shilapi/xcertplay/CarPlayHostActivity.smali",
+    "method": "onDestroy()V",
+    "sha256": "79eba71d9d2134dc2b1c78756f5c1b53c9ed901b732b80c0b2adca7e0364c6b9"
+  },
+  "video-visibility-resume": {
+    "dex": "classes.dex",
+    "class": "com/shilapi/xcertplay/CarPlayHostActivity.smali",
+    "method": "onResume()V",
+    "sha256": "1b94f52386185aac4bbb0ff4fd49ce08724e1b172d52d0b6ada141d701e5224b"
+  },
+  "video-visibility-window": {
+    "dex": "classes.dex",
+    "class": "com/shilapi/xcertplay/CarPlayHostActivity.smali",
+    "method": "createMediaSink$lambda$356(Lcom/shilapi/xcertplay/media/VideoLoadGuard;Lcom/shilapi/xcertplay/media/FrameRateWatch;Lcom/shilapi/xcertplay/CarPlayHostActivity;ILandroid/content/Context;Lcom/shilapi/xcertplay/SessionLogFile;Lcom/shilapi/xcertplay/media/VideoWindow;)Lkotlin/Unit;",
+    "sha256": "fbfbb1e25344776d564fafd622a799f4928f875c7d3fbac9e8687e3bc3a5bc2c"
+  },
+  "video-visibility-decision": {
+    "dex": "classes.dex",
+    "class": "com/shilapi/xcertplay/CarPlayHostActivity.smali",
+    "method": "adaptVideoLoad(ILcom/shilapi/xcertplay/media/VideoLoadGuard$Adaptation;)V",
+    "sha256": "509e6da239e71a6e283749e5a6085851dfcf568460ebee7badbaf9b04d854041"
+  },
+  "video-visibility-session": {
+    "dex": "classes.dex",
+    "class": "com/shilapi/xcertplay/CarPlayHostActivity.smali",
+    "method": "adaptVideoLoadForSession(Ljava/lang/String;)V",
+    "sha256": "bde13a0d1e6f4d7c3be28f124c903faf1261241a24d79194e9fceda30c78d056"
+  },
+  "e01-screen-ingress-evidence": {
+    "dex": "classes.dex",
+    "class": "com/shilapi/xcertplay/airplay/ScreenStream.smali",
+    "method": "run(Ljava/net/Socket;)V",
+    "sha256": "8c7965fbee82ae9e56ad5ff3694c3109ed0115f164185cd30c189c540448d42b"
+  },
+  "gps-diagnostic-provider-attached": {
+    "dex": "classes.dex",
+    "class": "com/shilapi/xcertplay/location/AndroidCarPlayLocationProvider.smali",
+    "method": "<init>(Landroid/content/Context;J)V",
+    "sha256": "439b98df23bade5708de375391b5f5304586e3a410e4ba91d8271b3af6ad03f4"
+  },
+  "gps-diagnostic-provider-fix": {
+    "dex": "classes.dex",
+    "class": "com/shilapi/xcertplay/location/AndroidCarPlayLocationProvider.smali",
+    "method": "latestFix()Landroid/location/Location;",
+    "sha256": "3ad4cd65a516a304a398bebce0ce06e7e9de44016964de06b5fbd4b34658bca8"
+  },
+  "gps-diagnostic-provider-encode-failure": {
+    "dex": "classes.dex",
+    "class": "com/shilapi/xcertplay/location/AndroidCarPlayLocationProvider.smali",
+    "method": "latestNmea()Ljava/lang/String;",
+    "sha256": "659b32582daad2c5d3a1eceba657453eeb70bfc0b4c15a4c575871dfd44d37ba"
+  },
+  "gps-diagnostic-provider-start": {
+    "dex": "classes.dex",
+    "class": "com/shilapi/xcertplay/location/AndroidCarPlayLocationProvider.smali",
+    "method": "start()Z",
+    "sha256": "86905f767a453c19729e294c16a490f629f087b301226462c4e78d4c5e7ac4cf"
+  },
+  "gps-diagnostic-provider-stop": {
+    "dex": "classes.dex",
+    "class": "com/shilapi/xcertplay/location/AndroidCarPlayLocationProvider.smali",
+    "method": "stop()V",
+    "sha256": "14eee04c53c228e6cc6b92ccd6b2d98390acb1045643dc7bcc80753583584797"
+  },
+  "gps-diagnostic-provider-alias": {
+    "dex": "classes.dex",
+    "class": "com/shilapi/xcertplay/transport/VehicleSpeedLocationProvider.smali",
+    "method": "<init>(Lcom/shilapi/xcertplay/transport/Iap2LocationProvider;Lcom/shilapi/xcertplay/transport/VehicleSpeedSource;)V",
+    "sha256": "356fdd8f3ea16ca51b1f7922c8a231e3daa5e916e4af5dca98627aa7f042a632"
+  },
+  "gps-diagnostic-reporter-request": {
+    "dex": "classes.dex",
+    "class": "com/shilapi/xcertplay/transport/Iap2LocationReporter.smali",
+    "method": "handle(Lcom/shilapi/xcertplay/iap2/wire/Iap2Frame;Lkotlin/jvm/functions/Function1;)Z",
+    "sha256": "fa08519ce42a1afb3366d21302658108eb4115b589c536c1bb30782c3856c5ee"
+  },
+  "gps-diagnostic-reporter-continued-request": {
+    "dex": "classes.dex",
+    "class": "com/shilapi/xcertplay/transport/Iap2LocationReporter.smali",
+    "method": "tick(Lkotlin/jvm/functions/Function1;)V",
+    "sha256": "827922825aa7d663a4560173d12f75fd2d56a59915b3bb4194ac352503cb62f8"
+  },
+  "gps-diagnostic-reporter-submitted": {
+    "dex": "classes.dex",
+    "class": "com/shilapi/xcertplay/transport/Iap2LocationReporter.smali",
+    "method": "sendLatest(Lkotlin/jvm/functions/Function1;)V",
+    "sha256": "cd71cd50b3936472d4e396d4388d446d32b920d89aaab0ddba7ada7743c2568e"
+  },
+  "gps-diagnostic-reporter-start-failure": {
+    "dex": "classes.dex",
+    "class": "com/shilapi/xcertplay/transport/Iap2LocationReporter.smali",
+    "method": "startProvider()Z",
+    "sha256": "8da31d304c43be64e8322065cd11d7471ea0a3e066f323fc45eeb5338cb2adf9"
+  },
+  "gps-link-01-Iap2CsmChannel": {
+    "dex": "classes.dex",
+    "class": "com/shilapi/xcertplay/transport/Iap2CsmChannel.smali",
+    "method": "send(Lcom/shilapi/xcertplay/iap2/wire/Iap2Frame;J)V",
+    "sha256": "6f461cd0e55dd1008c076fcf54f057444326315eda61d37fa8c74a27b83a9f9b"
+  },
+  "gps-link-02-Iap2LinkChannel": {
+    "dex": "classes.dex",
+    "class": "com/shilapi/xcertplay/transport/Iap2LinkChannel.smali",
+    "method": "<init>(Lcom/shilapi/xcertplay/transport/BlockingDuplexByteStream;Lcom/shilapi/xcertplay/transport/Iap2LinkConfig;Z)V",
+    "sha256": "7e0e90fc8fc18e581c1a11b20f695dcb097ce907cb95bd63d2ae75242811e23e"
+  },
+  "gps-link-03-Iap2LinkChannel": {
+    "dex": "classes.dex",
+    "class": "com/shilapi/xcertplay/transport/Iap2LinkChannel.smali",
+    "method": "enqueueCommandLocked([B)Z",
+    "sha256": "c0b3596e2364dcbcd45ac2468890539bedf5a4b889a7fa953137937b0dab112e"
+  },
+  "gps-link-04-Iap2LinkChannel": {
+    "dex": "classes.dex",
+    "class": "com/shilapi/xcertplay/transport/Iap2LinkChannel.smali",
+    "method": "drainCommands(Lcom/shilapi/xcertplay/transport/Iap2LinkEngine;)V",
+    "sha256": "e05df49166c19a883a921968646eed36a457b8f4961d508a809bf8ce61c0388f"
+  },
+  "gps-link-05-Iap2LinkChannel": {
+    "dex": "classes.dex",
+    "class": "com/shilapi/xcertplay/transport/Iap2LinkChannel.smali",
+    "method": "terminalLocked(Ljava/lang/Throwable;)V",
+    "sha256": "bfae82a585eb01b920865c621066f6bf9dc35d5c4d4a76ed880ecaf747d9a9a6"
+  },
+  "gps-link-06-Iap2LinkEngine": {
+    "dex": "classes.dex",
+    "class": "com/shilapi/xcertplay/transport/Iap2LinkEngine.smali",
+    "method": "die(Ljava/lang/String;)V",
+    "sha256": "4d21c48f621a8919821fcba36fd2121a7ff34e3d4e60f8da1886ad707fb29de1"
+  },
+  "gps-link-07-Iap2LinkEngine": {
+    "dex": "classes.dex",
+    "class": "com/shilapi/xcertplay/transport/Iap2LinkEngine.smali",
+    "method": "sendControl([BJ)V",
+    "sha256": "349f75c4b29e1d99c2129d703980ad01d1a25af01ee4f8984c06c560a8f7c6f9"
+  },
+  "gps-link-08-Iap2LinkEngine": {
+    "dex": "classes.dex",
+    "class": "com/shilapi/xcertplay/transport/Iap2LinkEngine.smali",
+    "method": "sendPacket(Lcom/shilapi/xcertplay/transport/Iap2LinkEngine$Packet;J)V",
+    "sha256": "6a122f6ad0711314ce1974a2941aa0e71db5ed289ca2852242c4278e04d0ae35"
+  },
+  "gps-link-09-Iap2LinkEngine": {
+    "dex": "classes.dex",
+    "class": "com/shilapi/xcertplay/transport/Iap2LinkEngine.smali",
+    "method": "handleAcknowledgement(IJ)V",
+    "sha256": "f1ae66aa89354632f513cceee2ad869e95e9dee4de1f6316b7e1593bfb615320"
+  },
+  "gps-link-10-Iap2LinkEngine": {
+    "dex": "classes.dex",
+    "class": "com/shilapi/xcertplay/transport/Iap2LinkEngine.smali",
+    "method": "retransmitDuePacket(J)V",
+    "sha256": "f57790032f8d398b3a922aebf2f79d3138150674b0e40f212f064c6061a07154"
+  },
+  "gps-link-11-Iap2LinkEngine": {
+    "dex": "classes.dex",
+    "class": "com/shilapi/xcertplay/transport/Iap2LinkEngine.smali",
+    "method": "handleExtendedAcknowledgement([B)V",
+    "sha256": "d13efd5384477fdc9ddf50e1c807c41acbe24d0e0bb68b021e9dac7c9903bd93"
+  },
+  "startup-default-intent": {
+    "dex": "classes.dex",
+    "class": "com/shilapi/xcertplay/DiPlayActivity.smali",
+    "method": "onNewIntent(Landroid/content/Intent;)V",
+    "sha256": "47f0b7441c5bdf0ac592761c83666b0bd0d6efb7e8ca66ef889515e3df0cf446"
+  },
+  "startup-default-posted": {
+    "dex": "classes.dex",
+    "class": "com/shilapi/xcertplay/DiPlayActivity.smali",
+    "method": "runPendingAutoConnect$lambda$26(Lcom/shilapi/xcertplay/DiPlayActivity;Z)V",
+    "sha256": "85a7bbd439d4ec64735a8f48f0afc03753d346a3d82b9b397361ed94193b8e5a"
+  },
+  "startup-default-radios": {
+    "dex": "classes.dex",
+    "class": "com/shilapi/xcertplay/DiPlayActivity.smali",
+    "method": "connectWhenRadiosReady(ZJ)V",
+    "sha256": "d5c05903b8d79669d76afb11f6447571e86075fa7f2eed1d23a14efeddcbd4ae"
+  },
+  "startup-default-resume": {
+    "dex": "classes.dex",
+    "class": "com/shilapi/xcertplay/DiPlayActivity.smali",
+    "method": "onResume()V",
+    "sha256": "56cfe4b3c034e8920dc4f2105eee1bb2f0392b89907d6e46aab2ace4e6774def"
+  },
+  "startup-default-transport": {
+    "dex": "classes.dex",
+    "class": "com/shilapi/xcertplay/DiPlayActivity.smali",
+    "method": "connect(ZZ)V",
+    "sha256": "500f785da8e7ae3ea4b998bc340b1fe85d08554c670384df0d747b3448ef82ee"
+  },
+  "lane-capability-identification": {
+    "dex": "classes.dex",
+    "class": "com/shilapi/xcertplay/transport/Iap2IdentificationClient$Companion.smali",
+    "method": "identificationInformation(Lcom/shilapi/xcertplay/transport/Iap2IdentificationConfig;)Lcom/shilapi/xcertplay/iap2/wire/Iap2Frame;",
+    "sha256": "ec916db453b1945cbe67e3322a50acdf0ef2c6c7b52435a94af1d8c6ede4ff59"
+  },
+  "lane-capability-component": {
+    "dex": "classes.dex",
+    "class": "com/shilapi/xcertplay/transport/Iap2IdentificationClient$Companion.smali",
+    "method": "identificationInformation$lambda$7$lambda$6(Lcom/shilapi/xcertplay/iap2/body/Iap2BodyBuilder;)Lkotlin/Unit;",
+    "sha256": "21fa320d84d46b0020de132034861e89ce0d635aff61c20604128e60cf6c2e7a"
+  },
+  "lane-capability-schema": {
+    "dex": "classes.dex",
+    "class": "com/shilapi/xcertplay/iap2/catalog/Iap2Endpoints.smali",
+    "method": "<clinit>()V",
+    "sha256": "7d37b0e99512df50e27aca6db676fcb8da60971419196a7eda143dc6363a9f4f"
+  },
+  "audio-scene-register": {
+    "dex": "classes.dex",
+    "class": "com/shilapi/xcertplay/media/AudioFocusCoordinator.smali",
+    "method": "acquire(Landroid/media/AudioTrack;Lcom/shilapi/xcertplay/media/AudioChannel;Landroid/media/AudioAttributes;I)V",
+    "sha256": "666eb057860b9842f4d216f6c3dfa7fd3ccdaebc1f81833dbf840a21eae50535"
+  },
+  "audio-scene-release": {
+    "dex": "classes.dex",
+    "class": "com/shilapi/xcertplay/media/AudioFocusCoordinator.smali",
+    "method": "release(Landroid/media/AudioTrack;)V",
+    "sha256": "0e061363743ecb155777fbecc567992f5917087e6ab79d782b5a0ebe0068e04e"
+  },
+  "audio-scene-navigation": {
+    "dex": "classes.dex",
+    "class": "com/shilapi/xcertplay/media/AudioRenderer.smali",
+    "method": "requestAudioFocus()V",
+    "sha256": "276e11a668c3efa1949035d256b1862f79ec727d36bc32d364d7932b0097b3b9"
+  },
+  "audio-scene-pcm": {
+    "dex": "classes.dex",
+    "class": "com/shilapi/xcertplay/media/AudioRenderer.smali",
+    "method": "writePcm([BII)V",
+    "sha256": "6b4e9695b9eaa0e4a93cf00afd003c36d2a269543b4545c1341273dff72a5be7"
+  },
+  "audio-scene-drain": {
+    "dex": "classes.dex",
+    "class": "com/shilapi/xcertplay/media/AudioRenderer.smali",
+    "method": "maintainPlaybackBuffer()V",
+    "sha256": "44087bc8c7dea1dcd5bfe745b9346b274d1f66d6c883088a04d2857145f92492"
+  },
+  "audio-scene-media-keys": {
+    "dex": "classes.dex",
+    "class": "com/shilapi/xcertplay/compat/AudioCompat.smali",
+    "method": "requestMusicFocus(Landroid/media/AudioManager;Landroid/media/AudioManager$OnAudioFocusChangeListener;)Z",
+    "sha256": "58751f6326ff00ce647a0142a64391f5a3ec55154a98fe0d33b4a669ba46230d"
+  },
+  "audio-scene-duck": {
+    "dex": "classes.dex",
+    "class": "com/shilapi/xcertplay/media/AudioFocusCoordinator.smali",
+    "method": "setVolume(F)V",
+    "sha256": "de3386b1f0739ecc99fcb2625cb783398ec4ffd489ee54aab1127b5c44b7d333"
+  },
+  "audio-scene-key-gain": {
+    "dex": "classes.dex",
+    "class": "com/shilapi/xcertplay/media/AudioFocusCoordinator.smali",
+    "method": "setKeyGain(F)V",
+    "sha256": "b9d987dd5c495e4206b4468b4aed80adc717147c384ba61882db882ec248f7f0"
+  },
+  "audio-scene-settings": {
+    "dex": "classes.dex",
+    "class": "com/shilapi/xcertplay/DiPlayActivity.smali",
+    "method": "settings$lambda$216(Lcom/shilapi/xcertplay/DiPlayActivity;Landroid/widget/LinearLayout;)Lkotlin/Unit;",
+    "sha256": "c472ff96a5d9ccb322313a63f03da386bccd866dd18adbb4a8c79b3b0e05a93a"
+  },
+  "audio-mix-diagnostic-context": {
+    "dex": "classes.dex",
+    "class": "com/shilapi/xcertplay/media/AudioFocusCoordinator.smali",
+    "method": "<init>(Landroid/content/Context;ZLkotlin/jvm/functions/Function1;)V",
+    "sha256": "0484e1950dbfe708dafc24befc79168ddfc8308be09198f5e8812dbdb7792905"
+  },
+  "navigation-audio-format-probe": {
+    "dex": "classes.dex",
+    "class": "com/shilapi/xcertplay/media/AudioRenderer.smali",
+    "method": "drainCodec(Landroid/media/MediaCodec;)V",
+    "sha256": "851572533bf7194565c1447c01a35ebb30bcbc84b8c9c9c416b6e522449cee06"
+  },
+  "navigation-audio-probe-session-close": {
+    "dex": "classes.dex",
+    "class": "com/shilapi/xcertplay/media/AndroidMediaSink.smali",
+    "method": "close()V",
+    "sha256": "d90acc972dc2473f7076ba2ec698f4e400ba2b8f04aa00562037466aa286ae8d"
+  },
+  "cluster-video-gate-bind": {
+    "dex": "classes.dex",
+    "class": "com/shilapi/xcertplay/media/AndroidMediaSink.smali",
+    "method": "<init>(Landroid/view/Surface;IIZZZIILandroid/content/Context;ILkotlin/jvm/functions/Function2;ILkotlin/jvm/functions/Function1;Lkotlin/jvm/functions/Function1;Lkotlin/jvm/functions/Function1;)V",
+    "sha256": "394a3652ee888490a94c62d83d2814cdcb1cb9757134f0e5e24bf9feeef7584e"
+  },
+  "cluster-video-gate-frame": {
+    "dex": "classes.dex",
+    "class": "com/shilapi/xcertplay/media/AndroidMediaSink.smali",
+    "method": "onVideoFrame(I[B)V",
+    "sha256": "84d8ec9bd8312561dec430ca734ffd57a60b598dd8c75c8fd20aa74e1ec1514e"
+  },
+  "cluster-video-gate-close": {
+    "dex": "classes.dex",
+    "class": "com/shilapi/xcertplay/media/AndroidMediaSink.smali",
+    "method": "close()V",
+    "sha256": "d90acc972dc2473f7076ba2ec698f4e400ba2b8f04aa00562037466aa286ae8d"
+  },
+  "cluster-e01-generic-route": {
+    "dex": "classes.dex",
+    "class": "com/shilapi/xcertplay/ClusterMapPresentation$Companion.smali",
+    "method": "findDisplay(Landroid/content/Context;Lcom/shilapi/xcertplay/DiLink51ClusterLayout$Theme;)Landroid/view/Display;",
+    "sha256": "328bf9e9bb4729131c51fc1260772332d56f883e1f075a319e25d5fb758a64f5"
+  },
+  "cluster-e01-generic-candidates": {
+    "dex": "classes.dex",
+    "class": "com/shilapi/xcertplay/GenericClusterDisplay.smali",
+    "method": "bydPresent(Ljava/util/List;Z)Z",
+    "sha256": "4e512a43db6d202abccdb295795871835e5df943a9ba228378d308890422b289"
+  },
+  "wireless-audio-handoff": {
+    "dex": "classes.dex",
+    "class": "com/shilapi/xcertplay/orchestration/CarPlayController.smali",
+    "method": "maybeCompleteWirelessHandoff$lambda$81(Lcom/shilapi/xcertplay/orchestration/CarPlayController;I)V",
+    "sha256": "2bd517a54f5468e7be8e97d3d34c193c849d1dd9ffb720645ef2ed22d6a75859"
+  },
+  "navigation-prompt-end": {
+    "dex": "classes.dex",
+    "class": "com/shilapi/xcertplay/airplay/AirPlaySession.smali",
+    "method": "handleCommand(Lcom/shilapi/xcertplay/airplay/RtspMessage$Request;)Lcom/shilapi/xcertplay/airplay/RtspMessage$Response;",
+    "sha256": "ce17ce6db9e771699a889f7fc4f85a2076fc347cb57cbfaabdbf1b91c9d64829"
+  },
+  "mtk-no-reorder": {
+    "dex": "classes.dex",
+    "class": "com/shilapi/xcertplay/E01SmoothVideo.smali",
+    "method": "configure(Landroid/media/MediaCodec;Landroid/media/MediaFormat;Landroid/view/Surface;Z)V",
+    "sha256": "2a683a36e15ccf5f9d82f1fb73d39b3bbf5d414e7b286bf412d35ef41f2e163a"
+  }
+}

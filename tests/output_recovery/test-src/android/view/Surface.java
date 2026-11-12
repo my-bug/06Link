@@ -1,0 +1,1 @@
+package android.view;public class Surface{public int released;public final android.graphics.SurfaceTexture texture;public Surface(){texture=null;}public Surface(android.graphics.SurfaceTexture t){texture=t;}public void release(){released++;}public boolean isValid(){return released==0;}}

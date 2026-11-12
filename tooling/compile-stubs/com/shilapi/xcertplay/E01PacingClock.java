@@ -1,0 +1,1 @@
+package com.shilapi.xcertplay;public class E01PacingClock{public E01PacingClock(int fps){}public static long senderNanos(byte[] h){return 0;}public long local(long s,long a){return 0;}public long delay(){return 0;}public void sample(long n){}}

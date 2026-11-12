@@ -1,0 +1,108 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android" android:compileSdkVersion="36" android:compileSdkVersionCodename="16" package="com.sixlink.car" platformBuildVersionCode="36" platformBuildVersionName="16">
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED"/>
+    <uses-permission android:name="android.permission.WAKE_LOCK"/>
+    <uses-permission android:maxSdkVersion="18" android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
+    <uses-permission android:maxSdkVersion="22" android:name="android.permission.SYSTEM_ALERT_WINDOW"/>
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE"/>
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_CONNECTED_DEVICE"/>
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_MICROPHONE"/>
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_LOCATION"/>
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS"/>
+    <uses-permission android:name="android.permission.PACKAGE_USAGE_STATS"/>
+    <uses-permission android:name="android.permission.REQUEST_INSTALL_PACKAGES"/>
+    <queries>
+        <package android:name="com.miui.securitycenter"/>
+        <package android:name="com.huawei.systemmanager"/>
+        <package android:name="com.coloros.safecenter"/>
+        <package android:name="com.oppo.safe"/>
+        <package android:name="com.vivo.permissionmanager"/>
+        <package android:name="com.iqoo.secure"/>
+        <package android:name="com.topjohnwu.magisk"/>
+        <package android:name="eu.chainfire.supersu"/>
+        <package android:name="com.koushikdutta.superuser"/>
+        <package android:name="com.noshufou.android.su"/>
+        <package android:name="com.android.settings"/>
+        <intent>
+            <action android:name="android.settings.WIFI_SETTINGS"/>
+        </intent>
+        <package android:name="com.byd.clusterdebug"/>
+        <package android:name="com.ts.car.someip.service"/>
+        <package android:name="com.byd.amapservice"/>
+        <intent>
+            <action android:name="com.android.settings.WIFI_TETHER_SETTINGS"/>
+        </intent>
+    </queries>
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"/>
+    <uses-permission android:name="android.permission.INTERNET"/>
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
+    <uses-permission android:name="android.permission.RECORD_AUDIO"/>
+    <uses-permission android:name="android.permission.MODIFY_AUDIO_SETTINGS"/>
+    <uses-permission android:name="android.permission.CHANGE_WIFI_STATE"/>
+    <uses-permission android:name="android.permission.CHANGE_NETWORK_STATE"/>
+    <uses-permission android:name="android.permission.ACCESS_WIFI_STATE"/>
+    <uses-permission android:maxSdkVersion="25" android:name="android.permission.WRITE_SETTINGS"/>
+    <uses-permission android:name="android.permission.NEARBY_WIFI_DEVICES" android:usesPermissionFlags="neverForLocation"/>
+    <uses-permission android:name="android.permission.CHANGE_WIFI_MULTICAST_STATE"/>
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION"/>
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"/>
+    <uses-permission android:name="android.permission.BLUETOOTH_CONNECT"/>
+    <uses-permission android:maxSdkVersion="30" android:name="android.permission.BLUETOOTH"/>
+    <uses-permission android:maxSdkVersion="30" android:name="android.permission.BLUETOOTH_ADMIN"/>
+    <uses-feature android:name="android.hardware.usb.host" android:required="false"/>
+    <permission android:name="com.sixlink.car.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION" android:protectionLevel="signature"/>
+    <uses-permission android:name="com.sixlink.car.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION"/>
+    <application android:allowBackup="false" android:appComponentFactory="androidx.core.app.CoreComponentFactory" android:dataExtractionRules="@xml/data_extraction_rules" android:extractNativeLibs="true" android:fullBackupContent="@xml/backup_rules" android:icon="@drawable/ic_carplay" android:label="@string/app_name" android:largeHeap="true" android:localeConfig="@xml/locales_config" android:name="com.shilapi.xcertplay.FreeAutoApplication" android:roundIcon="@drawable/ic_carplay" android:supportsRtl="true" android:theme="@style/Theme.Xcertplay" android:usesCleartextTraffic="true">
+        <receiver android:enabled="true" android:exported="true" android:name="com.shilapi.xcertplay.BootReceiver">
+            <intent-filter android:priority="999">
+                <action android:name="android.intent.action.BOOT_COMPLETED"/>
+                <action android:name="android.intent.action.QUICKBOOT_POWERON"/>
+                <action android:name="com.htc.intent.action.QUICKBOOT_POWERON"/>
+                <action android:name="android.intent.action.ACTION_BOOT_IPO"/>
+                <action android:name="android.intent.action.MY_PACKAGE_REPLACED"/>
+            </intent-filter>
+        </receiver>
+        <activity android:configChanges="keyboardHidden|orientation|screenLayout|uiMode|screenSize|smallestScreenSize|density" android:exported="true" android:launchMode="singleTop" android:name="com.shilapi.xcertplay.DiPlayActivity" android:theme="@style/Theme.Xcertplay">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN"/>
+                <category android:name="android.intent.category.LAUNCHER"/>
+            </intent-filter>
+        </activity>
+        <service android:exported="false" android:foregroundServiceType="location|connectedDevice|microphone" android:name="com.shilapi.xcertplay.DiPlaySessionService"/>
+        <activity android:configChanges="keyboardHidden|orientation|screenLayout|uiMode|screenSize|smallestScreenSize|density" android:exported="true" android:launchMode="singleTask" android:name="com.shilapi.xcertplay.CarPlayHostActivity" android:resizeableActivity="true" android:screenOrientation="fullSensor" android:taskAffinity="com.sixlink.car.carplay" android:theme="@style/Theme.Xcertplay.Host" android:windowSoftInputMode="adjustResize">
+            <intent-filter>
+                <action android:name="android.hardware.usb.action.USB_DEVICE_ATTACHED"/>
+            </intent-filter>
+            <meta-data android:name="android.hardware.usb.action.USB_DEVICE_ATTACHED" android:resource="@xml/usb_device_filter"/>
+        </activity>
+        <activity android:configChanges="keyboardHidden|orientation|screenLayout|uiMode|screenSize|smallestScreenSize|density" android:exported="false" android:name="com.shilapi.xcertplay.CarPlayVideoActivity" android:theme="@style/Theme.Xcertplay"/>
+        <activity android:configChanges="keyboardHidden|orientation|screenLayout|uiMode|screenSize|smallestScreenSize|density" android:exported="true" android:name="com.shilapi.xcertplay.HeadUnitCheckActivity" android:theme="@style/Theme.Xcertplay"/>
+        <activity android:configChanges="keyboardHidden|orientation|screenLayout|uiMode|screenSize|smallestScreenSize|density" android:exported="true" android:name="com.shilapi.xcertplay.WheelKeysActivity" android:theme="@style/Theme.Xcertplay"/>
+        <activity android:configChanges="keyboardHidden|orientation|screenLayout|screenSize|smallestScreenSize|density" android:exported="false" android:name="com.shilapi.xcertplay.ImageCropActivity" android:screenOrientation="fullSensor" android:theme="@style/Theme.Xcertplay"/>
+        <activity android:configChanges="keyboardHidden|orientation|screenLayout|uiMode|screenSize|smallestScreenSize|density" android:excludeFromRecents="true" android:exported="false" android:name="com.shilapi.xcertplay.SystemPageActivity" android:theme="@android:style/Theme.Translucent.NoTitleBar"/>
+        <activity android:configChanges="keyboardHidden|orientation|screenLayout|uiMode|screenSize|smallestScreenSize|density" android:exported="true" android:name="com.shilapi.xcertplay.CarBrandPickerActivity" android:theme="@style/Theme.Xcertplay"/>
+        <provider android:authorities="com.sixlink.car.updateprovider" android:exported="false" android:grantUriPermissions="true" android:name="androidx.core.content.FileProvider">
+            <meta-data android:name="android.support.FILE_PROVIDER_PATHS" android:resource="@xml/update_file_paths"/>
+        </provider>
+        <receiver android:exported="true" android:name="com.shilapi.xcertplay.media.MicrophoneTestReceiver" android:permission="android.permission.DUMP"/>
+        <receiver android:exported="true" android:name="com.shilapi.xcertplay.airplay.LivenessTestReceiver" android:permission="android.permission.DUMP"/>
+        <service android:exported="false" android:name="com.shilapi.xcertplay.network.CarPlayVpnService" android:permission="android.permission.BIND_VPN_SERVICE"/>
+        <provider android:authorities="com.sixlink.car.androidx-startup" android:exported="false" android:name="androidx.startup.InitializationProvider">
+            <meta-data android:name="androidx.profileinstaller.ProfileInstallerInitializer" android:value="androidx.startup"/>
+        </provider>
+        <receiver android:directBootAware="false" android:enabled="true" android:exported="true" android:name="androidx.profileinstaller.ProfileInstallReceiver" android:permission="android.permission.DUMP">
+            <intent-filter>
+                <action android:name="androidx.profileinstaller.action.INSTALL_PROFILE"/>
+            </intent-filter>
+            <intent-filter>
+                <action android:name="androidx.profileinstaller.action.SKIP_FILE"/>
+            </intent-filter>
+            <intent-filter>
+                <action android:name="androidx.profileinstaller.action.SAVE_PROFILE"/>
+            </intent-filter>
+            <intent-filter>
+                <action android:name="androidx.profileinstaller.action.BENCHMARK_OPERATION"/>
+            </intent-filter>
+        </receiver>
+    </application>
+</manifest>

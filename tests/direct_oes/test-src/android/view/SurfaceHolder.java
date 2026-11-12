@@ -1,0 +1,1 @@
+package android.view;public interface SurfaceHolder{Surface getSurface();void addCallback(Callback c);interface Callback{void surfaceCreated(SurfaceHolder h);void surfaceChanged(SurfaceHolder h,int f,int w,int t);void surfaceDestroyed(SurfaceHolder h);}}

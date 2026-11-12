@@ -1,0 +1,25 @@
+name: Source build
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  debug:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+      - name: Build without private credentials
+        run: python3 scripts/build.py --variant debug
+      - name: Offline regression checks
+        run: python3 scripts/check.py --variant debug

@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <style name="Theme.Xcertplay" parent="@android:style/Theme.Material.NoActionBar">
+        <item name="android:windowBackground">#0a0e1c</item>
+        <item name="android:windowActionModeOverlay">true</item>
+        <item name="android:alertDialogTheme">@style/Theme.Xcertplay.Dialog</item>
+        <item name="android:fontFamily">sans</item>
+        <item name="android:colorAccent">#96c4ff</item>
+        <item name="android:statusBarColor">#0a0e1c</item>
+        <item name="android:navigationBarColor">#0a0e1c</item>
+        <item name="android:windowLightStatusBar">false</item>
+    </style>
+    <style name="Theme.Xcertplay.Light" parent="@android:style/Theme.Material.Light.NoActionBar">
+        <item name="android:windowBackground">#f2f2f7</item>
+        <item name="android:windowActionModeOverlay">true</item>
+        <item name="android:alertDialogTheme">@style/Theme.Xcertplay.Dialog.Light</item>
+        <item name="android:fontFamily">sans</item>
+        <item name="android:colorAccent">#006adc</item>
+        <item name="android:statusBarColor">#f2f2f7</item>
+        <item name="android:navigationBarColor">#f2f2f7</item>
+        <item name="android:windowLightStatusBar">true</item>
+    </style>
+</resources>

@@ -1,0 +1,17 @@
+* text=auto
+*.java text eol=lf
+*.smali text eol=lf
+*.py text eol=lf
+*.sh text eol=lf
+*.md text eol=lf
+*.json text eol=lf
+*.yml text eol=lf
+*.gradle text eol=lf
+gradlew text eol=lf
+*.bat text eol=crlf
+*.png binary
+*.webp binary
+*.so binary
+*.jar binary
+*.aar binary
+src/oem-bluetooth/permanent/gocsdk binary

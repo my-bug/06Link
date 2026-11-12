@@ -1,0 +1,1 @@
+package com.shilapi.xcertplay.transport; public class GocSppTransport implements BlockingDuplexByteStream { public static GocSppTransport connect(String mac) throws java.io.IOException {return null;} public void close() throws java.io.IOException {} }

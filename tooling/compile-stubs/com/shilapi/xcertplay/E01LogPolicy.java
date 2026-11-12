@@ -1,0 +1,1 @@
+package com.shilapi.xcertplay;public class E01LogPolicy{public static void session(java.io.File f,String s){}}

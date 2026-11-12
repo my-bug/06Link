@@ -1,0 +1,1 @@
+package android.widget;public class FrameLayout extends android.view.View{public android.view.View child;public FrameLayout(android.content.Context c){super(c);}public static class LayoutParams{public LayoutParams(int a,int b){}}public void addView(android.view.View v,LayoutParams p){child=v;}public void removeAllViews(){child=null;}}

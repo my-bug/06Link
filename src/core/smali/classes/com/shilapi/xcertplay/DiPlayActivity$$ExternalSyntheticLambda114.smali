@@ -1,0 +1,38 @@
+.class public final synthetic Lcom/shilapi/xcertplay/DiPlayActivity$$ExternalSyntheticLambda114;
+.super Ljava/lang/Object;
+.source "D8$$SyntheticClass"
+
+# interfaces
+.implements Landroidx/activity/result/ActivityResultCallback;
+
+
+# instance fields
+.field public final synthetic f$0:Lcom/shilapi/xcertplay/DiPlayActivity;
+
+
+# direct methods
+.method public synthetic constructor <init>(Lcom/shilapi/xcertplay/DiPlayActivity;)V
+    .locals 0
+
+    .line 0
+    invoke-direct {p0}, Ljava/lang/Object;-><init>()V
+
+    iput-object p1, p0, Lcom/shilapi/xcertplay/DiPlayActivity$$ExternalSyntheticLambda114;->f$0:Lcom/shilapi/xcertplay/DiPlayActivity;
+
+    return-void
+.end method
+
+
+# virtual methods
+.method public final onActivityResult(Ljava/lang/Object;)V
+    .locals 1
+
+    .line 0
+    iget-object v0, p0, Lcom/shilapi/xcertplay/DiPlayActivity$$ExternalSyntheticLambda114;->f$0:Lcom/shilapi/xcertplay/DiPlayActivity;
+
+    check-cast p1, Ljava/lang/Boolean;
+
+    invoke-static {v0, p1}, Lcom/shilapi/xcertplay/DiPlayActivity;->$r8$lambda$p-IrawHoOCdO79grUHlA3jL7G0w(Lcom/shilapi/xcertplay/DiPlayActivity;Ljava/lang/Boolean;)V
+
+    return-void
+.end method

@@ -1,0 +1,1 @@
+package com.shilapi.xcertplay.airplay;public class AirPlaySession {public void invokeSiri(){}public void sendMedia(int action){}public boolean sendCommand(java.util.Map<String,Object> command){return false;}}

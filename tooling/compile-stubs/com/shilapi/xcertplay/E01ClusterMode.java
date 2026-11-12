@@ -1,0 +1,1 @@
+package com.shilapi.xcertplay;public class E01ClusterMode{static void displayConfigured(String s){}static int maintainAmapOutput(int n){return n;}static String amapAccessMessage(android.content.Context c,boolean ask){return null;}}

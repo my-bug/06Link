@@ -1,0 +1,14 @@
+package com.shilapi.xcertplay;
+import android.app.*;import android.view.*;import android.media.*;import android.os.*;import android.widget.*;import android.opengl.*;import java.util.concurrent.*;
+public final class GlBindingCheck{
+ static int checks;static void ok(boolean b,String m){checks++;if(!b)throw new AssertionError(m);}
+ static void ui(Runnable r)throws Exception{CountDownLatch done=new CountDownLatch(1);Throwable[] error={null};new Handler(Looper.getMainLooper()).post(()->{try{r.run();}catch(Throwable t){error[0]=t;}finally{done.countDown();}});if(!done.await(3,TimeUnit.SECONDS))throw new AssertionError("UI timeout");if(error[0]!=null)throw new AssertionError(error[0]);}
+ static SurfaceView create(IntegrationCheck.Owner owner){FrameLayout f=(FrameLayout)E01SmoothVideo.create(owner);SurfaceView v=(SurfaceView)f.child;v.holder.callback.surfaceCreated(v.holder);v.holder.callback.surfaceChanged(v.holder,0,1920,720);return v;}
+ public static void main(String[] args)throws Exception{
+  FakeGpu.reset();Build.MODEL="E01";Build.DEVICE="BX11QJ";IntegrationCheck.Owner owner=new IntegrationCheck.Owner();owner.getSharedPreferences(E01SmoothVideo.PREF,0).values.put("smooth",true);SurfaceView[] views=new SurfaceView[2];
+  ui(()->{views[0]=create(owner);views[0].holder.callback.surfaceDestroyed(views[0].holder);views[1]=create(owner);});GlCheck.await(()->owner.currentSurface!=null,"latest GL input attaches");ok(owner.attaches==1,"destroyed generation never attaches late GL input");Surface input=owner.currentSurface;ok(E01SmoothVideo.OWNED_INPUTS.containsKey(input),"bridge marks owned input");ok(input!=views[1].holder.surface,"codec input separated from window surface");
+  MediaCodec c=new MediaCodec();E01SmoothVideo.configure(c,GlIntegrationCheck.format(),input,true);ui(()->views[1].holder.callback.surfaceDestroyed(views[1].holder));ok(owner.currentSurface==null&&owner.sink.clears==1,"destroy detaches current sink");E01SmoothVideo.releaseSurface(input);ok(input.released==0,"late Activity release cannot destroy codec-owned input");E01VideoOutput.release(c);GlCheck.await(()->input.released==1,"input reclaimed after old codec");GlCheck.await(()->FakeGpu.activeContexts.get()==0,"all old generation GL contexts gone");ok(views[0].holder.surface.released==0&&views[1].holder.surface.released==0,"holder surfaces never manually released");
+  IntegrationCheck.Owner finishing=new IntegrationCheck.Owner();finishing.getSharedPreferences(E01SmoothVideo.PREF,0).values.put("smooth",true);ui(()->{create(finishing);finishing.finishing=true;});Thread.sleep(120);ok(finishing.attaches==0,"late callback cannot attach to finishing activity");GlCheck.await(()->FakeGpu.activeContexts.get()==0,"finishing activity closes unclaimed GL bridge");
+  ok(FakeGpu.hazards.get()==0,"binding lifecycle causes no GPU resource hazard");System.out.println("PASS "+checks+" asynchronous UI generation/destroy/codec ownership checks (fake Android/EGL)");
+ }
+}

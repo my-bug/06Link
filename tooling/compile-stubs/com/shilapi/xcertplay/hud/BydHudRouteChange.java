@@ -1,0 +1,1 @@
+package com.shilapi.xcertplay.hud;public enum BydHudRouteChange{NONE,GUIDANCE,CLEAR}

@@ -1,0 +1,1 @@
+package com.shilapi.xcertplay.airplay;public class AirPlayInfoPlist{public static final String ALT_UUID="b7e6c5a0-2222-4000-8000-000000000002";}

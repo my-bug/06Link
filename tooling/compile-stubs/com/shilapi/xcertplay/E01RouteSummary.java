@@ -1,0 +1,1 @@
+package com.shilapi.xcertplay;class E01RouteSummary{boolean accept(int id,byte[] data){return false;}boolean available(){return false;}boolean endPending(){return false;}String guidanceText(){return null;}String schema(){return null;}String status(){return null;}void clear(){}}

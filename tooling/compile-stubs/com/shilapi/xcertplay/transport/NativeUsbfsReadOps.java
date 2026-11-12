@@ -1,0 +1,1 @@
+package com.shilapi.xcertplay.transport; public final class NativeUsbfsReadOps implements UsbfsReadOps {public static final NativeUsbfsReadOps INSTANCE=new NativeUsbfsReadOps();public long submitRead(int f,int e,int s){return 0;}public int awaitRead(long h,byte[] b,int t){return 0;}public void discardRead(int f,long h){}public void freeRead(long h){}}

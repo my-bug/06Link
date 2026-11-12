@@ -1,0 +1,1 @@
+package com.shilapi.xcertplay;public class FitText extends android.widget.TextView {public FitText(android.content.Context c){super(c);}public void setOneLineMinSp(float s){}}

@@ -1,0 +1,1 @@
+package com.shilapi.xcertplay;public class E01LogPolicy{public static final java.util.List<String> messages=new java.util.ArrayList<>();public static void append(java.io.File f,String s){} public static synchronized void session(java.io.File f,String s){messages.add(s);}}

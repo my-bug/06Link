@@ -1,0 +1,1 @@
+package com.shilapi.xcertplay.usbbt;public class UsbBtHost{public enum Phase{IDLE,STARTING,DISCOVERABLE,FAILED,STOPPED}public static class Status{public Phase getPhase(){return null;}public UsbBtControllerInfo getController(){return null;}public String getError(){return null;}}}

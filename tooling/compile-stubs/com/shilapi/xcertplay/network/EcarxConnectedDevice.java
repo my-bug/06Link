@@ -1,0 +1,1 @@
+package com.shilapi.xcertplay.network; public class EcarxConnectedDevice {public String getAddress(){return null;} public String getName(){return null;} }

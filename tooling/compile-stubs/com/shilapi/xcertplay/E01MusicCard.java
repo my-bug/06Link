@@ -1,0 +1,1 @@
+package com.shilapi.xcertplay;public class E01MusicCard extends android.view.View{public E01MusicCard(android.content.Context c){super(c);}void place(int w,int h){}public static void clear(){}public static void onFrame(com.shilapi.xcertplay.iap2.wire.Iap2Frame frame){}}

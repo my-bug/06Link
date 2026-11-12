@@ -1,0 +1,1 @@
+package android.view;public class TextureView extends View{public interface SurfaceTextureListener{}public SurfaceTextureListener listener;public TextureView(android.content.Context c){super(c);}public void setOpaque(boolean b){}public void setSurfaceTextureListener(SurfaceTextureListener l){listener=l;}}

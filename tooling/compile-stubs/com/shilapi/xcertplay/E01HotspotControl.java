@@ -1,0 +1,1 @@
+package com.shilapi.xcertplay;public class E01HotspotControl{static void resume(){}static long token(){return 0;}static boolean valid(long n){return false;}public static void pause(){}}

@@ -1,0 +1,1 @@
+package com.shilapi.xcertplay.hud; public class BydAppleManeuver { public int getDistanceMeters(){return 0;} public int getType(){return 0;} public int getDrivingSide(){return 0;} public String getRoad(){return null;} public Long getRemainingSeconds(){return null;} public Long getRemainingMeters(){return null;} }

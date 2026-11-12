@@ -1,0 +1,1 @@
+package com.shilapi.xcertplay;public class E01Dialogs {public static void showDialog(android.app.AlertDialog d){}public static int dp(android.content.Context c,int n){return 0;}public static void button(android.widget.Button b,boolean v){}public static void page(android.widget.LinearLayout p){}}

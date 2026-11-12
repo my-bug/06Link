@@ -1,0 +1,1 @@
+package com.shilapi.xcertplay.transport; public class UsbConfigCompat {public static final UsbConfigCompat INSTANCE=new UsbConfigCompat(); public boolean setConfiguration(android.hardware.usb.UsbDeviceConnection c,UsbConfigView v){return false;}}

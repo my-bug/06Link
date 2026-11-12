@@ -1,0 +1,16 @@
+package android.opengl;
+public class EGL14 {
+ public static final int EGL_DEFAULT_DISPLAY=0,EGL_NONE=0x3038,EGL_RED_SIZE=0x3024,EGL_GREEN_SIZE=0x3023,EGL_BLUE_SIZE=0x3022,EGL_ALPHA_SIZE=0x3021,EGL_RENDERABLE_TYPE=0x3040,EGL_OPENGL_ES2_BIT=4,EGL_SURFACE_TYPE=0x3033,EGL_WINDOW_BIT=4,EGL_PBUFFER_BIT=1,EGL_CONTEXT_CLIENT_VERSION=0x3098,EGL_WIDTH=0x3057,EGL_HEIGHT=0x3056,EGL_SUCCESS=0x3000,EGL_EXTENSIONS=0x3055;
+ public static final EGLDisplay EGL_NO_DISPLAY=new EGLDisplay();public static final EGLContext EGL_NO_CONTEXT=new EGLContext(0);public static final EGLSurface EGL_NO_SURFACE=new EGLSurface(null);
+ public static EGLDisplay eglGetDisplay(int i){return FakeGpu.failInit?EGL_NO_DISPLAY:new EGLDisplay();}public static boolean eglInitialize(EGLDisplay d,int[] major,int mo,int[] minor,int no){return d!=EGL_NO_DISPLAY&&!FakeGpu.failInit&&!FakeGpu.failInitialize;}
+ public static boolean eglChooseConfig(EGLDisplay d,int[] a,int off,EGLConfig[] c,int co,int len,int[] n,int no){if(FakeGpu.failInit)return false;c[co]=new EGLConfig();n[no]=1;return true;}
+ public static EGLContext eglCreateContext(EGLDisplay d,EGLConfig c,EGLContext share,int[] a,int off){int version=2;for(int i=off;i<a.length-1&&a[i]!=EGL_NONE;i+=2)if(a[i]==EGL_CONTEXT_CLIENT_VERSION)version=a[i+1];if(version==3&&!FakeGpu.es3)return EGL_NO_CONTEXT;FakeGpu.activeContexts.incrementAndGet();return new EGLContext(version);}
+ public static EGLSurface eglCreatePbufferSurface(EGLDisplay d,EGLConfig c,int[] a,int o){FakeGpu.activePbuffers.incrementAndGet();return new EGLSurface(null);}
+ public static EGLSurface eglCreateWindowSurface(EGLDisplay d,EGLConfig c,Object w,int[] a,int o){FakeGpu.activeWindows.incrementAndGet();return new EGLSurface((android.view.Surface)w);}
+ public static boolean eglMakeCurrent(EGLDisplay d,EGLSurface draw,EGLSurface read,EGLContext c){FakeGpu.context.set(c);FakeGpu.surface.set(draw);return true;}
+ public static EGLContext eglGetCurrentContext(){EGLContext c=FakeGpu.context.get();return c==null?EGL_NO_CONTEXT:c;}
+ public static boolean eglSwapBuffers(EGLDisplay d,EGLSurface s){FakeGpu.current();synchronized(FakeGpu.swapLock){if(FakeGpu.blockSwap)FakeGpu.blockedSwaps.incrementAndGet();while(FakeGpu.blockSwap)try{FakeGpu.swapLock.wait();}catch(InterruptedException e){Thread.currentThread().interrupt();break;}}if(FakeGpu.failSwap)return false;FakeGpu.swapped.incrementAndGet();return true;}
+ public static boolean eglQuerySurface(EGLDisplay d,EGLSurface s,int p,int[] v,int off){v[off]=p==EGL_WIDTH?1920:720;return true;}public static boolean eglSwapInterval(EGLDisplay d,int i){return true;}public static boolean eglDestroySurface(EGLDisplay d,EGLSurface s){if(s!=null&&s!=EGL_NO_SURFACE){if(s.window!=null)FakeGpu.activeWindows.decrementAndGet();else FakeGpu.activePbuffers.decrementAndGet();}return true;}
+ public static boolean eglDestroyContext(EGLDisplay d,EGLContext c){if(c!=null&&c!=EGL_NO_CONTEXT)FakeGpu.activeContexts.decrementAndGet();return true;}
+ public static boolean eglTerminate(EGLDisplay d){FakeGpu.terminateCalls.incrementAndGet();return true;}public static boolean eglReleaseThread(){return true;}public static int eglGetError(){return EGL_SUCCESS;}public static String eglQueryString(EGLDisplay d,int n){return "EGL_KHR_create_context EGL_KHR_fence_sync";}
+}

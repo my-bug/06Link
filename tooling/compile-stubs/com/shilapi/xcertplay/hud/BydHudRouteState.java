@@ -1,0 +1,1 @@
+package com.shilapi.xcertplay.hud;public class BydHudRouteState{public BydHudRouteState(){}public BydHudRouteChange accept(int id,byte[] payload){return null;}public BydAppleManeuver currentApple(){return null;}public boolean clear(){return false;}}

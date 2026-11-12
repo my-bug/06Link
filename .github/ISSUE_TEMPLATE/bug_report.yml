@@ -1,0 +1,27 @@
+name: 问题反馈
+description: 提交可复现的问题及脱敏日志
+body:
+  - type: input
+    id: version
+    attributes:
+      label: 06Link 版本
+    validations:
+      required: true
+  - type: textarea
+    id: environment
+    attributes:
+      label: 车型与连接方式
+      description: 车型年份、车机系统、手机型号与系统、有线或无线。
+    validations:
+      required: true
+  - type: textarea
+    id: reproduce
+    attributes:
+      label: 复现步骤与实际结果
+    validations:
+      required: true
+  - type: textarea
+    id: logs
+    attributes:
+      label: 脱敏日志或截图
+      description: 不要上传私钥、认证文件、完整设备备份或个人标识。

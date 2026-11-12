@@ -1,0 +1,1 @@
+package com.shilapi.xcertplay; import android.content.Context; public final class E01HotspotSettings { public static String customName(Context c){return null;} public static boolean save(Context c,String s,String p){return false;} public static void styleActionButton(android.widget.Button b){}}

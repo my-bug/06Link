@@ -1,0 +1,38 @@
+// Both entry points use the same source compiler; no APK is a build input.
+plugins {
+    id 'base'
+}
+
+def python = providers.gradleProperty('python')
+    .orElse(providers.environmentVariable('PYTHON'))
+    .orElse('python3')
+
+tasks.register('assembleDebug', Exec) {
+    group = 'build'
+    description = 'Build a locally signed debug APK without private credentials.'
+    workingDir rootDir
+    commandLine python.get(), 'scripts/build.py', '--variant', 'debug'
+}
+
+tasks.register('assembleRelease', Exec) {
+    group = 'build'
+    description = 'Build the release APK with local signing and authentication files.'
+    workingDir rootDir
+    commandLine python.get(), 'scripts/build.py', '--variant', 'release'
+    mustRunAfter tasks.named('assembleDebug')
+}
+
+tasks.named('assemble') { dependsOn tasks.named('assembleDebug') }
+
+tasks.register('sourceChecks', Exec) {
+    group = 'verification'
+    description = 'Run the maintained offline source and behavior checks.'
+    dependsOn tasks.named('assembleDebug')
+    workingDir rootDir
+    commandLine python.get(), 'scripts/check.py', '--variant', 'debug'
+}
+
+tasks.named('check') { dependsOn tasks.named('sourceChecks') }
+
+// Gradle clean removes only generated build intermediates. dist/ is retained.
+tasks.named('clean', Delete) { delete layout.buildDirectory }

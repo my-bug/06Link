@@ -1,0 +1,1 @@
+package com.shilapi.xcertplay;public class E01MtkCompat{public static void configure(android.media.MediaFormat f,android.content.Context c){f.setInteger("vdec-lowlatency",1);}}

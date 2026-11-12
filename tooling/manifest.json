@@ -1,0 +1,114 @@
+{
+  "schema": 2,
+  "jdk": {
+    "minimum": 17,
+    "recommended": 17
+  },
+  "downloads": {
+    "smali": {
+      "file": "apktool-cli-3.0.2.jar",
+      "url": "https://repo.maven.apache.org/maven2/org/apktool/apktool-cli/3.0.2/apktool-cli-3.0.2.jar",
+      "sha256": "a4bbe8a56de9ae2633577d87d0f7bc4c5059d7a0ca52d84f801338b32998b184",
+      "coordinate": "org.apktool:apktool-cli:3.0.2",
+      "local_candidates": [
+        "tooling/apktool-maven.jar"
+      ]
+    },
+    "r8": {
+      "file": "r8-8.13.17.jar",
+      "url": "https://storage.googleapis.com/r8-releases/raw/8.13.17/r8lib.jar",
+      "sha256": "d31fd0dc751d48740009cdd9a485126acb1d0d14c59b9f05579479940f4adf74",
+      "coordinate": "com.android.tools:r8:8.13.17",
+      "local_candidates": [
+        "tooling/r8.jar"
+      ],
+      "maven_url": "https://dl.google.com/dl/android/maven2/com/android/tools/r8/8.13.17/r8-8.13.17.jar"
+    },
+    "apksig": {
+      "file": "apksig-8.13.0.jar",
+      "url": "https://dl.google.com/dl/android/maven2/com/android/tools/build/apksig/8.13.0/apksig-8.13.0.jar",
+      "sha256": "c070ed1394629d74641aa0906f60b2ffa1ee77e6366a1f93437f59717b1aeb89",
+      "coordinate": "com.android.tools.build:apksig:8.13.0",
+      "local_candidates": [
+        "tooling/apksig.jar"
+      ]
+    },
+    "android_jar": {
+      "file": "android-all-instrumented-5.1.1_r9-robolectric-r2-i7.jar",
+      "url": "https://repo.maven.apache.org/maven2/org/robolectric/android-all-instrumented/5.1.1_r9-robolectric-r2-i7/android-all-instrumented-5.1.1_r9-robolectric-r2-i7.jar",
+      "sha256": "f70b53f48ea81939afccb4f6611ca2f97b8574191a898367411ce73726ca32d7",
+      "coordinate": "org.robolectric:android-all-instrumented:5.1.1_r9-robolectric-r2-i7",
+      "local_candidates": []
+    },
+    "crypto": {
+      "file": "conscrypt-android-2.8.0.aar",
+      "url": "https://repo.maven.apache.org/maven2/org/conscrypt/conscrypt-android/2.8.0/conscrypt-android-2.8.0.aar",
+      "sha256": "752044c289bc98e2dcabc00a1f88ca158b3aa3f505b38f124552bf4b2a0902b1",
+      "coordinate": "org.conscrypt:conscrypt-android:2.8.0",
+      "local_candidates": [
+        "tooling/vendor/conscrypt-android-2.8.0.aar"
+      ]
+    }
+  },
+  "extractions": {
+    "framework": {
+      "archive": "smali",
+      "member": "prebuilt/android-framework.jar",
+      "file": "android-framework-res-3.0.2.jar",
+      "sha256": "5dd984016ed5a5eb0eef866e2c6e8cd352e1427828ec23adb18005cf5648f3d7",
+      "local_candidates": [
+        "tooling/android-framework-res.jar"
+      ]
+    },
+    "aapt2": {
+      "archive": "smali",
+      "platforms": {
+        "darwin": {
+          "member": "prebuilt/macosx/aapt2",
+          "file": "aapt2-3.0.2-macos",
+          "sha256": "5a06b9d0561bcdc88fb20acd676b740ab9159aae41c872685934b6cbd1b1cd28",
+          "architectures": [
+            "arm64",
+            "aarch64",
+            "x86_64",
+            "amd64"
+          ],
+          "local_candidates": [
+            "tooling/aapt2"
+          ]
+        },
+        "linux": {
+          "member": "prebuilt/linux/aapt2",
+          "file": "aapt2-3.0.2-linux",
+          "sha256": "df312db814c018019b2b79a993b041b738d7b76f4a8f28da25bc874a026368cc",
+          "architectures": [
+            "x86_64",
+            "amd64"
+          ],
+          "local_candidates": [
+            "tooling/aapt2"
+          ]
+        },
+        "windows": {
+          "member": "prebuilt/windows/aapt2.exe",
+          "file": "aapt2-3.0.2-windows.exe",
+          "sha256": "2624809203189839a9813ef1806b5870ad6d030cfd99065bd0560c0e2cff7702",
+          "architectures": [
+            "x86_64",
+            "amd64"
+          ],
+          "local_candidates": [
+            "tooling/aapt2.exe"
+          ]
+        }
+      },
+      "executable": true
+    }
+  },
+  "notes": [
+    "All downloaded inputs are public build/runtime dependencies; no application APK is a build input.",
+    "aapt2 and Android framework resources are extracted from the pinned Maven Apktool archive, not a vehicle backup.",
+    "The Android API22 compile library is fixed to preserve the existing source build; it is never packaged into the APK.",
+    "Existing local tool files are accepted only when they match the same pinned SHA-256."
+  ]
+}

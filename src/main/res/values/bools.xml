@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <bool name="config_advanced_audio_channel_mapping">true</bool>
+    <bool name="first_run_notice_enabled">true</bool>
+</resources>

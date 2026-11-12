@@ -1,0 +1,1 @@
+package com.shilapi.xcertplay.transport; public interface BlockingDuplexByteStream extends java.io.Closeable { }
