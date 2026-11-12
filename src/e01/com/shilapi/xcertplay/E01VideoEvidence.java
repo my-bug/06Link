@@ -16,7 +16,7 @@ public final class E01VideoEvidence {
         SharedPreferences v = owner.getSharedPreferences("06link-video", 0);
         write(owner, "config maxFPS=" + maxFps + " selected=" + p.getInt("display_fps", 30)
             + " mode=" + p.getString("display_fps_mode", "auto")
-            + " remembered60=" + p.getBoolean("display_fps60_unsustainable", false)
+            + " force60=" + v.getBoolean("force60", false)
             + " smooth=" + v.getBoolean("smooth", false) + " mtk=" + v.getBoolean("mtk", true));
     }
     /** Routine frame samples are disabled in release builds; decoder behavior is unchanged. */

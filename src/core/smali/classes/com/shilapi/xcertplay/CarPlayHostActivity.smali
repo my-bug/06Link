@@ -3591,13 +3591,9 @@
 
     if-eqz v0, :cond_3
 
-    sget-object v0, Lcom/shilapi/xcertplay/AirPlayPersistence;->INSTANCE:Lcom/shilapi/xcertplay/AirPlayPersistence;
+    const/4 v0, 0x1
 
-    move-object v1, p0
-
-    check-cast v1, Landroid/content/Context;
-
-    invoke-virtual {v0, v1}, Lcom/shilapi/xcertplay/AirPlayPersistence;->saveFps60Unsustainable(Landroid/content/Context;)V
+    iput-boolean v0, p0, Lcom/shilapi/xcertplay/CarPlayHostActivity;->sessionForce30Fps:Z
 
     move-object v0, p1
 
@@ -3684,7 +3680,7 @@
 
     invoke-virtual {v2, p2}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
 
-    const-string p2, "; reconnecting once with "
+    const-string p2, "; reconnecting once for this session with "
 
     invoke-virtual {v2, p2}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
 
@@ -14272,266 +14268,48 @@
 .end method
 
 .method private final connectionFrameRate(ZII)I
-    .locals 9
+    .locals 4
+
+    iget v0, p0, Lcom/shilapi/xcertplay/CarPlayHostActivity;->fps:I
+    iget-boolean v1, p0, Lcom/shilapi/xcertplay/CarPlayHostActivity;->sessionForce30Fps:Z
+    invoke-static {p0, p1, v0, v1}, Lcom/shilapi/xcertplay/E01FrameRatePolicy;->connectionFps(Landroid/content/Context;ZIZ)I
+    move-result v0
 
     if-eqz p1, :cond_0
-
     const/16 v1, 0x1e
-
-    sget-object v0, Lcom/shilapi/xcertplay/AirPlayPersistence;->INSTANCE:Lcom/shilapi/xcertplay/AirPlayPersistence;
-
+    if-ne v0, v1, :cond_0
+    sget-object v1, Lcom/shilapi/xcertplay/AirPlayPersistence;->INSTANCE:Lcom/shilapi/xcertplay/AirPlayPersistence;
     const-string v2, "low_latency_power_30fps"
-
-    invoke-virtual {v0, p0, v1, v2}, Lcom/shilapi/xcertplay/AirPlayPersistence;->saveFpsAutoDecision(Landroid/content/Context;ILjava/lang/String;)V
-
-    const-string v0, "Frame rate Auto: 30 fps (lower phone encoding load and video backlog)"
-
-    invoke-direct {p0, v0}, Lcom/shilapi/xcertplay/CarPlayHostActivity;->appendLog(Ljava/lang/String;)V
-
-    return v1
+    invoke-virtual {v1, p0, v0, v2}, Lcom/shilapi/xcertplay/AirPlayPersistence;->saveFpsAutoDecision(Landroid/content/Context;ILjava/lang/String;)V
 
     :cond_0
-    iget-boolean v0, p0, Lcom/shilapi/xcertplay/CarPlayHostActivity;->sessionForce30Fps:Z
-
-    const/16 v1, 0x1e
-
-    if-eqz v0, :cond_1
-
-    const-string p1, "Frame rate 30 fps for this session (the first picture did not decode at the higher load)"
-
-    invoke-direct {p0, p1}, Lcom/shilapi/xcertplay/CarPlayHostActivity;->appendLog(Ljava/lang/String;)V
-
-    return v1
-
-    :cond_1
-    const-string v0, "frame rate manual="
-
-    const-string v2, "Frame rate manual="
-
-    const-string v3, "DiPlay-VideoStats"
-
-    if-nez p1, :cond_2
-
-    iget v4, p0, Lcom/shilapi/xcertplay/CarPlayHostActivity;->fps:I
-
-    const/16 v5, 0x3c
-
-    if-lt v4, v5, :cond_2
-
-    sget-object v4, Lcom/shilapi/xcertplay/AirPlayPersistence;->INSTANCE:Lcom/shilapi/xcertplay/AirPlayPersistence;
-
-    move-object v5, p0
-
-    check-cast v5, Landroid/content/Context;
-
-    invoke-virtual {v4, v5}, Lcom/shilapi/xcertplay/AirPlayPersistence;->loadFps60Unsustainable(Landroid/content/Context;)Z
-
-    move-result v4
-
-    if-eqz v4, :cond_2
-
-    iget p1, p0, Lcom/shilapi/xcertplay/CarPlayHostActivity;->fps:I
-
-    new-instance p2, Ljava/lang/StringBuilder;
-
-    invoke-direct {p2, v2}, Ljava/lang/StringBuilder;-><init>(Ljava/lang/String;)V
-
-    invoke-virtual {p2, p1}, Ljava/lang/StringBuilder;->append(I)Ljava/lang/StringBuilder;
-
-    const-string p1, " but 60 fps did not keep up on this unit; using 30 fps"
-
-    invoke-virtual {p2, p1}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
-
-    invoke-virtual {p2}, Ljava/lang/StringBuilder;->toString()Ljava/lang/String;
-
-    move-result-object p1
-
-    invoke-direct {p0, p1}, Lcom/shilapi/xcertplay/CarPlayHostActivity;->appendLog(Ljava/lang/String;)V
-
-    iget p1, p0, Lcom/shilapi/xcertplay/CarPlayHostActivity;->fps:I
-
-    new-instance p2, Ljava/lang/StringBuilder;
-
-    invoke-direct {p2, v0}, Ljava/lang/StringBuilder;-><init>(Ljava/lang/String;)V
-
-    invoke-virtual {p2, p1}, Ljava/lang/StringBuilder;->append(I)Ljava/lang/StringBuilder;
-
-    const-string p1, " -> 30 (60 not sustained before)"
-
-    invoke-virtual {p2, p1}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
-
-    invoke-virtual {p2}, Ljava/lang/StringBuilder;->toString()Ljava/lang/String;
-
-    move-result-object p1
-
-    invoke-static {v3, p1}, Landroid/util/Log;->i(Ljava/lang/String;Ljava/lang/String;)I
-
-    return v1
-
-    :cond_2
-    const-string v1, " canvas="
-
-    const-string/jumbo v4, "x"
-
-    if-nez p1, :cond_3
-
-    iget p1, p0, Lcom/shilapi/xcertplay/CarPlayHostActivity;->fps:I
-
-    new-instance v5, Ljava/lang/StringBuilder;
-
-    invoke-direct {v5, v2}, Ljava/lang/StringBuilder;-><init>(Ljava/lang/String;)V
-
-    invoke-virtual {v5, p1}, Ljava/lang/StringBuilder;->append(I)Ljava/lang/StringBuilder;
-
-    const-string p1, " fps canvas="
-
-    invoke-virtual {v5, p1}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
-
-    invoke-virtual {v5, p2}, Ljava/lang/StringBuilder;->append(I)Ljava/lang/StringBuilder;
-
-    invoke-virtual {v5, v4}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
-
-    invoke-virtual {v5, p3}, Ljava/lang/StringBuilder;->append(I)Ljava/lang/StringBuilder;
-
-    invoke-virtual {v5}, Ljava/lang/StringBuilder;->toString()Ljava/lang/String;
-
-    move-result-object p1
-
-    invoke-direct {p0, p1}, Lcom/shilapi/xcertplay/CarPlayHostActivity;->appendLog(Ljava/lang/String;)V
-
-    iget p1, p0, Lcom/shilapi/xcertplay/CarPlayHostActivity;->fps:I
-
-    new-instance v2, Ljava/lang/StringBuilder;
-
-    invoke-direct {v2, v0}, Ljava/lang/StringBuilder;-><init>(Ljava/lang/String;)V
-
-    invoke-virtual {v2, p1}, Ljava/lang/StringBuilder;->append(I)Ljava/lang/StringBuilder;
-
-    invoke-virtual {v2, v1}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
-
-    invoke-virtual {v2, p2}, Ljava/lang/StringBuilder;->append(I)Ljava/lang/StringBuilder;
-
-    invoke-virtual {v2, v4}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
-
-    invoke-virtual {v2, p3}, Ljava/lang/StringBuilder;->append(I)Ljava/lang/StringBuilder;
-
-    invoke-virtual {v2}, Ljava/lang/StringBuilder;->toString()Ljava/lang/String;
-
-    move-result-object p1
-
-    invoke-static {v3, p1}, Landroid/util/Log;->i(Ljava/lang/String;Ljava/lang/String;)I
-
-    iget p1, p0, Lcom/shilapi/xcertplay/CarPlayHostActivity;->fps:I
-
-    return p1
-
-    :cond_3
-    invoke-direct {p0, p2, p3}, Lcom/shilapi/xcertplay/CarPlayHostActivity;->autoFrameRateProbe(II)Lkotlin/Pair;
-
-    move-result-object p1
-
-    invoke-virtual {p1}, Lkotlin/Pair;->component1()Ljava/lang/Object;
-
-    move-result-object v0
-
-    check-cast v0, Lcom/shilapi/xcertplay/media/AutoFrameRate$Probe;
-
-    invoke-virtual {p1}, Lkotlin/Pair;->component2()Ljava/lang/Object;
-
-    move-result-object p1
-
-    check-cast p1, Ljava/lang/String;
-
-    sget-object v2, Lcom/shilapi/xcertplay/AirPlayPersistence;->INSTANCE:Lcom/shilapi/xcertplay/AirPlayPersistence;
-
-    move-object v5, p0
-
-    check-cast v5, Landroid/content/Context;
-
-    invoke-virtual {v2, v5}, Lcom/shilapi/xcertplay/AirPlayPersistence;->loadFps60Unsustainable(Landroid/content/Context;)Z
-
-    move-result v2
-
-    sget-object v6, Lcom/shilapi/xcertplay/media/AutoFrameRate;->INSTANCE:Lcom/shilapi/xcertplay/media/AutoFrameRate;
-
-    sget-object v7, Lcom/shilapi/xcertplay/media/SoftwareH264Decoder;->Companion:Lcom/shilapi/xcertplay/media/SoftwareH264Decoder$Companion;
-
-    invoke-virtual {v7}, Lcom/shilapi/xcertplay/media/SoftwareH264Decoder$Companion;->getRequired()Z
-
-    move-result v7
-
-    invoke-virtual {v6, v0, v7, v2}, Lcom/shilapi/xcertplay/media/AutoFrameRate;->decide(Lcom/shilapi/xcertplay/media/AutoFrameRate$Probe;ZZ)Lcom/shilapi/xcertplay/media/AutoFrameRate$Decision;
-
-    move-result-object v0
-
-    sget-object v6, Lcom/shilapi/xcertplay/AirPlayPersistence;->INSTANCE:Lcom/shilapi/xcertplay/AirPlayPersistence;
-
-    invoke-virtual {v0}, Lcom/shilapi/xcertplay/media/AutoFrameRate$Decision;->getFps()I
-
-    move-result v7
-
-    invoke-virtual {v0}, Lcom/shilapi/xcertplay/media/AutoFrameRate$Decision;->getReason()Ljava/lang/String;
-
-    move-result-object v8
-
-    invoke-virtual {v6, v5, v7, v8}, Lcom/shilapi/xcertplay/AirPlayPersistence;->saveFpsAutoDecision(Landroid/content/Context;ILjava/lang/String;)V
-
-    invoke-virtual {v0}, Lcom/shilapi/xcertplay/media/AutoFrameRate$Decision;->getFps()I
-
-    move-result v5
-
-    invoke-virtual {v0}, Lcom/shilapi/xcertplay/media/AutoFrameRate$Decision;->getReason()Ljava/lang/String;
-
-    move-result-object v6
-
-    new-instance v7, Ljava/lang/StringBuilder;
-
-    const-string v8, "Frame rate auto="
-
-    invoke-direct {v7, v8}, Ljava/lang/StringBuilder;-><init>(Ljava/lang/String;)V
-
-    invoke-virtual {v7, v5}, Ljava/lang/StringBuilder;->append(I)Ljava/lang/StringBuilder;
-
-    const-string v5, " fps reason="
-
-    invoke-virtual {v7, v5}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
-
-    invoke-virtual {v7, v6}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
-
-    invoke-virtual {v7, v1}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
-
-    invoke-virtual {v7, p2}, Ljava/lang/StringBuilder;->append(I)Ljava/lang/StringBuilder;
-
-    invoke-virtual {v7, v4}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
-
-    invoke-virtual {v7, p3}, Ljava/lang/StringBuilder;->append(I)Ljava/lang/StringBuilder;
-
-    const-string p2, " remembered60Unsustainable="
-
-    invoke-virtual {v7, p2}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
-
-    invoke-virtual {v7, v2}, Ljava/lang/StringBuilder;->append(Z)Ljava/lang/StringBuilder;
-
-    const-string p2, " "
-
-    invoke-virtual {v7, p2}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
-
-    invoke-virtual {v7, p1}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
-
-    invoke-virtual {v7}, Ljava/lang/StringBuilder;->toString()Ljava/lang/String;
-
-    move-result-object p1
-
-    invoke-direct {p0, p1}, Lcom/shilapi/xcertplay/CarPlayHostActivity;->appendLog(Ljava/lang/String;)V
-
-    invoke-static {v3, p1}, Landroid/util/Log;->i(Ljava/lang/String;Ljava/lang/String;)I
-
-    invoke-virtual {v0}, Lcom/shilapi/xcertplay/media/AutoFrameRate$Decision;->getFps()I
-
-    move-result p1
-
-    return p1
+    new-instance v1, Ljava/lang/StringBuilder;
+    const-string v2, "Frame rate selected="
+    invoke-direct {v1, v2}, Ljava/lang/StringBuilder;-><init>(Ljava/lang/String;)V
+    iget v2, p0, Lcom/shilapi/xcertplay/CarPlayHostActivity;->fps:I
+    invoke-virtual {v1, v2}, Ljava/lang/StringBuilder;->append(I)Ljava/lang/StringBuilder;
+    const-string v2, " effective="
+    invoke-virtual {v1, v2}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+    invoke-virtual {v1, v0}, Ljava/lang/StringBuilder;->append(I)Ljava/lang/StringBuilder;
+    const-string v2, " automatic="
+    invoke-virtual {v1, v2}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+    invoke-virtual {v1, p1}, Ljava/lang/StringBuilder;->append(Z)Ljava/lang/StringBuilder;
+    const-string v2, " sessionFallback="
+    invoke-virtual {v1, v2}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+    iget-boolean v2, p0, Lcom/shilapi/xcertplay/CarPlayHostActivity;->sessionForce30Fps:Z
+    invoke-virtual {v1, v2}, Ljava/lang/StringBuilder;->append(Z)Ljava/lang/StringBuilder;
+    const-string v2, " canvas="
+    invoke-virtual {v1, v2}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+    invoke-virtual {v1, p2}, Ljava/lang/StringBuilder;->append(I)Ljava/lang/StringBuilder;
+    const-string v2, "x"
+    invoke-virtual {v1, v2}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+    invoke-virtual {v1, p3}, Ljava/lang/StringBuilder;->append(I)Ljava/lang/StringBuilder;
+    invoke-virtual {v1}, Ljava/lang/StringBuilder;->toString()Ljava/lang/String;
+    move-result-object v1
+    invoke-direct {p0, v1}, Lcom/shilapi/xcertplay/CarPlayHostActivity;->appendLog(Ljava/lang/String;)V
+    return v0
 .end method
+
 
 .method private final createAirPlayConfig(Lcom/shilapi/xcertplay/CarPlayHostActivity$DisplaySize;)Lcom/shilapi/xcertplay/airplay/AirPlayConfig;
     .locals 48
@@ -15759,13 +15537,6 @@
 
     if-eqz v0, :cond_2
 
-    sget-object p0, Lcom/shilapi/xcertplay/AirPlayPersistence;->INSTANCE:Lcom/shilapi/xcertplay/AirPlayPersistence;
-
-    invoke-static {p4}, Lkotlin/jvm/internal/Intrinsics;->checkNotNull(Ljava/lang/Object;)V
-
-    invoke-virtual {p0, p4}, Lcom/shilapi/xcertplay/AirPlayPersistence;->saveFps60Unsustainable(Landroid/content/Context;)V
-
-    .line 4350
     sget-object p0, Lkotlin/jvm/internal/StringCompanionObject;->INSTANCE:Lkotlin/jvm/internal/StringCompanionObject;
 
     sget-object p0, Ljava/util/Locale;->US:Ljava/util/Locale;
@@ -15837,7 +15608,7 @@
 
     move-result-object p1
 
-    const-string p3, "Frame rate: 60 fps not sustained (last window rx=%.1ffps shown=%.1ffps recoveries=%d; %d of the last %d windows with motion struggled); Auto uses 30 fps from the next connection"
+    const-string p3, "Frame rate: 60 fps not sustained (last window rx=%.1ffps shown=%.1ffps recoveries=%d; %d of the last %d windows with motion struggled); diagnostic only, next connection keeps the selected frame rate"
 
     invoke-static {p0, p3, p1}, Ljava/lang/String;->format(Ljava/util/Locale;Ljava/lang/String;[Ljava/lang/Object;)Ljava/lang/String;
 
@@ -39438,6 +39209,8 @@
 
     .line 795
     :cond_2
+    iput-boolean v1, p0, Lcom/shilapi/xcertplay/CarPlayHostActivity;->sessionForce30Fps:Z
+
     iput-boolean v1, p0, Lcom/shilapi/xcertplay/CarPlayHostActivity;->wiredRetryStopped:Z
 
     .line 796

@@ -92,7 +92,7 @@ public final class E01NativeSettings {
     }if(!ok)throw new IllegalStateException("保存失败");}
     public static Object appearance(Context c){String name=c.getSharedPreferences("06link-native-ui",0).getString("appearance_mode","AUTO");if(!name.equals("LIGHT")&&!name.equals("DARK"))name="AUTO";return value("Appearance$Mode",name);}
     public static void saveAppearance(Context c,Object mode){c.getSharedPreferences("06link-native-ui",0).edit().putString("appearance_mode",mode.toString()).apply();}
-    public static boolean force60(Context c){return c.getSharedPreferences("06link-video",0).getBoolean("force60",false);}
+    public static boolean force60(Context c){return E01FrameRatePolicy.force60(c);}
     public static Object filterAdaptation(Context c,Object a){if(!force60(c)||!(Boolean)call(a,"getTo30Fps"))return a;if(!(Boolean)call(a,"getToH264"))return null;try{return a.getClass().getConstructor(boolean.class,boolean.class,String.class).newInstance(false,true,call(a,"getWhy"));}catch(Exception e){throw new IllegalStateException(e);}}
     public static boolean reduceFps(Context c,boolean requested){return requested&&!force60(c);}
     public static boolean musicVisible(Context c){return c.getSharedPreferences("06link_instrument",0).getBoolean("music_enabled",true);}

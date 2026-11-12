@@ -1825,132 +1825,13 @@
 .end method
 
 .method public final loadFpsAuto(Landroid/content/Context;)Z
-    .locals 5
+    .locals 1
 
-    const-string/jumbo v0, "xcertplay_airplay"
-
-    const/4 v2, 0x0
-
-    invoke-virtual {p1, v0, v2}, Landroid/content/Context;->getSharedPreferences(Ljava/lang/String;I)Landroid/content/SharedPreferences;
-
-    move-result-object v0
-
-    const-string v1, "fix7_power_policy_applied"
-
-    invoke-interface {v0, v1, v2}, Landroid/content/SharedPreferences;->getBoolean(Ljava/lang/String;Z)Z
-
-    move-result v3
-
-    if-nez v3, :cond_0
-
-    invoke-interface {v0}, Landroid/content/SharedPreferences;->edit()Landroid/content/SharedPreferences$Editor;
-
-    move-result-object v3
-
-    const-string v4, "display_fps_mode"
-
-    const-string v2, "auto"
-
-    invoke-interface {v3, v4, v2}, Landroid/content/SharedPreferences$Editor;->putString(Ljava/lang/String;Ljava/lang/String;)Landroid/content/SharedPreferences$Editor;
-
-    const-string v4, "display_fps"
-
-    const/16 v2, 0x1e
-
-    invoke-interface {v3, v4, v2}, Landroid/content/SharedPreferences$Editor;->putInt(Ljava/lang/String;I)Landroid/content/SharedPreferences$Editor;
-
-    const/4 v2, 0x1
-
-    invoke-interface {v3, v1, v2}, Landroid/content/SharedPreferences$Editor;->putBoolean(Ljava/lang/String;Z)Landroid/content/SharedPreferences$Editor;
-
-    invoke-interface {v3}, Landroid/content/SharedPreferences$Editor;->apply()V
-
-    const/4 v0, 0x1
-
+    invoke-static {p1}, Lcom/shilapi/xcertplay/E01FrameRatePolicy;->automatic(Landroid/content/Context;)Z
+    move-result v0
     return v0
-
-    :cond_0
-    const-string v0, "context"
-
-    invoke-static {p1, v0}, Lkotlin/jvm/internal/Intrinsics;->checkNotNullParameter(Ljava/lang/Object;Ljava/lang/String;)V
-
-    const-string/jumbo v0, "xcertplay_airplay"
-
-    const/4 v1, 0x0
-
-    invoke-virtual {p1, v0, v1}, Landroid/content/Context;->getSharedPreferences(Ljava/lang/String;I)Landroid/content/SharedPreferences;
-
-    move-result-object p1
-
-    const-string v0, "display_fps_mode"
-
-    const/4 v2, 0x0
-
-    invoke-interface {p1, v0, v2}, Landroid/content/SharedPreferences;->getString(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
-
-    move-result-object v0
-
-    const/4 v2, 0x1
-
-    if-eqz v0, :cond_5
-
-    invoke-virtual {v0}, Ljava/lang/String;->hashCode()I
-
-    move-result v3
-
-    const v4, -0x4075183a
-
-    if-eq v3, v4, :cond_3
-
-    const v4, 0x2dddaf
-
-    if-eq v3, v4, :cond_1
-
-    goto :goto_0
-
-    :cond_1
-    const-string v3, "auto"
-
-    invoke-virtual {v0, v3}, Ljava/lang/String;->equals(Ljava/lang/Object;)Z
-
-    move-result v0
-
-    if-nez v0, :cond_2
-
-    goto :goto_0
-
-    :cond_2
-    return v2
-
-    :cond_3
-    const-string v3, "manual"
-
-    invoke-virtual {v0, v3}, Ljava/lang/String;->equals(Ljava/lang/Object;)Z
-
-    move-result v0
-
-    if-nez v0, :cond_4
-
-    goto :goto_0
-
-    :cond_4
-    return v1
-
-    :cond_5
-    :goto_0
-    const-string v0, "display_fps"
-
-    invoke-interface {p1, v0}, Landroid/content/SharedPreferences;->contains(Ljava/lang/String;)Z
-
-    move-result p1
-
-    if-nez p1, :cond_6
-
-    return v2
-
-    :cond_6
-    return v1
 .end method
+
 
 .method public final loadFpsAutoDecision(Landroid/content/Context;)Lkotlin/Pair;
     .locals 3

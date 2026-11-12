@@ -12,7 +12,7 @@ SUITE=[
  'tests/cluster_settings/test_cluster.py','tests/cluster_settings/test_power_recovery.py',
  'tests/cluster_settings/test_amap_output.py','tests/cluster_settings/test_publisher_lifecycle.py',
  'tests/lane_capability/test_lane_capability.py',
- 'tests/direct_oes/run_checks.py','tests/video_visibility/run_checks.py',
+ 'tests/direct_oes/run_checks.py','tests/video_visibility/run_checks.py','tests/frame_rate/run.py',
  'tests/test_connection_speed.py','tests/test_wired_configuration.py','tests/test_wired_shutdown.py',
  'tests/test_wired_state.py','tests/test_video_pipeline.py','tests/test_crypto.py',
  'tests/test_service.py','tests/test_direct_navigation.py','tests/test_display_state.py',

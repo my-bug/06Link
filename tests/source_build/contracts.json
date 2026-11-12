@@ -189,7 +189,7 @@
     "dex": "classes.dex",
     "class": "com/shilapi/xcertplay/CarPlayHostActivity.smali",
     "method": "adaptVideoLoad(ILcom/shilapi/xcertplay/media/VideoLoadGuard$Adaptation;)V",
-    "sha256": "509e6da239e71a6e283749e5a6085851dfcf568460ebee7badbaf9b04d854041"
+    "sha256": "fae44f42f6ce93e67f39e7cf4c904cfc14257f4e2e3762b43723e6a1f3756d63"
   },
   "native-ui-6": {
     "dex": "classes.dex",
@@ -201,7 +201,7 @@
     "dex": "classes.dex",
     "class": "com/shilapi/xcertplay/CarPlayHostActivity.smali",
     "method": "createMediaSink$lambda$356(Lcom/shilapi/xcertplay/media/VideoLoadGuard;Lcom/shilapi/xcertplay/media/FrameRateWatch;Lcom/shilapi/xcertplay/CarPlayHostActivity;ILandroid/content/Context;Lcom/shilapi/xcertplay/SessionLogFile;Lcom/shilapi/xcertplay/media/VideoWindow;)Lkotlin/Unit;",
-    "sha256": "fbfbb1e25344776d564fafd622a799f4928f875c7d3fbac9e8687e3bc3a5bc2c"
+    "sha256": "924c98cde453231bedb6a3bd8a9cdc7d63e2a48fefb3972e794e9522f1d145ba"
   },
   "native-ui-8": {
     "dex": "classes.dex",
@@ -351,13 +351,13 @@
     "dex": "classes.dex",
     "class": "com/shilapi/xcertplay/CarPlayHostActivity.smali",
     "method": "createMediaSink$lambda$356(Lcom/shilapi/xcertplay/media/VideoLoadGuard;Lcom/shilapi/xcertplay/media/FrameRateWatch;Lcom/shilapi/xcertplay/CarPlayHostActivity;ILandroid/content/Context;Lcom/shilapi/xcertplay/SessionLogFile;Lcom/shilapi/xcertplay/media/VideoWindow;)Lkotlin/Unit;",
-    "sha256": "fbfbb1e25344776d564fafd622a799f4928f875c7d3fbac9e8687e3bc3a5bc2c"
+    "sha256": "924c98cde453231bedb6a3bd8a9cdc7d63e2a48fefb3972e794e9522f1d145ba"
   },
   "video-visibility-decision": {
     "dex": "classes.dex",
     "class": "com/shilapi/xcertplay/CarPlayHostActivity.smali",
     "method": "adaptVideoLoad(ILcom/shilapi/xcertplay/media/VideoLoadGuard$Adaptation;)V",
-    "sha256": "509e6da239e71a6e283749e5a6085851dfcf568460ebee7badbaf9b04d854041"
+    "sha256": "fae44f42f6ce93e67f39e7cf4c904cfc14257f4e2e3762b43723e6a1f3756d63"
   },
   "video-visibility-session": {
     "dex": "classes.dex",
@@ -664,5 +664,23 @@
     "class": "com/shilapi/xcertplay/E01SmoothVideo.smali",
     "method": "configure(Landroid/media/MediaCodec;Landroid/media/MediaFormat;Landroid/view/Surface;Z)V",
     "sha256": "2a683a36e15ccf5f9d82f1fb73d39b3bbf5d414e7b286bf412d35ef41f2e163a"
+  },
+  "fps-connection": {
+    "dex": "classes.dex",
+    "class": "com/shilapi/xcertplay/CarPlayHostActivity.smali",
+    "method": "connectionFrameRate(ZII)I",
+    "sha256": "a0271a5a5a4fcf70aeef9626a6c722018d875890be8caea4dff1ee4f6722951c"
+  },
+  "fps-auto-preference": {
+    "dex": "classes.dex",
+    "class": "com/shilapi/xcertplay/AirPlayPersistence.smali",
+    "method": "loadFpsAuto(Landroid/content/Context;)Z",
+    "sha256": "1c2ab6e456db8dcca1c54cd01d602b5705d2468975ad160558978ca501fedd80"
+  },
+  "fps-user-retry": {
+    "dex": "classes.dex",
+    "class": "com/shilapi/xcertplay/CarPlayHostActivity.smali",
+    "method": "onNewIntent(Landroid/content/Intent;)V",
+    "sha256": "344a9104a37fbd7e49cb407f586c700ba0770f0423db9928b5ec4c7cfd630e65"
   }
 }
