@@ -1,59 +1,52 @@
-# 06Link · 零陆互联
+<p align="center">
+  <img src="src/main/res/drawable/ic_carplay.png" alt="06Link" width="112">
+</p>
 
-面向 2020 款领克 06 E01 / BX11QJ（Android 5.1）的 CarPlay 与仪表互联应用，由本仓库持续维护。当前版本 **1.2.34**，版本号与包名统一在 [`project.json`](project.json) 管理。
+# 06Link
 
-支持原车蓝牙无线连接、有线 USB、仪表地图与原厂路口卡片、音乐与歌词卡片、方向盘按键、Siri、原车音频通道及连接设置。
+**为领克 06 E01 车机深度定制的 CarPlay 互联软件。**
 
-## 克隆与构建
+06Link 将 iPhone 的 CarPlay 接入原车中控和仪表，围绕原车蓝牙、仪表显示、方向盘按键与音频通道进行适配。支持有线和无线连接，可在中控使用导航、音乐、通话与 Siri，并将地图和音乐信息显示到仪表。
 
-准备 **Python 3.11+、JDK 17**，设置 `JAVA_HOME` 或将完整 JDK 放入 `PATH`。在 macOS 或 Linux 上运行：
+**06Link 免费提供，请勿付费购买。**
 
-```sh
-git clone https://github.com/my-bug/06Link.git
-cd 06Link
-python3 scripts/build.py
-```
+## 适配范围
 
-首次构建自动下载固定版本的公开工具，并核对 SHA-256。输出 **`dist/06Link-1.2.34-debug.apk`**，不需要旧应用 APK、原车备份、发布签名或 CarPlay 认证文件。
+- **车型**：2020 款领克 06。
+- **车机**：E01 / BX11QJ，Android 5.1。
+- **手机**：支持 CarPlay 的 iPhone。
 
-调试包可以启动、查看界面和设置；未包含私有认证材料时，连接入口会明确提示无法认证，不会自动操作原车蓝牙或热点。调试包使用本地生成的调试签名，**不能直接覆盖正式签名的安装版**。
+当前适配以这款车机为基础，其他车型和系统版本尚未纳入已验证范围。
 
-也可以使用仓库内的 Gradle Wrapper，同样调用这一份 Python 构建实现：
+## 主要功能
 
-```sh
-./gradlew assembleDebug
-./gradlew check
-```
-
-正式签名、认证材料、输出目录和验证方式见 [构建说明](docs/BUILD.md)。构建不会连接车机、启动模拟器或自动安装软件。GitHub CI 可手动运行，只构建和检查调试版，不发布 APK。
-
-## 一个仓库，直接维护
-
-本目录就是开发目录和 GitHub 仓库。后续直接修改源码、测试并提交，不再生成“公开源码副本”，也不从安装包抽取修改结果。
-
-| 目录 | 内容 |
+| 功能 | 说明 |
 | --- | --- |
-| `src/e01/` | E01 适配 Java 源码；全部参与编译 |
-| `src/core/smali/` | 完整可编辑的其余运行代码，直接汇编生成 DEX |
-| `src/main/` | Android Manifest、XML、图像、资源 ID、运行资源和原生依赖 |
-| `src/oem-bluetooth/`、`src/display-clock/` | 当前蓝牙兼容组件与显示时钟实现 |
-| `scripts/`、`tooling/` | Python 构建实现、工具版本锁、下载器、编译接口和签名工具源码 |
-| `tests/` | 源码、行为及构建回归检查 |
-| `docs/` | 随源码维护的构建和工程说明 |
-| `.github/` | 持续集成与问题反馈模板 |
+| 有线与无线连接 | 支持 USB 数据线连接；无线使用原车蓝牙与车机热点。可设置默认连接方式和自动连接，连接中显示当前步骤。 |
+| 原车蓝牙兼容 | 提供开机兼容组件安装与原厂组件恢复入口，无线连接无需外置 USB 蓝牙接收器。 |
+| 仪表地图 | 提供信息卡片、全屏地图、雾蓝仪表三种样式，支持预览、地图内容大小调整和可关闭的过场动画。地图布局针对原厂信息区域与导航居中进行适配。 |
+| 导航与音乐卡片 | 将转向、路名、距离接入原厂路口卡片；音乐卡片显示歌曲、歌手、封面，以及音乐应用提供的歌词信息，可单独关闭。 |
+| 方向盘按键与 Siri | 支持上一首／下一首、播放／暂停、语音键唤起 Siri，各项接管可独立开启或关闭；Siri 使用车机麦克风。 |
+| 原车音频通道 | 音乐、导航、Siri、通话分别适配原车声道，支持播报期间的音量键调节与媒体混音处理。 |
+| 显示与视频 | 提供分辨率、帧率和 MTK 低延迟等选项，针对 E01 的解码与显示输出进行适配。 |
+| 界面与日志 | 统一首页、设置、连接状态和弹窗样式；日志可直接查看、分页和清空，跨重启保留，总量限制在 1 MB 以内。 |
 
-这个工程是 **Java + Smali + XML 的 Android 应用源码工程**。Gradle 提供真实构建任务，Python 是唯一的编译实现；目前不是恢复了全部上游 Kotlin/Java 的 Android Gradle Plugin 工程，Android Studio 的原生 Android Run、布局预览并未接入。部分原生库与原厂兼容组件以二进制依赖保留，来源范围见 [NOTICE](NOTICE.md)。
+## 版本与反馈
 
-## 开发与私有文件
+当前版本：**1.2.34**。
 
-```sh
-python3 scripts/build.py
-python3 scripts/check.py
-git add src scripts tests project.json
-git commit -m "Describe the source change"
-git push
-```
+遇到问题可在 [Issues](https://github.com/my-bug/06Link/issues) 反馈，请说明软件版本、车机系统、iPhone 与 iOS 版本、有线或无线连接，以及具体操作和现象。需要时附上软件日志页面截图，并遮挡个人信息。
 
-`.private/`、本地调试密钥、工具缓存、`build/`、`dist/`、日志、设备备份、固件、研究素材和历史归档均由 `.gitignore` 排除。必要构建脚本、测试和工程文档随源码一起更新。详细约定见 [CONTRIBUTING](CONTRIBUTING.md) 和 [工程结构](docs/PROJECT_STRUCTURE.md)。
+## 项目来源与引用
 
-软件免费。请保留继承代码的许可证与来源说明；问题反馈时提供版本、车型、连接方式、复现步骤和脱敏日志，不要提交私钥、完整设备备份或认证文件。
+06Link 从早期 06Play 验证版本演进而来，基于 DiPlay 及其上游项目，持续加入领克 06 E01 的专用适配。感谢以下项目及其贡献者：
+
+| 项目 | 与 06Link 的关系 |
+| --- | --- |
+| [DiPlay](https://github.com/shihabal3amri/DiPlay) | 基础应用来源，提供 CarPlay 连接、音视频与仪表副屏等实现基础。 |
+| [xcertplay](https://github.com/shilapi/xcertplay) | DiPlay 的上游 CarPlay 接收器项目；06Link 继承相关协议实现，并参考其核心问题修复。 |
+| [DiAuto](https://github.com/shihabal3amri/DiAuto) | DiPlay 早期界面的设计来源，保留相应来源与许可声明。 |
+| [DiPlay-Preface](https://github.com/huangwits/DiPlay-Preface) | 原车蓝牙兼容流程的研究参考。 |
+| [Conscrypt](https://github.com/google/conscrypt) | 用于旧 Android 系统的加密实现支持。 |
+
+许可与第三方说明见 [LICENSE](LICENSE) 和 [NOTICE](NOTICE.md)。06Link 是独立社区适配项目；CarPlay 名称及相关商标归 Apple 所有。
