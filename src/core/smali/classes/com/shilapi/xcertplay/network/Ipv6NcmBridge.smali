@@ -563,6 +563,14 @@
 
     move-result v2
 
+    iget-object v4, p0, Lcom/shilapi/xcertplay/network/Ipv6NcmBridge;->ncm:Lcom/shilapi/xcertplay/transport/NcmUsbBridge;
+
+    invoke-virtual {v4}, Lcom/shilapi/xcertplay/transport/NcmUsbBridge;->getStartup()Lcom/shilapi/xcertplay/transport/WiredStartRecovery;
+
+    move-result-object v4
+
+    invoke-virtual {v4, v1, v3, v2}, Lcom/shilapi/xcertplay/transport/WiredStartRecovery;->observeIpv6([BII)V
+
     invoke-virtual {v0, v1, v3, v2}, Ljava/io/FileOutputStream;->write([BII)V
     :try_end_1
     .catch Ljava/io/IOException; {:try_start_1 .. :try_end_1} :catch_1

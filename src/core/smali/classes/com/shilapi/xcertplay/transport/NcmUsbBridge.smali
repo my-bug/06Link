@@ -204,6 +204,8 @@
 
 .field private sequence:I
 
+.field private final startup:Lcom/shilapi/xcertplay/transport/WiredStartRecovery;
+
 .field private final stateLock:Ljava/lang/Object;
 
 .field private final statusEndpoint:Landroid/hardware/usb/UsbEndpoint;
@@ -313,6 +315,12 @@
 
     .line 25
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
+
+    new-instance v0, Lcom/shilapi/xcertplay/transport/WiredStartRecovery;
+
+    invoke-direct {v0}, Lcom/shilapi/xcertplay/transport/WiredStartRecovery;-><init>()V
+
+    iput-object v0, p0, Lcom/shilapi/xcertplay/transport/NcmUsbBridge;->startup:Lcom/shilapi/xcertplay/transport/WiredStartRecovery;
 
     .line 26
     iput-object p1, p0, Lcom/shilapi/xcertplay/transport/NcmUsbBridge;->connection:Landroid/hardware/usb/UsbDeviceConnection;
@@ -1422,6 +1430,10 @@
 .method public close()V
     .locals 5
 
+    iget-object v0, p0, Lcom/shilapi/xcertplay/transport/NcmUsbBridge;->startup:Lcom/shilapi/xcertplay/transport/WiredStartRecovery;
+
+    invoke-virtual {v0}, Lcom/shilapi/xcertplay/transport/WiredStartRecovery;->cancel()V
+
     .line 124
     iget-object v0, p0, Lcom/shilapi/xcertplay/transport/NcmUsbBridge;->statusRunning:Ljava/util/concurrent/atomic/AtomicBoolean;
 
@@ -1670,6 +1682,14 @@
     return-object v0
 .end method
 
+.method public final getStartup()Lcom/shilapi/xcertplay/transport/WiredStartRecovery;
+    .locals 1
+
+    iget-object v0, p0, Lcom/shilapi/xcertplay/transport/NcmUsbBridge;->startup:Lcom/shilapi/xcertplay/transport/WiredStartRecovery;
+
+    return-object v0
+.end method
+
 .method public final recv(J)[B
     .locals 9
 
@@ -1890,6 +1910,12 @@
 
     iget-object v4, p0, Lcom/shilapi/xcertplay/transport/NcmUsbBridge;->outEndpoint:Landroid/hardware/usb/UsbEndpoint;
 
+    iget-object v5, p0, Lcom/shilapi/xcertplay/transport/NcmUsbBridge;->startup:Lcom/shilapi/xcertplay/transport/WiredStartRecovery;
+
+    invoke-virtual {v5, p2}, Lcom/shilapi/xcertplay/transport/WiredStartRecovery;->writeTimeout(I)I
+
+    move-result p2
+
     invoke-virtual {v2, v3, v4, p1, p2}, Lcom/shilapi/xcertplay/transport/UsbTransferLimits;->bulkWriteAll(Landroid/hardware/usb/UsbDeviceConnection;Landroid/hardware/usb/UsbEndpoint;[BI)I
 
     move-result p2
@@ -1922,6 +1948,10 @@
     array-length v2, p1
 
     if-ne p2, v2, :cond_2
+
+    iget-object v2, p0, Lcom/shilapi/xcertplay/transport/NcmUsbBridge;->startup:Lcom/shilapi/xcertplay/transport/WiredStartRecovery;
+
+    invoke-virtual {v2}, Lcom/shilapi/xcertplay/transport/WiredStartRecovery;->acceptedWrite()V
 
     .line 93
     iget-boolean p1, p0, Lcom/shilapi/xcertplay/transport/NcmUsbBridge;->loggedWriteTimeout:Z

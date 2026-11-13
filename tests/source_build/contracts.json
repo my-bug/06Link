@@ -51,7 +51,7 @@
     "dex": "classes.dex",
     "class": "com/shilapi/xcertplay/transport/NcmUsbBridge.smali",
     "method": "send([BI)V",
-    "sha256": "bc519a7996fadfbf8f704c9e3df22d9b238be6c92a51dc9855174de4cc6908e4"
+    "sha256": "06261afa011e05eedf8879df29f67db9f1955596f9a6102d4971e2ad9ecf6269"
   },
   "wired-tun-close": {
     "dex": "classes.dex",
@@ -69,7 +69,7 @@
     "dex": "classes.dex",
     "class": "com/shilapi/xcertplay/transport/NcmUsbBridge.smali",
     "method": "<init>(Landroid/hardware/usb/UsbDeviceConnection;Landroid/hardware/usb/UsbEndpoint;Landroid/hardware/usb/UsbEndpoint;Landroid/hardware/usb/UsbEndpoint;Ljava/util/List;[B)V",
-    "sha256": "9140de15f29176a2bde9fe522705f7afd6d99ced57566a89c4557fab904c87bc"
+    "sha256": "45f9d44e79890aa74b8b357798fd6a8bcc76226c90676c5d9bc0dd8b92603a6e"
   },
   "native-video-crypto": {
     "dex": "classes.dex",
@@ -255,13 +255,13 @@
     "dex": "classes.dex",
     "class": "com/shilapi/xcertplay/orchestration/CarPlayController.smali",
     "method": "close()V",
-    "sha256": "c5261c13d77aba2ba35d3258b6bbf1dc96c32edea8cbbe13c3dc3bfa2a1b9d7c"
+    "sha256": "6c7716193e5b6ea47e4bc0c6dc80e8091d5056deb2c4c0d29facdcfcad4f771f"
   },
   "speed-disable-phone-diagnostics": {
     "dex": "classes.dex",
     "class": "com/shilapi/xcertplay/orchestration/CarPlayController.smali",
     "method": "runStack(Lcom/shilapi/xcertplay/transport/Iap2UsbSession;Lcom/shilapi/xcertplay/transport/NcmUsbBridge;)V",
-    "sha256": "1673d7263acaa8ce360c897659a3037ad8be06f748813be467620e25c23caf0e"
+    "sha256": "5bbc1bfda44eb0965003f54217b38eba7e3dc5527ed88e85bf520ed702ca6c96"
   },
   "speed-wired-control-write": {
     "dex": "classes.dex",
@@ -706,5 +706,101 @@
     "class": "com/shilapi/xcertplay/airplay/AirPlayInfoPlist.smali",
     "method": "audioFormats$shared_release(IZZZZ)Ljava/util/List;",
     "sha256": "0c93ddc9215bc11e75f65ca56635d619965085b6e90fa99e85726d7f2128d092"
+  },
+  "audio-rtp-format": {
+    "dex": "classes.dex",
+    "class": "com/shilapi/xcertplay/airplay/AudioStreamCodec.smali",
+    "method": "fromFormatBits(JILjava/lang/String;)Lcom/shilapi/xcertplay/airplay/AudioFormat;",
+    "sha256": "5b37ad06cf36c7ad8faec082f0803ae4c758f611143d119314b51014e04fa1c9"
+  },
+  "audio-rtp-copy": {
+    "dex": "classes.dex",
+    "class": "com/shilapi/xcertplay/airplay/AudioFormat.smali",
+    "method": "copy(Lcom/shilapi/xcertplay/airplay/AudioCodecKind;IIILjava/lang/String;)Lcom/shilapi/xcertplay/airplay/AudioFormat;",
+    "sha256": "221241c86b144b2a0ac3f2285ed0fd8378c2594614b975979c60bad0a95a31d4"
+  },
+  "audio-rtp-timestamp": {
+    "dex": "classes.dex",
+    "class": "com/shilapi/xcertplay/media/AudioRenderer.smali",
+    "method": "sampleTimestampUs(I)J",
+    "sha256": "c2d9496f731955f66bcaf63aa17f3975ba197a9a36a77557ea17db30ddbcf73f"
+  },
+  "audio-rtp-feedback": {
+    "dex": "classes.dex",
+    "class": "com/shilapi/xcertplay/airplay/CarPlayMediaEngine.smali",
+    "method": "onFeedback(Lcom/shilapi/xcertplay/airplay/AirPlaySession;)Ljava/util/Map;",
+    "sha256": "639b70e3387f2484c25c0d8edf347f9c037e339ebb1c85375fb48542d10be42d"
+  },
+  "audio-input-pump": {
+    "dex": "classes.dex",
+    "class": "com/shilapi/xcertplay/media/AudioRenderer.smali",
+    "method": "feedCodec([BJ)V",
+    "sha256": "c955583b8fa86c59dd7b38bc9378f7f6626af67703ff4b2562d345eea72f0fc6"
+  },
+  "microphone-packet-size": {
+    "dex": "classes.dex",
+    "class": "com/shilapi/xcertplay/airplay/CarPlayMediaEngine.smali",
+    "method": "microphoneConfig(Lcom/shilapi/xcertplay/airplay/AirPlaySession;ILjava/util/Map;Lcom/shilapi/xcertplay/airplay/AudioFormat;)Lcom/shilapi/xcertplay/airplay/MicrophoneConfig;",
+    "sha256": "6d221f3278dd014c6711ffccda962f82373b4152d73445d8cec6fc7c7e43a59d"
+  },
+  "bonjour-named-address": {
+    "dex": "classes.dex",
+    "class": "com/shilapi/xcertplay/network/CarPlayBonjour.smali",
+    "method": "startInterfaceMdns(Ljava/net/InetAddress;)V",
+    "sha256": "1d712ed874b52c62022b2ed0ea42b2b1b1eb2f277fa38af34c18ef126af06c1c"
+  },
+  "wired-start-control": {
+    "dex": "classes.dex",
+    "class": "com/shilapi/xcertplay/transport/Iap2WiredControlClient.smali",
+    "method": "run(Lcom/shilapi/xcertplay/transport/Iap2IdentificationConfig;Lcom/shilapi/xcertplay/transport/Iap2WiredCarPlayEndpoint;IJLcom/shilapi/xcertplay/transport/Iap2LocationProvider;Lcom/shilapi/xcertplay/transport/VehicleStatusProvider;Lkotlin/jvm/functions/Function1;Lkotlin/jvm/functions/Function1;)Lcom/shilapi/xcertplay/transport/Iap2WiredControlResult;",
+    "sha256": "58677e7fd9a42aefaad1b221728b80f435543fa0f31d2da082f0f2b6b160c32c"
+  },
+  "wired-start-resend": {
+    "dex": "classes.dex",
+    "class": "com/shilapi/xcertplay/transport/Iap2WiredControlClient.smali",
+    "method": "pollWiredStart(Lcom/shilapi/xcertplay/transport/Iap2WiredCarPlayEndpoint;Lcom/shilapi/xcertplay/transport/Iap2ControlDeadline;Lkotlin/jvm/functions/Function1;)V",
+    "sha256": "fd1d32ddbc642810f49b0a93462e103ac1e760486c35a1ef731c7c23c4665feb"
+  },
+  "wired-mode-selection": {
+    "dex": "classes.dex",
+    "class": "com/shilapi/xcertplay/orchestration/CarPlayController.smali",
+    "method": "onIphonePermission(Lcom/shilapi/xcertplay/transport/IphoneUsbHost$PermissionResult;)V",
+    "sha256": "30392ad6d44a15c64bf4aa69b0db92c41adb0edf91b7436d5ff3ee292a05dc2d"
+  },
+  "wired-mode-rejection": {
+    "dex": "classes.dex",
+    "class": "com/shilapi/xcertplay/orchestration/CarPlayController.smali",
+    "method": "tryWiredTransitionFallback(Ljava/lang/Throwable;)Z",
+    "sha256": "69db6f04df2feb85694df6b68051a5b52b6b96b9daf9abce79c4995a4a39dbed"
+  },
+  "wired-start-memory": {
+    "dex": "classes.dex",
+    "class": "com/shilapi/xcertplay/orchestration/CarPlayController.smali",
+    "method": "rememberWiredStart(Ljava/lang/String;)V",
+    "sha256": "16854452a637cf051be5c43b449ad341600c3d0b3edb0f01df372f61a2776ad3"
+  },
+  "wired-start-progress": {
+    "dex": "classes.dex",
+    "class": "com/shilapi/xcertplay/orchestration/CarPlayController.smali",
+    "method": "runStack$lambda$114(Lcom/shilapi/xcertplay/orchestration/CarPlayController;Ljava/lang/String;)Lkotlin/Unit;",
+    "sha256": "6265b3ee60c9022053d07dc2544dedd248752ba946ea14b76470400b5b1d5ae5"
+  },
+  "wired-start-active": {
+    "dex": "classes.dex",
+    "class": "com/shilapi/xcertplay/orchestration/CarPlayController.smali",
+    "method": "markWiredSessionActive()V",
+    "sha256": "8be60306de6d8431a3d14c38e62e953fdb790f9a5e8cb01eb0ca2fe7ca3487bd"
+  },
+  "wired-start-incoming": {
+    "dex": "classes.dex",
+    "class": "com/shilapi/xcertplay/network/Ipv6NcmBridge.smali",
+    "method": "runNcmToTun()V",
+    "sha256": "06d07776839fbfbef8bd2283dd5e132a63ac983b1f11a1469ac9cbb280a31fce"
+  },
+  "wired-start-close": {
+    "dex": "classes.dex",
+    "class": "com/shilapi/xcertplay/transport/NcmUsbBridge.smali",
+    "method": "close()V",
+    "sha256": "0710e8c8ac6ef7bdc08d979cb3048d0cca834d09afededf17c90a30c84043793"
   }
 }

@@ -2454,6 +2454,10 @@
 
     move-result-object v5
 
+    invoke-static {v0, v5}, Lcom/shilapi/xcertplay/network/BonjourAddress;->named(Ljava/net/InetAddress;Ljava/lang/String;)Ljava/net/InetAddress;
+
+    move-result-object v0
+
     invoke-static {v0, v5}, Ljavax/jmdns/JmDNS;->create(Ljava/net/InetAddress;Ljava/lang/String;)Ljavax/jmdns/JmDNS;
 
     move-result-object v5

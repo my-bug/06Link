@@ -46,6 +46,13 @@ public class LogPolicyTest {
   check(session.length()==voiceBytes,"duplicate negotiation choice suppressed");
   E01LogPolicy.session(session,"Audio: ready audioType=default codec=LPCM rate=24000 channels=1");
   check(read(session).contains("codec=LPCM rate=24000"),"per-track audio format retained");
+  E01LogPolicy.session(session,"wired start: waiting up to 45s for late USB network");
+  check(read(session).contains("wired start: waiting up to 45s"),"late USB wait retained");
+  long holdBytes=session.length();
+  E01LogPolicy.session(session,"wired start: waiting up to 45s for late USB network");
+  check(session.length()==holdBytes,"same USB wait is deduplicated");
+  E01LogPolicy.session(session,"wired start: repeated request after USB network opened");
+  check(read(session).contains("wired start: repeated request"),"once-only wired restart retained");
   check(E01LogPolicy.FILE_BYTES==16384,"daily file limit is 16 KiB");
   check(E01LogPolicy.keepCluster("[原厂引导] 暂停广播已分发，实际停发未观测"),"bounded publisher diagnostic retained");
   check(!E01LogPolicy.keepCluster("[原厂引导] 暂停广播已分发，实际停发未观测"),"identical publisher state suppressed");

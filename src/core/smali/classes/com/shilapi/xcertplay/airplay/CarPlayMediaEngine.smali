@@ -747,7 +747,7 @@
 
     if-eq v8, v2, :cond_0
 
-    goto/16 :goto_8
+    goto/16 :goto_9
 
     .line 394
     :cond_0
@@ -908,16 +908,31 @@
 
     const/16 v9, 0x14
 
-    if-ne v2, v7, :cond_a
+    if-ne v2, v7, :cond_9
+
+    :goto_5
+    move-object v15, v3
+
+    goto :goto_6
 
     :cond_9
-    move-object v15, v3
+    if-gtz v1, :cond_a
+
+    invoke-virtual/range {p4 .. p4}, Lcom/shilapi/xcertplay/airplay/AudioFormat;->getSampleRate()I
+
+    move-result v2
+
+    invoke-virtual/range {p4 .. p4}, Lcom/shilapi/xcertplay/airplay/AudioFormat;->getChannels()I
+
+    move-result v7
+
+    invoke-static {v2, v7}, Lcom/shilapi/xcertplay/airplay/AudioPacketSize;->pcmFrameMillis(II)I
+
+    move-result v9
 
     goto :goto_5
 
     :cond_a
-    if-lez v1, :cond_9
-
     int-to-double v1, v1
 
     const-wide v15, 0x408f400000000000L    # 1000.0
@@ -953,7 +968,7 @@
 
     move-result v9
 
-    :goto_5
+    :goto_6
     const-wide/32 v1, 0x40000000
 
     and-long/2addr v1, v13
@@ -964,7 +979,7 @@
 
     const v1, 0x17700
 
-    goto :goto_6
+    goto :goto_7
 
     :cond_b
     const-wide/32 v1, 0x20000000
@@ -977,13 +992,13 @@
 
     const v1, 0xfa00
 
-    goto :goto_6
+    goto :goto_7
 
     :cond_c
     const v1, 0xbb80
 
     .line 414
-    :goto_6
+    :goto_7
     invoke-virtual/range {p4 .. p4}, Lcom/shilapi/xcertplay/airplay/AudioFormat;->getAudioType()Ljava/lang/String;
 
     move-result-object v5
@@ -1021,13 +1036,13 @@
 
     move-result-object v1
 
-    goto :goto_7
+    goto :goto_8
 
     :cond_d
     move-object v1, v15
 
     .line 425
-    :goto_7
+    :goto_8
     invoke-virtual/range {p4 .. p4}, Lcom/shilapi/xcertplay/airplay/AudioFormat;->getCodec()Lcom/shilapi/xcertplay/airplay/AudioCodecKind;
 
     move-result-object v3
@@ -1071,7 +1086,7 @@
     return-object v15
 
     :cond_11
-    :goto_8
+    :goto_9
     move-object v15, v3
 
     return-object v15
@@ -2805,7 +2820,7 @@
 
     move-result-object v3
 
-    invoke-virtual {v3}, Lcom/shilapi/xcertplay/airplay/AudioFormat;->getSampleRate()I
+    invoke-virtual {v3}, Lcom/shilapi/xcertplay/airplay/AudioFormat;->getRtpClockRate()I
 
     move-result v3
 
@@ -2897,7 +2912,7 @@
 
     move-result-object v12
 
-    invoke-virtual {v12}, Lcom/shilapi/xcertplay/airplay/AudioFormat;->getSampleRate()I
+    invoke-virtual {v12}, Lcom/shilapi/xcertplay/airplay/AudioFormat;->getRtpClockRate()I
 
     move-result v12
 

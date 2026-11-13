@@ -149,7 +149,7 @@ public final class E01LogPolicy {
             || s.startsWith("audio: ready audiotype=") || s.contains("connected") || s.contains("disconnect")
             || s.contains("session active") || s.contains("session ended")
             || s.contains("session started") || s.contains("session closed")
-            || s.contains("hotspot ready") || s.contains("watchdog")
+            || s.contains("hotspot ready") || s.contains("watchdog") || s.startsWith("wired start:")
             || s.contains("restored") || s.contains("recovery")
             || s.contains("permission") || s.contains("authentication")
             || s.contains("crash") || s.contains("stall") || s.startsWith("video config ")

@@ -83,6 +83,8 @@
 
 .field private final session:Lcom/shilapi/xcertplay/iap2/session/Iap2Session;
 
+.field private startup:Lcom/shilapi/xcertplay/transport/WiredStartRecovery;
+
 
 # direct methods
 .method public static synthetic $r8$lambda$8k1KKa4OCw7-k9vgpFXgCxlT1k0(Ljava/lang/String;)Lkotlin/Unit;
@@ -179,6 +181,90 @@
     .line 21
     iput-object p2, p0, Lcom/shilapi/xcertplay/transport/Iap2WiredControlClient;->mfi:Lcom/shilapi/xcertplay/mfi/Iap2MfiAuthenticationClient;
 
+    return-void
+.end method
+
+.method private final noteWiredStart()V
+    .locals 1
+
+    iget-object v0, p0, Lcom/shilapi/xcertplay/transport/Iap2WiredControlClient;->startup:Lcom/shilapi/xcertplay/transport/WiredStartRecovery;
+
+    if-eqz v0, :cond_0
+
+    invoke-virtual {v0}, Lcom/shilapi/xcertplay/transport/WiredStartRecovery;->startSent()V
+
+    :cond_0
+    return-void
+.end method
+
+.method private final pollWiredStart(Lcom/shilapi/xcertplay/transport/Iap2WiredCarPlayEndpoint;Lcom/shilapi/xcertplay/transport/Iap2ControlDeadline;Lkotlin/jvm/functions/Function1;)V
+    .locals 3
+
+    iget-object v0, p0, Lcom/shilapi/xcertplay/transport/Iap2WiredControlClient;->startup:Lcom/shilapi/xcertplay/transport/WiredStartRecovery;
+
+    if-eqz v0, :cond_2
+
+    invoke-virtual {v0}, Lcom/shilapi/xcertplay/transport/WiredStartRecovery;->poll()I
+
+    move-result v1
+
+    const/4 v2, 0x1
+
+    if-ne v1, v2, :cond_0
+
+    iget-object v1, p0, Lcom/shilapi/xcertplay/transport/Iap2WiredControlClient;->session:Lcom/shilapi/xcertplay/iap2/session/Iap2Session;
+
+    invoke-virtual {v1}, Lcom/shilapi/xcertplay/iap2/session/Iap2Session;->isClosed()Z
+
+    move-result v1
+
+    if-nez v1, :cond_2
+
+    invoke-virtual {v0}, Lcom/shilapi/xcertplay/transport/WiredStartRecovery;->canSendAgain()Z
+
+    move-result v1
+
+    if-eqz v1, :cond_2
+
+    sget-object v1, Lcom/shilapi/xcertplay/transport/Iap2WiredControlClient;->Companion:Lcom/shilapi/xcertplay/transport/Iap2WiredControlClient$Companion;
+
+    invoke-virtual {v1, p1}, Lcom/shilapi/xcertplay/transport/Iap2WiredControlClient$Companion;->carPlayStartSession(Lcom/shilapi/xcertplay/transport/Iap2WiredCarPlayEndpoint;)Lcom/shilapi/xcertplay/iap2/wire/Iap2Frame;
+
+    move-result-object p1
+
+    invoke-direct {p0, p1, p2}, Lcom/shilapi/xcertplay/transport/Iap2WiredControlClient;->send(Lcom/shilapi/xcertplay/iap2/wire/Iap2Frame;Lcom/shilapi/xcertplay/transport/Iap2ControlDeadline;)V
+
+    invoke-virtual {v0}, Lcom/shilapi/xcertplay/transport/WiredStartRecovery;->sentAgain()V
+
+    const-string p1, "start: repeated request after USB network opened"
+
+    invoke-interface {p3, p1}, Lkotlin/jvm/functions/Function1;->invoke(Ljava/lang/Object;)Ljava/lang/Object;
+
+    return-void
+
+    :cond_0
+    const/4 v2, 0x2
+
+    if-ne v1, v2, :cond_1
+
+    new-instance p1, Ljava/net/SocketTimeoutException;
+
+    const-string p2, "iPhone did not open CarPlay over USB after start request"
+
+    invoke-direct {p1, p2}, Ljava/net/SocketTimeoutException;-><init>(Ljava/lang/String;)V
+
+    throw p1
+
+    :cond_1
+    const/4 v2, 0x3
+
+    if-ne v1, v2, :cond_2
+
+    const-string p1, "start: waiting up to 45s for late USB network"
+
+    invoke-interface {p3, p1}, Lkotlin/jvm/functions/Function1;->invoke(Ljava/lang/Object;)Ljava/lang/Object;
+
+    :cond_2
     return-void
 .end method
 
@@ -381,8 +467,33 @@
     return-void
 .end method
 
+.method private final wiredPollTimeout(J)J
+    .locals 1
+
+    iget-object v0, p0, Lcom/shilapi/xcertplay/transport/Iap2WiredControlClient;->startup:Lcom/shilapi/xcertplay/transport/WiredStartRecovery;
+
+    if-eqz v0, :cond_0
+
+    invoke-virtual {v0, p1, p2}, Lcom/shilapi/xcertplay/transport/WiredStartRecovery;->pollTimeout(J)J
+
+    move-result-wide p1
+
+    :cond_0
+    return-wide p1
+.end method
+
 
 # virtual methods
+.method public final configureStartup(Lcom/shilapi/xcertplay/transport/WiredStartRecovery;I)V
+    .locals 0
+
+    iput-object p1, p0, Lcom/shilapi/xcertplay/transport/Iap2WiredControlClient;->startup:Lcom/shilapi/xcertplay/transport/WiredStartRecovery;
+
+    invoke-virtual {p1, p2}, Lcom/shilapi/xcertplay/transport/WiredStartRecovery;->preparePort(I)V
+
+    return-void
+.end method
+
 .method public final run(Lcom/shilapi/xcertplay/transport/Iap2IdentificationConfig;Lcom/shilapi/xcertplay/transport/Iap2WiredCarPlayEndpoint;IJLcom/shilapi/xcertplay/transport/Iap2LocationProvider;Lcom/shilapi/xcertplay/transport/VehicleStatusProvider;Lkotlin/jvm/functions/Function1;Lkotlin/jvm/functions/Function1;)Lcom/shilapi/xcertplay/transport/Iap2WiredControlResult;
     .locals 16
     .annotation system Ldalvik/annotation/Signature;
@@ -643,6 +754,8 @@
     :cond_4
     :goto_2
     :try_start_0
+    invoke-direct {v1, v2, v14, v7}, Lcom/shilapi/xcertplay/transport/Iap2WiredControlClient;->pollWiredStart(Lcom/shilapi/xcertplay/transport/Iap2WiredCarPlayEndpoint;Lcom/shilapi/xcertplay/transport/Iap2ControlDeadline;Lkotlin/jvm/functions/Function1;)V
+
     sget-object v9, Lcom/shilapi/xcertplay/transport/Iap2WiredControlClient;->Companion:Lcom/shilapi/xcertplay/transport/Iap2WiredControlClient$Companion;
 
     # invokes: Lcom/shilapi/xcertplay/transport/Iap2WiredControlClient$Companion;->remainingMillis(Lcom/shilapi/xcertplay/transport/Iap2ControlDeadline;)J
@@ -700,6 +813,10 @@
 
     .line 71
     iget-object v15, v1, Lcom/shilapi/xcertplay/transport/Iap2WiredControlClient;->session:Lcom/shilapi/xcertplay/iap2/session/Iap2Session;
+
+    invoke-direct {v1, v10, v11}, Lcom/shilapi/xcertplay/transport/Iap2WiredControlClient;->wiredPollTimeout(J)J
+
+    move-result-wide v10
 
     invoke-virtual {v15, v10, v11}, Lcom/shilapi/xcertplay/iap2/session/Iap2Session;->recv(J)Lcom/shilapi/xcertplay/iap2/wire/Iap2Frame;
 
@@ -832,6 +949,8 @@
     add-int/lit8 v8, v8, 0x1
 
     .line 101
+    invoke-direct {v1}, Lcom/shilapi/xcertplay/transport/Iap2WiredControlClient;->noteWiredStart()V
+
     const-string v9, "iap2 tx=0x4301 carplay-start-session"
 
     invoke-interface {v7, v9}, Lkotlin/jvm/functions/Function1;->invoke(Ljava/lang/Object;)Ljava/lang/Object;

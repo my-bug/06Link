@@ -4,6 +4,7 @@
 
 # interfaces
 .implements Ljava/io/Closeable;
+.implements Lcom/shilapi/xcertplay/media/AudioInputPump$Input;
 
 
 # annotations
@@ -3202,10 +3203,7 @@
     goto :goto_0
 
     :cond_0
-    const-wide/16 v1, 0x2710
-
-    .line 1457
-    invoke-static {v0, v1, v2}, Lcom/shilapi/xcertplay/ChipFlow$$ExternalSyntheticApiModelOutline0;->m(Landroid/media/MediaCodec;J)I
+    invoke-static {p0}, Lcom/shilapi/xcertplay/media/AudioInputPump;->acquire(Lcom/shilapi/xcertplay/media/AudioInputPump$Input;)I
 
     move-result v1
 
@@ -5452,7 +5450,7 @@
     .line 1453
     iget-object p1, p0, Lcom/shilapi/xcertplay/media/AudioRenderer;->format:Lcom/shilapi/xcertplay/airplay/AudioFormat;
 
-    invoke-virtual {p1}, Lcom/shilapi/xcertplay/airplay/AudioFormat;->getSampleRate()I
+    invoke-virtual {p1}, Lcom/shilapi/xcertplay/airplay/AudioFormat;->getRtpClockRate()I
 
     move-result p1
 
@@ -6045,6 +6043,14 @@
 
 
 # virtual methods
+.method public final audioInputRunning()Z
+    .locals 1
+
+    iget-boolean v0, p0, Lcom/shilapi/xcertplay/media/AudioRenderer;->running:Z
+
+    return v0
+.end method
+
 .method public close()V
     .locals 1
 
@@ -6057,6 +6063,28 @@
     iget-object v0, p0, Lcom/shilapi/xcertplay/media/AudioRenderer;->thread:Ljava/lang/Thread;
 
     invoke-virtual {v0}, Ljava/lang/Thread;->interrupt()V
+
+    return-void
+.end method
+
+.method public final dequeueAudioInput(J)I
+    .locals 1
+
+    iget-object v0, p0, Lcom/shilapi/xcertplay/media/AudioRenderer;->codec:Landroid/media/MediaCodec;
+
+    invoke-static {v0, p1, p2}, Lcom/shilapi/xcertplay/ChipFlow$$ExternalSyntheticApiModelOutline0;->m(Landroid/media/MediaCodec;J)I
+
+    move-result v0
+
+    return v0
+.end method
+
+.method public final drainAudioOutput()V
+    .locals 1
+
+    iget-object v0, p0, Lcom/shilapi/xcertplay/media/AudioRenderer;->codec:Landroid/media/MediaCodec;
+
+    invoke-direct {p0, v0}, Lcom/shilapi/xcertplay/media/AudioRenderer;->drainCodec(Landroid/media/MediaCodec;)V
 
     return-void
 .end method

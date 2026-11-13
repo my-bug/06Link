@@ -6,6 +6,7 @@ from test_support import build_variant
 ROOT=Path(__file__).resolve().parent.parent
 SUITE=[
  'tests/test_build.py','tests/debug_variant/run.py','tests/toolchain/test_toolchain.py',
+ 'tests/upstream_core/run.py',
  'tests/audio_scene/run.py','tests/audio_scene/test_hooks.py','tests/audio_scene/test_prompt_hooks.py',
  'tests/wireless_audio_handoff/run.py','tests/navigation_audio_probe/run.py','tests/navigation_voice/run.py',
  'tests/cluster_video_gate/run.py','tests/mist_layout/check_route.py','tests/mist_layout/run.py',

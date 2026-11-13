@@ -61,6 +61,8 @@
 
 .field private final payloadType:I
 
+.field private rtpClockRate:I
+
 .field private final sampleRate:I
 
 
@@ -93,6 +95,18 @@
 
     .line 19
     iput-object p5, p0, Lcom/shilapi/xcertplay/airplay/AudioFormat;->audioType:Ljava/lang/String;
+
+    iput p2, p0, Lcom/shilapi/xcertplay/airplay/AudioFormat;->rtpClockRate:I
+
+    return-void
+.end method
+
+.method public constructor <init>(Lcom/shilapi/xcertplay/airplay/AudioCodecKind;IIILjava/lang/String;I)V
+    .locals 0
+
+    invoke-direct/range {p0 .. p5}, Lcom/shilapi/xcertplay/airplay/AudioFormat;-><init>(Lcom/shilapi/xcertplay/airplay/AudioCodecKind;IIILjava/lang/String;)V
+
+    iput p6, p0, Lcom/shilapi/xcertplay/airplay/AudioFormat;->rtpClockRate:I
 
     return-void
 .end method
@@ -250,6 +264,19 @@
 
     invoke-direct/range {v1 .. v6}, Lcom/shilapi/xcertplay/airplay/AudioFormat;-><init>(Lcom/shilapi/xcertplay/airplay/AudioCodecKind;IIILjava/lang/String;)V
 
+    iget-object v0, p0, Lcom/shilapi/xcertplay/airplay/AudioFormat;->codec:Lcom/shilapi/xcertplay/airplay/AudioCodecKind;
+
+    if-ne p1, v0, :cond_0
+
+    iget v0, p0, Lcom/shilapi/xcertplay/airplay/AudioFormat;->sampleRate:I
+
+    if-ne p2, v0, :cond_0
+
+    iget v0, p0, Lcom/shilapi/xcertplay/airplay/AudioFormat;->rtpClockRate:I
+
+    iput v0, v1, Lcom/shilapi/xcertplay/airplay/AudioFormat;->rtpClockRate:I
+
+    :cond_0
     return-object v1
 .end method
 
@@ -310,6 +337,15 @@
     return v2
 
     :cond_5
+    iget v1, p0, Lcom/shilapi/xcertplay/airplay/AudioFormat;->rtpClockRate:I
+
+    iget v3, p1, Lcom/shilapi/xcertplay/airplay/AudioFormat;->rtpClockRate:I
+
+    if-eq v1, v3, :cond_6
+
+    return v2
+
+    :cond_6
     iget-object v1, p0, Lcom/shilapi/xcertplay/airplay/AudioFormat;->audioType:Ljava/lang/String;
 
     iget-object p1, p1, Lcom/shilapi/xcertplay/airplay/AudioFormat;->audioType:Ljava/lang/String;
@@ -318,11 +354,11 @@
 
     move-result p1
 
-    if-nez p1, :cond_6
+    if-nez p1, :cond_7
 
     return v2
 
-    :cond_6
+    :cond_7
     return v0
 .end method
 
@@ -358,6 +394,14 @@
 
     .line 18
     iget v0, p0, Lcom/shilapi/xcertplay/airplay/AudioFormat;->payloadType:I
+
+    return v0
+.end method
+
+.method public final getRtpClockRate()I
+    .locals 1
+
+    iget v0, p0, Lcom/shilapi/xcertplay/airplay/AudioFormat;->rtpClockRate:I
 
     return v0
 .end method
@@ -405,6 +449,12 @@
     invoke-virtual {v1}, Ljava/lang/String;->hashCode()I
 
     move-result v1
+
+    add-int/2addr v0, v1
+
+    mul-int/lit8 v0, v0, 0x1f
+
+    iget v1, p0, Lcom/shilapi/xcertplay/airplay/AudioFormat;->rtpClockRate:I
 
     add-int/2addr v0, v1
 

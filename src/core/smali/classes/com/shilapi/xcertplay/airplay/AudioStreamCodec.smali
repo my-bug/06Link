@@ -458,7 +458,11 @@
 
     move-object v6, p4
 
-    invoke-direct/range {v1 .. v6}, Lcom/shilapi/xcertplay/airplay/AudioFormat;-><init>(Lcom/shilapi/xcertplay/airplay/AudioCodecKind;IIILjava/lang/String;)V
+    invoke-static {p1, p2}, Lcom/shilapi/xcertplay/airplay/AudioPacketSize;->opusClockRate(J)I
+
+    move-result v7
+
+    invoke-direct/range {v1 .. v7}, Lcom/shilapi/xcertplay/airplay/AudioFormat;-><init>(Lcom/shilapi/xcertplay/airplay/AudioCodecKind;IIILjava/lang/String;I)V
 
     return-object v1
 

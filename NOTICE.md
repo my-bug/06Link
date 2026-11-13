@@ -9,3 +9,5 @@ DiPlay 上游：https://github.com/shihabal3amri/DiPlay 。工程保留继承的
 `src/main/jniLibs/` 中的原生库、原厂 `gocsdk` 兼容组件为二进制依赖，未恢复其完整源码；其权利与来源不因本仓库 GPL 文件而改变，不应冒充本项目原创。Conscrypt 2.8.0 通过官方 Maven 来源取得并按固定哈希核对，其许可随依赖保留。构建工具的版本、官方下载位置和 SHA-256 在 `tooling/manifest.json` 中管理。
 
 CarPlay 私有认证材料、发布签名和密码不在仓库内。默认调试包不具备这些私有身份，也不会尝试以发行者凭据认证。
+
+本次连接与音频修复参考 DiPlay [#644](https://github.com/shihabal3amri/DiPlay/pull/644)、[#962](https://github.com/shihabal3amri/DiPlay/pull/962)、[#1057](https://github.com/shihabal3amri/DiPlay/pull/1057)、[#618](https://github.com/shihabal3amri/DiPlay/pull/618)、[#1148](https://github.com/shihabal3amri/DiPlay/pull/1148) 与 [#972](https://github.com/shihabal3amri/DiPlay/pull/972)，分别适配为有线启动恢复、音频时钟与解码缓冲处理、麦克风分包及服务发现。保留 06Link 的 E01 硬件适配。

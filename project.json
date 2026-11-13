@@ -1,8 +1,8 @@
 {
   "schema": 3,
   "display_name": "06Link",
-  "version_name": "1.2.36",
-  "version_code": 141,
+  "version_name": "1.2.37",
+  "version_code": 142,
   "application_id": "com.sixlink.car",
   "architecture": "Source build: Java + Smali + XML/resources; native and crypto dependencies. No application APK or method-patch input.",
   "source_origin": {
