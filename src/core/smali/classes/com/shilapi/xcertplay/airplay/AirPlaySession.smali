@@ -310,6 +310,8 @@
 
 .field private cipher:Lcom/shilapi/xcertplay/airplay/ControlCipher;
 
+.field private clearWiredNavigation:Z
+
 .field private final closed:Ljava/util/concurrent/atomic/AtomicBoolean;
 
 .field private volatile clusterStream:I
@@ -1283,6 +1285,12 @@
     iget-object v2, v0, Lcom/shilapi/xcertplay/airplay/AirPlaySession;->config:Lcom/shilapi/xcertplay/airplay/AirPlayConfig;
 
     invoke-virtual {v1, v2}, Lcom/shilapi/xcertplay/airplay/AirPlayInfoPlist;->build(Lcom/shilapi/xcertplay/airplay/AirPlayConfig;)Ljava/util/Map;
+
+    move-result-object v1
+
+    iget-boolean v2, v0, Lcom/shilapi/xcertplay/airplay/AirPlaySession;->clearWiredNavigation:Z
+
+    invoke-static {v1, v2}, Lcom/shilapi/xcertplay/E01NavigationVoice;->apply(Ljava/util/Map;Z)Ljava/util/Map;
 
     move-result-object v1
 
@@ -6701,6 +6709,26 @@
 
     :cond_1
     :goto_1
+    return-void
+.end method
+
+.method public final configureNavigationVoice(Landroid/content/Context;Z)V
+    .locals 1
+
+    invoke-static {p1, p2}, Lcom/shilapi/xcertplay/E01NavigationVoice;->forConnection(Landroid/content/Context;Z)Z
+
+    move-result v0
+
+    iput-boolean v0, p0, Lcom/shilapi/xcertplay/airplay/AirPlaySession;->clearWiredNavigation:Z
+
+    invoke-static {p2, v0}, Lcom/shilapi/xcertplay/E01NavigationVoice;->status(ZZ)Ljava/lang/String;
+
+    move-result-object v0
+
+    const/4 p1, 0x1
+
+    invoke-direct {p0, v0, p1}, Lcom/shilapi/xcertplay/airplay/AirPlaySession;->debugLog(Ljava/lang/String;Z)V
+
     return-void
 .end method
 

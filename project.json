@@ -1,8 +1,8 @@
 {
   "schema": 3,
   "display_name": "06Link",
-  "version_name": "1.2.35",
-  "version_code": 140,
+  "version_name": "1.2.36",
+  "version_code": 141,
   "application_id": "com.sixlink.car",
   "architecture": "Source build: Java + Smali + XML/resources; native and crypto dependencies. No application APK or method-patch input.",
   "source_origin": {
@@ -96,7 +96,8 @@
       "com/shilapi/xcertplay/E01HotspotSettings": "classes2.dex",
       "com/shilapi/xcertplay/E01MapZoom": "classes2.dex",
       "com/shilapi/xcertplay/E01BuildVariant": "classes.dex",
-      "com/shilapi/xcertplay/E01FrameRatePolicy": "classes2.dex"
+      "com/shilapi/xcertplay/E01FrameRatePolicy": "classes2.dex",
+      "com/shilapi/xcertplay/E01NavigationVoice": "classes2.dex"
     },
     "smali_roots": {
       "classes.dex": "src/core/smali/classes",

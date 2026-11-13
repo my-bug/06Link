@@ -39,6 +39,11 @@ public class LogPolicyTest {
   check(session.length()==audioBytes,"duplicate audio scene state suppressed");
   E01LogPolicy.session(session,"[导航音量] 轨道=1 PCM峰值=-12dBFS");
   check(read(session).contains("[导航音量] 轨道=1"),"bounded navigation diagnostic retained");
+  E01LogPolicy.session(session,"[导航语音] 有线高清开启，导航与提示音不提供8/16kHz");
+  check(read(session).contains("[导航语音] 有线高清开启"),"navigation format choice retained");
+  long voiceBytes=session.length();
+  E01LogPolicy.session(session,"[导航语音] 有线高清开启，导航与提示音不提供8/16kHz");
+  check(session.length()==voiceBytes,"duplicate negotiation choice suppressed");
   E01LogPolicy.session(session,"Audio: ready audioType=default codec=LPCM rate=24000 channels=1");
   check(read(session).contains("codec=LPCM rate=24000"),"per-track audio format retained");
   check(E01LogPolicy.FILE_BYTES==16384,"daily file limit is 16 KiB");

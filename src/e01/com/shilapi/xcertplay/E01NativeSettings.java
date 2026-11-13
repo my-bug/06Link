@@ -37,6 +37,7 @@ public final class E01NativeSettings {
         case "hevc":return (Boolean)load("HevcEnabled");
         case "immersive":return (Boolean)load("HideTopBar")&&(Boolean)load("HideBottomBar");
         case "audio_focus":return (Boolean)load("AudioFocusEnabled");
+        case "wired_navigation_hd":return E01NavigationVoice.enabled(host);
         case "smooth":return video().getBoolean("smooth",false);
         case "mtk":return video().getBoolean("mtk",true);
         case "display60":return E01DisplayClock.enabled(host);
@@ -71,6 +72,7 @@ public final class E01NativeSettings {
         case "location":save("LocationReportingEnabled",v);break;
         case "hevc":save("HevcEnabled",v);break;
         case "audio_focus":save("AudioFocusEnabled",v);break;
+        case "wired_navigation_hd":ok=E01NavigationVoice.save(host,(Boolean)v);break;
         case "immersive":save("HideTopBar",v);save("HideBottomBar",v);call(singleton("CarDisplay"),"fullScreen",host);break;
         case "smooth":case "mtk":case "display60":ok=video().edit().putBoolean(key,(Boolean)v).commit();break;
         case "intro":ok=instrument().edit().putBoolean("transition_enabled",(Boolean)v).commit();break;

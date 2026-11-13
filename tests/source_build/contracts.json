@@ -682,5 +682,29 @@
     "class": "com/shilapi/xcertplay/CarPlayHostActivity.smali",
     "method": "onNewIntent(Landroid/content/Intent;)V",
     "sha256": "344a9104a37fbd7e49cb407f586c700ba0770f0423db9928b5ec4c7cfd630e65"
+  },
+  "navigation-voice-transport": {
+    "dex": "classes.dex",
+    "class": "com/shilapi/xcertplay/network/CarPlayVpnService.smali",
+    "method": "acceptUntilError(ILjava/net/ServerSocket;)Ljava/io/IOException;",
+    "sha256": "cf13ff57c875e458238f8e0771b3711728a68c96e2ab7279967c5c000fea05d2"
+  },
+  "navigation-voice-session": {
+    "dex": "classes.dex",
+    "class": "com/shilapi/xcertplay/airplay/AirPlaySession.smali",
+    "method": "configureNavigationVoice(Landroid/content/Context;Z)V",
+    "sha256": "2be08ee24de5a24d200818879ea8bdd4aea3bc13649b49d82a4577e9bbcf55bd"
+  },
+  "navigation-voice-info": {
+    "dex": "classes.dex",
+    "class": "com/shilapi/xcertplay/airplay/AirPlaySession.smali",
+    "method": "handle(Lcom/shilapi/xcertplay/airplay/RtspMessage$Request;)Lcom/shilapi/xcertplay/airplay/RtspMessage$Response;",
+    "sha256": "cb4c28d6c3ff1f3284b5ae6c21eceddd9f87774c3da4fe79a0434f1850a40850"
+  },
+  "navigation-voice-offer": {
+    "dex": "classes.dex",
+    "class": "com/shilapi/xcertplay/airplay/AirPlayInfoPlist.smali",
+    "method": "audioFormats$shared_release(IZZZZ)Ljava/util/List;",
+    "sha256": "0c93ddc9215bc11e75f65ca56635d619965085b6e90fa99e85726d7f2128d092"
   }
 }

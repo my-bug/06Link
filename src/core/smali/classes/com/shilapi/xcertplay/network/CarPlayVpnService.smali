@@ -943,6 +943,12 @@
     .line 355
     invoke-direct/range {v2 .. v9}, Lcom/shilapi/xcertplay/airplay/AirPlaySession;-><init>(Ljava/net/Socket;Lcom/shilapi/xcertplay/airplay/AirPlayConfig;Lcom/shilapi/xcertplay/airplay/AirPlayIdentity;Lcom/shilapi/xcertplay/airplay/PairingStore;Lcom/shilapi/xcertplay/mfi/MfiAuthenticator;Lcom/shilapi/xcertplay/airplay/AirPlaySessionListener;Lcom/shilapi/xcertplay/airplay/AirPlayMediaHandler;)V
 
+    invoke-virtual {v0}, Lcom/shilapi/xcertplay/network/CarPlayVpnService$AirPlayAttachment;->getWireless()Z
+
+    move-result v4
+
+    invoke-virtual {v2, p0, v4}, Lcom/shilapi/xcertplay/airplay/AirPlaySession;->configureNavigationVoice(Landroid/content/Context;Z)V
+
     .line 386
     invoke-direct {p0, v2}, Lcom/shilapi/xcertplay/network/CarPlayVpnService;->addSession(Lcom/shilapi/xcertplay/airplay/AirPlaySession;)V
     :try_end_5

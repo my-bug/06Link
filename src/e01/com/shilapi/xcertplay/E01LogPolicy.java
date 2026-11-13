@@ -145,7 +145,7 @@ public final class E01LogPolicy {
         String s = text.toLowerCase(Locale.US);
         boolean bad = failure(s) || s.startsWith("video recovery=") || s.startsWith("video decision=");
         if (s.startsWith("06link log started")) clearFailures("session");
-        if (!bad && !(text.startsWith("[音频场景]") || text.startsWith("[导航音量]") || text.startsWith("[音源交接]")
+        if (!bad && !(text.startsWith("[音频场景]") || text.startsWith("[导航音量]") || text.startsWith("[音源交接]") || text.startsWith("[导航语音]")
             || s.startsWith("audio: ready audiotype=") || s.contains("connected") || s.contains("disconnect")
             || s.contains("session active") || s.contains("session ended")
             || s.contains("session started") || s.contains("session closed")
