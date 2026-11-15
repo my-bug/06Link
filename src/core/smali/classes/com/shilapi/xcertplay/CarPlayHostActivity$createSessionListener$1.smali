@@ -122,7 +122,7 @@
 
     if-eq p0, v0, :cond_0
 
-    goto :goto_0
+    return-void
 
     .line 4447
     :cond_0
@@ -140,17 +140,6 @@
     invoke-virtual {p0, v0, v1, p2}, Lcom/shilapi/xcertplay/DisplayDiagnosticSnapshot;->record(Landroid/content/Context;Ljava/lang/String;Ljava/lang/String;)V
 
     .line 4448
-    # getter for: Lcom/shilapi/xcertplay/CarPlayHostActivity;->menuOpen:Z
-    invoke-static {p1}, Lcom/shilapi/xcertplay/CarPlayHostActivity;->access$getMenuOpen$p(Lcom/shilapi/xcertplay/CarPlayHostActivity;)Z
-
-    move-result p0
-
-    if-eqz p0, :cond_1
-
-    :goto_0
-    return-void
-
-    :cond_1
     const/4 p0, 0x2
 
     const/4 v0, 0x0
@@ -164,7 +153,7 @@
 
     move-result p0
 
-    if-eqz p0, :cond_2
+    if-eqz p0, :cond_1
 
     .line 4450
     # invokes: Lcom/shilapi/xcertplay/CarPlayHostActivity;->appendFileLog(Ljava/lang/String;)V
@@ -173,7 +162,7 @@
     return-void
 
     .line 4452
-    :cond_2
+    :cond_1
     # invokes: Lcom/shilapi/xcertplay/CarPlayHostActivity;->appendLog(Ljava/lang/String;)V
     invoke-static {p1, p2}, Lcom/shilapi/xcertplay/CarPlayHostActivity;->access$appendLog(Lcom/shilapi/xcertplay/CarPlayHostActivity;Ljava/lang/String;)V
 
@@ -237,7 +226,7 @@
 
     if-eq p0, v0, :cond_0
 
-    goto :goto_0
+    return-void
 
     .line 4377
     :cond_0
@@ -319,18 +308,7 @@
     invoke-static {p1}, Lcom/shilapi/xcertplay/CarPlayHostActivity;->access$syncAirPlayDarkMode(Lcom/shilapi/xcertplay/CarPlayHostActivity;)V
 
     .line 4392
-    # getter for: Lcom/shilapi/xcertplay/CarPlayHostActivity;->menuOpen:Z
-    invoke-static {p1}, Lcom/shilapi/xcertplay/CarPlayHostActivity;->access$getMenuOpen$p(Lcom/shilapi/xcertplay/CarPlayHostActivity;)Z
 
-    move-result p0
-
-    if-eqz p0, :cond_1
-
-    :goto_0
-    return-void
-
-    .line 4393
-    :cond_1
     const-string p0, "AirPlay session active"
 
     # invokes: Lcom/shilapi/xcertplay/CarPlayHostActivity;->appendLog(Ljava/lang/String;)V
@@ -383,13 +361,6 @@
     invoke-virtual {v0, p1}, Lcom/shilapi/xcertplay/CarPlayBackgroundSession;->setActive(Z)V
 
     .line 4403
-    # getter for: Lcom/shilapi/xcertplay/CarPlayHostActivity;->menuOpen:Z
-    invoke-static {p0}, Lcom/shilapi/xcertplay/CarPlayHostActivity;->access$getMenuOpen$p(Lcom/shilapi/xcertplay/CarPlayHostActivity;)Z
-
-    move-result v0
-
-    if-nez v0, :cond_3
-
     # getter for: Lcom/shilapi/xcertplay/CarPlayHostActivity;->restartGeneration:I
     invoke-static {p0}, Lcom/shilapi/xcertplay/CarPlayHostActivity;->access$getRestartGeneration$p(Lcom/shilapi/xcertplay/CarPlayHostActivity;)I
 
@@ -459,7 +430,6 @@
 
     invoke-static/range {v0 .. v5}, Lcom/shilapi/xcertplay/CarPlayHostActivity;->reconnectAfterLoss$default(Lcom/shilapi/xcertplay/CarPlayHostActivity;Ljava/lang/String;Lcom/shilapi/xcertplay/orchestration/SetupProblem;Ljava/lang/String;ILjava/lang/Object;)V
 
-    :cond_3
     :goto_0
     return-void
 .end method
@@ -468,13 +438,6 @@
     .locals 7
 
     .line 4426
-    # getter for: Lcom/shilapi/xcertplay/CarPlayHostActivity;->menuOpen:Z
-    invoke-static {p0}, Lcom/shilapi/xcertplay/CarPlayHostActivity;->access$getMenuOpen$p(Lcom/shilapi/xcertplay/CarPlayHostActivity;)Z
-
-    move-result v0
-
-    if-nez v0, :cond_2
-
     # getter for: Lcom/shilapi/xcertplay/CarPlayHostActivity;->restartGeneration:I
     invoke-static {p0}, Lcom/shilapi/xcertplay/CarPlayHostActivity;->access$getRestartGeneration$p(Lcom/shilapi/xcertplay/CarPlayHostActivity;)I
 
@@ -583,7 +546,6 @@
 
     invoke-static/range {v1 .. v6}, Lcom/shilapi/xcertplay/CarPlayHostActivity;->reconnectAfterLoss$default(Lcom/shilapi/xcertplay/CarPlayHostActivity;Ljava/lang/String;Lcom/shilapi/xcertplay/orchestration/SetupProblem;Ljava/lang/String;ILjava/lang/Object;)V
 
-    :cond_2
     :goto_1
     return-void
 .end method

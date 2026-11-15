@@ -2105,7 +2105,6 @@
 
 .field public static wireless_hotspot_off:I = 0x7f0c05bf
 
-.field public static wireless_link_automatic:I = 0x7f0c05c0
 
 
 

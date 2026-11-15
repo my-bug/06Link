@@ -27,7 +27,7 @@ public final class E01VideoResume {
             Activity a=owner.get();if(a==null)return;
             synchronized(jobs){if(jobs.get(a)!=this)return;}
             try{
-                if(a.isFinishing()||!Boolean.TRUE.equals(field(a,"inFront"))||Boolean.TRUE.equals(field(a,"menuOpen"))||!E01HotspotControl.allowed()){finish(a);return;}
+                if(a.isFinishing()||!Boolean.TRUE.equals(field(a,"inFront"))||!E01HotspotControl.allowed()){finish(a);return;}
                 Object controller=field(a,"controller"),sink=field(a,"sink"),surface=field(a,"currentSurface");
                 if(controller!=null&&sink!=null&&surface instanceof Surface&&((Surface)surface).isValid()){
                     // This enqueues work; the decoder owns the surface and keyframe request.

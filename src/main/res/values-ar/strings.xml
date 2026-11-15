@@ -699,7 +699,6 @@ SSID: "</string>
     <string name="wireless_carplay_active">CarPlay اللاسلكي نشط</string>
     <string name="wireless_carplay_control_running">التحكم في CarPlay اللاسلكي قيد التشغيل</string>
     <string name="wireless_hotspot_off">نقطة الاتصال اللاسلكية: مُغلقة</string>
-    <string name="wireless_link_automatic">تلقائي (موصى به)</string>
     <string name="wireless_permissions">أذونات لاسلكية</string>
     <string name="wl_allow">سماح</string>
     <string name="wl_how">ماذا أفعل</string>

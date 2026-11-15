@@ -3484,6 +3484,61 @@
     return-void
 .end method
 
+.method public final closeForStreamReplacement()V
+    .locals 4
+
+    invoke-virtual {p0}, Lcom/shilapi/xcertplay/media/VideoDecoder;->close()V
+
+    iget-object v0, p0, Lcom/shilapi/xcertplay/media/VideoDecoder;->thread:Ljava/lang/Thread;
+
+    invoke-static {}, Ljava/lang/Thread;->currentThread()Ljava/lang/Thread;
+
+    move-result-object v1
+
+    if-eq v0, v1, :cond_0
+
+    const-wide/16 v1, 0x3e8
+
+    :try_start_0
+    invoke-virtual {v0, v1, v2}, Ljava/lang/Thread;->join(J)V
+    :try_end_0
+    .catch Ljava/lang/InterruptedException; {:try_start_0 .. :try_end_0} :catch_0
+
+    invoke-virtual {v0}, Ljava/lang/Thread;->isAlive()Z
+
+    move-result v1
+
+    if-eqz v1, :cond_0
+
+    new-instance v0, Ljava/lang/IllegalStateException;
+
+    const-string v1, "Previous cluster decoder has not stopped"
+
+    invoke-direct {v0, v1}, Ljava/lang/IllegalStateException;-><init>(Ljava/lang/String;)V
+
+    throw v0
+
+    :catch_0
+    move-exception v0
+
+    invoke-static {}, Ljava/lang/Thread;->currentThread()Ljava/lang/Thread;
+
+    move-result-object v1
+
+    invoke-virtual {v1}, Ljava/lang/Thread;->interrupt()V
+
+    new-instance v1, Ljava/lang/IllegalStateException;
+
+    const-string v2, "Interrupted while stopping cluster decoder"
+
+    invoke-direct {v1, v2, v0}, Ljava/lang/IllegalStateException;-><init>(Ljava/lang/String;Ljava/lang/Throwable;)V
+
+    throw v1
+
+    :cond_0
+    return-void
+.end method
+
 .method public final configure(Lcom/shilapi/xcertplay/airplay/VideoCodec;[B)V
     .locals 2
 

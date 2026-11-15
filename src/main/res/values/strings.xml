@@ -703,7 +703,6 @@ Allow Trust and CarPlay if your iPhone asks."</string>
     <string name="wireless_carplay_active">Wireless CarPlay active</string>
     <string name="wireless_carplay_control_running">Wireless CarPlay control running</string>
     <string name="wireless_hotspot_off">Wireless hotspot: off</string>
-    <string name="wireless_link_automatic">Automatic (recommended)</string>
     <string name="wireless_permissions">Wireless permissions</string>
     <string name="wl_allow">Allow</string>
     <string name="wl_how">What to do</string>

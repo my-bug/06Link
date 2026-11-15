@@ -401,8 +401,6 @@
 
 .field private maximumDetectedWidthPixels:I
 
-.field private menuOpen:Z
-
 .field private mfiErrorView:Landroid/widget/TextView;
 
 .field private mfiI2cFields:Landroid/view/View;
@@ -496,24 +494,12 @@
 
 .field private safeAreaDrawOutside:Z
 
-.field private safeAreaEditSize:Lcom/shilapi/xcertplay/CarPlayHostActivity$DisplaySize;
-
-.field private safeAreaEditor:Landroid/view/View;
-
-.field private safeAreaEditorActive:Z
-
-.field private safeAreaEditorView:Lcom/shilapi/xcertplay/SafeAreaEditorView;
-
-.field private safeAreaSummaryView:Landroid/widget/TextView;
-
 .field private sessionForce30Fps:Z
 
 .field private sessionForceH264:Z
 
 .field private sessionLog:Lcom/shilapi/xcertplay/SessionLogFile;
 
-
-.field private settingsMenu:Landroid/view/View;
 
 .field private setupActionButton:Landroid/widget/Button;
 
@@ -1895,14 +1881,7 @@
     return-void
 .end method
 
-.method public static final synthetic access$cancelSettingsEdits(Lcom/shilapi/xcertplay/CarPlayHostActivity;)V
-    .locals 0
 
-    .line 120
-    invoke-direct {p0}, Lcom/shilapi/xcertplay/CarPlayHostActivity;->cancelSettingsEdits()V
-
-    return-void
-.end method
 
 .method public static final synthetic access$clearProblem(Lcom/shilapi/xcertplay/CarPlayHostActivity;)V
     .locals 0
@@ -1913,14 +1892,7 @@
     return-void
 .end method
 
-.method public static final synthetic access$closeSafeAreaEditor(Lcom/shilapi/xcertplay/CarPlayHostActivity;)V
-    .locals 0
 
-    .line 120
-    invoke-direct {p0}, Lcom/shilapi/xcertplay/CarPlayHostActivity;->closeSafeAreaEditor()V
-
-    return-void
-.end method
 
 .method public static final synthetic access$getActiveAirPlaySession$p(Lcom/shilapi/xcertplay/CarPlayHostActivity;)Lcom/shilapi/xcertplay/airplay/AirPlaySession;
     .locals 0
@@ -2028,14 +2000,7 @@
     return-object p0
 .end method
 
-.method public static final synthetic access$getMenuOpen$p(Lcom/shilapi/xcertplay/CarPlayHostActivity;)Z
-    .locals 0
 
-    .line 120
-    iget-boolean p0, p0, Lcom/shilapi/xcertplay/CarPlayHostActivity;->menuOpen:Z
-
-    return p0
-.end method
 
 
 .method public static final synthetic access$getPageVisible$p(Lcom/shilapi/xcertplay/CarPlayHostActivity;)Z
@@ -2056,14 +2021,7 @@
     return p0
 .end method
 
-.method public static final synthetic access$getSafeAreaEditorActive$p(Lcom/shilapi/xcertplay/CarPlayHostActivity;)Z
-    .locals 0
 
-    .line 120
-    iget-boolean p0, p0, Lcom/shilapi/xcertplay/CarPlayHostActivity;->safeAreaEditorActive:Z
-
-    return p0
-.end method
 
 .method public static final synthetic access$getSetupProblem$p(Lcom/shilapi/xcertplay/CarPlayHostActivity;)Lcom/shilapi/xcertplay/orchestration/SetupProblem;
     .locals 0
@@ -3015,7 +2973,7 @@
 
     move-result v0
 
-    if-nez v0, :cond_6
+    if-nez v0, :cond_5
 
     iget-object v0, p0, Lcom/shilapi/xcertplay/CarPlayHostActivity;->activeDisplaySize:Lcom/shilapi/xcertplay/CarPlayHostActivity$DisplaySize;
 
@@ -3118,11 +3076,7 @@
 
     .line 4736
     :cond_3
-    iget-boolean v2, p0, Lcom/shilapi/xcertplay/CarPlayHostActivity;->menuOpen:Z
-
     const-string v3, " -> "
-
-    if-nez v2, :cond_5
 
     iget-boolean v2, p0, Lcom/shilapi/xcertplay/CarPlayHostActivity;->handshakeResetInProgress:Z
 
@@ -3178,7 +3132,6 @@
     return-void
 
     .line 4739
-    :cond_5
     :goto_0
     invoke-virtual {v0}, Lcom/shilapi/xcertplay/CarPlayHostActivity$DisplaySize;->getWidth()I
 
@@ -3223,7 +3176,7 @@
     .line 4737
     invoke-direct {p0, p1}, Lcom/shilapi/xcertplay/CarPlayHostActivity;->appendLog(Ljava/lang/String;)V
 
-    :cond_6
+    :cond_5
     :goto_1
     return-void
 .end method
@@ -5059,27 +5012,7 @@
 
 
 
-.method private final cancelSettingsEdits()V
-    .locals 1
 
-    .line 5312
-    iget-boolean v0, p0, Lcom/shilapi/xcertplay/CarPlayHostActivity;->menuOpen:Z
-
-    if-nez v0, :cond_0
-
-    return-void
-
-    .line 5313
-    :cond_0
-
-
-    .line 5314
-    const-string v0, "Settings changes discarded"
-
-    invoke-direct {p0, v0}, Lcom/shilapi/xcertplay/CarPlayHostActivity;->finishSettingsMenu(Ljava/lang/String;)V
-
-    return-void
-.end method
 
 
 .method private final carPlayOnScreen()Z
@@ -5139,7 +5072,7 @@
     move-result v2
 
     .line 4841
-    iget-boolean v3, p0, Lcom/shilapi/xcertplay/CarPlayHostActivity;->menuOpen:Z
+    const/4 v3, 0x0
 
     .line 4842
     iget-object v4, p0, Lcom/shilapi/xcertplay/CarPlayHostActivity;->connectionPanel:Landroid/view/View;
@@ -5232,58 +5165,7 @@
     return-void
 .end method
 
-.method private final closeSafeAreaEditor()V
-    .locals 3
 
-    .line 4264
-    iget-boolean v0, p0, Lcom/shilapi/xcertplay/CarPlayHostActivity;->safeAreaEditorActive:Z
-
-    if-nez v0, :cond_0
-
-    return-void
-
-    :cond_0
-    const/4 v0, 0x0
-
-    .line 4265
-    iput-boolean v0, p0, Lcom/shilapi/xcertplay/CarPlayHostActivity;->safeAreaEditorActive:Z
-
-    const/4 v1, 0x0
-
-    .line 4266
-    iput-object v1, p0, Lcom/shilapi/xcertplay/CarPlayHostActivity;->safeAreaEditSize:Lcom/shilapi/xcertplay/CarPlayHostActivity$DisplaySize;
-
-    .line 4267
-    iget-object v1, p0, Lcom/shilapi/xcertplay/CarPlayHostActivity;->safeAreaEditor:Landroid/view/View;
-
-    if-eqz v1, :cond_1
-
-    const/16 v2, 0x8
-
-    invoke-virtual {v1, v2}, Landroid/view/View;->setVisibility(I)V
-
-    .line 4268
-    :cond_1
-    iget-object v1, p0, Lcom/shilapi/xcertplay/CarPlayHostActivity;->settingsMenu:Landroid/view/View;
-
-    if-eqz v1, :cond_2
-
-    invoke-virtual {v1, v0}, Landroid/view/View;->setVisibility(I)V
-
-    .line 4269
-    :cond_2
-    invoke-direct {p0}, Lcom/shilapi/xcertplay/CarPlayHostActivity;->updateSafeAreaSummary()V
-
-    .line 4270
-    invoke-direct {p0}, Lcom/shilapi/xcertplay/CarPlayHostActivity;->updateResolutionMenu()V
-
-    .line 4271
-    const-string v0, "Safe area editor closed"
-
-    invoke-direct {p0, v0}, Lcom/shilapi/xcertplay/CarPlayHostActivity;->appendLog(Ljava/lang/String;)V
-
-    return-void
-.end method
 
 .method private final clusterDisplayConfig()Lcom/shilapi/xcertplay/airplay/AirPlayDisplayConfig;
     .locals 11
@@ -7628,9 +7510,9 @@
     invoke-static {p2, v0}, Lkotlin/jvm/internal/Intrinsics;->checkNotNullParameter(Ljava/lang/Object;Ljava/lang/String;)V
 
     .line 4461
-    iget-boolean v0, p0, Lcom/shilapi/xcertplay/CarPlayHostActivity;->menuOpen:Z
 
-    if-nez v0, :cond_14
+
+
 
     iget v0, p0, Lcom/shilapi/xcertplay/CarPlayHostActivity;->restartGeneration:I
 
@@ -10882,155 +10764,7 @@
     return-void
 .end method
 
-.method private final finishSettingsMenu(Ljava/lang/String;)V
-    .locals 5
 
-    .line 5318
-    iget-boolean v0, p0, Lcom/shilapi/xcertplay/CarPlayHostActivity;->menuOpen:Z
-
-    if-nez v0, :cond_0
-
-    return-void
-
-    :cond_0
-    const/4 v0, 0x0
-
-    .line 5319
-    iput-boolean v0, p0, Lcom/shilapi/xcertplay/CarPlayHostActivity;->menuOpen:Z
-
-    .line 5320
-    iget-object v1, p0, Lcom/shilapi/xcertplay/CarPlayHostActivity;->settingsMenu:Landroid/view/View;
-
-    if-eqz v1, :cond_1
-
-    const/16 v2, 0x8
-
-    invoke-virtual {v1, v2}, Landroid/view/View;->setVisibility(I)V
-
-    .line 5321
-    :cond_1
-    iget-object v1, p0, Lcom/shilapi/xcertplay/CarPlayHostActivity;->gestureOverlay:Landroid/view/View;
-
-    if-eqz v1, :cond_2
-
-    invoke-virtual {v1, v0}, Landroid/view/View;->setVisibility(I)V
-
-    .line 5322
-    :cond_2
-    invoke-direct {p0}, Lcom/shilapi/xcertplay/CarPlayHostActivity;->updateDebugOverlays()V
-
-    .line 5323
-    iget-object v0, p0, Lcom/shilapi/xcertplay/CarPlayHostActivity;->logLines:Ljava/util/ArrayDeque;
-
-    invoke-virtual {v0}, Ljava/util/ArrayDeque;->clear()V
-
-    .line 5326
-    sget-object v0, Lcom/shilapi/xcertplay/airplay/CarPlayDisplayScale;->INSTANCE:Lcom/shilapi/xcertplay/airplay/CarPlayDisplayScale;
-
-    iget v1, p0, Lcom/shilapi/xcertplay/CarPlayHostActivity;->displayScaleTenths:I
-
-    invoke-virtual {v0, v1}, Lcom/shilapi/xcertplay/airplay/CarPlayDisplayScale;->label(I)Ljava/lang/String;
-
-    move-result-object v0
-
-    .line 5327
-    iget-boolean v1, p0, Lcom/shilapi/xcertplay/CarPlayHostActivity;->hevcEnabled:Z
-
-    if-eqz v1, :cond_3
-
-    const-string v1, "HEVC (H.265)"
-
-    goto :goto_0
-
-    :cond_3
-    const-string v1, "H.264"
-
-    .line 5328
-    :goto_0
-    iget-object v2, p0, Lcom/shilapi/xcertplay/CarPlayHostActivity;->mfiTarget:Lcom/shilapi/xcertplay/orchestration/MfiTarget;
-
-    invoke-direct {p0, v2}, Lcom/shilapi/xcertplay/CarPlayHostActivity;->mfiTargetLabel(Lcom/shilapi/xcertplay/orchestration/MfiTarget;)Ljava/lang/String;
-
-    move-result-object v2
-
-    .line 5329
-    iget-boolean v3, p0, Lcom/shilapi/xcertplay/CarPlayHostActivity;->wirelessHotspotAutoSelect:Z
-
-    if-eqz v3, :cond_4
-
-    sget v3, Lcom/shilapi/xcertplay/host/R$string;->wireless_link_automatic:I
-
-    invoke-virtual {p0, v3}, Lcom/shilapi/xcertplay/CarPlayHostActivity;->getString(I)Ljava/lang/String;
-
-    move-result-object v3
-
-    goto :goto_1
-
-    :cond_4
-    iget-object v3, p0, Lcom/shilapi/xcertplay/CarPlayHostActivity;->wirelessHotspotMode:Lcom/shilapi/xcertplay/orchestration/WirelessHotspotMode;
-
-    invoke-direct {p0, v3}, Lcom/shilapi/xcertplay/CarPlayHostActivity;->hotspotModeLabel(Lcom/shilapi/xcertplay/orchestration/WirelessHotspotMode;)Ljava/lang/String;
-
-    move-result-object v3
-
-    :goto_1
-    new-instance v4, Ljava/lang/StringBuilder;
-
-    invoke-direct {v4}, Ljava/lang/StringBuilder;-><init>()V
-
-    invoke-virtual {v4, p1}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
-
-    const-string p1, "; starting a fresh handshake at "
-
-    invoke-virtual {v4, p1}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
-
-    invoke-virtual {v4, v0}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
-
-    const-string p1, " with "
-
-    invoke-virtual {v4, p1}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
-
-    invoke-virtual {v4, v1}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
-
-    const-string p1, ", MFI "
-
-    invoke-virtual {v4, p1}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
-
-    invoke-virtual {v4, v2}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
-
-    const-string p1, ", Wi-Fi session "
-
-    invoke-virtual {v4, p1}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
-
-    invoke-virtual {v4, v3}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
-
-    invoke-virtual {v4}, Ljava/lang/StringBuilder;->toString()Ljava/lang/String;
-
-    move-result-object p1
-
-    .line 5324
-    invoke-direct {p0, p1}, Lcom/shilapi/xcertplay/CarPlayHostActivity;->appendLog(Ljava/lang/String;)V
-
-    .line 5331
-    iget-boolean p1, p0, Lcom/shilapi/xcertplay/CarPlayHostActivity;->handshakeResetInProgress:Z
-
-    if-eqz p1, :cond_5
-
-    const/4 p1, 0x1
-
-    .line 5332
-    iput-boolean p1, p0, Lcom/shilapi/xcertplay/CarPlayHostActivity;->startAfterHandshakeReset:Z
-
-    return-void
-
-    .line 5334
-    :cond_5
-    invoke-direct {p0}, Lcom/shilapi/xcertplay/CarPlayHostActivity;->maybeStartCarPlay()V
-
-    invoke-static {p0}, Lcom/shilapi/xcertplay/E01VideoResume;->resume(Landroid/app/Activity;)V
-
-    return-void
-.end method
 
 .method private final firstPictureFailure(Lcom/shilapi/xcertplay/orchestration/FirstFrameWatch$State;)Ljava/lang/String;
     .locals 8
@@ -13011,17 +12745,17 @@
     .line 5570
     sget-boolean v0, Lcom/shilapi/xcertplay/CarPlayAutoJump;->waitingPage:Z
 
-    if-nez v0, :cond_6
+    if-nez v0, :cond_5
 
     iget-boolean v0, p0, Lcom/shilapi/xcertplay/CarPlayHostActivity;->pageVisible:Z
 
-    if-eqz v0, :cond_6
+    if-eqz v0, :cond_5
 
     invoke-virtual {p0}, Lcom/shilapi/xcertplay/CarPlayHostActivity;->isFinishing()Z
 
     move-result v0
 
-    if-nez v0, :cond_6
+    if-nez v0, :cond_5
 
     move-object v0, p0
 
@@ -13031,7 +12765,7 @@
 
     move-result v0
 
-    if-nez v0, :cond_6
+    if-nez v0, :cond_5
 
     iget-object v0, p0, Lcom/shilapi/xcertplay/CarPlayHostActivity;->shuttingDown:Ljava/util/concurrent/atomic/AtomicBoolean;
 
@@ -13053,19 +12787,11 @@
 
     move-result v0
 
-    if-eqz v0, :cond_6
+    if-eqz v0, :cond_5
 
-    iget-boolean v0, p0, Lcom/shilapi/xcertplay/CarPlayHostActivity;->menuOpen:Z
-
-    if-eqz v0, :cond_1
-
-    goto/16 :goto_1
-
-    .line 5573
-    :cond_1
     iget-boolean v0, p0, Lcom/shilapi/xcertplay/CarPlayHostActivity;->holdingFrontForDialog:Z
 
-    if-nez v0, :cond_6
+    if-nez v0, :cond_5
 
     .line 5574
     iget-object v0, p0, Lcom/shilapi/xcertplay/CarPlayHostActivity;->lastStatus:Lcom/shilapi/xcertplay/orchestration/CarPlayStatus;
@@ -13076,7 +12802,7 @@
 
     move-result v0
 
-    if-nez v0, :cond_6
+    if-nez v0, :cond_5
 
     .line 5575
     iget-object v0, p0, Lcom/shilapi/xcertplay/CarPlayHostActivity;->lastStatus:Lcom/shilapi/xcertplay/orchestration/CarPlayStatus;
@@ -13087,12 +12813,12 @@
 
     move-result v0
 
-    if-nez v0, :cond_6
+    if-nez v0, :cond_5
 
     .line 5576
     iget-object v0, p0, Lcom/shilapi/xcertplay/CarPlayHostActivity;->setupProblem:Lcom/shilapi/xcertplay/orchestration/SetupProblem;
 
-    if-eqz v0, :cond_2
+    if-eqz v0, :cond_1
 
     invoke-virtual {v0}, Lcom/shilapi/xcertplay/orchestration/SetupProblem;->getResume()Lcom/shilapi/xcertplay/orchestration/SetupResume;
 
@@ -13100,37 +12826,37 @@
 
     goto :goto_0
 
-    :cond_2
+    :cond_1
     const/4 v0, 0x0
 
     :goto_0
     sget-object v1, Lcom/shilapi/xcertplay/orchestration/SetupResume;->PERSON_ANSWERS_PROMPT:Lcom/shilapi/xcertplay/orchestration/SetupResume;
 
-    if-eq v0, v1, :cond_6
+    if-eq v0, v1, :cond_5
 
     .line 5577
     iget-object v0, p0, Lcom/shilapi/xcertplay/CarPlayHostActivity;->setupProblem:Lcom/shilapi/xcertplay/orchestration/SetupProblem;
 
     sget-object v1, Lcom/shilapi/xcertplay/orchestration/SetupProblem;->USB_PERMISSION_PENDING:Lcom/shilapi/xcertplay/orchestration/SetupProblem;
 
-    if-eq v0, v1, :cond_6
+    if-eq v0, v1, :cond_5
 
     .line 5578
     iget-object v0, p0, Lcom/shilapi/xcertplay/CarPlayHostActivity;->setupProblem:Lcom/shilapi/xcertplay/orchestration/SetupProblem;
 
     sget-object v1, Lcom/shilapi/xcertplay/orchestration/SetupProblem;->VPN_CONSENT_PENDING:Lcom/shilapi/xcertplay/orchestration/SetupProblem;
 
-    if-ne v0, v1, :cond_3
+    if-ne v0, v1, :cond_2
 
     goto :goto_1
 
-    :cond_3
-    if-eqz p2, :cond_4
+    :cond_2
+    if-eqz p2, :cond_3
 
     .line 5580
     iget-boolean p2, p0, Lcom/shilapi/xcertplay/CarPlayHostActivity;->inFront:Z
 
-    if-eqz p2, :cond_4
+    if-eqz p2, :cond_3
 
     sget-object p2, Lcom/shilapi/xcertplay/HostLaunch;->INSTANCE:Lcom/shilapi/xcertplay/HostLaunch;
 
@@ -13138,7 +12864,7 @@
 
     move-result p2
 
-    if-nez p2, :cond_4
+    if-nez p2, :cond_3
 
     .line 5581
     sget-object p2, Lcom/shilapi/xcertplay/HostLaunch;->INSTANCE:Lcom/shilapi/xcertplay/HostLaunch;
@@ -13165,7 +12891,7 @@
     invoke-direct {p0, p2}, Lcom/shilapi/xcertplay/CarPlayHostActivity;->appendLog(Ljava/lang/String;)V
 
     .line 5584
-    :cond_4
+    :cond_3
     invoke-static {}, Landroid/os/SystemClock;->uptimeMillis()J
 
     move-result-wide v0
@@ -13179,12 +12905,12 @@
 
     cmp-long p2, v2, v4
 
-    if-gez p2, :cond_5
+    if-gez p2, :cond_4
 
     goto :goto_1
 
     .line 5586
-    :cond_5
+    :cond_4
     iput-wide v0, p0, Lcom/shilapi/xcertplay/CarPlayHostActivity;->handedToHomeAt:J
 
     .line 5587
@@ -13209,7 +12935,7 @@
 
     invoke-direct {p0, p1}, Lcom/shilapi/xcertplay/CarPlayHostActivity;->goBehindHome(Z)V
 
-    :cond_6
+    :cond_5
     :goto_1
     return-void
 .end method
@@ -14874,9 +14600,9 @@
     if-nez v1, :cond_9
 
     .line 4778
-    iget-boolean v1, p0, Lcom/shilapi/xcertplay/CarPlayHostActivity;->menuOpen:Z
 
-    if-nez v1, :cond_9
+
+
 
     .line 4779
     iget-boolean v1, p0, Lcom/shilapi/xcertplay/CarPlayHostActivity;->handshakeResetInProgress:Z
@@ -15028,9 +14754,9 @@
 
     if-nez v0, :cond_3
 
-    iget-boolean v0, p0, Lcom/shilapi/xcertplay/CarPlayHostActivity;->menuOpen:Z
 
-    if-nez v0, :cond_3
+
+
 
     iget-wide v0, p0, Lcom/shilapi/xcertplay/CarPlayHostActivity;->waitingForIphoneSince:J
 
@@ -16762,13 +16488,9 @@
 
     move-result-object v0
 
-    if-eqz v0, :cond_2
+    if-eqz v0, :cond_1
 
     .line 5428
-    iget-boolean v1, p0, Lcom/shilapi/xcertplay/CarPlayHostActivity;->menuOpen:Z
-
-    if-nez v1, :cond_1
-
     iget-object v1, p0, Lcom/shilapi/xcertplay/CarPlayHostActivity;->shuttingDown:Ljava/util/concurrent/atomic/AtomicBoolean;
 
     invoke-virtual {v1}, Ljava/util/concurrent/atomic/AtomicBoolean;->get()Z
@@ -16786,7 +16508,6 @@
 
     goto :goto_1
 
-    :cond_1
     :goto_0
     iget-object v1, p0, Lcom/shilapi/xcertplay/CarPlayHostActivity;->heldTouches:Ljava/util/ArrayList;
 
@@ -16829,7 +16550,7 @@
     invoke-static {v1, v0}, Landroid/util/Log;->i(Ljava/lang/String;Ljava/lang/String;)I
 
     .line 5431
-    :cond_2
+    :cond_1
     invoke-direct {p0}, Lcom/shilapi/xcertplay/CarPlayHostActivity;->scheduleGestureTimer()V
 
     return-void
@@ -16839,81 +16560,73 @@
     .locals 8
 
     .line 5402
-    iget-boolean v0, p0, Lcom/shilapi/xcertplay/CarPlayHostActivity;->menuOpen:Z
-
     const/4 v1, 0x1
 
-    if-eqz v0, :cond_0
-
-    return v1
-
-    .line 5403
-    :cond_0
     invoke-virtual {p2}, Landroid/view/MotionEvent;->getActionMasked()I
 
     move-result v0
 
-    if-eqz v0, :cond_6
+    if-eqz v0, :cond_5
 
-    if-eq v0, v1, :cond_5
+    if-eq v0, v1, :cond_4
 
     const/4 v2, 0x2
 
-    if-eq v0, v2, :cond_4
+    if-eq v0, v2, :cond_3
 
     const/4 v2, 0x3
 
-    if-eq v0, v2, :cond_3
+    if-eq v0, v2, :cond_2
 
     const/4 v2, 0x5
 
-    if-eq v0, v2, :cond_2
+    if-eq v0, v2, :cond_1
 
     const/4 v2, 0x6
 
-    if-eq v0, v2, :cond_1
+    if-eq v0, v2, :cond_0
 
     return v1
 
     .line 5407
-    :cond_1
+    :cond_0
     sget-object v0, Lcom/shilapi/xcertplay/CarPlayGestures$Phase;->POINTER_UP:Lcom/shilapi/xcertplay/CarPlayGestures$Phase;
 
     goto :goto_0
 
     .line 5405
-    :cond_2
+    :cond_1
     sget-object v0, Lcom/shilapi/xcertplay/CarPlayGestures$Phase;->POINTER_DOWN:Lcom/shilapi/xcertplay/CarPlayGestures$Phase;
 
     goto :goto_0
 
     .line 5409
-    :cond_3
+    :cond_2
     sget-object v0, Lcom/shilapi/xcertplay/CarPlayGestures$Phase;->CANCEL:Lcom/shilapi/xcertplay/CarPlayGestures$Phase;
 
     goto :goto_0
 
     .line 5406
-    :cond_4
+    :cond_3
     sget-object v0, Lcom/shilapi/xcertplay/CarPlayGestures$Phase;->MOVE:Lcom/shilapi/xcertplay/CarPlayGestures$Phase;
 
     goto :goto_0
 
     .line 5408
-    :cond_5
+    :cond_4
     sget-object v0, Lcom/shilapi/xcertplay/CarPlayGestures$Phase;->UP:Lcom/shilapi/xcertplay/CarPlayGestures$Phase;
 
     goto :goto_0
 
     .line 5404
-    :cond_6
+    :cond_5
     sget-object v0, Lcom/shilapi/xcertplay/CarPlayGestures$Phase;->DOWN:Lcom/shilapi/xcertplay/CarPlayGestures$Phase;
 
     .line 5412
     :goto_0
     sget-object v2, Lcom/shilapi/xcertplay/CarPlayGestures$Phase;->DOWN:Lcom/shilapi/xcertplay/CarPlayGestures$Phase;
 
-    if-ne v0, v2, :cond_7
+    if-ne v0, v2, :cond_6
 
     iget-object v2, p0, Lcom/shilapi/xcertplay/CarPlayHostActivity;->gestures:Lcom/shilapi/xcertplay/CarPlayGestures;
 
@@ -16927,7 +16640,7 @@
 
     invoke-virtual {v2}, Ljava/util/ArrayList;->clear()V
 
-    :cond_7
+    :cond_6
     const/4 v2, 0x0
 
     .line 5413
@@ -16964,7 +16677,7 @@
 
     move-result v4
 
-    if-eqz v4, :cond_8
+    if-eqz v4, :cond_7
 
     move-object v4, v2
 
@@ -16997,7 +16710,7 @@
     goto :goto_1
 
     .line 6046
-    :cond_8
+    :cond_7
     check-cast v3, Ljava/util/List;
 
     .line 5414
@@ -17037,14 +16750,14 @@
     .line 5418
     sget-object v3, Lcom/shilapi/xcertplay/CarPlayGestures$Phase;->MOVE:Lcom/shilapi/xcertplay/CarPlayGestures$Phase;
 
-    if-eq v0, v3, :cond_c
+    if-eq v0, v3, :cond_b
 
     .line 5419
     sget v0, Landroid/os/Build$VERSION;->SDK_INT:I
 
     const/16 v3, 0x13
 
-    if-lt v0, v3, :cond_9
+    if-lt v0, v3, :cond_8
 
     invoke-virtual {p2}, Landroid/view/MotionEvent;->getActionMasked()I
 
@@ -17056,7 +16769,7 @@
 
     goto :goto_2
 
-    :cond_9
+    :cond_8
     invoke-virtual {p2}, Landroid/view/MotionEvent;->getActionMasked()I
 
     move-result v0
@@ -17079,7 +16792,7 @@
 
     move-result-object v2
 
-    if-eqz v2, :cond_a
+    if-eqz v2, :cond_9
 
     new-instance v4, Ljava/lang/StringBuilder;
 
@@ -17097,12 +16810,12 @@
 
     move-result-object v2
 
-    if-nez v2, :cond_b
+    if-nez v2, :cond_a
 
-    :cond_a
+    :cond_9
     const-string v2, ""
 
-    :cond_b
+    :cond_a
     new-instance v4, Ljava/lang/StringBuilder;
 
     const-string/jumbo v5, "touch action="
@@ -17140,7 +16853,7 @@
 
     invoke-static {p2, p1}, Landroid/util/Log;->i(Ljava/lang/String;Ljava/lang/String;)I
 
-    :cond_c
+    :cond_b
     return v1
 .end method
 
@@ -17148,6 +16861,7 @@
     .locals 8
 
     const/4 v0, 0x1
+
     invoke-static {v0}, Lcom/shilapi/xcertplay/E01UsbPresence;->changed(Z)V
 
     .line 5119
@@ -17193,7 +16907,7 @@
     .line 5126
     iget-boolean v3, p0, Lcom/shilapi/xcertplay/CarPlayHostActivity;->wirelessEnabled:Z
 
-    if-nez v3, :cond_9
+    if-nez v3, :cond_8
 
     sget-object v3, Lcom/shilapi/xcertplay/orchestration/UsbPresenceTracker$Change;->NONE:Lcom/shilapi/xcertplay/orchestration/UsbPresenceTracker$Change;
 
@@ -17316,7 +17030,7 @@
 
     move-result-object v0
 
-    if-eqz v0, :cond_9
+    if-eqz v0, :cond_8
 
     .line 5145
     iget-object v1, p0, Lcom/shilapi/xcertplay/CarPlayHostActivity;->wiredStopDetail:Ljava/lang/String;
@@ -17335,14 +17049,6 @@
 
     .line 5132
     :cond_7
-    iget-boolean v2, p0, Lcom/shilapi/xcertplay/CarPlayHostActivity;->menuOpen:Z
-
-    if-eqz v2, :cond_8
-
-    goto :goto_2
-
-    .line 5133
-    :cond_8
     iget-object v2, p0, Lcom/shilapi/xcertplay/CarPlayHostActivity;->autoResumeTimes:Ljava/util/List;
 
     invoke-static {v0, v1}, Ljava/lang/Long;->valueOf(J)Ljava/lang/Long;
@@ -17376,7 +17082,7 @@
 
     invoke-direct {p0, v0}, Lcom/shilapi/xcertplay/CarPlayHostActivity;->restartCarPlay(Ljava/lang/String;)V
 
-    :cond_9
+    :cond_8
     :goto_2
     return-void
 .end method
@@ -17406,6 +17112,7 @@
     .locals 3
 
     const/4 v0, 0x0
+
     invoke-static {v0}, Lcom/shilapi/xcertplay/E01UsbPresence;->changed(Z)V
 
     .line 5110
@@ -17420,16 +17127,8 @@
     .line 5111
     iget-boolean v0, p0, Lcom/shilapi/xcertplay/CarPlayHostActivity;->wirelessEnabled:Z
 
-    if-nez v0, :cond_2
+    if-nez v0, :cond_1
 
-    iget-boolean v0, p0, Lcom/shilapi/xcertplay/CarPlayHostActivity;->menuOpen:Z
-
-    if-eqz v0, :cond_0
-
-    goto :goto_0
-
-    .line 5112
-    :cond_0
     const-string v0, "iPhone left USB"
 
     invoke-direct {p0, v0}, Lcom/shilapi/xcertplay/CarPlayHostActivity;->appendLog(Ljava/lang/String;)V
@@ -17437,15 +17136,15 @@
     .line 5114
     iget-boolean v0, p0, Lcom/shilapi/xcertplay/CarPlayHostActivity;->wiredRetryStopped:Z
 
-    if-nez v0, :cond_1
+    if-nez v0, :cond_0
 
     iget-object v0, p0, Lcom/shilapi/xcertplay/CarPlayHostActivity;->setupProblem:Lcom/shilapi/xcertplay/orchestration/SetupProblem;
 
     sget-object v1, Lcom/shilapi/xcertplay/orchestration/SetupProblem;->CONNECTION_LOST:Lcom/shilapi/xcertplay/orchestration/SetupProblem;
 
-    if-ne v0, v1, :cond_2
+    if-ne v0, v1, :cond_1
 
-    :cond_1
+    :cond_0
     sget-object v0, Lcom/shilapi/xcertplay/orchestration/SetupProblem;->IPHONE_LEFT_USB:Lcom/shilapi/xcertplay/orchestration/SetupProblem;
 
     const/4 v1, 0x2
@@ -17454,8 +17153,7 @@
 
     invoke-static {p0, v0, v2, v1, v2}, Lcom/shilapi/xcertplay/CarPlayHostActivity;->showProblem$default(Lcom/shilapi/xcertplay/CarPlayHostActivity;Lcom/shilapi/xcertplay/orchestration/SetupProblem;Ljava/lang/String;ILjava/lang/Object;)V
 
-    :cond_2
-    :goto_0
+    :cond_1
     return-void
 .end method
 
@@ -17496,16 +17194,12 @@
     :cond_0
     iget-boolean v1, p0, Lcom/shilapi/xcertplay/CarPlayHostActivity;->locationReportingEnabled:Z
 
-    if-eqz v1, :cond_4
+    if-eqz v1, :cond_3
 
     .line 279
     iput-boolean v0, p0, Lcom/shilapi/xcertplay/CarPlayHostActivity;->locationReportingEnabled:Z
 
     .line 280
-    iget-boolean v1, p0, Lcom/shilapi/xcertplay/CarPlayHostActivity;->menuOpen:Z
-
-    if-nez v1, :cond_1
-
     .line 281
     sget-object v1, Lcom/shilapi/xcertplay/AirPlayPersistence;->INSTANCE:Lcom/shilapi/xcertplay/AirPlayPersistence;
 
@@ -17518,15 +17212,14 @@
     invoke-virtual {v1, v2, v0}, Lcom/shilapi/xcertplay/AirPlayPersistence;->saveLocationReportingEnabled(Landroid/content/Context;Z)V
 
     .line 286
-    :cond_1
     iget-object v1, p0, Lcom/shilapi/xcertplay/CarPlayHostActivity;->locationReportingSwitch:Landroid/widget/Switch;
 
-    if-eqz v1, :cond_2
+    if-eqz v1, :cond_1
 
     invoke-virtual {v1, v0}, Landroid/widget/Switch;->setChecked(Z)V
 
     .line 288
-    :cond_2
+    :cond_1
     const-string v0, "android.permission.ACCESS_COARSE_LOCATION"
 
     invoke-interface {p1, v0}, Ljava/util/Map;->get(Ljava/lang/Object;)Ljava/lang/Object;
@@ -17543,7 +17236,7 @@
 
     move-result p1
 
-    if-eqz p1, :cond_3
+    if-eqz p1, :cond_2
 
     .line 291
     const-string p1, "Precise location permission denied; location reporting disabled"
@@ -17551,7 +17244,7 @@
     goto :goto_0
 
     .line 293
-    :cond_3
+    :cond_2
     const-string p1, "Location permission denied; location reporting disabled"
 
     .line 289
@@ -17559,18 +17252,13 @@
     invoke-direct {p0, p1}, Lcom/shilapi/xcertplay/CarPlayHostActivity;->appendLog(Ljava/lang/String;)V
 
     .line 297
-    :cond_4
+    :cond_3
     :goto_1
     invoke-direct {p0}, Lcom/shilapi/xcertplay/CarPlayHostActivity;->updateResolutionMenu()V
 
     .line 298
-    iget-boolean p1, p0, Lcom/shilapi/xcertplay/CarPlayHostActivity;->menuOpen:Z
-
-    if-nez p1, :cond_5
-
     invoke-direct {p0}, Lcom/shilapi/xcertplay/CarPlayHostActivity;->requestStartupPrerequisites()V
 
-    :cond_5
     return-void
 .end method
 
@@ -18357,9 +18045,9 @@
 
     if-eqz v0, :cond_0
 
-    iget-boolean v0, p0, Lcom/shilapi/xcertplay/CarPlayHostActivity;->menuOpen:Z
 
-    if-nez v0, :cond_0
+
+
 
     iget-object v0, p0, Lcom/shilapi/xcertplay/CarPlayHostActivity;->shuttingDown:Ljava/util/concurrent/atomic/AtomicBoolean;
 
@@ -18600,9 +18288,9 @@
 
     if-nez v0, :cond_13
 
-    iget-boolean v0, p0, Lcom/shilapi/xcertplay/CarPlayHostActivity;->menuOpen:Z
 
-    if-nez v0, :cond_13
+
+
 
     iget-boolean v0, p0, Lcom/shilapi/xcertplay/CarPlayHostActivity;->handshakeResetInProgress:Z
 
@@ -18948,9 +18636,9 @@
     if-nez v0, :cond_1
 
     .line 4895
-    iget-boolean v0, p0, Lcom/shilapi/xcertplay/CarPlayHostActivity;->menuOpen:Z
 
-    if-nez v0, :cond_1
+
+
 
     .line 4896
     iget-boolean v0, p0, Lcom/shilapi/xcertplay/CarPlayHostActivity;->handshakeResetInProgress:Z
@@ -21186,9 +20874,9 @@
 
     if-nez v0, :cond_3
 
-    iget-boolean v0, p0, Lcom/shilapi/xcertplay/CarPlayHostActivity;->menuOpen:Z
 
-    if-nez v0, :cond_3
+
+
 
     iget-boolean v0, p0, Lcom/shilapi/xcertplay/CarPlayHostActivity;->handshakeResetInProgress:Z
 
@@ -21462,25 +21150,17 @@
     .line 5017
     iget-boolean v0, p0, Lcom/shilapi/xcertplay/CarPlayHostActivity;->wirelessEnabled:Z
 
-    if-eqz v0, :cond_4
+    if-eqz v0, :cond_3
 
-    iget-boolean v0, p0, Lcom/shilapi/xcertplay/CarPlayHostActivity;->menuOpen:Z
-
-    if-eqz v0, :cond_0
-
-    goto :goto_1
-
-    .line 5018
-    :cond_0
     iget-object v0, p0, Lcom/shilapi/xcertplay/CarPlayHostActivity;->setupProblem:Lcom/shilapi/xcertplay/orchestration/SetupProblem;
 
-    if-nez v0, :cond_1
+    if-nez v0, :cond_0
 
     const/4 v0, -0x1
 
     goto :goto_0
 
-    :cond_1
+    :cond_0
     sget-object v1, Lcom/shilapi/xcertplay/CarPlayHostActivity$WhenMappings;->$EnumSwitchMapping$3:[I
 
     invoke-virtual {v0}, Lcom/shilapi/xcertplay/orchestration/SetupProblem;->ordinal()I
@@ -21492,23 +21172,23 @@
     :goto_0
     const/4 v1, 0x3
 
-    if-eq v0, v1, :cond_3
+    if-eq v0, v1, :cond_2
 
     const/4 v1, 0x4
 
-    if-eq v0, v1, :cond_2
+    if-eq v0, v1, :cond_1
 
     const/4 v1, 0x5
 
-    if-eq v0, v1, :cond_2
+    if-eq v0, v1, :cond_1
 
     goto :goto_1
 
     .line 5025
-    :cond_2
+    :cond_1
     iget-boolean v0, p0, Lcom/shilapi/xcertplay/CarPlayHostActivity;->leftSinceStop:Z
 
-    if-eqz v0, :cond_4
+    if-eqz v0, :cond_3
 
     const/4 v0, 0x0
 
@@ -21526,7 +21206,7 @@
     return-void
 
     .line 5020
-    :cond_3
+    :cond_2
     invoke-direct {p0}, Lcom/shilapi/xcertplay/CarPlayHostActivity;->loadPersistedSettings()V
 
     .line 5021
@@ -21542,14 +21222,14 @@
 
     move-result v0
 
-    if-nez v0, :cond_4
+    if-nez v0, :cond_3
 
     .line 5022
     const-string v0, "Back in 06Link: the system hotspot no longer blocks wireless CarPlay"
 
     invoke-direct {p0, v0}, Lcom/shilapi/xcertplay/CarPlayHostActivity;->resumeAfterHotspot(Ljava/lang/String;)V
 
-    :cond_4
+    :cond_3
     :goto_1
     return-void
 .end method
@@ -23085,9 +22765,9 @@
 
     if-nez v0, :cond_f
 
-    iget-boolean v0, v1, Lcom/shilapi/xcertplay/CarPlayHostActivity;->menuOpen:Z
 
-    if-nez v0, :cond_f
+
+
 
     iget-boolean v0, v1, Lcom/shilapi/xcertplay/CarPlayHostActivity;->handshakeResetInProgress:Z
 
@@ -26433,25 +26113,7 @@
     return-void
 .end method
 
-.method private final updateSafeAreaSummary()V
-    .locals 2
 
-    .line 4239
-    iget-object v0, p0, Lcom/shilapi/xcertplay/CarPlayHostActivity;->safeAreaSummaryView:Landroid/widget/TextView;
-
-    if-eqz v0, :cond_0
-
-    invoke-direct {p0}, Lcom/shilapi/xcertplay/CarPlayHostActivity;->safeAreaSummary()Ljava/lang/String;
-
-    move-result-object v1
-
-    check-cast v1, Ljava/lang/CharSequence;
-
-    invoke-virtual {v0, v1}, Landroid/widget/TextView;->setText(Ljava/lang/CharSequence;)V
-
-    :cond_0
-    return-void
-.end method
 
 
 
@@ -26711,9 +26373,9 @@
 
     if-ne v0, v1, :cond_0
 
-    iget-boolean v0, p0, Lcom/shilapi/xcertplay/CarPlayHostActivity;->menuOpen:Z
 
-    if-nez v0, :cond_0
+
+
 
     invoke-direct {p0, p1}, Lcom/shilapi/xcertplay/CarPlayHostActivity;->onBackKey(Landroid/view/KeyEvent;)Z
 
@@ -26748,9 +26410,9 @@
 
     if-ne v0, v3, :cond_1
 
-    iget-boolean v0, p0, Lcom/shilapi/xcertplay/CarPlayHostActivity;->menuOpen:Z
 
-    if-nez v0, :cond_1
+
+
 
     .line 1105
     invoke-virtual {p1}, Landroid/view/KeyEvent;->getKeyCode()I
@@ -26802,9 +26464,9 @@
 
     if-ne v0, v3, :cond_3
 
-    iget-boolean v0, p0, Lcom/shilapi/xcertplay/CarPlayHostActivity;->menuOpen:Z
 
-    if-nez v0, :cond_3
+
+
 
     .line 1113
     invoke-virtual {p1}, Landroid/view/KeyEvent;->getKeyCode()I
@@ -26989,9 +26651,9 @@
 
     .line 1131
     :cond_a
-    iget-boolean v0, p0, Lcom/shilapi/xcertplay/CarPlayHostActivity;->menuOpen:Z
 
-    if-nez v0, :cond_c
+
+
 
     invoke-direct {p0}, Lcom/shilapi/xcertplay/CarPlayHostActivity;->carPlayOwnsArrowKeys()Z
 
@@ -28270,9 +27932,9 @@
 
     .line 819
     :cond_1
-    iget-boolean v1, p0, Lcom/shilapi/xcertplay/CarPlayHostActivity;->menuOpen:Z
 
-    if-nez v1, :cond_4
+
+
 
     iget-boolean v1, p0, Lcom/shilapi/xcertplay/CarPlayHostActivity;->awaitingVpnConsent:Z
 
@@ -28355,9 +28017,9 @@
 
     if-nez v1, :cond_5
 
-    iget-boolean v1, p0, Lcom/shilapi/xcertplay/CarPlayHostActivity;->menuOpen:Z
 
-    if-nez v1, :cond_5
+
+
 
     .line 833
     invoke-direct {p0}, Lcom/shilapi/xcertplay/CarPlayHostActivity;->requestLocationPermission()V

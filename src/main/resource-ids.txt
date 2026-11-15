@@ -846,7 +846,6 @@ com.sixlink.car:string/window = 0x7f0c05b6
 com.sixlink.car:string/wireless_carplay_active = 0x7f0c05bb
 com.sixlink.car:string/wireless_carplay_control_running = 0x7f0c05bc
 com.sixlink.car:string/wireless_hotspot_off = 0x7f0c05bf
-com.sixlink.car:string/wireless_link_automatic = 0x7f0c05c0
 com.sixlink.car:string/wireless_permissions = 0x7f0c05c4
 com.sixlink.car:string/wl_allow = 0x7f0c05c5
 com.sixlink.car:string/wl_how = 0x7f0c05c6

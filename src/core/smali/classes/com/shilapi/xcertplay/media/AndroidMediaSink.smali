@@ -1551,6 +1551,50 @@
     goto :goto_2
 .end method
 
+.method private stopVideoStream(I)V
+    .locals 3
+
+    const/16 v0, 0x6f
+
+    if-eq p1, v0, :cond_0
+
+    invoke-virtual {p0, p1}, Lcom/shilapi/xcertplay/media/AndroidMediaSink;->resetVideoStream(I)V
+
+    return-void
+
+    :cond_0
+    invoke-static {p1}, Ljava/lang/Integer;->valueOf(I)Ljava/lang/Integer;
+
+    move-result-object v1
+
+    iget-object v0, p0, Lcom/shilapi/xcertplay/media/AndroidMediaSink;->videoRecoveryHandlers:Lj$/util/concurrent/ConcurrentHashMap;
+
+    invoke-virtual {v0, v1}, Lj$/util/concurrent/ConcurrentHashMap;->remove(Ljava/lang/Object;)Ljava/lang/Object;
+
+    iget-object v0, p0, Lcom/shilapi/xcertplay/media/AndroidMediaSink;->videoDiagnosticHandlers:Lj$/util/concurrent/ConcurrentHashMap;
+
+    invoke-virtual {v0, v1}, Lj$/util/concurrent/ConcurrentHashMap;->remove(Ljava/lang/Object;)Ljava/lang/Object;
+
+    iget-object v0, p0, Lcom/shilapi/xcertplay/media/AndroidMediaSink;->pendingVideoCodec:Lj$/util/concurrent/ConcurrentHashMap;
+
+    invoke-virtual {v0, v1}, Lj$/util/concurrent/ConcurrentHashMap;->remove(Ljava/lang/Object;)Ljava/lang/Object;
+
+    iget-object v0, p0, Lcom/shilapi/xcertplay/media/AndroidMediaSink;->videoDecoders:Lj$/util/concurrent/ConcurrentHashMap;
+
+    invoke-virtual {v0, v1}, Lj$/util/concurrent/ConcurrentHashMap;->get(Ljava/lang/Object;)Ljava/lang/Object;
+
+    move-result-object v0
+
+    check-cast v0, Lcom/shilapi/xcertplay/media/VideoDecoder;
+
+    if-eqz v0, :cond_1
+
+    invoke-virtual {v0}, Lcom/shilapi/xcertplay/media/VideoDecoder;->close()V
+
+    :cond_1
+    return-void
+.end method
+
 .method private final updateMediaAudio(Lcom/shilapi/xcertplay/airplay/AudioStreamId;Z)V
     .locals 2
 
@@ -2668,60 +2712,17 @@
 .method public onScreenStreamActive(IZ)V
     .locals 3
 
-    if-nez p2, :cond_1
+    if-nez p2, :cond_0
 
-    .line 407
-    iget-object v0, p0, Lcom/shilapi/xcertplay/media/AndroidMediaSink;->videoRecoveryHandlers:Lj$/util/concurrent/ConcurrentHashMap;
-
-    invoke-static {p1}, Ljava/lang/Integer;->valueOf(I)Ljava/lang/Integer;
-
-    move-result-object v1
-
-    invoke-virtual {v0, v1}, Lj$/util/concurrent/ConcurrentHashMap;->remove(Ljava/lang/Object;)Ljava/lang/Object;
-
-    .line 408
-    iget-object v0, p0, Lcom/shilapi/xcertplay/media/AndroidMediaSink;->videoDiagnosticHandlers:Lj$/util/concurrent/ConcurrentHashMap;
-
-    invoke-static {p1}, Ljava/lang/Integer;->valueOf(I)Ljava/lang/Integer;
-
-    move-result-object v1
-
-    invoke-virtual {v0, v1}, Lj$/util/concurrent/ConcurrentHashMap;->remove(Ljava/lang/Object;)Ljava/lang/Object;
-
-    .line 409
-    iget-object v0, p0, Lcom/shilapi/xcertplay/media/AndroidMediaSink;->videoDecoders:Lj$/util/concurrent/ConcurrentHashMap;
-
-    invoke-static {p1}, Ljava/lang/Integer;->valueOf(I)Ljava/lang/Integer;
-
-    move-result-object v1
-
-    invoke-virtual {v0, v1}, Lj$/util/concurrent/ConcurrentHashMap;->remove(Ljava/lang/Object;)Ljava/lang/Object;
-
-    move-result-object v0
-
-    check-cast v0, Lcom/shilapi/xcertplay/media/VideoDecoder;
-
-    if-eqz v0, :cond_0
-
-    invoke-virtual {v0}, Lcom/shilapi/xcertplay/media/VideoDecoder;->close()V
-
-    .line 410
-    :cond_0
-    iget-object v0, p0, Lcom/shilapi/xcertplay/media/AndroidMediaSink;->pendingVideoCodec:Lj$/util/concurrent/ConcurrentHashMap;
-
-    invoke-static {p1}, Ljava/lang/Integer;->valueOf(I)Ljava/lang/Integer;
-
-    move-result-object v1
-
-    invoke-virtual {v0, v1}, Lj$/util/concurrent/ConcurrentHashMap;->remove(Ljava/lang/Object;)Ljava/lang/Object;
+    invoke-direct {p0, p1}, Lcom/shilapi/xcertplay/media/AndroidMediaSink;->stopVideoStream(I)V
 
     .line 412
-    :cond_1
+    :cond_0
     iget-object v0, p0, Lcom/shilapi/xcertplay/media/AndroidMediaSink;->screenStateLock:Ljava/lang/Object;
 
     monitor-enter v0
 
-    if-eqz p2, :cond_2
+    if-eqz p2, :cond_1
 
     .line 413
     :try_start_0
@@ -2735,7 +2736,7 @@
 
     goto :goto_0
 
-    :cond_2
+    :cond_1
     iget-object v1, p0, Lcom/shilapi/xcertplay/media/AndroidMediaSink;->activeScreenTypes:Ljava/util/Set;
 
     invoke-static {p1}, Ljava/lang/Integer;->valueOf(I)Ljava/lang/Integer;
@@ -2748,7 +2749,7 @@
     :goto_0
     iget-object v1, p0, Lcom/shilapi/xcertplay/media/AndroidMediaSink;->screenStreamActiveChanged:Lkotlin/jvm/functions/Function2;
 
-    if-eqz v1, :cond_3
+    if-eqz v1, :cond_2
 
     invoke-static {p1}, Ljava/lang/Integer;->valueOf(I)Ljava/lang/Integer;
 
@@ -2765,7 +2766,7 @@
     .catchall {:try_start_0 .. :try_end_0} :catchall_0
 
     .line 412
-    :cond_3
+    :cond_2
     monitor-exit v0
 
     return-void
@@ -2895,6 +2896,71 @@
     invoke-interface {v0, p1, p2}, Ljava/util/Map;->put(Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;
 
     :cond_0
+    return-void
+.end method
+
+.method public resetVideoStream(I)V
+    .locals 3
+
+    .line 407
+    iget-object v0, p0, Lcom/shilapi/xcertplay/media/AndroidMediaSink;->videoRecoveryHandlers:Lj$/util/concurrent/ConcurrentHashMap;
+
+    invoke-static {p1}, Ljava/lang/Integer;->valueOf(I)Ljava/lang/Integer;
+
+    move-result-object v1
+
+    invoke-virtual {v0, v1}, Lj$/util/concurrent/ConcurrentHashMap;->remove(Ljava/lang/Object;)Ljava/lang/Object;
+
+    .line 408
+    iget-object v0, p0, Lcom/shilapi/xcertplay/media/AndroidMediaSink;->videoDiagnosticHandlers:Lj$/util/concurrent/ConcurrentHashMap;
+
+    invoke-static {p1}, Ljava/lang/Integer;->valueOf(I)Ljava/lang/Integer;
+
+    move-result-object v1
+
+    invoke-virtual {v0, v1}, Lj$/util/concurrent/ConcurrentHashMap;->remove(Ljava/lang/Object;)Ljava/lang/Object;
+
+    .line 409
+    iget-object v0, p0, Lcom/shilapi/xcertplay/media/AndroidMediaSink;->videoDecoders:Lj$/util/concurrent/ConcurrentHashMap;
+
+    invoke-static {p1}, Ljava/lang/Integer;->valueOf(I)Ljava/lang/Integer;
+
+    move-result-object v1
+
+    invoke-virtual {v0, v1}, Lj$/util/concurrent/ConcurrentHashMap;->get(Ljava/lang/Object;)Ljava/lang/Object;
+
+    move-result-object v0
+
+    check-cast v0, Lcom/shilapi/xcertplay/media/VideoDecoder;
+
+    if-eqz v0, :cond_1
+
+    const/16 v2, 0x6f
+
+    if-ne p1, v2, :cond_0
+
+    invoke-virtual {v0}, Lcom/shilapi/xcertplay/media/VideoDecoder;->closeForStreamReplacement()V
+
+    goto :goto_0
+
+    :cond_0
+    invoke-virtual {v0}, Lcom/shilapi/xcertplay/media/VideoDecoder;->close()V
+
+    :goto_0
+    iget-object v2, p0, Lcom/shilapi/xcertplay/media/AndroidMediaSink;->videoDecoders:Lj$/util/concurrent/ConcurrentHashMap;
+
+    invoke-virtual {v2, v1, v0}, Lj$/util/concurrent/ConcurrentHashMap;->remove(Ljava/lang/Object;Ljava/lang/Object;)Z
+
+    .line 410
+    :cond_1
+    iget-object v0, p0, Lcom/shilapi/xcertplay/media/AndroidMediaSink;->pendingVideoCodec:Lj$/util/concurrent/ConcurrentHashMap;
+
+    invoke-static {p1}, Ljava/lang/Integer;->valueOf(I)Ljava/lang/Integer;
+
+    move-result-object v1
+
+    invoke-virtual {v0, v1}, Lj$/util/concurrent/ConcurrentHashMap;->remove(Ljava/lang/Object;)Ljava/lang/Object;
+
     return-void
 .end method
 

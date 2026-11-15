@@ -102,6 +102,9 @@
 .method public abstract onVideoSize(III)V
 .end method
 
+.method public abstract resetVideoStream(I)V
+.end method
+
 .method public abstract setVideoDiagnosticHandler(ILkotlin/jvm/functions/Function1;)V
     .annotation system Ldalvik/annotation/Signature;
         value = {

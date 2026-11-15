@@ -699,7 +699,6 @@ Permite «Confiar» y CarPlay si tu iPhone lo pide."</string>
     <string name="wireless_carplay_active">CarPlay inalámbrico activo</string>
     <string name="wireless_carplay_control_running">Control de CarPlay inalámbrico en ejecución</string>
     <string name="wireless_hotspot_off">Punto de acceso inalámbrico: apagado</string>
-    <string name="wireless_link_automatic">Automático (recomendado)</string>
     <string name="wireless_permissions">Permisos inalámbricos</string>
     <string name="wl_allow">Permitir</string>
     <string name="wl_how">Qué hacer</string>

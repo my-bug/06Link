@@ -228,6 +228,8 @@
     .end annotation
 .end field
 
+.field private e01ClusterSetupPending:Z
+
 .field private volatile iapTunnelHandler:Lkotlin/jvm/functions/Function1;
     .annotation system Ldalvik/annotation/Signature;
         value = {
@@ -685,6 +687,1043 @@
     move-result-object p1
 
     return-object p1
+.end method
+
+.method private e01DetachClusterStream(Lcom/shilapi/xcertplay/airplay/CarPlayMediaEngine$StreamKey;)Ljava/io/Closeable;
+    .locals 4
+
+    iget-object v0, p0, Lcom/shilapi/xcertplay/airplay/CarPlayMediaEngine;->screenOwners:Lj$/util/concurrent/ConcurrentHashMap;
+
+    const/16 v1, 0x6f
+
+    invoke-static {v1}, Ljava/lang/Integer;->valueOf(I)Ljava/lang/Integer;
+
+    move-result-object v2
+
+    invoke-virtual {v0, v2}, Lj$/util/concurrent/ConcurrentHashMap;->get(Ljava/lang/Object;)Ljava/lang/Object;
+
+    move-result-object v0
+
+    check-cast v0, Lcom/shilapi/xcertplay/airplay/AirPlaySession;
+
+    if-eqz v0, :cond_0
+
+    new-instance v2, Lcom/shilapi/xcertplay/airplay/CarPlayMediaEngine$StreamKey;
+
+    const/4 v3, 0x0
+
+    invoke-direct {v2, v0, v1, v3}, Lcom/shilapi/xcertplay/airplay/CarPlayMediaEngine$StreamKey;-><init>(Lcom/shilapi/xcertplay/airplay/AirPlaySession;ILjava/lang/String;)V
+
+    move-object p1, v2
+
+    :cond_0
+    iget-object v0, p0, Lcom/shilapi/xcertplay/airplay/CarPlayMediaEngine;->streams:Lj$/util/concurrent/ConcurrentHashMap;
+
+    invoke-virtual {v0, p1}, Lj$/util/concurrent/ConcurrentHashMap;->remove(Ljava/lang/Object;)Ljava/lang/Object;
+
+    move-result-object v0
+
+    check-cast v0, Ljava/io/Closeable;
+
+    return-object v0
+.end method
+
+.method public static e01LogScreen(Ljava/lang/String;Ljava/lang/Object;Ljava/lang/Object;)V
+    .locals 2
+
+    new-instance v0, Ljava/lang/StringBuilder;
+
+    invoke-direct {v0, p0}, Ljava/lang/StringBuilder;-><init>(Ljava/lang/String;)V
+
+    invoke-static {p1}, Ljava/lang/System;->identityHashCode(Ljava/lang/Object;)I
+
+    move-result v1
+
+    invoke-virtual {v0, v1}, Ljava/lang/StringBuilder;->append(I)Ljava/lang/StringBuilder;
+
+    const-string v1, " current="
+
+    invoke-virtual {v0, v1}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    invoke-static {p2}, Ljava/lang/System;->identityHashCode(Ljava/lang/Object;)I
+
+    move-result v1
+
+    invoke-virtual {v0, v1}, Ljava/lang/StringBuilder;->append(I)Ljava/lang/StringBuilder;
+
+    invoke-virtual {v0}, Ljava/lang/StringBuilder;->toString()Ljava/lang/String;
+
+    move-result-object v0
+
+    const-string v1, "xcertplay-usb"
+
+    invoke-static {v1, v0}, Landroid/util/Log;->i(Ljava/lang/String;Ljava/lang/String;)I
+
+    return-void
+.end method
+
+.method private e01OnScreenLocked(Lcom/shilapi/xcertplay/airplay/AirPlaySession;ILjava/util/Map;)Ljava/lang/Integer;
+    .locals 7
+    .annotation system Ldalvik/annotation/Signature;
+        value = {
+            "(",
+            "Lcom/shilapi/xcertplay/airplay/AirPlaySession;",
+            "I",
+            "Ljava/util/Map<",
+            "Ljava/lang/String;",
+            "+",
+            "Ljava/lang/Object;",
+            ">;)",
+            "Ljava/lang/Integer;"
+        }
+    .end annotation
+
+    const-string v0, "session"
+
+    invoke-static {p1, v0}, Lkotlin/jvm/internal/Intrinsics;->checkNotNullParameter(Ljava/lang/Object;Ljava/lang/String;)V
+
+    const-string/jumbo v0, "stream"
+
+    invoke-static {p3, v0}, Lkotlin/jvm/internal/Intrinsics;->checkNotNullParameter(Ljava/lang/Object;Ljava/lang/String;)V
+
+    .line 84
+    invoke-direct {p0, p1, p3}, Lcom/shilapi/xcertplay/airplay/CarPlayMediaEngine;->outputKey(Lcom/shilapi/xcertplay/airplay/AirPlaySession;Ljava/util/Map;)[B
+
+    move-result-object v0
+
+    if-nez v0, :cond_0
+
+    const/4 p1, 0x0
+
+    return-object p1
+
+    .line 85
+    :cond_0
+    new-instance v1, Lcom/shilapi/xcertplay/airplay/CarPlayMediaEngine$StreamKey;
+
+    const/4 v5, 0x4
+
+    const/4 v6, 0x0
+
+    const/4 v4, 0x0
+
+    move-object v2, p1
+
+    move v3, p2
+
+    invoke-direct/range {v1 .. v6}, Lcom/shilapi/xcertplay/airplay/CarPlayMediaEngine$StreamKey;-><init>(Lcom/shilapi/xcertplay/airplay/AirPlaySession;ILjava/lang/String;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+
+    move-object v5, v2
+
+    move v2, v3
+
+    .line 86
+    const-string/jumbo p1, "streamConnectionID"
+
+    invoke-interface {p3, p1}, Ljava/util/Map;->get(Ljava/lang/Object;)Ljava/lang/Object;
+
+    move-result-object p1
+
+    invoke-static {p1}, Lcom/shilapi/xcertplay/airplay/CarPlayMediaEngineKt;->unsignedPlistDecimal(Ljava/lang/Object;)Ljava/lang/String;
+
+    move-result-object p1
+
+    new-instance p2, Ljava/lang/StringBuilder;
+
+    const-string p3, "airplay screen key connectionID="
+
+    invoke-direct {p2, p3}, Ljava/lang/StringBuilder;-><init>(Ljava/lang/String;)V
+
+    invoke-virtual {p2, p1}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    invoke-virtual {p2}, Ljava/lang/StringBuilder;->toString()Ljava/lang/String;
+
+    move-result-object p1
+
+    const-string/jumbo p2, "xcertplay-usb"
+
+    invoke-static {p2, p1}, Landroid/util/Log;->i(Ljava/lang/String;Ljava/lang/String;)I
+
+    .line 87
+    new-instance v3, Lcom/shilapi/xcertplay/airplay/ScreenStream;
+
+    new-instance p1, Lcom/shilapi/xcertplay/airplay/CarPlayMediaEngine$onScreen$screen$1;
+
+    invoke-direct {p1, v5}, Lcom/shilapi/xcertplay/airplay/CarPlayMediaEngine$onScreen$screen$1;-><init>(Ljava/lang/Object;)V
+
+    check-cast p1, Lkotlin/jvm/functions/Function1;
+
+    invoke-virtual {v5}, Lcom/shilapi/xcertplay/airplay/AirPlaySession;->getLocalAddress()Ljava/net/InetAddress;
+
+    move-result-object p2
+
+    invoke-direct {v3, v0, p1, p2}, Lcom/shilapi/xcertplay/airplay/ScreenStream;-><init>([BLkotlin/jvm/functions/Function1;Ljava/net/InetAddress;)V
+
+    const/16 p1, 0x6f
+
+    if-ne v2, p1, :cond_1
+
+    .line 89
+    invoke-virtual {v5}, Lcom/shilapi/xcertplay/airplay/AirPlaySession;->getClusterDisplay$shared_release()Lcom/shilapi/xcertplay/airplay/AirPlayDisplayConfig;
+
+    move-result-object p1
+
+    if-eqz p1, :cond_1
+
+    iget-object p2, p0, Lcom/shilapi/xcertplay/airplay/CarPlayMediaEngine;->sink:Lcom/shilapi/xcertplay/airplay/MediaSink;
+
+    invoke-virtual {p1}, Lcom/shilapi/xcertplay/airplay/AirPlayDisplayConfig;->getWidthPixels()I
+
+    move-result p3
+
+    invoke-virtual {p1}, Lcom/shilapi/xcertplay/airplay/AirPlayDisplayConfig;->getHeightPixels()I
+
+    move-result p1
+
+    invoke-interface {p2, v2, p3, p1}, Lcom/shilapi/xcertplay/airplay/MediaSink;->onVideoSize(III)V
+
+    .line 90
+    :cond_1
+    const/16 p1, 0x6f
+
+    if-ne v2, p1, :cond_3
+
+    invoke-direct {p0, v1}, Lcom/shilapi/xcertplay/airplay/CarPlayMediaEngine;->e01DetachClusterStream(Lcom/shilapi/xcertplay/airplay/CarPlayMediaEngine$StreamKey;)Ljava/io/Closeable;
+
+    move-result-object p1
+
+    const/4 v6, 0x1
+
+    iput-boolean v6, p0, Lcom/shilapi/xcertplay/airplay/CarPlayMediaEngine;->e01ClusterSetupPending:Z
+
+    check-cast p1, Ljava/io/Closeable;
+
+    if-eqz p1, :cond_2
+
+    invoke-interface {p1}, Ljava/io/Closeable;->close()V
+
+    const-string p2, "cluster stream replace old="
+
+    goto :goto_0
+
+    :cond_2
+    const-string p2, "cluster stream start old="
+
+    :goto_0
+    invoke-static {p2, p1, v3}, Lcom/shilapi/xcertplay/airplay/CarPlayMediaEngine;->e01LogScreen(Ljava/lang/String;Ljava/lang/Object;Ljava/lang/Object;)V
+
+    iget-object p1, p0, Lcom/shilapi/xcertplay/airplay/CarPlayMediaEngine;->sink:Lcom/shilapi/xcertplay/airplay/MediaSink;
+
+    invoke-interface {p1, v2}, Lcom/shilapi/xcertplay/airplay/MediaSink;->resetVideoStream(I)V
+
+    :cond_3
+    iget-object p1, p0, Lcom/shilapi/xcertplay/airplay/CarPlayMediaEngine;->sink:Lcom/shilapi/xcertplay/airplay/MediaSink;
+
+    new-instance p2, Lcom/shilapi/xcertplay/airplay/CarPlayMediaEngine$$ExternalSyntheticLambda1;
+
+    invoke-direct {p2, v5}, Lcom/shilapi/xcertplay/airplay/CarPlayMediaEngine$$ExternalSyntheticLambda1;-><init>(Lcom/shilapi/xcertplay/airplay/AirPlaySession;)V
+
+    invoke-interface {p1, v2, p2}, Lcom/shilapi/xcertplay/airplay/MediaSink;->setVideoDiagnosticHandler(ILkotlin/jvm/functions/Function1;)V
+
+    .line 94
+    iget-object p1, p0, Lcom/shilapi/xcertplay/airplay/CarPlayMediaEngine;->sink:Lcom/shilapi/xcertplay/airplay/MediaSink;
+
+    new-instance v0, Lcom/shilapi/xcertplay/airplay/CarPlayMediaEngine$$ExternalSyntheticLambda2;
+
+    move v4, v2
+
+    move-object v2, v1
+
+    move-object v1, p0
+
+    invoke-direct/range {v0 .. v5}, Lcom/shilapi/xcertplay/airplay/CarPlayMediaEngine$$ExternalSyntheticLambda2;-><init>(Lcom/shilapi/xcertplay/airplay/CarPlayMediaEngine;Lcom/shilapi/xcertplay/airplay/CarPlayMediaEngine$StreamKey;Lcom/shilapi/xcertplay/airplay/ScreenStream;ILcom/shilapi/xcertplay/airplay/AirPlaySession;)V
+
+    move-object v1, v2
+
+    move v2, v4
+
+    invoke-interface {p1, v2, v0}, Lcom/shilapi/xcertplay/airplay/MediaSink;->setVideoRecoveryHandler(ILkotlin/jvm/functions/Function0;)V
+
+    .line 107
+    new-instance v0, Lcom/shilapi/xcertplay/airplay/CarPlayMediaEngine$onScreen$port$1;
+
+    move-object v4, v3
+
+    move-object v3, v1
+
+    move-object v1, p0
+
+    invoke-direct/range {v0 .. v5}, Lcom/shilapi/xcertplay/airplay/CarPlayMediaEngine$onScreen$port$1;-><init>(Lcom/shilapi/xcertplay/airplay/CarPlayMediaEngine;ILcom/shilapi/xcertplay/airplay/CarPlayMediaEngine$StreamKey;Lcom/shilapi/xcertplay/airplay/ScreenStream;Lcom/shilapi/xcertplay/airplay/AirPlaySession;)V
+
+    check-cast v0, Lcom/shilapi/xcertplay/airplay/ScreenStream$Listener;
+
+    .line 106
+    invoke-virtual {v4, v0}, Lcom/shilapi/xcertplay/airplay/ScreenStream;->listen(Lcom/shilapi/xcertplay/airplay/ScreenStream$Listener;)I
+
+    move-result p1
+
+    .line 123
+    iget-object p2, v1, Lcom/shilapi/xcertplay/airplay/CarPlayMediaEngine;->streams:Lj$/util/concurrent/ConcurrentHashMap;
+
+    invoke-virtual {p2, v3, v4}, Lj$/util/concurrent/ConcurrentHashMap;->put(Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;
+
+    move-result-object p2
+
+    check-cast p2, Ljava/io/Closeable;
+
+    if-eqz p2, :cond_4
+
+    invoke-interface {p2}, Ljava/io/Closeable;->close()V
+
+    .line 124
+    :cond_4
+    iget-object p2, v1, Lcom/shilapi/xcertplay/airplay/CarPlayMediaEngine;->screenOwners:Lj$/util/concurrent/ConcurrentHashMap;
+
+    check-cast p2, Ljava/util/Map;
+
+    invoke-static {v2}, Ljava/lang/Integer;->valueOf(I)Ljava/lang/Integer;
+
+    move-result-object p3
+
+    invoke-interface {p2, p3, v5}, Ljava/util/Map;->put(Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;
+
+    .line 125
+    iget-object p2, v1, Lcom/shilapi/xcertplay/airplay/CarPlayMediaEngine;->sink:Lcom/shilapi/xcertplay/airplay/MediaSink;
+
+    const/4 p3, 0x1
+
+    invoke-interface {p2, v2, p3}, Lcom/shilapi/xcertplay/airplay/MediaSink;->onScreenStreamActive(IZ)V
+
+    .line 126
+    invoke-static {p1}, Ljava/lang/Integer;->valueOf(I)Ljava/lang/Integer;
+
+    move-result-object p1
+
+    return-object p1
+.end method
+
+.method private e01OnSessionClosedLocked(Lcom/shilapi/xcertplay/airplay/AirPlaySession;)V
+    .locals 7
+
+    const-string v0, "session"
+
+    invoke-static {p1, v0}, Lkotlin/jvm/internal/Intrinsics;->checkNotNullParameter(Ljava/lang/Object;Ljava/lang/String;)V
+
+    .line 345
+    invoke-direct {p0, p1}, Lcom/shilapi/xcertplay/airplay/CarPlayMediaEngine;->clearPendingIapTunnel(Lcom/shilapi/xcertplay/airplay/AirPlaySession;)V
+
+    .line 346
+    iget-object v0, p0, Lcom/shilapi/xcertplay/airplay/CarPlayMediaEngine;->videoSettingsChannels:Lj$/util/concurrent/ConcurrentHashMap;
+
+    invoke-virtual {v0, p1}, Lj$/util/concurrent/ConcurrentHashMap;->remove(Ljava/lang/Object;)Ljava/lang/Object;
+
+    move-result-object v0
+
+    check-cast v0, Lcom/shilapi/xcertplay/airplay/VideoSettingsChannel;
+
+    if-eqz v0, :cond_0
+
+    invoke-virtual {v0}, Lcom/shilapi/xcertplay/airplay/VideoSettingsChannel;->close()V
+
+    .line 347
+    :cond_0
+    iget-object v0, p0, Lcom/shilapi/xcertplay/airplay/CarPlayMediaEngine;->streams:Lj$/util/concurrent/ConcurrentHashMap;
+
+    invoke-virtual {v0}, Lj$/util/concurrent/ConcurrentHashMap;->keySet()Ljava/util/Set;
+
+    move-result-object v0
+
+    const-string v1, "<get-keys>(...)"
+
+    invoke-static {v0, v1}, Lkotlin/jvm/internal/Intrinsics;->checkNotNullExpressionValue(Ljava/lang/Object;Ljava/lang/String;)V
+
+    check-cast v0, Ljava/lang/Iterable;
+
+    .line 488
+    new-instance v2, Ljava/util/ArrayList;
+
+    invoke-direct {v2}, Ljava/util/ArrayList;-><init>()V
+
+    check-cast v2, Ljava/util/Collection;
+
+    .line 489
+    invoke-interface {v0}, Ljava/lang/Iterable;->iterator()Ljava/util/Iterator;
+
+    move-result-object v0
+
+    :cond_1
+    :goto_0
+    invoke-interface {v0}, Ljava/util/Iterator;->hasNext()Z
+
+    move-result v3
+
+    if-eqz v3, :cond_2
+
+    invoke-interface {v0}, Ljava/util/Iterator;->next()Ljava/lang/Object;
+
+    move-result-object v3
+
+    move-object v4, v3
+
+    check-cast v4, Lcom/shilapi/xcertplay/airplay/CarPlayMediaEngine$StreamKey;
+
+    .line 347
+    invoke-virtual {v4}, Lcom/shilapi/xcertplay/airplay/CarPlayMediaEngine$StreamKey;->getSession()Lcom/shilapi/xcertplay/airplay/AirPlaySession;
+
+    move-result-object v4
+
+    if-ne v4, p1, :cond_1
+
+    .line 489
+    invoke-interface {v2, v3}, Ljava/util/Collection;->add(Ljava/lang/Object;)Z
+
+    goto :goto_0
+
+    .line 490
+    :cond_2
+    check-cast v2, Ljava/util/List;
+
+    .line 348
+    check-cast v2, Ljava/lang/Iterable;
+
+    .line 491
+    new-instance v0, Ljava/util/ArrayList;
+
+    invoke-direct {v0}, Ljava/util/ArrayList;-><init>()V
+
+    check-cast v0, Ljava/util/Collection;
+
+    .line 492
+    invoke-interface {v2}, Ljava/lang/Iterable;->iterator()Ljava/util/Iterator;
+
+    move-result-object v3
+
+    :cond_3
+    :goto_1
+    invoke-interface {v3}, Ljava/util/Iterator;->hasNext()Z
+
+    move-result v4
+
+    if-eqz v4, :cond_4
+
+    invoke-interface {v3}, Ljava/util/Iterator;->next()Ljava/lang/Object;
+
+    move-result-object v4
+
+    move-object v5, v4
+
+    check-cast v5, Lcom/shilapi/xcertplay/airplay/CarPlayMediaEngine$StreamKey;
+
+    .line 349
+    invoke-virtual {v5}, Lcom/shilapi/xcertplay/airplay/CarPlayMediaEngine$StreamKey;->getType()I
+
+    move-result v6
+
+    invoke-direct {p0, v6}, Lcom/shilapi/xcertplay/airplay/CarPlayMediaEngine;->isScreenStreamType(I)Z
+
+    move-result v6
+
+    if-eqz v6, :cond_3
+
+    iget-object v6, p0, Lcom/shilapi/xcertplay/airplay/CarPlayMediaEngine;->screenOwners:Lj$/util/concurrent/ConcurrentHashMap;
+
+    invoke-virtual {v5}, Lcom/shilapi/xcertplay/airplay/CarPlayMediaEngine$StreamKey;->getType()I
+
+    move-result v5
+
+    invoke-static {v5}, Ljava/lang/Integer;->valueOf(I)Ljava/lang/Integer;
+
+    move-result-object v5
+
+    invoke-direct {p0, v6, v5, p1}, Lcom/shilapi/xcertplay/airplay/CarPlayMediaEngine;->releaseOwner(Lj$/util/concurrent/ConcurrentHashMap;Ljava/lang/Object;Lcom/shilapi/xcertplay/airplay/AirPlaySession;)Z
+
+    move-result v5
+
+    if-eqz v5, :cond_3
+
+    .line 492
+    invoke-interface {v0, v4}, Ljava/util/Collection;->add(Ljava/lang/Object;)Z
+
+    goto :goto_1
+
+    .line 493
+    :cond_4
+    check-cast v0, Ljava/util/List;
+
+    .line 491
+    check-cast v0, Ljava/lang/Iterable;
+
+    .line 494
+    invoke-interface {v0}, Ljava/lang/Iterable;->iterator()Ljava/util/Iterator;
+
+    move-result-object v0
+
+    :goto_2
+    invoke-interface {v0}, Ljava/util/Iterator;->hasNext()Z
+
+    move-result v3
+
+    if-eqz v3, :cond_5
+
+    invoke-interface {v0}, Ljava/util/Iterator;->next()Ljava/lang/Object;
+
+    move-result-object v3
+
+    check-cast v3, Lcom/shilapi/xcertplay/airplay/CarPlayMediaEngine$StreamKey;
+
+    .line 350
+    iget-object v4, p0, Lcom/shilapi/xcertplay/airplay/CarPlayMediaEngine;->sink:Lcom/shilapi/xcertplay/airplay/MediaSink;
+
+    invoke-virtual {v3}, Lcom/shilapi/xcertplay/airplay/CarPlayMediaEngine$StreamKey;->getType()I
+
+    move-result v3
+
+    const/4 v5, 0x0
+
+    invoke-interface {v4, v3, v5}, Lcom/shilapi/xcertplay/airplay/MediaSink;->onScreenStreamActive(IZ)V
+
+    goto :goto_2
+
+    .line 496
+    :cond_5
+    invoke-interface {v2}, Ljava/lang/Iterable;->iterator()Ljava/util/Iterator;
+
+    move-result-object v0
+
+    :cond_6
+    :goto_3
+    invoke-interface {v0}, Ljava/util/Iterator;->hasNext()Z
+
+    move-result v2
+
+    if-eqz v2, :cond_7
+
+    invoke-interface {v0}, Ljava/util/Iterator;->next()Ljava/lang/Object;
+
+    move-result-object v2
+
+    check-cast v2, Lcom/shilapi/xcertplay/airplay/CarPlayMediaEngine$StreamKey;
+
+    .line 351
+    iget-object v3, p0, Lcom/shilapi/xcertplay/airplay/CarPlayMediaEngine;->streams:Lj$/util/concurrent/ConcurrentHashMap;
+
+    invoke-virtual {v3, v2}, Lj$/util/concurrent/ConcurrentHashMap;->remove(Ljava/lang/Object;)Ljava/lang/Object;
+
+    move-result-object v2
+
+    check-cast v2, Ljava/io/Closeable;
+
+    if-eqz v2, :cond_6
+
+    invoke-interface {v2}, Ljava/io/Closeable;->close()V
+
+    goto :goto_3
+
+    .line 354
+    :cond_7
+    iget-object v0, p0, Lcom/shilapi/xcertplay/airplay/CarPlayMediaEngine;->audioMeta:Lj$/util/concurrent/ConcurrentHashMap;
+
+    invoke-virtual {v0}, Lj$/util/concurrent/ConcurrentHashMap;->keySet()Ljava/util/Set;
+
+    move-result-object v0
+
+    invoke-static {v0, v1}, Lkotlin/jvm/internal/Intrinsics;->checkNotNullExpressionValue(Ljava/lang/Object;Ljava/lang/String;)V
+
+    check-cast v0, Ljava/lang/Iterable;
+
+    .line 498
+    new-instance v2, Ljava/util/ArrayList;
+
+    invoke-direct {v2}, Ljava/util/ArrayList;-><init>()V
+
+    check-cast v2, Ljava/util/Collection;
+
+    .line 499
+    invoke-interface {v0}, Ljava/lang/Iterable;->iterator()Ljava/util/Iterator;
+
+    move-result-object v0
+
+    :cond_8
+    :goto_4
+    invoke-interface {v0}, Ljava/util/Iterator;->hasNext()Z
+
+    move-result v3
+
+    if-eqz v3, :cond_9
+
+    invoke-interface {v0}, Ljava/util/Iterator;->next()Ljava/lang/Object;
+
+    move-result-object v3
+
+    move-object v4, v3
+
+    check-cast v4, Lcom/shilapi/xcertplay/airplay/CarPlayMediaEngine$StreamKey;
+
+    .line 354
+    invoke-virtual {v4}, Lcom/shilapi/xcertplay/airplay/CarPlayMediaEngine$StreamKey;->getSession()Lcom/shilapi/xcertplay/airplay/AirPlaySession;
+
+    move-result-object v4
+
+    if-ne v4, p1, :cond_8
+
+    .line 499
+    invoke-interface {v2, v3}, Ljava/util/Collection;->add(Ljava/lang/Object;)Z
+
+    goto :goto_4
+
+    .line 500
+    :cond_9
+    check-cast v2, Ljava/util/List;
+
+    .line 498
+    check-cast v2, Ljava/lang/Iterable;
+
+    .line 501
+    invoke-interface {v2}, Ljava/lang/Iterable;->iterator()Ljava/util/Iterator;
+
+    move-result-object v0
+
+    :goto_5
+    invoke-interface {v0}, Ljava/util/Iterator;->hasNext()Z
+
+    move-result v2
+
+    if-eqz v2, :cond_a
+
+    invoke-interface {v0}, Ljava/util/Iterator;->next()Ljava/lang/Object;
+
+    move-result-object v2
+
+    check-cast v2, Lcom/shilapi/xcertplay/airplay/CarPlayMediaEngine$StreamKey;
+
+    .line 354
+    iget-object v3, p0, Lcom/shilapi/xcertplay/airplay/CarPlayMediaEngine;->audioMeta:Lj$/util/concurrent/ConcurrentHashMap;
+
+    invoke-virtual {v3, v2}, Lj$/util/concurrent/ConcurrentHashMap;->remove(Ljava/lang/Object;)Ljava/lang/Object;
+
+    goto :goto_5
+
+    .line 355
+    :cond_a
+    iget-object v0, p0, Lcom/shilapi/xcertplay/airplay/CarPlayMediaEngine;->pendingMicrophone:Lj$/util/concurrent/ConcurrentHashMap;
+
+    invoke-virtual {v0}, Lj$/util/concurrent/ConcurrentHashMap;->keySet()Ljava/util/Set;
+
+    move-result-object v0
+
+    invoke-static {v0, v1}, Lkotlin/jvm/internal/Intrinsics;->checkNotNullExpressionValue(Ljava/lang/Object;Ljava/lang/String;)V
+
+    check-cast v0, Ljava/lang/Iterable;
+
+    .line 503
+    new-instance v2, Ljava/util/ArrayList;
+
+    invoke-direct {v2}, Ljava/util/ArrayList;-><init>()V
+
+    check-cast v2, Ljava/util/Collection;
+
+    .line 504
+    invoke-interface {v0}, Ljava/lang/Iterable;->iterator()Ljava/util/Iterator;
+
+    move-result-object v0
+
+    :cond_b
+    :goto_6
+    invoke-interface {v0}, Ljava/util/Iterator;->hasNext()Z
+
+    move-result v3
+
+    if-eqz v3, :cond_c
+
+    invoke-interface {v0}, Ljava/util/Iterator;->next()Ljava/lang/Object;
+
+    move-result-object v3
+
+    move-object v4, v3
+
+    check-cast v4, Lcom/shilapi/xcertplay/airplay/CarPlayMediaEngine$StreamKey;
+
+    .line 355
+    invoke-virtual {v4}, Lcom/shilapi/xcertplay/airplay/CarPlayMediaEngine$StreamKey;->getSession()Lcom/shilapi/xcertplay/airplay/AirPlaySession;
+
+    move-result-object v4
+
+    if-ne v4, p1, :cond_b
+
+    .line 504
+    invoke-interface {v2, v3}, Ljava/util/Collection;->add(Ljava/lang/Object;)Z
+
+    goto :goto_6
+
+    .line 505
+    :cond_c
+    check-cast v2, Ljava/util/List;
+
+    .line 503
+    check-cast v2, Ljava/lang/Iterable;
+
+    .line 506
+    invoke-interface {v2}, Ljava/lang/Iterable;->iterator()Ljava/util/Iterator;
+
+    move-result-object v0
+
+    :goto_7
+    invoke-interface {v0}, Ljava/util/Iterator;->hasNext()Z
+
+    move-result v2
+
+    if-eqz v2, :cond_d
+
+    invoke-interface {v0}, Ljava/util/Iterator;->next()Ljava/lang/Object;
+
+    move-result-object v2
+
+    check-cast v2, Lcom/shilapi/xcertplay/airplay/CarPlayMediaEngine$StreamKey;
+
+    .line 355
+    iget-object v3, p0, Lcom/shilapi/xcertplay/airplay/CarPlayMediaEngine;->pendingMicrophone:Lj$/util/concurrent/ConcurrentHashMap;
+
+    invoke-virtual {v3, v2}, Lj$/util/concurrent/ConcurrentHashMap;->remove(Ljava/lang/Object;)Ljava/lang/Object;
+
+    goto :goto_7
+
+    .line 356
+    :cond_d
+    iget-object v0, p0, Lcom/shilapi/xcertplay/airplay/CarPlayMediaEngine;->audioCaptures:Lj$/util/concurrent/ConcurrentHashMap;
+
+    invoke-virtual {v0}, Lj$/util/concurrent/ConcurrentHashMap;->keySet()Ljava/util/Set;
+
+    move-result-object v0
+
+    invoke-static {v0, v1}, Lkotlin/jvm/internal/Intrinsics;->checkNotNullExpressionValue(Ljava/lang/Object;Ljava/lang/String;)V
+
+    check-cast v0, Ljava/lang/Iterable;
+
+    .line 508
+    new-instance v1, Ljava/util/ArrayList;
+
+    invoke-direct {v1}, Ljava/util/ArrayList;-><init>()V
+
+    check-cast v1, Ljava/util/Collection;
+
+    .line 509
+    invoke-interface {v0}, Ljava/lang/Iterable;->iterator()Ljava/util/Iterator;
+
+    move-result-object v0
+
+    :cond_e
+    :goto_8
+    invoke-interface {v0}, Ljava/util/Iterator;->hasNext()Z
+
+    move-result v2
+
+    if-eqz v2, :cond_f
+
+    invoke-interface {v0}, Ljava/util/Iterator;->next()Ljava/lang/Object;
+
+    move-result-object v2
+
+    move-object v3, v2
+
+    check-cast v3, Lcom/shilapi/xcertplay/airplay/CarPlayMediaEngine$StreamKey;
+
+    .line 356
+    invoke-virtual {v3}, Lcom/shilapi/xcertplay/airplay/CarPlayMediaEngine$StreamKey;->getSession()Lcom/shilapi/xcertplay/airplay/AirPlaySession;
+
+    move-result-object v3
+
+    if-ne v3, p1, :cond_e
+
+    .line 509
+    invoke-interface {v1, v2}, Ljava/util/Collection;->add(Ljava/lang/Object;)Z
+
+    goto :goto_8
+
+    .line 510
+    :cond_f
+    check-cast v1, Ljava/util/List;
+
+    .line 508
+    check-cast v1, Ljava/lang/Iterable;
+
+    .line 511
+    invoke-interface {v1}, Ljava/lang/Iterable;->iterator()Ljava/util/Iterator;
+
+    move-result-object v0
+
+    :cond_10
+    :goto_9
+    invoke-interface {v0}, Ljava/util/Iterator;->hasNext()Z
+
+    move-result v1
+
+    if-eqz v1, :cond_11
+
+    invoke-interface {v0}, Ljava/util/Iterator;->next()Ljava/lang/Object;
+
+    move-result-object v1
+
+    check-cast v1, Lcom/shilapi/xcertplay/airplay/CarPlayMediaEngine$StreamKey;
+
+    .line 356
+    iget-object v2, p0, Lcom/shilapi/xcertplay/airplay/CarPlayMediaEngine;->audioCaptures:Lj$/util/concurrent/ConcurrentHashMap;
+
+    invoke-virtual {v2, v1}, Lj$/util/concurrent/ConcurrentHashMap;->remove(Ljava/lang/Object;)Ljava/lang/Object;
+
+    move-result-object v1
+
+    check-cast v1, Lcom/shilapi/xcertplay/airplay/AudioPacketCapture;
+
+    if-eqz v1, :cond_10
+
+    invoke-virtual {v1}, Lcom/shilapi/xcertplay/airplay/AudioPacketCapture;->close()V
+
+    goto :goto_9
+
+    .line 357
+    :cond_11
+    iget-object v0, p0, Lcom/shilapi/xcertplay/airplay/CarPlayMediaEngine;->audioOwners:Lj$/util/concurrent/ConcurrentHashMap;
+
+    invoke-virtual {v0}, Lj$/util/concurrent/ConcurrentHashMap;->entrySet()Ljava/util/Set;
+
+    move-result-object v0
+
+    const-string v1, "<get-entries>(...)"
+
+    invoke-static {v0, v1}, Lkotlin/jvm/internal/Intrinsics;->checkNotNullExpressionValue(Ljava/lang/Object;Ljava/lang/String;)V
+
+    check-cast v0, Ljava/lang/Iterable;
+
+    new-instance v1, Lcom/shilapi/xcertplay/airplay/CarPlayMediaEngine$$ExternalSyntheticLambda0;
+
+    invoke-direct {v1, p1}, Lcom/shilapi/xcertplay/airplay/CarPlayMediaEngine$$ExternalSyntheticLambda0;-><init>(Lcom/shilapi/xcertplay/airplay/AirPlaySession;)V
+
+    invoke-static {v0, v1}, Lkotlin/collections/CollectionsKt;->removeAll(Ljava/lang/Iterable;Lkotlin/jvm/functions/Function1;)Z
+
+    return-void
+.end method
+
+.method private e01OnTeardownLocked(Lcom/shilapi/xcertplay/airplay/AirPlaySession;I)V
+    .locals 6
+
+    const-string v0, "session"
+
+    invoke-static {p1, v0}, Lkotlin/jvm/internal/Intrinsics;->checkNotNullParameter(Ljava/lang/Object;Ljava/lang/String;)V
+
+    const/16 v0, 0x82
+
+    if-ne p2, v0, :cond_0
+
+    .line 329
+    invoke-direct {p0, p1}, Lcom/shilapi/xcertplay/airplay/CarPlayMediaEngine;->clearPendingIapTunnel(Lcom/shilapi/xcertplay/airplay/AirPlaySession;)V
+
+    .line 331
+    :cond_0
+    iget-object v0, p0, Lcom/shilapi/xcertplay/airplay/CarPlayMediaEngine;->streams:Lj$/util/concurrent/ConcurrentHashMap;
+
+    invoke-virtual {v0}, Lj$/util/concurrent/ConcurrentHashMap;->keySet()Ljava/util/Set;
+
+    move-result-object v0
+
+    const-string v1, "<get-keys>(...)"
+
+    invoke-static {v0, v1}, Lkotlin/jvm/internal/Intrinsics;->checkNotNullExpressionValue(Ljava/lang/Object;Ljava/lang/String;)V
+
+    check-cast v0, Ljava/lang/Iterable;
+
+    .line 483
+    new-instance v1, Ljava/util/ArrayList;
+
+    invoke-direct {v1}, Ljava/util/ArrayList;-><init>()V
+
+    check-cast v1, Ljava/util/Collection;
+
+    .line 484
+    invoke-interface {v0}, Ljava/lang/Iterable;->iterator()Ljava/util/Iterator;
+
+    move-result-object v0
+
+    :cond_1
+    :goto_0
+    invoke-interface {v0}, Ljava/util/Iterator;->hasNext()Z
+
+    move-result v2
+
+    if-eqz v2, :cond_2
+
+    invoke-interface {v0}, Ljava/util/Iterator;->next()Ljava/lang/Object;
+
+    move-result-object v2
+
+    move-object v3, v2
+
+    check-cast v3, Lcom/shilapi/xcertplay/airplay/CarPlayMediaEngine$StreamKey;
+
+    .line 331
+    invoke-virtual {v3}, Lcom/shilapi/xcertplay/airplay/CarPlayMediaEngine$StreamKey;->getSession()Lcom/shilapi/xcertplay/airplay/AirPlaySession;
+
+    move-result-object v4
+
+    if-ne v4, p1, :cond_1
+
+    invoke-virtual {v3}, Lcom/shilapi/xcertplay/airplay/CarPlayMediaEngine$StreamKey;->getType()I
+
+    move-result v3
+
+    if-ne v3, p2, :cond_1
+
+    .line 484
+    invoke-interface {v1, v2}, Ljava/util/Collection;->add(Ljava/lang/Object;)Z
+
+    goto :goto_0
+
+    .line 485
+    :cond_2
+    check-cast v1, Ljava/util/List;
+
+    .line 332
+    check-cast v1, Ljava/lang/Iterable;
+
+    .line 486
+    invoke-interface {v1}, Ljava/lang/Iterable;->iterator()Ljava/util/Iterator;
+
+    move-result-object v0
+
+    :cond_3
+    :goto_1
+    invoke-interface {v0}, Ljava/util/Iterator;->hasNext()Z
+
+    move-result v1
+
+    const/4 v2, 0x0
+
+    if-eqz v1, :cond_8
+
+    invoke-interface {v0}, Ljava/util/Iterator;->next()Ljava/lang/Object;
+
+    move-result-object v1
+
+    check-cast v1, Lcom/shilapi/xcertplay/airplay/CarPlayMediaEngine$StreamKey;
+
+    .line 333
+    new-instance v3, Lcom/shilapi/xcertplay/airplay/AudioStreamId;
+
+    invoke-virtual {v1}, Lcom/shilapi/xcertplay/airplay/CarPlayMediaEngine$StreamKey;->getType()I
+
+    move-result v4
+
+    invoke-virtual {v1}, Lcom/shilapi/xcertplay/airplay/CarPlayMediaEngine$StreamKey;->getAudioType()Ljava/lang/String;
+
+    move-result-object v5
+
+    invoke-direct {v3, v4, v5}, Lcom/shilapi/xcertplay/airplay/AudioStreamId;-><init>(ILjava/lang/String;)V
+
+    .line 334
+    invoke-virtual {v1}, Lcom/shilapi/xcertplay/airplay/CarPlayMediaEngine$StreamKey;->getType()I
+
+    move-result v4
+
+    invoke-direct {p0, v4}, Lcom/shilapi/xcertplay/airplay/CarPlayMediaEngine;->isScreenStreamType(I)Z
+
+    move-result v4
+
+    if-nez v4, :cond_4
+
+    iget-object v4, p0, Lcom/shilapi/xcertplay/airplay/CarPlayMediaEngine;->audioOwners:Lj$/util/concurrent/ConcurrentHashMap;
+
+    invoke-direct {p0, v4, v3, p1}, Lcom/shilapi/xcertplay/airplay/CarPlayMediaEngine;->releaseOwner(Lj$/util/concurrent/ConcurrentHashMap;Ljava/lang/Object;Lcom/shilapi/xcertplay/airplay/AirPlaySession;)Z
+
+    move-result v4
+
+    if-eqz v4, :cond_4
+
+    const/4 v2, 0x1
+
+    .line 335
+    :cond_4
+    iget-object v4, p0, Lcom/shilapi/xcertplay/airplay/CarPlayMediaEngine;->pendingMicrophone:Lj$/util/concurrent/ConcurrentHashMap;
+
+    invoke-virtual {v4, v1}, Lj$/util/concurrent/ConcurrentHashMap;->remove(Ljava/lang/Object;)Ljava/lang/Object;
+
+    move-result-object v4
+
+    if-eqz v4, :cond_5
+
+    if-eqz v2, :cond_5
+
+    iget-object v4, p0, Lcom/shilapi/xcertplay/airplay/CarPlayMediaEngine;->sink:Lcom/shilapi/xcertplay/airplay/MediaSink;
+
+    invoke-interface {v4, v3}, Lcom/shilapi/xcertplay/airplay/MediaSink;->onMicrophoneStopped(Lcom/shilapi/xcertplay/airplay/AudioStreamId;)V
+
+    .line 336
+    :cond_5
+    iget-object v4, p0, Lcom/shilapi/xcertplay/airplay/CarPlayMediaEngine;->audioMeta:Lj$/util/concurrent/ConcurrentHashMap;
+
+    invoke-virtual {v4, v1}, Lj$/util/concurrent/ConcurrentHashMap;->remove(Ljava/lang/Object;)Ljava/lang/Object;
+
+    .line 337
+    iget-object v4, p0, Lcom/shilapi/xcertplay/airplay/CarPlayMediaEngine;->audioCaptures:Lj$/util/concurrent/ConcurrentHashMap;
+
+    invoke-virtual {v4, v1}, Lj$/util/concurrent/ConcurrentHashMap;->remove(Ljava/lang/Object;)Ljava/lang/Object;
+
+    move-result-object v4
+
+    check-cast v4, Lcom/shilapi/xcertplay/airplay/AudioPacketCapture;
+
+    if-eqz v4, :cond_6
+
+    invoke-virtual {v4}, Lcom/shilapi/xcertplay/airplay/AudioPacketCapture;->close()V
+
+    :cond_6
+    if-eqz v2, :cond_7
+
+    .line 338
+    iget-object v2, p0, Lcom/shilapi/xcertplay/airplay/CarPlayMediaEngine;->sink:Lcom/shilapi/xcertplay/airplay/MediaSink;
+
+    invoke-interface {v2, v3}, Lcom/shilapi/xcertplay/airplay/MediaSink;->onAudioStopped(Lcom/shilapi/xcertplay/airplay/AudioStreamId;)V
+
+    .line 339
+    :cond_7
+    iget-object v2, p0, Lcom/shilapi/xcertplay/airplay/CarPlayMediaEngine;->streams:Lj$/util/concurrent/ConcurrentHashMap;
+
+    invoke-virtual {v2, v1}, Lj$/util/concurrent/ConcurrentHashMap;->remove(Ljava/lang/Object;)Ljava/lang/Object;
+
+    move-result-object v1
+
+    check-cast v1, Ljava/io/Closeable;
+
+    if-eqz v1, :cond_3
+
+    invoke-interface {v1}, Ljava/io/Closeable;->close()V
+
+    goto :goto_1
+
+    .line 341
+    :cond_8
+    invoke-direct {p0, p2}, Lcom/shilapi/xcertplay/airplay/CarPlayMediaEngine;->isScreenStreamType(I)Z
+
+    move-result v0
+
+    if-eqz v0, :cond_9
+
+    iget-object v0, p0, Lcom/shilapi/xcertplay/airplay/CarPlayMediaEngine;->screenOwners:Lj$/util/concurrent/ConcurrentHashMap;
+
+    invoke-static {p2}, Ljava/lang/Integer;->valueOf(I)Ljava/lang/Integer;
+
+    move-result-object v1
+
+    invoke-direct {p0, v0, v1, p1}, Lcom/shilapi/xcertplay/airplay/CarPlayMediaEngine;->releaseOwner(Lj$/util/concurrent/ConcurrentHashMap;Ljava/lang/Object;Lcom/shilapi/xcertplay/airplay/AirPlaySession;)Z
+
+    move-result p1
+
+    if-eqz p1, :cond_9
+
+    iget-object p1, p0, Lcom/shilapi/xcertplay/airplay/CarPlayMediaEngine;->sink:Lcom/shilapi/xcertplay/airplay/MediaSink;
+
+    invoke-interface {p1, p2, v2}, Lcom/shilapi/xcertplay/airplay/MediaSink;->onScreenStreamActive(IZ)V
+
+    :cond_9
+    return-void
 .end method
 
 .method private final isScreenStreamType(I)Z
@@ -3014,711 +4053,94 @@
 .end method
 
 .method public onScreen(Lcom/shilapi/xcertplay/airplay/AirPlaySession;ILjava/util/Map;)Ljava/lang/Integer;
-    .locals 7
-    .annotation system Ldalvik/annotation/Signature;
-        value = {
-            "(",
-            "Lcom/shilapi/xcertplay/airplay/AirPlaySession;",
-            "I",
-            "Ljava/util/Map<",
-            "Ljava/lang/String;",
-            "+",
-            "Ljava/lang/Object;",
-            ">;)",
-            "Ljava/lang/Integer;"
-        }
-    .end annotation
+    .locals 3
 
-    const-string v0, "session"
+    monitor-enter p0
 
-    invoke-static {p1, v0}, Lkotlin/jvm/internal/Intrinsics;->checkNotNullParameter(Ljava/lang/Object;Ljava/lang/String;)V
+    const/4 v0, 0x0
 
-    const-string/jumbo v0, "stream"
+    iput-boolean v0, p0, Lcom/shilapi/xcertplay/airplay/CarPlayMediaEngine;->e01ClusterSetupPending:Z
 
-    invoke-static {p3, v0}, Lkotlin/jvm/internal/Intrinsics;->checkNotNullParameter(Ljava/lang/Object;Ljava/lang/String;)V
-
-    .line 84
-    invoke-direct {p0, p1, p3}, Lcom/shilapi/xcertplay/airplay/CarPlayMediaEngine;->outputKey(Lcom/shilapi/xcertplay/airplay/AirPlaySession;Ljava/util/Map;)[B
+    :try_start_0
+    invoke-direct {p0, p1, p2, p3}, Lcom/shilapi/xcertplay/airplay/CarPlayMediaEngine;->e01OnScreenLocked(Lcom/shilapi/xcertplay/airplay/AirPlaySession;ILjava/util/Map;)Ljava/lang/Integer;
 
     move-result-object v0
 
-    if-nez v0, :cond_0
+    const/4 v1, 0x0
 
-    const/4 p1, 0x0
+    iput-boolean v1, p0, Lcom/shilapi/xcertplay/airplay/CarPlayMediaEngine;->e01ClusterSetupPending:Z
 
-    return-object p1
+    monitor-exit p0
+    :try_end_0
+    .catchall {:try_start_0 .. :try_end_0} :catchall_0
 
-    .line 85
+    return-object v0
+
+    :catchall_0
+    move-exception v0
+
+    iget-boolean v1, p0, Lcom/shilapi/xcertplay/airplay/CarPlayMediaEngine;->e01ClusterSetupPending:Z
+
+    if-eqz v1, :cond_1
+
+    const/4 v1, 0x0
+
+    iput-boolean v1, p0, Lcom/shilapi/xcertplay/airplay/CarPlayMediaEngine;->e01ClusterSetupPending:Z
+
+    :try_start_1
+    iget-object v1, p0, Lcom/shilapi/xcertplay/airplay/CarPlayMediaEngine;->screenOwners:Lj$/util/concurrent/ConcurrentHashMap;
+
+    invoke-static {p2}, Ljava/lang/Integer;->valueOf(I)Ljava/lang/Integer;
+
+    move-result-object v2
+
+    invoke-virtual {v1, v2}, Lj$/util/concurrent/ConcurrentHashMap;->get(Ljava/lang/Object;)Ljava/lang/Object;
+
+    move-result-object v1
+
+    check-cast v1, Lcom/shilapi/xcertplay/airplay/AirPlaySession;
+
+    if-nez v1, :cond_0
+
+    move-object v1, p1
+
     :cond_0
-    new-instance v1, Lcom/shilapi/xcertplay/airplay/CarPlayMediaEngine$StreamKey;
-
-    const/4 v5, 0x4
-
-    const/4 v6, 0x0
-
-    const/4 v4, 0x0
-
-    move-object v2, p1
-
-    move v3, p2
-
-    invoke-direct/range {v1 .. v6}, Lcom/shilapi/xcertplay/airplay/CarPlayMediaEngine$StreamKey;-><init>(Lcom/shilapi/xcertplay/airplay/AirPlaySession;ILjava/lang/String;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
-
-    move-object v5, v2
-
-    move v2, v3
-
-    .line 86
-    const-string/jumbo p1, "streamConnectionID"
-
-    invoke-interface {p3, p1}, Ljava/util/Map;->get(Ljava/lang/Object;)Ljava/lang/Object;
-
-    move-result-object p1
-
-    invoke-static {p1}, Lcom/shilapi/xcertplay/airplay/CarPlayMediaEngineKt;->unsignedPlistDecimal(Ljava/lang/Object;)Ljava/lang/String;
-
-    move-result-object p1
-
-    new-instance p2, Ljava/lang/StringBuilder;
-
-    const-string p3, "airplay screen key connectionID="
-
-    invoke-direct {p2, p3}, Ljava/lang/StringBuilder;-><init>(Ljava/lang/String;)V
-
-    invoke-virtual {p2, p1}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
-
-    invoke-virtual {p2}, Ljava/lang/StringBuilder;->toString()Ljava/lang/String;
-
-    move-result-object p1
-
-    const-string/jumbo p2, "xcertplay-usb"
-
-    invoke-static {p2, p1}, Landroid/util/Log;->i(Ljava/lang/String;Ljava/lang/String;)I
-
-    .line 87
-    new-instance v3, Lcom/shilapi/xcertplay/airplay/ScreenStream;
-
-    new-instance p1, Lcom/shilapi/xcertplay/airplay/CarPlayMediaEngine$onScreen$screen$1;
-
-    invoke-direct {p1, v5}, Lcom/shilapi/xcertplay/airplay/CarPlayMediaEngine$onScreen$screen$1;-><init>(Ljava/lang/Object;)V
-
-    check-cast p1, Lkotlin/jvm/functions/Function1;
-
-    invoke-virtual {v5}, Lcom/shilapi/xcertplay/airplay/AirPlaySession;->getLocalAddress()Ljava/net/InetAddress;
-
-    move-result-object p2
-
-    invoke-direct {v3, v0, p1, p2}, Lcom/shilapi/xcertplay/airplay/ScreenStream;-><init>([BLkotlin/jvm/functions/Function1;Ljava/net/InetAddress;)V
-
-    const/16 p1, 0x6f
-
-    if-ne v2, p1, :cond_1
-
-    .line 89
-    invoke-virtual {v5}, Lcom/shilapi/xcertplay/airplay/AirPlaySession;->getClusterDisplay$shared_release()Lcom/shilapi/xcertplay/airplay/AirPlayDisplayConfig;
-
-    move-result-object p1
-
-    if-eqz p1, :cond_1
-
-    iget-object p2, p0, Lcom/shilapi/xcertplay/airplay/CarPlayMediaEngine;->sink:Lcom/shilapi/xcertplay/airplay/MediaSink;
-
-    invoke-virtual {p1}, Lcom/shilapi/xcertplay/airplay/AirPlayDisplayConfig;->getWidthPixels()I
-
-    move-result p3
-
-    invoke-virtual {p1}, Lcom/shilapi/xcertplay/airplay/AirPlayDisplayConfig;->getHeightPixels()I
-
-    move-result p1
-
-    invoke-interface {p2, v2, p3, p1}, Lcom/shilapi/xcertplay/airplay/MediaSink;->onVideoSize(III)V
-
-    .line 90
-    :cond_1
-    iget-object p1, p0, Lcom/shilapi/xcertplay/airplay/CarPlayMediaEngine;->sink:Lcom/shilapi/xcertplay/airplay/MediaSink;
-
-    new-instance p2, Lcom/shilapi/xcertplay/airplay/CarPlayMediaEngine$$ExternalSyntheticLambda1;
-
-    invoke-direct {p2, v5}, Lcom/shilapi/xcertplay/airplay/CarPlayMediaEngine$$ExternalSyntheticLambda1;-><init>(Lcom/shilapi/xcertplay/airplay/AirPlaySession;)V
-
-    invoke-interface {p1, v2, p2}, Lcom/shilapi/xcertplay/airplay/MediaSink;->setVideoDiagnosticHandler(ILkotlin/jvm/functions/Function1;)V
-
-    .line 94
-    iget-object p1, p0, Lcom/shilapi/xcertplay/airplay/CarPlayMediaEngine;->sink:Lcom/shilapi/xcertplay/airplay/MediaSink;
-
-    new-instance v0, Lcom/shilapi/xcertplay/airplay/CarPlayMediaEngine$$ExternalSyntheticLambda2;
-
-    move v4, v2
-
-    move-object v2, v1
-
-    move-object v1, p0
-
-    invoke-direct/range {v0 .. v5}, Lcom/shilapi/xcertplay/airplay/CarPlayMediaEngine$$ExternalSyntheticLambda2;-><init>(Lcom/shilapi/xcertplay/airplay/CarPlayMediaEngine;Lcom/shilapi/xcertplay/airplay/CarPlayMediaEngine$StreamKey;Lcom/shilapi/xcertplay/airplay/ScreenStream;ILcom/shilapi/xcertplay/airplay/AirPlaySession;)V
-
-    move-object v1, v2
-
-    move v2, v4
-
-    invoke-interface {p1, v2, v0}, Lcom/shilapi/xcertplay/airplay/MediaSink;->setVideoRecoveryHandler(ILkotlin/jvm/functions/Function0;)V
-
-    .line 107
-    new-instance v0, Lcom/shilapi/xcertplay/airplay/CarPlayMediaEngine$onScreen$port$1;
-
-    move-object v4, v3
-
-    move-object v3, v1
-
-    move-object v1, p0
-
-    invoke-direct/range {v0 .. v5}, Lcom/shilapi/xcertplay/airplay/CarPlayMediaEngine$onScreen$port$1;-><init>(Lcom/shilapi/xcertplay/airplay/CarPlayMediaEngine;ILcom/shilapi/xcertplay/airplay/CarPlayMediaEngine$StreamKey;Lcom/shilapi/xcertplay/airplay/ScreenStream;Lcom/shilapi/xcertplay/airplay/AirPlaySession;)V
-
-    check-cast v0, Lcom/shilapi/xcertplay/airplay/ScreenStream$Listener;
-
-    .line 106
-    invoke-virtual {v4, v0}, Lcom/shilapi/xcertplay/airplay/ScreenStream;->listen(Lcom/shilapi/xcertplay/airplay/ScreenStream$Listener;)I
-
-    move-result p1
-
-    .line 123
-    iget-object p2, v1, Lcom/shilapi/xcertplay/airplay/CarPlayMediaEngine;->streams:Lj$/util/concurrent/ConcurrentHashMap;
-
-    invoke-virtual {p2, v3, v4}, Lj$/util/concurrent/ConcurrentHashMap;->put(Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;
-
-    move-result-object p2
-
-    check-cast p2, Ljava/io/Closeable;
-
-    if-eqz p2, :cond_2
-
-    invoke-interface {p2}, Ljava/io/Closeable;->close()V
-
-    .line 124
-    :cond_2
-    iget-object p2, v1, Lcom/shilapi/xcertplay/airplay/CarPlayMediaEngine;->screenOwners:Lj$/util/concurrent/ConcurrentHashMap;
-
-    check-cast p2, Ljava/util/Map;
-
-    invoke-static {v2}, Ljava/lang/Integer;->valueOf(I)Ljava/lang/Integer;
-
-    move-result-object p3
-
-    invoke-interface {p2, p3, v5}, Ljava/util/Map;->put(Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;
-
-    .line 125
-    iget-object p2, v1, Lcom/shilapi/xcertplay/airplay/CarPlayMediaEngine;->sink:Lcom/shilapi/xcertplay/airplay/MediaSink;
-
-    const/4 p3, 0x1
-
-    invoke-interface {p2, v2, p3}, Lcom/shilapi/xcertplay/airplay/MediaSink;->onScreenStreamActive(IZ)V
-
-    .line 126
-    invoke-static {p1}, Ljava/lang/Integer;->valueOf(I)Ljava/lang/Integer;
-
-    move-result-object p1
-
-    return-object p1
-.end method
-
-.method public onSessionClosed(Lcom/shilapi/xcertplay/airplay/AirPlaySession;)V
-    .locals 7
-
-    const-string v0, "session"
-
-    invoke-static {p1, v0}, Lkotlin/jvm/internal/Intrinsics;->checkNotNullParameter(Ljava/lang/Object;Ljava/lang/String;)V
-
-    .line 345
-    invoke-direct {p0, p1}, Lcom/shilapi/xcertplay/airplay/CarPlayMediaEngine;->clearPendingIapTunnel(Lcom/shilapi/xcertplay/airplay/AirPlaySession;)V
-
-    .line 346
-    iget-object v0, p0, Lcom/shilapi/xcertplay/airplay/CarPlayMediaEngine;->videoSettingsChannels:Lj$/util/concurrent/ConcurrentHashMap;
-
-    invoke-virtual {v0, p1}, Lj$/util/concurrent/ConcurrentHashMap;->remove(Ljava/lang/Object;)Ljava/lang/Object;
-
-    move-result-object v0
-
-    check-cast v0, Lcom/shilapi/xcertplay/airplay/VideoSettingsChannel;
-
-    if-eqz v0, :cond_0
-
-    invoke-virtual {v0}, Lcom/shilapi/xcertplay/airplay/VideoSettingsChannel;->close()V
-
-    .line 347
-    :cond_0
-    iget-object v0, p0, Lcom/shilapi/xcertplay/airplay/CarPlayMediaEngine;->streams:Lj$/util/concurrent/ConcurrentHashMap;
-
-    invoke-virtual {v0}, Lj$/util/concurrent/ConcurrentHashMap;->keySet()Ljava/util/Set;
-
-    move-result-object v0
-
-    const-string v1, "<get-keys>(...)"
-
-    invoke-static {v0, v1}, Lkotlin/jvm/internal/Intrinsics;->checkNotNullExpressionValue(Ljava/lang/Object;Ljava/lang/String;)V
-
-    check-cast v0, Ljava/lang/Iterable;
-
-    .line 488
-    new-instance v2, Ljava/util/ArrayList;
-
-    invoke-direct {v2}, Ljava/util/ArrayList;-><init>()V
-
-    check-cast v2, Ljava/util/Collection;
-
-    .line 489
-    invoke-interface {v0}, Ljava/lang/Iterable;->iterator()Ljava/util/Iterator;
-
-    move-result-object v0
-
-    :cond_1
-    :goto_0
-    invoke-interface {v0}, Ljava/util/Iterator;->hasNext()Z
-
-    move-result v3
-
-    if-eqz v3, :cond_2
-
-    invoke-interface {v0}, Ljava/util/Iterator;->next()Ljava/lang/Object;
-
-    move-result-object v3
-
-    move-object v4, v3
-
-    check-cast v4, Lcom/shilapi/xcertplay/airplay/CarPlayMediaEngine$StreamKey;
-
-    .line 347
-    invoke-virtual {v4}, Lcom/shilapi/xcertplay/airplay/CarPlayMediaEngine$StreamKey;->getSession()Lcom/shilapi/xcertplay/airplay/AirPlaySession;
-
-    move-result-object v4
-
-    if-ne v4, p1, :cond_1
-
-    .line 489
-    invoke-interface {v2, v3}, Ljava/util/Collection;->add(Ljava/lang/Object;)Z
+    invoke-direct {p0, v1, p2}, Lcom/shilapi/xcertplay/airplay/CarPlayMediaEngine;->e01OnTeardownLocked(Lcom/shilapi/xcertplay/airplay/AirPlaySession;I)V
+    :try_end_1
+    .catchall {:try_start_1 .. :try_end_1} :catchall_1
 
     goto :goto_0
 
-    .line 490
-    :cond_2
-    check-cast v2, Ljava/util/List;
+    :catchall_1
+    move-exception v1
 
-    .line 348
-    check-cast v2, Ljava/lang/Iterable;
+    :cond_1
+    :goto_0
+    monitor-exit p0
 
-    .line 491
-    new-instance v0, Ljava/util/ArrayList;
+    throw v0
+.end method
 
-    invoke-direct {v0}, Ljava/util/ArrayList;-><init>()V
+.method public onSessionClosed(Lcom/shilapi/xcertplay/airplay/AirPlaySession;)V
+    .locals 1
 
-    check-cast v0, Ljava/util/Collection;
+    monitor-enter p0
 
-    .line 492
-    invoke-interface {v2}, Ljava/lang/Iterable;->iterator()Ljava/util/Iterator;
+    :try_start_0
+    invoke-direct {p0, p1}, Lcom/shilapi/xcertplay/airplay/CarPlayMediaEngine;->e01OnSessionClosedLocked(Lcom/shilapi/xcertplay/airplay/AirPlaySession;)V
 
-    move-result-object v3
-
-    :cond_3
-    :goto_1
-    invoke-interface {v3}, Ljava/util/Iterator;->hasNext()Z
-
-    move-result v4
-
-    if-eqz v4, :cond_4
-
-    invoke-interface {v3}, Ljava/util/Iterator;->next()Ljava/lang/Object;
-
-    move-result-object v4
-
-    move-object v5, v4
-
-    check-cast v5, Lcom/shilapi/xcertplay/airplay/CarPlayMediaEngine$StreamKey;
-
-    .line 349
-    invoke-virtual {v5}, Lcom/shilapi/xcertplay/airplay/CarPlayMediaEngine$StreamKey;->getType()I
-
-    move-result v6
-
-    invoke-direct {p0, v6}, Lcom/shilapi/xcertplay/airplay/CarPlayMediaEngine;->isScreenStreamType(I)Z
-
-    move-result v6
-
-    if-eqz v6, :cond_3
-
-    iget-object v6, p0, Lcom/shilapi/xcertplay/airplay/CarPlayMediaEngine;->screenOwners:Lj$/util/concurrent/ConcurrentHashMap;
-
-    invoke-virtual {v5}, Lcom/shilapi/xcertplay/airplay/CarPlayMediaEngine$StreamKey;->getType()I
-
-    move-result v5
-
-    invoke-static {v5}, Ljava/lang/Integer;->valueOf(I)Ljava/lang/Integer;
-
-    move-result-object v5
-
-    invoke-direct {p0, v6, v5, p1}, Lcom/shilapi/xcertplay/airplay/CarPlayMediaEngine;->releaseOwner(Lj$/util/concurrent/ConcurrentHashMap;Ljava/lang/Object;Lcom/shilapi/xcertplay/airplay/AirPlaySession;)Z
-
-    move-result v5
-
-    if-eqz v5, :cond_3
-
-    .line 492
-    invoke-interface {v0, v4}, Ljava/util/Collection;->add(Ljava/lang/Object;)Z
-
-    goto :goto_1
-
-    .line 493
-    :cond_4
-    check-cast v0, Ljava/util/List;
-
-    .line 491
-    check-cast v0, Ljava/lang/Iterable;
-
-    .line 494
-    invoke-interface {v0}, Ljava/lang/Iterable;->iterator()Ljava/util/Iterator;
-
-    move-result-object v0
-
-    :goto_2
-    invoke-interface {v0}, Ljava/util/Iterator;->hasNext()Z
-
-    move-result v3
-
-    if-eqz v3, :cond_5
-
-    invoke-interface {v0}, Ljava/util/Iterator;->next()Ljava/lang/Object;
-
-    move-result-object v3
-
-    check-cast v3, Lcom/shilapi/xcertplay/airplay/CarPlayMediaEngine$StreamKey;
-
-    .line 350
-    iget-object v4, p0, Lcom/shilapi/xcertplay/airplay/CarPlayMediaEngine;->sink:Lcom/shilapi/xcertplay/airplay/MediaSink;
-
-    invoke-virtual {v3}, Lcom/shilapi/xcertplay/airplay/CarPlayMediaEngine$StreamKey;->getType()I
-
-    move-result v3
-
-    const/4 v5, 0x0
-
-    invoke-interface {v4, v3, v5}, Lcom/shilapi/xcertplay/airplay/MediaSink;->onScreenStreamActive(IZ)V
-
-    goto :goto_2
-
-    .line 496
-    :cond_5
-    invoke-interface {v2}, Ljava/lang/Iterable;->iterator()Ljava/util/Iterator;
-
-    move-result-object v0
-
-    :cond_6
-    :goto_3
-    invoke-interface {v0}, Ljava/util/Iterator;->hasNext()Z
-
-    move-result v2
-
-    if-eqz v2, :cond_7
-
-    invoke-interface {v0}, Ljava/util/Iterator;->next()Ljava/lang/Object;
-
-    move-result-object v2
-
-    check-cast v2, Lcom/shilapi/xcertplay/airplay/CarPlayMediaEngine$StreamKey;
-
-    .line 351
-    iget-object v3, p0, Lcom/shilapi/xcertplay/airplay/CarPlayMediaEngine;->streams:Lj$/util/concurrent/ConcurrentHashMap;
-
-    invoke-virtual {v3, v2}, Lj$/util/concurrent/ConcurrentHashMap;->remove(Ljava/lang/Object;)Ljava/lang/Object;
-
-    move-result-object v2
-
-    check-cast v2, Ljava/io/Closeable;
-
-    if-eqz v2, :cond_6
-
-    invoke-interface {v2}, Ljava/io/Closeable;->close()V
-
-    goto :goto_3
-
-    .line 354
-    :cond_7
-    iget-object v0, p0, Lcom/shilapi/xcertplay/airplay/CarPlayMediaEngine;->audioMeta:Lj$/util/concurrent/ConcurrentHashMap;
-
-    invoke-virtual {v0}, Lj$/util/concurrent/ConcurrentHashMap;->keySet()Ljava/util/Set;
-
-    move-result-object v0
-
-    invoke-static {v0, v1}, Lkotlin/jvm/internal/Intrinsics;->checkNotNullExpressionValue(Ljava/lang/Object;Ljava/lang/String;)V
-
-    check-cast v0, Ljava/lang/Iterable;
-
-    .line 498
-    new-instance v2, Ljava/util/ArrayList;
-
-    invoke-direct {v2}, Ljava/util/ArrayList;-><init>()V
-
-    check-cast v2, Ljava/util/Collection;
-
-    .line 499
-    invoke-interface {v0}, Ljava/lang/Iterable;->iterator()Ljava/util/Iterator;
-
-    move-result-object v0
-
-    :cond_8
-    :goto_4
-    invoke-interface {v0}, Ljava/util/Iterator;->hasNext()Z
-
-    move-result v3
-
-    if-eqz v3, :cond_9
-
-    invoke-interface {v0}, Ljava/util/Iterator;->next()Ljava/lang/Object;
-
-    move-result-object v3
-
-    move-object v4, v3
-
-    check-cast v4, Lcom/shilapi/xcertplay/airplay/CarPlayMediaEngine$StreamKey;
-
-    .line 354
-    invoke-virtual {v4}, Lcom/shilapi/xcertplay/airplay/CarPlayMediaEngine$StreamKey;->getSession()Lcom/shilapi/xcertplay/airplay/AirPlaySession;
-
-    move-result-object v4
-
-    if-ne v4, p1, :cond_8
-
-    .line 499
-    invoke-interface {v2, v3}, Ljava/util/Collection;->add(Ljava/lang/Object;)Z
-
-    goto :goto_4
-
-    .line 500
-    :cond_9
-    check-cast v2, Ljava/util/List;
-
-    .line 498
-    check-cast v2, Ljava/lang/Iterable;
-
-    .line 501
-    invoke-interface {v2}, Ljava/lang/Iterable;->iterator()Ljava/util/Iterator;
-
-    move-result-object v0
-
-    :goto_5
-    invoke-interface {v0}, Ljava/util/Iterator;->hasNext()Z
-
-    move-result v2
-
-    if-eqz v2, :cond_a
-
-    invoke-interface {v0}, Ljava/util/Iterator;->next()Ljava/lang/Object;
-
-    move-result-object v2
-
-    check-cast v2, Lcom/shilapi/xcertplay/airplay/CarPlayMediaEngine$StreamKey;
-
-    .line 354
-    iget-object v3, p0, Lcom/shilapi/xcertplay/airplay/CarPlayMediaEngine;->audioMeta:Lj$/util/concurrent/ConcurrentHashMap;
-
-    invoke-virtual {v3, v2}, Lj$/util/concurrent/ConcurrentHashMap;->remove(Ljava/lang/Object;)Ljava/lang/Object;
-
-    goto :goto_5
-
-    .line 355
-    :cond_a
-    iget-object v0, p0, Lcom/shilapi/xcertplay/airplay/CarPlayMediaEngine;->pendingMicrophone:Lj$/util/concurrent/ConcurrentHashMap;
-
-    invoke-virtual {v0}, Lj$/util/concurrent/ConcurrentHashMap;->keySet()Ljava/util/Set;
-
-    move-result-object v0
-
-    invoke-static {v0, v1}, Lkotlin/jvm/internal/Intrinsics;->checkNotNullExpressionValue(Ljava/lang/Object;Ljava/lang/String;)V
-
-    check-cast v0, Ljava/lang/Iterable;
-
-    .line 503
-    new-instance v2, Ljava/util/ArrayList;
-
-    invoke-direct {v2}, Ljava/util/ArrayList;-><init>()V
-
-    check-cast v2, Ljava/util/Collection;
-
-    .line 504
-    invoke-interface {v0}, Ljava/lang/Iterable;->iterator()Ljava/util/Iterator;
-
-    move-result-object v0
-
-    :cond_b
-    :goto_6
-    invoke-interface {v0}, Ljava/util/Iterator;->hasNext()Z
-
-    move-result v3
-
-    if-eqz v3, :cond_c
-
-    invoke-interface {v0}, Ljava/util/Iterator;->next()Ljava/lang/Object;
-
-    move-result-object v3
-
-    move-object v4, v3
-
-    check-cast v4, Lcom/shilapi/xcertplay/airplay/CarPlayMediaEngine$StreamKey;
-
-    .line 355
-    invoke-virtual {v4}, Lcom/shilapi/xcertplay/airplay/CarPlayMediaEngine$StreamKey;->getSession()Lcom/shilapi/xcertplay/airplay/AirPlaySession;
-
-    move-result-object v4
-
-    if-ne v4, p1, :cond_b
-
-    .line 504
-    invoke-interface {v2, v3}, Ljava/util/Collection;->add(Ljava/lang/Object;)Z
-
-    goto :goto_6
-
-    .line 505
-    :cond_c
-    check-cast v2, Ljava/util/List;
-
-    .line 503
-    check-cast v2, Ljava/lang/Iterable;
-
-    .line 506
-    invoke-interface {v2}, Ljava/lang/Iterable;->iterator()Ljava/util/Iterator;
-
-    move-result-object v0
-
-    :goto_7
-    invoke-interface {v0}, Ljava/util/Iterator;->hasNext()Z
-
-    move-result v2
-
-    if-eqz v2, :cond_d
-
-    invoke-interface {v0}, Ljava/util/Iterator;->next()Ljava/lang/Object;
-
-    move-result-object v2
-
-    check-cast v2, Lcom/shilapi/xcertplay/airplay/CarPlayMediaEngine$StreamKey;
-
-    .line 355
-    iget-object v3, p0, Lcom/shilapi/xcertplay/airplay/CarPlayMediaEngine;->pendingMicrophone:Lj$/util/concurrent/ConcurrentHashMap;
-
-    invoke-virtual {v3, v2}, Lj$/util/concurrent/ConcurrentHashMap;->remove(Ljava/lang/Object;)Ljava/lang/Object;
-
-    goto :goto_7
-
-    .line 356
-    :cond_d
-    iget-object v0, p0, Lcom/shilapi/xcertplay/airplay/CarPlayMediaEngine;->audioCaptures:Lj$/util/concurrent/ConcurrentHashMap;
-
-    invoke-virtual {v0}, Lj$/util/concurrent/ConcurrentHashMap;->keySet()Ljava/util/Set;
-
-    move-result-object v0
-
-    invoke-static {v0, v1}, Lkotlin/jvm/internal/Intrinsics;->checkNotNullExpressionValue(Ljava/lang/Object;Ljava/lang/String;)V
-
-    check-cast v0, Ljava/lang/Iterable;
-
-    .line 508
-    new-instance v1, Ljava/util/ArrayList;
-
-    invoke-direct {v1}, Ljava/util/ArrayList;-><init>()V
-
-    check-cast v1, Ljava/util/Collection;
-
-    .line 509
-    invoke-interface {v0}, Ljava/lang/Iterable;->iterator()Ljava/util/Iterator;
-
-    move-result-object v0
-
-    :cond_e
-    :goto_8
-    invoke-interface {v0}, Ljava/util/Iterator;->hasNext()Z
-
-    move-result v2
-
-    if-eqz v2, :cond_f
-
-    invoke-interface {v0}, Ljava/util/Iterator;->next()Ljava/lang/Object;
-
-    move-result-object v2
-
-    move-object v3, v2
-
-    check-cast v3, Lcom/shilapi/xcertplay/airplay/CarPlayMediaEngine$StreamKey;
-
-    .line 356
-    invoke-virtual {v3}, Lcom/shilapi/xcertplay/airplay/CarPlayMediaEngine$StreamKey;->getSession()Lcom/shilapi/xcertplay/airplay/AirPlaySession;
-
-    move-result-object v3
-
-    if-ne v3, p1, :cond_e
-
-    .line 509
-    invoke-interface {v1, v2}, Ljava/util/Collection;->add(Ljava/lang/Object;)Z
-
-    goto :goto_8
-
-    .line 510
-    :cond_f
-    check-cast v1, Ljava/util/List;
-
-    .line 508
-    check-cast v1, Ljava/lang/Iterable;
-
-    .line 511
-    invoke-interface {v1}, Ljava/lang/Iterable;->iterator()Ljava/util/Iterator;
-
-    move-result-object v0
-
-    :cond_10
-    :goto_9
-    invoke-interface {v0}, Ljava/util/Iterator;->hasNext()Z
-
-    move-result v1
-
-    if-eqz v1, :cond_11
-
-    invoke-interface {v0}, Ljava/util/Iterator;->next()Ljava/lang/Object;
-
-    move-result-object v1
-
-    check-cast v1, Lcom/shilapi/xcertplay/airplay/CarPlayMediaEngine$StreamKey;
-
-    .line 356
-    iget-object v2, p0, Lcom/shilapi/xcertplay/airplay/CarPlayMediaEngine;->audioCaptures:Lj$/util/concurrent/ConcurrentHashMap;
-
-    invoke-virtual {v2, v1}, Lj$/util/concurrent/ConcurrentHashMap;->remove(Ljava/lang/Object;)Ljava/lang/Object;
-
-    move-result-object v1
-
-    check-cast v1, Lcom/shilapi/xcertplay/airplay/AudioPacketCapture;
-
-    if-eqz v1, :cond_10
-
-    invoke-virtual {v1}, Lcom/shilapi/xcertplay/airplay/AudioPacketCapture;->close()V
-
-    goto :goto_9
-
-    .line 357
-    :cond_11
-    iget-object v0, p0, Lcom/shilapi/xcertplay/airplay/CarPlayMediaEngine;->audioOwners:Lj$/util/concurrent/ConcurrentHashMap;
-
-    invoke-virtual {v0}, Lj$/util/concurrent/ConcurrentHashMap;->entrySet()Ljava/util/Set;
-
-    move-result-object v0
-
-    const-string v1, "<get-entries>(...)"
-
-    invoke-static {v0, v1}, Lkotlin/jvm/internal/Intrinsics;->checkNotNullExpressionValue(Ljava/lang/Object;Ljava/lang/String;)V
-
-    check-cast v0, Ljava/lang/Iterable;
-
-    new-instance v1, Lcom/shilapi/xcertplay/airplay/CarPlayMediaEngine$$ExternalSyntheticLambda0;
-
-    invoke-direct {v1, p1}, Lcom/shilapi/xcertplay/airplay/CarPlayMediaEngine$$ExternalSyntheticLambda0;-><init>(Lcom/shilapi/xcertplay/airplay/AirPlaySession;)V
-
-    invoke-static {v0, v1}, Lkotlin/collections/CollectionsKt;->removeAll(Ljava/lang/Iterable;Lkotlin/jvm/functions/Function1;)Z
+    monitor-exit p0
+    :try_end_0
+    .catchall {:try_start_0 .. :try_end_0} :catchall_0
 
     return-void
+
+    :catchall_0
+    move-exception v0
+
+    monitor-exit p0
+
+    throw v0
 .end method
 
 .method public onSetupResponseSent(Lcom/shilapi/xcertplay/airplay/AirPlaySession;)V
@@ -3802,226 +4224,25 @@
 .end method
 
 .method public onTeardown(Lcom/shilapi/xcertplay/airplay/AirPlaySession;I)V
-    .locals 6
+    .locals 1
 
-    const-string v0, "session"
+    monitor-enter p0
 
-    invoke-static {p1, v0}, Lkotlin/jvm/internal/Intrinsics;->checkNotNullParameter(Ljava/lang/Object;Ljava/lang/String;)V
+    :try_start_0
+    invoke-direct {p0, p1, p2}, Lcom/shilapi/xcertplay/airplay/CarPlayMediaEngine;->e01OnTeardownLocked(Lcom/shilapi/xcertplay/airplay/AirPlaySession;I)V
 
-    const/16 v0, 0x82
+    monitor-exit p0
+    :try_end_0
+    .catchall {:try_start_0 .. :try_end_0} :catchall_0
 
-    if-ne p2, v0, :cond_0
-
-    .line 329
-    invoke-direct {p0, p1}, Lcom/shilapi/xcertplay/airplay/CarPlayMediaEngine;->clearPendingIapTunnel(Lcom/shilapi/xcertplay/airplay/AirPlaySession;)V
-
-    .line 331
-    :cond_0
-    iget-object v0, p0, Lcom/shilapi/xcertplay/airplay/CarPlayMediaEngine;->streams:Lj$/util/concurrent/ConcurrentHashMap;
-
-    invoke-virtual {v0}, Lj$/util/concurrent/ConcurrentHashMap;->keySet()Ljava/util/Set;
-
-    move-result-object v0
-
-    const-string v1, "<get-keys>(...)"
-
-    invoke-static {v0, v1}, Lkotlin/jvm/internal/Intrinsics;->checkNotNullExpressionValue(Ljava/lang/Object;Ljava/lang/String;)V
-
-    check-cast v0, Ljava/lang/Iterable;
-
-    .line 483
-    new-instance v1, Ljava/util/ArrayList;
-
-    invoke-direct {v1}, Ljava/util/ArrayList;-><init>()V
-
-    check-cast v1, Ljava/util/Collection;
-
-    .line 484
-    invoke-interface {v0}, Ljava/lang/Iterable;->iterator()Ljava/util/Iterator;
-
-    move-result-object v0
-
-    :cond_1
-    :goto_0
-    invoke-interface {v0}, Ljava/util/Iterator;->hasNext()Z
-
-    move-result v2
-
-    if-eqz v2, :cond_2
-
-    invoke-interface {v0}, Ljava/util/Iterator;->next()Ljava/lang/Object;
-
-    move-result-object v2
-
-    move-object v3, v2
-
-    check-cast v3, Lcom/shilapi/xcertplay/airplay/CarPlayMediaEngine$StreamKey;
-
-    .line 331
-    invoke-virtual {v3}, Lcom/shilapi/xcertplay/airplay/CarPlayMediaEngine$StreamKey;->getSession()Lcom/shilapi/xcertplay/airplay/AirPlaySession;
-
-    move-result-object v4
-
-    if-ne v4, p1, :cond_1
-
-    invoke-virtual {v3}, Lcom/shilapi/xcertplay/airplay/CarPlayMediaEngine$StreamKey;->getType()I
-
-    move-result v3
-
-    if-ne v3, p2, :cond_1
-
-    .line 484
-    invoke-interface {v1, v2}, Ljava/util/Collection;->add(Ljava/lang/Object;)Z
-
-    goto :goto_0
-
-    .line 485
-    :cond_2
-    check-cast v1, Ljava/util/List;
-
-    .line 332
-    check-cast v1, Ljava/lang/Iterable;
-
-    .line 486
-    invoke-interface {v1}, Ljava/lang/Iterable;->iterator()Ljava/util/Iterator;
-
-    move-result-object v0
-
-    :cond_3
-    :goto_1
-    invoke-interface {v0}, Ljava/util/Iterator;->hasNext()Z
-
-    move-result v1
-
-    const/4 v2, 0x0
-
-    if-eqz v1, :cond_8
-
-    invoke-interface {v0}, Ljava/util/Iterator;->next()Ljava/lang/Object;
-
-    move-result-object v1
-
-    check-cast v1, Lcom/shilapi/xcertplay/airplay/CarPlayMediaEngine$StreamKey;
-
-    .line 333
-    new-instance v3, Lcom/shilapi/xcertplay/airplay/AudioStreamId;
-
-    invoke-virtual {v1}, Lcom/shilapi/xcertplay/airplay/CarPlayMediaEngine$StreamKey;->getType()I
-
-    move-result v4
-
-    invoke-virtual {v1}, Lcom/shilapi/xcertplay/airplay/CarPlayMediaEngine$StreamKey;->getAudioType()Ljava/lang/String;
-
-    move-result-object v5
-
-    invoke-direct {v3, v4, v5}, Lcom/shilapi/xcertplay/airplay/AudioStreamId;-><init>(ILjava/lang/String;)V
-
-    .line 334
-    invoke-virtual {v1}, Lcom/shilapi/xcertplay/airplay/CarPlayMediaEngine$StreamKey;->getType()I
-
-    move-result v4
-
-    invoke-direct {p0, v4}, Lcom/shilapi/xcertplay/airplay/CarPlayMediaEngine;->isScreenStreamType(I)Z
-
-    move-result v4
-
-    if-nez v4, :cond_4
-
-    iget-object v4, p0, Lcom/shilapi/xcertplay/airplay/CarPlayMediaEngine;->audioOwners:Lj$/util/concurrent/ConcurrentHashMap;
-
-    invoke-direct {p0, v4, v3, p1}, Lcom/shilapi/xcertplay/airplay/CarPlayMediaEngine;->releaseOwner(Lj$/util/concurrent/ConcurrentHashMap;Ljava/lang/Object;Lcom/shilapi/xcertplay/airplay/AirPlaySession;)Z
-
-    move-result v4
-
-    if-eqz v4, :cond_4
-
-    const/4 v2, 0x1
-
-    .line 335
-    :cond_4
-    iget-object v4, p0, Lcom/shilapi/xcertplay/airplay/CarPlayMediaEngine;->pendingMicrophone:Lj$/util/concurrent/ConcurrentHashMap;
-
-    invoke-virtual {v4, v1}, Lj$/util/concurrent/ConcurrentHashMap;->remove(Ljava/lang/Object;)Ljava/lang/Object;
-
-    move-result-object v4
-
-    if-eqz v4, :cond_5
-
-    if-eqz v2, :cond_5
-
-    iget-object v4, p0, Lcom/shilapi/xcertplay/airplay/CarPlayMediaEngine;->sink:Lcom/shilapi/xcertplay/airplay/MediaSink;
-
-    invoke-interface {v4, v3}, Lcom/shilapi/xcertplay/airplay/MediaSink;->onMicrophoneStopped(Lcom/shilapi/xcertplay/airplay/AudioStreamId;)V
-
-    .line 336
-    :cond_5
-    iget-object v4, p0, Lcom/shilapi/xcertplay/airplay/CarPlayMediaEngine;->audioMeta:Lj$/util/concurrent/ConcurrentHashMap;
-
-    invoke-virtual {v4, v1}, Lj$/util/concurrent/ConcurrentHashMap;->remove(Ljava/lang/Object;)Ljava/lang/Object;
-
-    .line 337
-    iget-object v4, p0, Lcom/shilapi/xcertplay/airplay/CarPlayMediaEngine;->audioCaptures:Lj$/util/concurrent/ConcurrentHashMap;
-
-    invoke-virtual {v4, v1}, Lj$/util/concurrent/ConcurrentHashMap;->remove(Ljava/lang/Object;)Ljava/lang/Object;
-
-    move-result-object v4
-
-    check-cast v4, Lcom/shilapi/xcertplay/airplay/AudioPacketCapture;
-
-    if-eqz v4, :cond_6
-
-    invoke-virtual {v4}, Lcom/shilapi/xcertplay/airplay/AudioPacketCapture;->close()V
-
-    :cond_6
-    if-eqz v2, :cond_7
-
-    .line 338
-    iget-object v2, p0, Lcom/shilapi/xcertplay/airplay/CarPlayMediaEngine;->sink:Lcom/shilapi/xcertplay/airplay/MediaSink;
-
-    invoke-interface {v2, v3}, Lcom/shilapi/xcertplay/airplay/MediaSink;->onAudioStopped(Lcom/shilapi/xcertplay/airplay/AudioStreamId;)V
-
-    .line 339
-    :cond_7
-    iget-object v2, p0, Lcom/shilapi/xcertplay/airplay/CarPlayMediaEngine;->streams:Lj$/util/concurrent/ConcurrentHashMap;
-
-    invoke-virtual {v2, v1}, Lj$/util/concurrent/ConcurrentHashMap;->remove(Ljava/lang/Object;)Ljava/lang/Object;
-
-    move-result-object v1
-
-    check-cast v1, Ljava/io/Closeable;
-
-    if-eqz v1, :cond_3
-
-    invoke-interface {v1}, Ljava/io/Closeable;->close()V
-
-    goto :goto_1
-
-    .line 341
-    :cond_8
-    invoke-direct {p0, p2}, Lcom/shilapi/xcertplay/airplay/CarPlayMediaEngine;->isScreenStreamType(I)Z
-
-    move-result v0
-
-    if-eqz v0, :cond_9
-
-    iget-object v0, p0, Lcom/shilapi/xcertplay/airplay/CarPlayMediaEngine;->screenOwners:Lj$/util/concurrent/ConcurrentHashMap;
-
-    invoke-static {p2}, Ljava/lang/Integer;->valueOf(I)Ljava/lang/Integer;
-
-    move-result-object v1
-
-    invoke-direct {p0, v0, v1, p1}, Lcom/shilapi/xcertplay/airplay/CarPlayMediaEngine;->releaseOwner(Lj$/util/concurrent/ConcurrentHashMap;Ljava/lang/Object;Lcom/shilapi/xcertplay/airplay/AirPlaySession;)Z
-
-    move-result p1
-
-    if-eqz p1, :cond_9
-
-    iget-object p1, p0, Lcom/shilapi/xcertplay/airplay/CarPlayMediaEngine;->sink:Lcom/shilapi/xcertplay/airplay/MediaSink;
-
-    invoke-interface {p1, p2, v2}, Lcom/shilapi/xcertplay/airplay/MediaSink;->onScreenStreamActive(IZ)V
-
-    :cond_9
     return-void
+
+    :catchall_0
+    move-exception v0
+
+    monitor-exit p0
+
+    throw v0
 .end method
 
 .method public setIapTunnelHandler(Lkotlin/jvm/functions/Function1;)V

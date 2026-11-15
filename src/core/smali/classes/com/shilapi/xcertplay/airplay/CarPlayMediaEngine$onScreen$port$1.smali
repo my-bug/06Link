@@ -79,9 +79,56 @@
     return-void
 .end method
 
+.method private e01IsCurrent()Z
+    .locals 4
 
-# virtual methods
-.method public onClosed(Ljava/lang/Throwable;)V
+    iget-object v0, p0, Lcom/shilapi/xcertplay/airplay/CarPlayMediaEngine$onScreen$port$1;->this$0:Lcom/shilapi/xcertplay/airplay/CarPlayMediaEngine;
+
+    # getter for: Lcom/shilapi/xcertplay/airplay/CarPlayMediaEngine;->streams:Lj$/util/concurrent/ConcurrentHashMap;
+    invoke-static {v0}, Lcom/shilapi/xcertplay/airplay/CarPlayMediaEngine;->access$getStreams$p(Lcom/shilapi/xcertplay/airplay/CarPlayMediaEngine;)Lj$/util/concurrent/ConcurrentHashMap;
+
+    move-result-object v1
+
+    iget-object v2, p0, Lcom/shilapi/xcertplay/airplay/CarPlayMediaEngine$onScreen$port$1;->$streamKey:Lcom/shilapi/xcertplay/airplay/CarPlayMediaEngine$StreamKey;
+
+    invoke-virtual {v1, v2}, Lj$/util/concurrent/ConcurrentHashMap;->get(Ljava/lang/Object;)Ljava/lang/Object;
+
+    move-result-object v1
+
+    iget-object v2, p0, Lcom/shilapi/xcertplay/airplay/CarPlayMediaEngine$onScreen$port$1;->$screen:Lcom/shilapi/xcertplay/airplay/ScreenStream;
+
+    if-ne v1, v2, :cond_0
+
+    # getter for: Lcom/shilapi/xcertplay/airplay/CarPlayMediaEngine;->screenOwners:Lj$/util/concurrent/ConcurrentHashMap;
+    invoke-static {v0}, Lcom/shilapi/xcertplay/airplay/CarPlayMediaEngine;->access$getScreenOwners$p(Lcom/shilapi/xcertplay/airplay/CarPlayMediaEngine;)Lj$/util/concurrent/ConcurrentHashMap;
+
+    move-result-object v1
+
+    iget v2, p0, Lcom/shilapi/xcertplay/airplay/CarPlayMediaEngine$onScreen$port$1;->$type:I
+
+    invoke-static {v2}, Ljava/lang/Integer;->valueOf(I)Ljava/lang/Integer;
+
+    move-result-object v2
+
+    invoke-virtual {v1, v2}, Lj$/util/concurrent/ConcurrentHashMap;->get(Ljava/lang/Object;)Ljava/lang/Object;
+
+    move-result-object v1
+
+    iget-object v2, p0, Lcom/shilapi/xcertplay/airplay/CarPlayMediaEngine$onScreen$port$1;->$session:Lcom/shilapi/xcertplay/airplay/AirPlaySession;
+
+    if-ne v1, v2, :cond_0
+
+    const/4 v0, 0x1
+
+    return v0
+
+    :cond_0
+    const/4 v0, 0x0
+
+    return v0
+.end method
+
+.method private e01OnClosed(Ljava/lang/Throwable;)V
     .locals 3
 
     .line 114
@@ -177,15 +224,15 @@
     invoke-interface {p1, v0, v1}, Lcom/shilapi/xcertplay/airplay/MediaSink;->onScreenStreamActive(IZ)V
 
     .line 119
-    :cond_2
     iget-object p1, p0, Lcom/shilapi/xcertplay/airplay/CarPlayMediaEngine$onScreen$port$1;->$session:Lcom/shilapi/xcertplay/airplay/AirPlaySession;
 
     invoke-virtual {p1}, Lcom/shilapi/xcertplay/airplay/AirPlaySession;->close()V
 
+    :cond_2
     return-void
 .end method
 
-.method public onCodec(Lcom/shilapi/xcertplay/airplay/VideoCodec;)V
+.method private e01OnCodec(Lcom/shilapi/xcertplay/airplay/VideoCodec;)V
     .locals 2
 
     const-string v0, "codec"
@@ -207,7 +254,7 @@
     return-void
 .end method
 
-.method public onConfig([B)V
+.method private e01OnConfig([B)V
     .locals 2
 
     const-string v0, "codecData"
@@ -229,7 +276,7 @@
     return-void
 .end method
 
-.method public onFrame([B)V
+.method private e01OnFrame([B)V
     .locals 2
 
     const-string v0, "naluBytes"
@@ -247,6 +294,176 @@
     iget v1, p0, Lcom/shilapi/xcertplay/airplay/CarPlayMediaEngine$onScreen$port$1;->$type:I
 
     invoke-interface {v0, v1, p1}, Lcom/shilapi/xcertplay/airplay/MediaSink;->onVideoFrame(I[B)V
+
+    return-void
+.end method
+
+
+# virtual methods
+.method public onClosed(Ljava/lang/Throwable;)V
+    .locals 4
+
+    iget-object v0, p0, Lcom/shilapi/xcertplay/airplay/CarPlayMediaEngine$onScreen$port$1;->this$0:Lcom/shilapi/xcertplay/airplay/CarPlayMediaEngine;
+
+    monitor-enter v0
+
+    :try_start_0
+    invoke-direct {p0}, Lcom/shilapi/xcertplay/airplay/CarPlayMediaEngine$onScreen$port$1;->e01IsCurrent()Z
+
+    move-result v1
+
+    if-eqz v1, :cond_0
+
+    invoke-direct {p0, p1}, Lcom/shilapi/xcertplay/airplay/CarPlayMediaEngine$onScreen$port$1;->e01OnClosed(Ljava/lang/Throwable;)V
+
+    goto :goto_0
+
+    :cond_0
+    const-string v1, "screen stale close ignored old="
+
+    iget-object v2, p0, Lcom/shilapi/xcertplay/airplay/CarPlayMediaEngine$onScreen$port$1;->$screen:Lcom/shilapi/xcertplay/airplay/ScreenStream;
+
+    const/4 v3, 0x0
+
+    invoke-static {v1, v2, v3}, Lcom/shilapi/xcertplay/airplay/CarPlayMediaEngine;->e01LogScreen(Ljava/lang/String;Ljava/lang/Object;Ljava/lang/Object;)V
+
+    :goto_0
+    monitor-exit v0
+    :try_end_0
+    .catchall {:try_start_0 .. :try_end_0} :catchall_0
+
+    return-void
+
+    :catchall_0
+    move-exception v1
+
+    monitor-exit v0
+
+    throw v1
+.end method
+
+.method public onCodec(Lcom/shilapi/xcertplay/airplay/VideoCodec;)V
+    .locals 4
+
+    iget v0, p0, Lcom/shilapi/xcertplay/airplay/CarPlayMediaEngine$onScreen$port$1;->$type:I
+
+    const/16 v1, 0x6f
+
+    if-ne v0, v1, :cond_1
+
+    iget-object v0, p0, Lcom/shilapi/xcertplay/airplay/CarPlayMediaEngine$onScreen$port$1;->this$0:Lcom/shilapi/xcertplay/airplay/CarPlayMediaEngine;
+
+    monitor-enter v0
+
+    :try_start_0
+    invoke-direct {p0}, Lcom/shilapi/xcertplay/airplay/CarPlayMediaEngine$onScreen$port$1;->e01IsCurrent()Z
+
+    move-result v1
+
+    if-eqz v1, :cond_0
+
+    invoke-direct {p0, p1}, Lcom/shilapi/xcertplay/airplay/CarPlayMediaEngine$onScreen$port$1;->e01OnCodec(Lcom/shilapi/xcertplay/airplay/VideoCodec;)V
+
+    :cond_0
+    monitor-exit v0
+    :try_end_0
+    .catchall {:try_start_0 .. :try_end_0} :catchall_0
+
+    return-void
+
+    :catchall_0
+    move-exception v1
+
+    monitor-exit v0
+
+    throw v1
+
+    :cond_1
+    invoke-direct {p0, p1}, Lcom/shilapi/xcertplay/airplay/CarPlayMediaEngine$onScreen$port$1;->e01OnCodec(Lcom/shilapi/xcertplay/airplay/VideoCodec;)V
+
+    return-void
+.end method
+
+.method public onConfig([B)V
+    .locals 4
+
+    iget v0, p0, Lcom/shilapi/xcertplay/airplay/CarPlayMediaEngine$onScreen$port$1;->$type:I
+
+    const/16 v1, 0x6f
+
+    if-ne v0, v1, :cond_1
+
+    iget-object v0, p0, Lcom/shilapi/xcertplay/airplay/CarPlayMediaEngine$onScreen$port$1;->this$0:Lcom/shilapi/xcertplay/airplay/CarPlayMediaEngine;
+
+    monitor-enter v0
+
+    :try_start_0
+    invoke-direct {p0}, Lcom/shilapi/xcertplay/airplay/CarPlayMediaEngine$onScreen$port$1;->e01IsCurrent()Z
+
+    move-result v1
+
+    if-eqz v1, :cond_0
+
+    invoke-direct {p0, p1}, Lcom/shilapi/xcertplay/airplay/CarPlayMediaEngine$onScreen$port$1;->e01OnConfig([B)V
+
+    :cond_0
+    monitor-exit v0
+    :try_end_0
+    .catchall {:try_start_0 .. :try_end_0} :catchall_0
+
+    return-void
+
+    :catchall_0
+    move-exception v1
+
+    monitor-exit v0
+
+    throw v1
+
+    :cond_1
+    invoke-direct {p0, p1}, Lcom/shilapi/xcertplay/airplay/CarPlayMediaEngine$onScreen$port$1;->e01OnConfig([B)V
+
+    return-void
+.end method
+
+.method public onFrame([B)V
+    .locals 4
+
+    iget v0, p0, Lcom/shilapi/xcertplay/airplay/CarPlayMediaEngine$onScreen$port$1;->$type:I
+
+    const/16 v1, 0x6f
+
+    if-ne v0, v1, :cond_1
+
+    iget-object v0, p0, Lcom/shilapi/xcertplay/airplay/CarPlayMediaEngine$onScreen$port$1;->this$0:Lcom/shilapi/xcertplay/airplay/CarPlayMediaEngine;
+
+    monitor-enter v0
+
+    :try_start_0
+    invoke-direct {p0}, Lcom/shilapi/xcertplay/airplay/CarPlayMediaEngine$onScreen$port$1;->e01IsCurrent()Z
+
+    move-result v1
+
+    if-eqz v1, :cond_0
+
+    invoke-direct {p0, p1}, Lcom/shilapi/xcertplay/airplay/CarPlayMediaEngine$onScreen$port$1;->e01OnFrame([B)V
+
+    :cond_0
+    monitor-exit v0
+    :try_end_0
+    .catchall {:try_start_0 .. :try_end_0} :catchall_0
+
+    return-void
+
+    :catchall_0
+    move-exception v1
+
+    monitor-exit v0
+
+    throw v1
+
+    :cond_1
+    invoke-direct {p0, p1}, Lcom/shilapi/xcertplay/airplay/CarPlayMediaEngine$onScreen$port$1;->e01OnFrame([B)V
 
     return-void
 .end method

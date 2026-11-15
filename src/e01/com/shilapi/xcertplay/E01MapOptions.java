@@ -1,17 +1,10 @@
 package com.shilapi.xcertplay;
 import android.content.Context;
-import android.widget.Button;
-import android.widget.LinearLayout;
-import android.view.View;
-/** Three projection layouts; persisted independently from phone map density. */
-public final class E01MapOptions implements View.OnClickListener {
-    private final Context context;private final Button button;
-    private E01MapOptions(Context c,Button b){context=c;button=b;refresh();}
+/** Projection state and E01 hotspot startup helpers. */
+public final class E01MapOptions {
+    private E01MapOptions() {}
     private static Context application(){try{return (Context)Class.forName("android.app.ActivityThread").getMethod("currentApplication").invoke(null);}catch(Exception e){return null;}}
     public static boolean fullscreen(){Context c=application();return c!=null&&E01InstrumentStyle.fullscreen(E01InstrumentStyle.selected(c));}
-    private void refresh(){button.setText("投屏样式："+E01InstrumentStyle.label(E01InstrumentStyle.selected(context))+"（重连生效）");}
-    public static void add(Context c,LinearLayout parent){Button b=new Button(c);E01HotspotSettings.styleActionButton(b);b.setOnClickListener(new E01MapOptions(c,b));parent.addView(b);E01MapZoom.add(c,parent);E01ClusterIntro.addSettings(c,parent);}
-    public void onClick(View v){String style=E01InstrumentStyle.selected(context);context.getSharedPreferences("06link_instrument",0).edit().putString("layout",E01InstrumentStyle.next(style)).commit();refresh();}
     /** E01's framework requires both network permission and STA-off before CMD_SET_AP. */
     static String startHotspot(Context c){return startHotspot(c,E01HotspotControl.token());}
     static String startHotspot(Context c,long token){

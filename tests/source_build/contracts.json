@@ -9,7 +9,7 @@
     "dex": "classes.dex",
     "class": "com/shilapi/xcertplay/CarPlayHostActivity.smali",
     "method": "maybeStartCarPlay()V",
-    "sha256": "a106a38740b677280e61eadf2f9b7e9fd6242c4d1ecd1148a52dc584630eabe9"
+    "sha256": "9784476d54c14ab01c61a3d9867c7349a17aeb0c7b4b848a27da5720b57fcbbb"
   },
   "wired-start-diagnostic-1": {
     "dex": "classes.dex",
@@ -27,13 +27,13 @@
     "dex": "classes.dex",
     "class": "com/shilapi/xcertplay/CarPlayHostActivity.smali",
     "method": "onIphoneUsbAttached()V",
-    "sha256": "986071ccb8a4cb25d2511d25086d547f5afe1cd322d9fb50485f2699c7d2fbe2"
+    "sha256": "c958089049b093af336bf065ad6c2fe442a01537af482a7318d56114fff190b6"
   },
   "wired-presence-onIphoneUsbDetached": {
     "dex": "classes.dex",
     "class": "com/shilapi/xcertplay/CarPlayHostActivity.smali",
     "method": "onIphoneUsbDetached()V",
-    "sha256": "3fc24eefd9ef88d29b1d1a66984bde69fe0a6729c8e6c560d5bc2796095ac9f0"
+    "sha256": "dbd831a91260cd011183ab67618b7d9e0440af6203f8d44188a750893958db2a"
   },
   "wired-shutdown-order": {
     "dex": "classes.dex",
@@ -309,7 +309,7 @@
     "dex": "classes.dex",
     "class": "com/shilapi/xcertplay/CarPlayHostActivity.smali",
     "method": "onResume()V",
-    "sha256": "1b94f52386185aac4bbb0ff4fd49ce08724e1b172d52d0b6ada141d701e5224b"
+    "sha256": "49ac7c503a0a0702d6e87da51c0a1afdf6ad87221148b9e4324d3841101dddc1"
   },
   "video-visibility-window": {
     "dex": "classes.dex",

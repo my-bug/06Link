@@ -699,7 +699,6 @@ CarPlay и значок CarPlay принадлежат Apple Inc. 06Link — н�
     <string name="wireless_carplay_active">Беспроводной CarPlay активен</string>
     <string name="wireless_carplay_control_running">Управление беспроводным CarPlay работает</string>
     <string name="wireless_hotspot_off">Беспроводная точка доступа: выключена</string>
-    <string name="wireless_link_automatic">Автоматически (рекомендуется)</string>
     <string name="wireless_permissions">Беспроводные разрешения</string>
     <string name="wl_allow">Разрешить</string>
     <string name="wl_how">Что делать</string>

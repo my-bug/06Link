@@ -57,43 +57,6 @@
 .method public handleOnBackPressed()V
     .locals 4
 
-    .line 544
-    iget-object v0, p0, Lcom/shilapi/xcertplay/CarPlayHostActivity$onCreate$4;->this$0:Lcom/shilapi/xcertplay/CarPlayHostActivity;
-
-    # getter for: Lcom/shilapi/xcertplay/CarPlayHostActivity;->menuOpen:Z
-    invoke-static {v0}, Lcom/shilapi/xcertplay/CarPlayHostActivity;->access$getMenuOpen$p(Lcom/shilapi/xcertplay/CarPlayHostActivity;)Z
-
-    move-result v0
-
-    if-eqz v0, :cond_1
-
-    .line 545
-    iget-object v0, p0, Lcom/shilapi/xcertplay/CarPlayHostActivity$onCreate$4;->this$0:Lcom/shilapi/xcertplay/CarPlayHostActivity;
-
-    # getter for: Lcom/shilapi/xcertplay/CarPlayHostActivity;->safeAreaEditorActive:Z
-    invoke-static {v0}, Lcom/shilapi/xcertplay/CarPlayHostActivity;->access$getSafeAreaEditorActive$p(Lcom/shilapi/xcertplay/CarPlayHostActivity;)Z
-
-    move-result v0
-
-    if-eqz v0, :cond_0
-
-    iget-object v0, p0, Lcom/shilapi/xcertplay/CarPlayHostActivity$onCreate$4;->this$0:Lcom/shilapi/xcertplay/CarPlayHostActivity;
-
-    # invokes: Lcom/shilapi/xcertplay/CarPlayHostActivity;->closeSafeAreaEditor()V
-    invoke-static {v0}, Lcom/shilapi/xcertplay/CarPlayHostActivity;->access$closeSafeAreaEditor(Lcom/shilapi/xcertplay/CarPlayHostActivity;)V
-
-    return-void
-
-    :cond_0
-    iget-object v0, p0, Lcom/shilapi/xcertplay/CarPlayHostActivity$onCreate$4;->this$0:Lcom/shilapi/xcertplay/CarPlayHostActivity;
-
-    # invokes: Lcom/shilapi/xcertplay/CarPlayHostActivity;->cancelSettingsEdits()V
-    invoke-static {v0}, Lcom/shilapi/xcertplay/CarPlayHostActivity;->access$cancelSettingsEdits(Lcom/shilapi/xcertplay/CarPlayHostActivity;)V
-
-    return-void
-
-    .line 547
-    :cond_1
     iget-object v0, p0, Lcom/shilapi/xcertplay/CarPlayHostActivity$onCreate$4;->this$0:Lcom/shilapi/xcertplay/CarPlayHostActivity;
 
     const/4 v1, 0x0

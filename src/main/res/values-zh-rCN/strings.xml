@@ -699,7 +699,6 @@ iPhone 出现提示时允许“信任”和使用 CarPlay。"</string>
     <string name="wireless_carplay_active">无线 CarPlay 已启用</string>
     <string name="wireless_carplay_control_running">无线 CarPlay 控制通道运行中</string>
     <string name="wireless_hotspot_off">无线热点：关闭</string>
-    <string name="wireless_link_automatic">自动（推荐）</string>
     <string name="wireless_permissions">无线连接权限</string>
     <string name="wl_allow">授权</string>
     <string name="wl_how">怎么办</string>

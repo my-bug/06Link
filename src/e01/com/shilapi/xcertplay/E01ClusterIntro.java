@@ -9,7 +9,7 @@ import android.os.Build;
 import android.os.Handler;
 import android.os.Looper;
 import android.view.View;
-import android.widget.*;
+import android.widget.FrameLayout;
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.WeakHashMap;
@@ -59,34 +59,6 @@ public final class E01ClusterIntro {
                 try{if(action==2||action==0||!allowed(v.getContext()))v.finish();else v.play(token);}
                 catch(RuntimeException unavailable){v.finish();}
             }
-        }
-    }
-    public static void addSettings(Context c,LinearLayout parent){new Setting(c,parent);}
-    private static final class Setting implements CompoundButton.OnCheckedChangeListener,View.OnClickListener {
-        final Context context;final Switch toggle;final TextView state;boolean restoring;
-        Setting(Context c,LinearLayout parent){
-            context=c;LinearLayout row=new LinearLayout(c);row.setOrientation(0);row.setGravity(16);row.setPadding(dp(12),0,dp(8),0);
-            LegacyViewsKt.setBackgroundCompat(row,Glass.INSTANCE.panel(c,Glass.Kind.CONTROL,12f,Glass.INSTANCE.getCurrent()));
-            TextView label=new TextView(c);label.setText("过场动画 · 5秒");label.setTextSize(17);label.setTextColor(Glass.INSTANCE.getTEXT());
-            row.addView(label,new LinearLayout.LayoutParams(0,dp(64),1));label.setGravity(16);
-            state=new TextView(c);state.setTextSize(15);state.setTextColor(Glass.INSTANCE.getACCENT());state.setGravity(16);
-            row.addView(state,new LinearLayout.LayoutParams(dp(44),dp(64)));
-            toggle=new Switch(c);toggle.setTextOn("");toggle.setTextOff("");toggle.setShowText(false);toggle.setChecked(enabled(c));
-            LegacyViewsKt.setButtonTintCompat(toggle,android.content.res.ColorStateList.valueOf(Glass.INSTANCE.getACCENT()));
-            toggle.setContentDescription("仪表过场动画");row.addView(toggle,new LinearLayout.LayoutParams(dp(56),dp(56)));
-            state.setText(toggle.isChecked()?"开启":"关闭");toggle.setOnCheckedChangeListener(this);row.setOnClickListener(this);
-            parent.addView(row,new LinearLayout.LayoutParams(-1,dp(64)));
-        }
-        int dp(int v){return Math.round(v*context.getResources().getDisplayMetrics().density);}
-        public void onClick(View v){toggle.setChecked(!toggle.isChecked());}
-        public void onCheckedChanged(CompoundButton b,boolean checked){
-            if(restoring)return;
-            if(!context.getSharedPreferences("06link_instrument",0).edit().putBoolean("transition_enabled",checked).commit()){
-                restoring=true;toggle.setChecked(!checked);restoring=false;Toast.makeText(context,"保存失败，请重试",Toast.LENGTH_SHORT).show();return;
-            }
-            state.setText(checked?"开启":"关闭");
-            // Turning off cancels immediately; turning on applies to the next connection.
-            if(!checked)for(Overlay v:snapshot())v.finish();
         }
     }
     private static final class Overlay extends View implements ValueAnimator.AnimatorUpdateListener,Animator.AnimatorListener {
