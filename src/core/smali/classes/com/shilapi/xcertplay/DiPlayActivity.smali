@@ -14540,8 +14540,15 @@
 
     if-nez v13, :cond_7
 
+    invoke-static {v1}, Lcom/shilapi/xcertplay/E01OemBluetooth;->hasPendingConnect(Landroid/app/Activity;)Z
+
+    move-result v13
+
+    if-nez v13, :wireless_waiting
+
     invoke-direct {v1, v3}, Lcom/shilapi/xcertplay/DiPlayActivity;->offerVendorGuidance(Z)V
 
+    :wireless_waiting
     return-void
 
     :cond_7

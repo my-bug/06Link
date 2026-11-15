@@ -14,7 +14,35 @@ from test_support import resolve, build_dir
 import json,os,re,subprocess,tempfile
 ROOT=Path(__file__).resolve().parents[2]
 
+def check_wireless_wait_navigation():
+    # Walk the actual Smali gate, including its branch targets and return.
+    from build import methods
+    source=(ROOT/'src/core/smali/classes/com/shilapi/xcertplay/DiPlayActivity.smali').read_text()
+    connect=methods(source)['connect(ZZ)V']
+    start=connect.index('    invoke-static {v1}, Lcom/shilapi/xcertplay/E01OemBluetooth;->canConnect(')
+    end=connect.index('    :cond_7',start)+len('    :cond_7')
+    code=[line.strip() for line in connect[start:end].splitlines() if line.strip()]
+    labels={line:i for i,line in enumerate(code) if line.startswith(':')}
+    for ready in (False,True):
+        for pending in (False,True):
+            pc=0;value=False;register=False;guidance=False;continued=False
+            while pc<len(code):
+                line=code[pc];pc+=1
+                if '->canConnect(' in line:value=ready
+                elif '->hasPendingConnect(' in line:value=pending
+                elif line.startswith('move-result '):register=value
+                elif line.startswith('if-nez '):
+                    if register:pc=labels[line.split(', ')[1]]
+                elif '->offerVendorGuidance(' in line:guidance=True
+                elif line=='return-void':break
+                elif line==':cond_7':continued=True
+                elif not line.startswith(':'):raise AssertionError('Unexpected wireless gate instruction: '+line)
+            assert continued==ready,(ready,pending,'wireless continuation changed')
+            assert guidance==(not ready and not pending),(ready,pending,'pending wait opened settings')
+    print('PASS 4 wireless gate paths: ready, waiting and setup-required navigation')
+
 def main():
+    check_wireless_wait_navigation()
     R=ROOT
     config=json.loads((ROOT/'project.json').read_text())
     tools=resolve(ROOT, download=False)
@@ -93,6 +121,7 @@ def main():
           p=fresh(false,"有线");queue(p);token=E01HotspotControl.token();E01NativeSettings.prepareStartup(p);check(E01HotspotControl.valid(token)&&E01OemBluetooth.hasPendingConnect(p),"default selection cancelled explicit wireless wait");
           Page other=new Page();other.getSharedPreferences("06link-native-ui",0).edit().putString("default_connection","每次选择").apply();E01NativeSettings.prepareStartup(other);check(E01HotspotControl.valid(token)&&E01OemBluetooth.hasPendingConnect(p),"another idle activity cancelled explicit wireless wait");
           p=fresh(false,"有线");p.autoStartWaiting=true;token=E01HotspotControl.token();E01NativeSettings.prepareStartup(p);check(E01HotspotControl.valid(token),"default selection cancelled already queued startup");
+          p=fresh(false,"无线");set("migrationReady",true);E01BtPersistent.installed=false;check(!E01OemBluetooth.canConnect(p),"missing component permitted connection");check(!E01OemBluetooth.hasPendingConnect(p),"missing component mistaken for pending phone");E01BtPersistent.installed=true;
           System.out.println("PASS "+n+" assertions: actual startup helpers, OEM readiness dispatch and transport/stop gates");
          }
         }''')

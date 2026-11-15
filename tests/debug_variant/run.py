@@ -77,10 +77,10 @@ entries=[
   '36fdc6d88a87e2b9bd832133b10c0cf0443a8d87a7585c29b4861b86ffb023f4'),
  ('DiPlayActivity.smali','connect(ZZ)V',
   r'\n    invoke-static \{v1\}, Lcom/shilapi/xcertplay/E01BuildVariant;.*?^    :cond_0\n',
-  '3324cb5e374ac5c5bbdb48331339b4264227d255380db92ab6dc4e88c5b3a268'),
+  '64b5f5e285cce99761f5c79681c309522fe7c7a1667d6fd37b727d84a2aca568'),
  ('orchestration/CarPlayController.smali','start()V',
   r'\n    iget-object v0, p0, Lcom/shilapi/xcertplay/orchestration/CarPlayController;->appContext:.*?^    :cond_0\n',
-  '9bdd6393dc1a5a280cb5168f0de59a39717135b6102ca42319776b12bf107f4b')]
+  'c464c768e6cf624cdcd1584bb03ed608e4ea9910200df0c1bfa43dd3ac2272e7')]
 for rel,signature,pattern,expected in entries:
  text=methods((ROOT/'src/core/smali/classes/com/shilapi/xcertplay'/rel).read_text())[signature]
  text,count=re.subn(pattern,'\n',text,count=1,flags=re.M|re.S)
