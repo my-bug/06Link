@@ -4,4 +4,4 @@
 
 DiPlay：https://github.com/shihabal3amri/DiPlay 。相关GPL-3.0、AGPL-3.0及其他第三方许可继续适用；完整许可证随包保留。
 
-本项目目前保留固定运行基线及可编辑的E01修复源码，未取得该修改版完整Kotlin/Gradle源码。本地工程保存历史来源说明，应用使用独立包名com.sixlink.car及独立发布签名。
+项目采用 Java、Smali 和 XML 维护应用源码，提供 E01 车机适配。应用使用独立包名 `com.sixlink.car` 和独立发布签名。
