@@ -77,7 +77,7 @@ entries=[
   '36fdc6d88a87e2b9bd832133b10c0cf0443a8d87a7585c29b4861b86ffb023f4'),
  ('DiPlayActivity.smali','connect(ZZ)V',
   r'\n    invoke-static \{v1\}, Lcom/shilapi/xcertplay/E01BuildVariant;.*?^    :cond_0\n',
-  '64b5f5e285cce99761f5c79681c309522fe7c7a1667d6fd37b727d84a2aca568'),
+  '16a8c474a09f03e9faea75b8223aa186bce8fc5f4544af617234ac8828a22e8a'),
  ('orchestration/CarPlayController.smali','start()V',
   r'\n    iget-object v0, p0, Lcom/shilapi/xcertplay/orchestration/CarPlayController;->appContext:.*?^    :cond_0\n',
   'c464c768e6cf624cdcd1584bb03ed608e4ea9910200df0c1bfa43dd3ac2272e7')]

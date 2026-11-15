@@ -20,7 +20,8 @@ def check_wireless_wait_navigation():
     source=(ROOT/'src/core/smali/classes/com/shilapi/xcertplay/DiPlayActivity.smali').read_text()
     connect=methods(source)['connect(ZZ)V']
     start=connect.index('    invoke-static {v1}, Lcom/shilapi/xcertplay/E01OemBluetooth;->canConnect(')
-    end=connect.index('    :cond_7',start)+len('    :cond_7')
+    continuation=re.search(r'if-nez v13, (:\w+)',connect[start:])[1]
+    end=connect.index('    '+continuation,start)+len('    '+continuation)
     code=[line.strip() for line in connect[start:end].splitlines() if line.strip()]
     labels={line:i for i,line in enumerate(code) if line.startswith(':')}
     for ready in (False,True):
@@ -35,7 +36,7 @@ def check_wireless_wait_navigation():
                     if register:pc=labels[line.split(', ')[1]]
                 elif '->offerVendorGuidance(' in line:guidance=True
                 elif line=='return-void':break
-                elif line==':cond_7':continued=True
+                elif line==continuation:continued=True
                 elif not line.startswith(':'):raise AssertionError('Unexpected wireless gate instruction: '+line)
             assert continued==ready,(ready,pending,'wireless continuation changed')
             assert guidance==(not ready and not pending),(ready,pending,'pending wait opened settings')

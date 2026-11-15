@@ -495,7 +495,7 @@
     "dex": "classes.dex",
     "class": "com/shilapi/xcertplay/DiPlayActivity.smali",
     "method": "connect(ZZ)V",
-    "sha256": "a3b5469ce5f2ab70517702d4a81fd5a1c4e3b69ad0079df5671d28b16861a005"
+    "sha256": "31eefaee2ffd14a4fc0e8adfd2962b9adb126960ca5c2354a6613e3c71420828"
   },
   "lane-capability-identification": {
     "dex": "classes.dex",

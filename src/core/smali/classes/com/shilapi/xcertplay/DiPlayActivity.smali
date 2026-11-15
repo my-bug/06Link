@@ -11205,26 +11205,26 @@
 
     move v8, v2
 
-    if-eqz v8, :cond_7
+    if-eqz v8, :cond_8
 
     invoke-static {v1}, Lcom/shilapi/xcertplay/E01OemBluetooth;->canConnect(Landroid/app/Activity;)Z
 
     move-result v13
 
-    if-nez v13, :cond_7
+    if-nez v13, :cond_8
 
     invoke-static {v1}, Lcom/shilapi/xcertplay/E01OemBluetooth;->hasPendingConnect(Landroid/app/Activity;)Z
 
     move-result v13
 
-    if-nez v13, :wireless_waiting
+    if-nez v13, :cond_7
 
     invoke-direct {v1, v3}, Lcom/shilapi/xcertplay/DiPlayActivity;->offerVendorGuidance(Z)V
 
-    :wireless_waiting
+    :cond_7
     return-void
 
-    :cond_7
+    :cond_8
     const-string v13, "getString(...)"
 
     sget-object v9, Lcom/shilapi/xcertplay/AirPlayPersistence;->INSTANCE:Lcom/shilapi/xcertplay/AirPlayPersistence;
@@ -11237,21 +11237,21 @@
 
     move-result v9
 
-    if-eqz v9, :cond_8
+    if-eqz v9, :cond_9
 
-    if-nez v0, :cond_8
+    if-nez v0, :cond_9
 
     const/4 v9, 0x1
 
     goto :goto_0
 
-    :cond_8
+    :cond_9
     const/4 v9, 0x0
 
     :goto_0
-    if-eqz v2, :cond_9
+    if-eqz v2, :cond_a
 
-    if-eqz v9, :cond_9
+    if-eqz v9, :cond_a
 
     iput-boolean v4, v1, Lcom/shilapi/xcertplay/DiPlayActivity;->pendingCarHotspotSetup:Z
 
@@ -11259,14 +11259,14 @@
 
     invoke-virtual {v14, v11}, Lcom/shilapi/xcertplay/AirPlayPersistence;->syncManualHotspotFromSystem(Landroid/content/Context;)Z
 
-    :cond_9
+    :cond_a
     const-string v14, "connection"
 
-    if-eqz v2, :cond_a
+    if-eqz v2, :cond_b
 
     iget-boolean v15, v1, Lcom/shilapi/xcertplay/DiPlayActivity;->pendingCarHotspotSetup:Z
 
-    if-eqz v15, :cond_a
+    if-eqz v15, :cond_b
 
     sget v0, Lcom/shilapi/xcertplay/host/R$string;->save_your_hotspot_details_in_connection_setup_first:I
 
@@ -11282,12 +11282,12 @@
 
     return-void
 
-    :cond_a
-    if-eqz v2, :cond_b
+    :cond_b
+    if-eqz v2, :cond_c
 
     iget-object v15, v1, Lcom/shilapi/xcertplay/DiPlayActivity;->setupError:Ljava/lang/String;
 
-    if-eqz v15, :cond_b
+    if-eqz v15, :cond_c
 
     invoke-static {v15}, Lkotlin/jvm/internal/Intrinsics;->checkNotNull(Ljava/lang/Object;)V
 
@@ -11295,8 +11295,8 @@
 
     return-void
 
-    :cond_b
-    if-nez v0, :cond_c
+    :cond_c
+    if-nez v0, :cond_d
 
     sget-object v15, Lcom/shilapi/xcertplay/AirPlayPersistence;->INSTANCE:Lcom/shilapi/xcertplay/AirPlayPersistence;
 
@@ -11306,28 +11306,28 @@
 
     goto :goto_1
 
-    :cond_c
+    :cond_d
     move-object v15, v0
 
     :goto_1
-    if-eqz v2, :cond_d
+    if-eqz v2, :cond_e
 
     sget-object v7, Lcom/shilapi/xcertplay/orchestration/WirelessHotspotMode;->MANUAL:Lcom/shilapi/xcertplay/orchestration/WirelessHotspotMode;
 
-    if-ne v15, v7, :cond_d
+    if-ne v15, v7, :cond_e
 
     sget-object v7, Lcom/shilapi/xcertplay/AirPlayPersistence;->INSTANCE:Lcom/shilapi/xcertplay/AirPlayPersistence;
 
     invoke-virtual {v7, v11}, Lcom/shilapi/xcertplay/AirPlayPersistence;->syncManualHotspotFromSystem(Landroid/content/Context;)Z
 
-    :cond_d
-    if-eqz v2, :cond_e
+    :cond_e
+    if-eqz v2, :cond_f
 
-    if-nez v9, :cond_e
+    if-nez v9, :cond_f
 
     sget-object v7, Lcom/shilapi/xcertplay/orchestration/WirelessHotspotMode;->MANUAL:Lcom/shilapi/xcertplay/orchestration/WirelessHotspotMode;
 
-    if-ne v15, v7, :cond_e
+    if-ne v15, v7, :cond_f
 
     invoke-direct {v1}, Lcom/shilapi/xcertplay/DiPlayActivity;->storedSsid()Ljava/lang/String;
 
@@ -11341,7 +11341,7 @@
 
     move-result-object v4
 
-    if-eqz v4, :cond_e
+    if-eqz v4, :cond_f
 
     iput-boolean v12, v1, Lcom/shilapi/xcertplay/DiPlayActivity;->pendingCarHotspotSetup:Z
 
@@ -11359,44 +11359,44 @@
 
     return-void
 
-    :cond_e
+    :cond_f
     const/16 v4, 0x1a
 
-    if-eqz v2, :cond_12
+    if-eqz v2, :cond_13
 
-    if-nez v0, :cond_12
+    if-nez v0, :cond_13
 
     invoke-direct {v1}, Lcom/shilapi/xcertplay/DiPlayActivity;->carHotspotOff()Z
 
     move-result v0
 
-    if-eqz v0, :cond_12
+    if-eqz v0, :cond_13
 
     sget v0, Landroid/os/Build$VERSION;->SDK_INT:I
 
-    if-lt v0, v4, :cond_f
+    if-lt v0, v4, :cond_10
 
     invoke-direct {v1}, Lcom/shilapi/xcertplay/DiPlayActivity;->carHotspotOffDialog()V
 
     return-void
 
-    :cond_f
-    iget-boolean v0, v1, Lcom/shilapi/xcertplay/DiPlayActivity;->switchingHotspotOn:Z
-
-    if-eqz v0, :cond_10
-
-    goto/16 :goto_2
-
     :cond_10
-    invoke-direct {v1, v3, v12}, Lcom/shilapi/xcertplay/DiPlayActivity;->requestWriteSettingsIfNeeded(ZZ)Z
-
-    move-result v0
+    iget-boolean v0, v1, Lcom/shilapi/xcertplay/DiPlayActivity;->switchingHotspotOn:Z
 
     if-eqz v0, :cond_11
 
     goto/16 :goto_2
 
     :cond_11
+    invoke-direct {v1, v3, v12}, Lcom/shilapi/xcertplay/DiPlayActivity;->requestWriteSettingsIfNeeded(ZZ)Z
+
+    move-result v0
+
+    if-eqz v0, :cond_12
+
+    goto/16 :goto_2
+
+    :cond_12
     sget v0, Lcom/shilapi/xcertplay/host/R$string;->turning_on_hotspot:I
 
     invoke-virtual {v1, v0}, Lcom/shilapi/xcertplay/DiPlayActivity;->getString(I)Ljava/lang/String;
@@ -11423,35 +11423,35 @@
 
     return-void
 
-    :cond_12
-    if-eqz v2, :cond_13
+    :cond_13
+    if-eqz v2, :cond_14
 
-    if-nez v9, :cond_13
+    if-nez v9, :cond_14
 
     sget-object v0, Lcom/shilapi/xcertplay/orchestration/WirelessHotspotMode;->LOCAL_ONLY_HOTSPOT:Lcom/shilapi/xcertplay/orchestration/WirelessHotspotMode;
 
-    if-ne v15, v0, :cond_13
+    if-ne v15, v0, :cond_14
 
     invoke-direct {v1, v3, v12}, Lcom/shilapi/xcertplay/DiPlayActivity;->requestWriteSettingsIfNeeded(ZZ)Z
 
     move-result v0
 
-    if-eqz v0, :cond_13
+    if-eqz v0, :cond_14
 
     goto/16 :goto_2
 
-    :cond_13
-    if-eqz v2, :cond_14
+    :cond_14
+    if-eqz v2, :cond_15
 
-    if-eqz v9, :cond_14
+    if-eqz v9, :cond_15
 
     sget v0, Landroid/os/Build$VERSION;->SDK_INT:I
 
     const/16 v7, 0x17
 
-    if-gt v7, v0, :cond_14
+    if-gt v7, v0, :cond_15
 
-    if-ge v0, v4, :cond_14
+    if-ge v0, v4, :cond_15
 
     sget-object v0, Lcom/shilapi/xcertplay/network/CarHotspotStatus;->INSTANCE:Lcom/shilapi/xcertplay/network/CarHotspotStatus;
 
@@ -11463,17 +11463,17 @@
 
     move-result v0
 
-    if-eqz v0, :cond_14
+    if-eqz v0, :cond_15
 
     invoke-direct {v1, v3, v12}, Lcom/shilapi/xcertplay/DiPlayActivity;->requestWriteSettingsIfNeeded(ZZ)Z
 
     move-result v0
 
-    if-eqz v0, :cond_14
+    if-eqz v0, :cond_15
 
     goto/16 :goto_2
 
-    :cond_14
+    :cond_15
     const/4 v4, 0x0
 
     iput-boolean v4, v1, Lcom/shilapi/xcertplay/DiPlayActivity;->writeSettingsHint:Z
@@ -11492,7 +11492,7 @@
 
     const/16 v7, 0x21
 
-    if-lt v2, v7, :cond_15
+    if-lt v2, v7, :cond_16
 
     const-string v2, "android.permission.POST_NOTIFICATIONS"
 
@@ -11500,7 +11500,7 @@
 
     move-result v7
 
-    if-eqz v7, :cond_15
+    if-eqz v7, :cond_16
 
     const-string v7, "notification_asked"
 
@@ -11508,7 +11508,7 @@
 
     move-result v5
 
-    if-nez v5, :cond_15
+    if-nez v5, :cond_16
 
     invoke-interface {v0}, Landroid/content/SharedPreferences;->edit()Landroid/content/SharedPreferences$Editor;
 
@@ -11528,7 +11528,7 @@
 
     return-void
 
-    :cond_15
+    :cond_16
     new-instance v0, Lcom/shilapi/xcertplay/DiPlayActivity$$ExternalSyntheticLambda318;
 
     invoke-direct {v0, v4, v1, v3}, Lcom/shilapi/xcertplay/DiPlayActivity$$ExternalSyntheticLambda318;-><init>(ZLcom/shilapi/xcertplay/DiPlayActivity;Z)V
@@ -11539,9 +11539,9 @@
 
     move-result v2
 
-    if-eqz v2, :cond_17
+    if-eqz v2, :cond_18
 
-    if-nez v6, :cond_16
+    if-nez v6, :cond_17
 
     new-instance v2, Ljava/lang/StringBuilder;
 
@@ -11557,7 +11557,7 @@
 
     move-result-object v6
 
-    :cond_16
+    :cond_17
     new-instance v2, Lcom/shilapi/xcertplay/DiPlayActivity$$ExternalSyntheticLambda319;
 
     invoke-direct {v2, v0}, Lcom/shilapi/xcertplay/DiPlayActivity$$ExternalSyntheticLambda319;-><init>(Lkotlin/jvm/functions/Function0;)V
@@ -11566,7 +11566,7 @@
 
     goto :goto_2
 
-    :cond_17
+    :cond_18
     invoke-interface {v0}, Lkotlin/jvm/functions/Function0;->invoke()Ljava/lang/Object;
 
     :goto_2
