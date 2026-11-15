@@ -54,9 +54,17 @@ public final class IngressCheck {
   s=e.reportIfDue(base+20000000000L);ok(s.contains("readCalls=2 bytes=0 readErrors=1"),"read failure and EOF do not create data");
   ok(s.contains("missingPts=1 nonIncreasingPts=2"),"missing repeated and reverse PTS counted without fabricating source cadence");
   for(int n=3;n<=9;n++)ok(e.reportIfDue(base+n*10000000000L)!=null,"bounded report "+n);
+  String first=e.takeSummary();ok(first.contains("run=1 configured=wireless reader=77 spanMs=60000 frames=6")&&first.contains("bytes=300"),"minute summary includes all startup windows, identity and real counts");
+  ok(e.takeSummary()==null,"summary consumed once");
   e.sourceRead(base+90000000001L,base+91000000000L,999);e.packet(0,90000000000L,999,base+91000000000L);
-  ok(e.reportIfDue(base+100000000000L)==null,"never a tenth report");
-  E01IngressEvidence expiry=new E01IngressEvidence(1,base,base);expiry.packet(0,1,10,base+91000000000L);ok(expiry.reportIfDue(base+91000000000L)==null,"no late start after first ninety seconds");
+  ok(e.reportIfDue(base+100000000000L)==null,"later detailed reports wait a minute");
+  ok(e.reportIfDue(base+120000000000L)==null,"persistent summary independent of verbose report window");
+  String minute=e.takeSummary();ok(minute.contains("spanMs=60000 frames=1")&&minute.contains("bytes=999"),"records data after first ninety seconds");
+  ok(e.reportIfDue(base+150000000000L)!=null,"detailed report survives long session at minute cadence");
+  E01IngressEvidence expiry=new E01IngressEvidence(1,base,base);expiry.packet(0,1,10,base+91000000000L);ok(expiry.reportIfDue(base+91000000000L)!=null&&expiry.takeSummary().contains("spanMs=91000 frames=1"),"late first packet retains real elapsed window");
+  E01IngressEvidence hours=new E01IngressEvidence(2,base,base);int summaries=0;
+  for(int n=1;n<=7200;n++){long now=base+n*1000000000L;hours.sourceRead(now-1000000L,now,10);hours.packet(0,now,10,now);hours.reportIfDue(now);String item=hours.takeSummary();if(item!=null){summaries++;ok(item.contains("frames=60")&&item.contains("bytes=600"),"two-hour window keeps accurate nonoverlapping counters");}}
+  ok(summaries==120,"two hours produces 120 summaries, never per packet");
   E01IngressEvidence peer=new E01IngressEvidence(88,base+500000000L,base);ok(peer.reportIfDue(base+10500000000L).contains("winMs=500..10500"),"different sockets use same event epoch");
  }
  static void byteEquality()throws Exception{

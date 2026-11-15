@@ -38,6 +38,7 @@ public final class E01NativeUi extends android.view.ContextThemeWrapper {
             boolean wireless=transport.equals("无线");int step=(Integer)E01NativeSettings.call(progress,"getStep");int count=(Integer)E01NativeSettings.call(E01NativeSettings.singleton("ConnectionSteps"),"count",wireless);
             java.util.List<?> steps=(java.util.List<?>)E01NativeSettings.call(E01NativeSettings.singleton("ConnectionSteps"),"of",wireless);
             String title=step>0&&step<=steps.size()?getString((Integer)E01NativeSettings.call(steps.get(step-1),"getName")):"准备连接";
+            title=E01ConnectionStageText.title(wireless,step,title);
             stage=step>0?"第 "+step+" / "+count+" 步 · "+title:title;
             Object row=E01NativeSettings.call(ui,"getRow");Object sub=E01NativeSettings.call(row,"getSub");stateMessage=String.valueOf(E01NativeSettings.call(row,"getTitle"));if(sub!=null&&!sub.toString().isEmpty())stateMessage+=" · "+sub;
             String startup=E01NativeSettings.startupStatus(host);
@@ -181,6 +182,7 @@ public final class E01NativeUi extends android.view.ContextThemeWrapper {
         showDialog(title,list,"取消",null,null,null);
     }
     private String selectionNotice(String key,String value){
+        if(key.equals("text_color"))return value.equals("跟随原车")?"已选择跟随原车，投屏期间无需重连":"已选择"+value+"，仪表投屏时生效，无需重连";
         if(key.equals("appearance"))return "外观已切换";
         if(key.equals("rotation"))return "屏幕方向已保存";
         if(key.equals("default_connection"))return value.equals("每次选择")?"启动时手动选择连接方式":getBool("auto_connect",false)?"默认方式已保存，下次启动生效":"默认方式已保存，开启启动自动连接后自动连接";
@@ -208,12 +210,13 @@ public final class E01NativeUi extends android.view.ContextThemeWrapper {
         LinearLayout preview=column();preview.setPadding(dp(12),0,dp(12),dp(12));g.addView(preview);
         E01InstrumentPreview canvas=new E01InstrumentPreview(this,dark);canvas.setOnClickListener(v->safe(()->instrumentPreview()));canvas.setFocusable(true);preview.addView(canvas,lp(-1,-2));
         gap(preview,8);TextView previewHint=text("点击放大预览 · 地图与读数仅为示意",12,muted,false);previewHint.setGravity(Gravity.CENTER);preview.addView(previewHint);
+        choice(g,"原厂文字颜色","text_color","跟随原车",new String[]{"跟随原车","强制浅色","强制深色"},"投屏时生效，结束后恢复原车模式");
         section("地图",null);g=group();choice(g,"内容大小","map_size","标准",new String[]{"标准","较大","最大"},"调整文字与道路的显示大小");
         valueRow(g,"地图视野","临时调节；高德可能恢复自动缩放","选择",()->zoom());
         section("卡片与过场",null);g=group();valueRow(g,"原厂路口提示","原厂样式，预览仅保留位置","随导航更新",null);toggle(g,"音乐卡片","music",true,null);toggle(g,"仪表过场动画","intro",false,"关闭立即生效，下次连接播放");
     }
     private void instrumentPreview(){
-        LinearLayout body=column();final String[] names={"信息卡片","全屏地图","雾蓝仪表"},styles={"card","full","mist"};
+        LinearLayout body=column();final String[] names={"信息卡片","全屏地图","夜航仪表"},styles={"card","full","night"};
         final String[] selected={E01InstrumentStyle.selected(host)};
         final E01InstrumentPreview preview=new E01InstrumentPreview(this,dark);
         LinearLayout choices=row();final TextView[] options=new TextView[names.length];

@@ -29,14 +29,14 @@ public final class InstallerProbe {
   View b=bezel(root);ok(root.getChildAt(original)==b,"bezel above existing content and contrast overlay");
   ok(root.getChildAt(original+1) instanceof E01MusicCard,"music above static bezel");
   if(renderer instanceof SurfaceView){SurfaceView surface=(SurfaceView)renderer;ok(!surface.onTop&&!surface.mediaOverlay,"video cannot bypass bezel z order");}
-  if(!style.equals("full")){ok(Arrays.equals(box(content),E01MapCard.boundsFor(1920,720,style)),"unchanged map geometry");if(waiting!=null)ok(Arrays.equals(box(content),box(waiting)),"waiting label shares map bounds");}
+  if(!E01InstrumentStyle.fullscreen(style)){ok(Arrays.equals(box(content),E01MapCard.boundsFor(1920,720,style)),"unchanged map geometry");if(waiting!=null)ok(Arrays.equals(box(content),box(waiting)),"waiting label shares map bounds");}
   else ok(content.getLayoutParams().width==-1&&content.getLayoutParams().height==-1,"full map layout unmodified");
   invoke(b,"onSizeChanged",new Class<?>[]{int.class,int.class,int.class,int.class},1920,720,0,0);
   Canvas c=new Canvas(1920,720);invoke(b,"onDraw",new Class<?>[]{Canvas.class},c);ok(c.draws>0,"installed bezel actually draws "+style);
-  if(!style.equals("full")){ok((c.image.getRGB(10,10)>>>24)>0,"card backdrop visible outside map");ok((c.image.getRGB(960,360)>>>24)==0,"map center remains transparent");}
+  if(!E01InstrumentStyle.fullscreen(style)){ok((c.image.getRGB(10,10)>>>24)>0,"card backdrop visible outside map");ok((c.image.getRGB(960,360)>>>24)==0,"map center remains transparent");}
   Context.Prefs prefs=(Context.Prefs)context.getSharedPreferences("06link_instrument",0);int listeners=prefs.listeners.size();invoke(b,"onAttachedToWindow",new Class<?>[]{});ok(prefs.listeners.size()==listeners+1,"one settings listener");
   E01MapCard.install(new Presentation(context,1),root,new Point(1920,720));ok(root.getChildCount()==original+2,"repeated install cannot stack bezel or music");ok(prefs.listeners.size()==listeners+1,"repeated install cannot duplicate listeners");
-  prefs.edit().putBoolean("music_enabled",false).commit();ok(root.getChildAt(original+1).visibility==View.GONE,"full/card/mist music respects same switch");
+  prefs.edit().putBoolean("music_enabled",false).commit();ok(root.getChildAt(original+1).visibility==View.GONE,"full/card/night music respects same switch");
   invoke(b,"onDetachedFromWindow",new Class<?>[]{});ok(prefs.listeners.size()==listeners,"listener removed on detach");
  }
  public static void main(String[] args)throws Exception {
@@ -45,7 +45,7 @@ public final class InstallerProbe {
   Build.VERSION.SDK_INT=23;ok(!E01MapCard.target(1),"route does not affect another Android release");Build.VERSION.SDK_INT=22;
   Build.DEVICE="OTHER";ok(!E01MapCard.target(1),"route does not affect another device");Build.DEVICE="BX11QJ";
   Build.MODEL="OTHER";ok(!E01MapCard.target(1),"route does not affect another model");Build.MODEL="E01";
-  for(String s:new String[]{"card","mist","full"})for(int shape=0;shape<5;shape++)exercise(s,shape);
+  for(String s:new String[]{"card","night","full"})for(int shape=0;shape<5;shape++)exercise(s,shape);
   FrameLayout root=new FrameLayout(context);root.addView(new View(context));int n=root.getChildCount();E01MapCard.install(new Presentation(context,1),root,new Point(1920,720));ok(root.getChildCount()==n,"missing renderer left intact");
   root.addView(new SurfaceView(context));n=root.getChildCount();E01MapCard.install(new Presentation(context,0),root,new Point(1920,720));ok(root.getChildCount()==n,"primary display left intact");E01MapCard.install(new Presentation(context,1),root,new Point(0,0));ok(root.getChildCount()==n,"invalid display size left intact");
   Build.MODEL="OTHER";E01MapCard.install(new Presentation(context,1),root,new Point(1920,720));ok(root.getChildCount()==n,"other vehicle left intact");

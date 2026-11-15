@@ -22,6 +22,7 @@ public final class E01SmoothVideo {
  static final class Entry{final long local,queued,received;boolean ignore;
  Entry(long l,long q){this(l,q,0);}Entry(long l,long q,long r){local=l;queued=q;received=r;}}
  static final class State{final Output output;final E01PacingClock clock;final LinkedHashMap<Long,Entry> entries=new LinkedHashMap<Long,Entry>();long lastSender,lastQueued,lastPts;int samples;int pendingSignal=Integer.MIN_VALUE;
+ final String evidenceIdentity=E01VideoEvidence.identity();
  final MediaCodec.BufferInfo scratch=new MediaCodec.BufferInfo(),heldInfo=new MediaCodec.BufferInfo();int heldIndex=-1;
  long inputStart,inputWaitMax,releaseMax,dequeueMax,residenceMax,queueAgeMax,submitted,outputCount,skipped,missing,decoded,immediateTargets;
  final long[] recentWait=new long[120],recentRelease=new long[120],recentResidence=new long[120],recentQueueAge=new long[120];int waitSlot,releaseSlot,residenceSlot,queueAgeSlot;
@@ -309,16 +310,17 @@ public final class E01SmoothVideo {
   if(s.boundedRender&&ahead>16666667L&&ahead<=500000000L){s.cappedTargets++;return now+16666667L;}
   return target;
  }
- // Three 10-second summaries per codec; no per-frame log or capture thread.
+ // Initial three 10-second summaries, then one per minute while frames flow.
+ // Statistics only: codec input, pacing, cap4, output and transport behavior are unchanged.
  static void report(State s,long now){
-  String text; synchronized(s){long span=now-s.reportAt;if(s.reports>=3||span<10000000000L)return;
+  String text; synchronized(s){long span=now-s.reportAt;if(span<(s.reports<3?10000000000L:60000000000L))return;
   text=String.format(java.util.Locale.US,
-   "render sample=%d spanMs=%d maxFPS=%d submittedFps=%.1f decodedFps=%.1f releasedFps=%.1f skipped=%d inputPumpP90Ms=%d residenceP90Ms=%d aheadMaxMs=%d capped=%d immediate=%d bounded=%s inputPollMaxMs=%d pollTimeouts=%d queueAgeP90Ms=%d capPendingMax=%d capWaitMs=%d directCap4=%s directLateSkipped=%d directLateAgeMaxMs=%d directLateBatches=%d directLateBatchMax=%d",
+   "n=%d spanMs=%d maxFPS=%d submittedFps=%.1f decodedFps=%.1f releasedFps=%.1f skipped=%d recentQueueP90Ms=%d recentInputP90Ms=%d recentResidenceP90Ms=%d pollTimeouts=%d capPending=%d directCap4=%s directLateSkipped=%d directLateBatches=%d directLateBatchMax=%d directLateAgeMaxMs=%d",
    s.reports+1,span/1000000,s.output.fps,(s.submitted-s.reportSubmitted)*1e9/span,
-   (s.decoded-s.reportDecoded)*1e9/span,(s.outputCount-s.reportOutput)*1e9/span,s.skipped-s.reportSkipped,p90(s.recentWait,s.waitSlot)/1000000,
-   p90(s.recentResidence,s.residenceSlot)/1000000,s.maxAheadNs/1000000,s.cappedTargets,s.immediateTargets,s.boundedRender,s.inputPollMaxNs/1000000,s.inputPollTimeouts-s.reportPollTimeouts,p90(s.recentQueueAge,s.queueAgeSlot)/1000000,s.capMax,s.capWaitNs/1000000,s.directCap4,
-   s.directLateSkipped,s.directLateAgeMaxNs/1000000,s.directLateBatches,s.directLateBatchMax);
+   (s.decoded-s.reportDecoded)*1e9/span,(s.outputCount-s.reportOutput)*1e9/span,s.skipped-s.reportSkipped,
+   p90(s.recentQueueAge,s.queueAgeSlot)/1000000,p90(s.recentWait,s.waitSlot)/1000000,
+   p90(s.recentResidence,s.residenceSlot)/1000000,s.inputPollTimeouts-s.reportPollTimeouts,s.inFlight.pending(),s.directCap4,s.directLateSkipped,s.directLateBatches,s.directLateBatchMax,s.directLateAgeMaxNs/1000000);
   s.reports++;s.reportAt=now;s.reportSubmitted=s.submitted;s.reportOutput=s.outputCount;s.reportSkipped=s.skipped;s.reportDecoded=s.decoded;s.reportPollTimeouts=s.inputPollTimeouts;}
-  E01VideoEvidence.decision(s.output.context,text);
+  E01VideoEvidence.sample(s.output.context,s.evidenceIdentity,text);
  }
 }

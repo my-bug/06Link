@@ -129,6 +129,16 @@ public final class E01ClusterMode {
     private static final long RECOVERY_MS = 30000;
     private static final long SETTLE_MS = 1000;
     private static final E01AmapOutput amapOutput = new E01AmapOutput();
+    private static String textColorFailure = "";
+    private static final E01InstrumentTextColor textColor = new E01InstrumentTextColor(new E01InstrumentTextColor.Output() {
+        public boolean send(int mode, boolean restoring) {
+            synchronized (lock) {
+                if (!restoring && (!opened || closing || !current(outputGeneration, true))) return false;
+            }
+            return E01ClusterMode.send(0x76b, new byte[]{0x10, (byte) mode});
+        }
+        public void note(String message) { event(message); }
+    });
 
     private static boolean supported() {
         return Build.VERSION.SDK_INT == 22 && "E01".equals(Build.MODEL) && "BX11QJ".equals(Build.DEVICE);
@@ -286,6 +296,29 @@ public final class E01ClusterMode {
     }
 
     private static void tick() {
+        try { tickOutput(); }
+        finally {
+            // Independent optional output: never participates in navigation initialization,
+            // map-open success, intro visibility, or navigation recovery failure counters.
+            Context c; boolean live, owned, suspended;
+            synchronized (lock) {
+                c = context;
+                owned = projectionEnabled && connected;
+                live = opened && !closing && current(outputGeneration, true);
+                suspended = powerSuspended || powerResetRequested;
+            }
+            try {
+                textColor.update(c, live, owned, suspended, android.os.SystemClock.elapsedRealtime());
+                textColorFailure = "";
+            } catch (RuntimeException error) {
+                String failure = error.getClass().getSimpleName();
+                if (!failure.equals(textColorFailure)) event("[仪表字色] 更新失败 " + failure + "；地图流程继续");
+                textColorFailure = failure;
+            }
+        }
+    }
+
+    private static void tickOutput() {
         E01AmapCompatibility.start();
         BydAppleManeuver m;
         Context c;
@@ -300,6 +333,7 @@ public final class E01ClusterMode {
                 // Prior RPC acceptance is no longer proof of a live map/card. Invalidate only
                 // readiness; keep cleanup obligations if Stop/disable races with power restoration.
                 initialized = false; opened = false;
+                textColor.invalidated();
                 sent = null; sentRevision = -1; lastTbtAt = 0; readyAt = 0;
                 failures = 0; retryAt = 0; closing = false; lastFailure = "";
                 outputGeneration = generation; powerResetRequested = false;
@@ -504,7 +538,7 @@ public final class E01ClusterMode {
             // Only IDs, length, acceptance; no road names or coordinates in this diagnostic.
             int sub = data[0] & 255;
             String value = "";
-            if (opcode == 0x76b && ((sub >= 7 && sub <= 12) || sub == 6 || sub == 15) && (data.length == 2 || data.length == 3)) {
+            if (opcode == 0x76b && ((sub >= 7 && sub <= 12) || sub == 6 || sub == 15 || sub == 16) && (data.length == 2 || data.length == 3)) {
                 int number = data[1] & 255;
                 if (data.length == 3) number = (number << 8) | (data[2] & 255);
                 value = " value=" + number; // Numeric arrow/unit/distance/time/status only; never text or location.

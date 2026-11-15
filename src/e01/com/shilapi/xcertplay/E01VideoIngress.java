@@ -24,6 +24,8 @@ public final class E01VideoIngress {
             ahead.evidence.packet(type,senderPts,bodyLength,now);
             String line=ahead.evidence.reportIfDue(now);
             if(line!=null)android.util.Log.i("06Link-Ingress",line);
+            String summary=ahead.evidence.takeSummary();
+            if(summary!=null)E01VideoEvidence.ingress(summary);
         } catch(RuntimeException ignored) { /* Diagnostics must not interrupt media. */ }
     }
     public static void close(Closeable object) {

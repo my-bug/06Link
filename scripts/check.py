@@ -10,15 +10,16 @@ SUITE=[
  'tests/audio_scene/run.py','tests/audio_scene/test_hooks.py','tests/audio_scene/test_prompt_hooks.py',
  'tests/wireless_audio_handoff/run.py','tests/navigation_audio_probe/run.py','tests/navigation_voice/run.py',
  'tests/cluster_video_gate/run.py','tests/mist_layout/check_route.py','tests/mist_layout/run.py',
- 'tests/cluster_settings/test_cluster.py','tests/cluster_settings/test_power_recovery.py',
+ 'tests/cluster_settings/test_cluster.py','tests/cluster_settings/test_text_color.py','tests/cluster_settings/test_mist_intro.py','tests/cluster_settings/test_power_recovery.py',
  'tests/cluster_settings/test_amap_output.py','tests/cluster_settings/test_publisher_lifecycle.py',
  'tests/lane_capability/test_lane_capability.py',
  'tests/direct_oes/run_checks.py','tests/video_visibility/run_checks.py','tests/frame_rate/run.py',
+ 'tests/connection_diagnostics/run.py','tests/ingress_evidence/run_tests.py','tests/test_wired_port.py',
  'tests/test_connection_speed.py','tests/test_wired_configuration.py','tests/test_wired_shutdown.py',
  'tests/test_wired_state.py','tests/test_video_pipeline.py','tests/test_crypto.py',
  'tests/test_service.py','tests/test_direct_navigation.py','tests/test_display_state.py',
  'tests/test_mtk_compat.py','tests/test_slim.py','tests/startup_settings/test_startup.py',
- 'scripts/test_logs.py','scripts/test_log_persistence.py','scripts/test_hotspot.py',
+ 'scripts/test_logs.py','scripts/test_log_persistence.py','scripts/test_log_queue.py','scripts/test_hotspot.py',
 ]
 def main():
  parser=argparse.ArgumentParser(description=__doc__)

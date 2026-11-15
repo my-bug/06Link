@@ -14,12 +14,12 @@ import sys
 sys.path.insert(0,str(ROOT/'tests/source_build'))
 from contracts import assert_contract,method_for
 patch=assert_contract('log-budget-SessionLogFile-21')
-assert '->startSession(' in patch
+assert '->queueStartSession(' in patch
 assert '->rotate(' not in patch and '->writeText(' not in patch
 assert '->closed:Z' in patch and 'monitor-exit' in patch
 with tempfile.TemporaryDirectory(prefix='06link-persistence-') as d:
  p=Path(d)
- for name in ('android/content/res/Resources.java','android/util/DisplayMetrics.java','android/content/Context.java','android/content/Intent.java','android/content/SharedPreferences.java','android/content/ServiceConnection.java','android/content/ComponentName.java','android/os/IBinder.java','android/os/Parcel.java','android/content/pm/PackageManager.java','android/content/pm/PackageInfo.java','android/content/pm/Signature.java','com/shilapi/xcertplay/DiagnosticRedactor.java'):
+ for name in ('android/os/Build.java','android/content/res/Resources.java','android/util/DisplayMetrics.java','android/content/Context.java','android/content/Intent.java','android/content/SharedPreferences.java','android/content/ServiceConnection.java','android/content/ComponentName.java','android/os/IBinder.java','android/os/Parcel.java','android/content/pm/PackageManager.java','android/content/pm/PackageInfo.java','android/content/pm/Signature.java','com/shilapi/xcertplay/DiagnosticRedactor.java'):
   f=p/name;f.parent.mkdir(parents=True,exist_ok=True);f.write_text(m.STUBS[name])
  (p/'PersistenceTest.java').write_text(r'''
 import com.shilapi.xcertplay.E01LogPolicy;

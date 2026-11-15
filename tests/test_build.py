@@ -69,6 +69,9 @@ for dex in c['sources']['smali_roots']:
  assert not list(f.rglob('E01AmapWatchdog.smali')) and not list(f.rglob('E01NavigationLease.smali'))
  assert not list(f.rglob('E01AdbAccessUi.smali'))
 checks.append('retired ADB UI, navigation watchdog and lease not reintroduced')
+assert not list((work/'verified').rglob('E01MistInstrument*.smali'))
+assert list((work/'verified').rglob('E01NightInstrument.smali'))
+checks.append('retired mist renderer removed; night instrument packaged')
 for name in ('E01AmapOutput','E01ServiceAccessUi','E01AmapAccess'):
  files=list((work/'verified').rglob(name+'*.smali'))
  assert files

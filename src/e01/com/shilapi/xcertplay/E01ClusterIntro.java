@@ -97,7 +97,8 @@ public final class E01ClusterIntro {
         final Shader backdrop=new LinearGradient(0,0,1920,720,new int[]{0xff319fbb,0xff3c83bb,0xff626ab1},null,Shader.TileMode.CLAMP);
         final Shader scan=new LinearGradient(0,0,0,54,new int[]{0x554bcfff,0x004bcfff},null,Shader.TileMode.CLAMP);
         final String style;
-        final boolean full,mist;
+        final boolean full,night;
+        final Path introClip=new Path();
         final float mapRadius;
         ValueAnimator animator;float progress;long token,expiresAt;boolean cancelled;
         Runnable deadline;
@@ -109,7 +110,9 @@ public final class E01ClusterIntro {
         Overlay(Presentation owner,Point size){
             super(owner.getContext());this.owner=new WeakReference<Presentation>(owner);
             style=E01InstrumentStyle.selected(getContext());
-            full="full".equals(style);mist="mist".equals(style);mapRadius=full?0:mist?28:40;
+            full=E01InstrumentStyle.fullscreen(style);night="night".equals(style);mapRadius=full||night?0:40;
+            // Keep all photo-calibrated OEM regions and the music card outside the animation.
+            introClip.addRect(405,190,1515,597,Path.Direction.CW);
             setFocusable(false);setClickable(false);setImportantForAccessibility(2);setVisibility(GONE);
             text.setTypeface(Typeface.create("sans-serif",0));text.setTextAlign(Paint.Align.CENTER);
             brand.setTypeface(Typeface.create("sans-serif-medium",0));brand.setTextAlign(Paint.Align.CENTER);
@@ -170,18 +173,18 @@ public final class E01ClusterIntro {
         static float ease(float x){return 1-(float)Math.pow(1-Math.max(0,Math.min(1,x)),3);}
         void background(Canvas c){
             p.setStyle(Paint.Style.FILL);p.setAlpha(255);
-            if(mist){p.setShader(null);p.setColor(0xff63879c);c.drawRect(map,p);return;}
+            if(night){p.setShader(null);p.setColor(0xff071522);c.drawRect(map,p);return;}
             p.setShader(backdrop);c.drawRect(0,0,1920,720,p);p.setShader(null);p.setColor(0x255fffe1);c.drawPath(wave,p);
         }
         @Override protected void onDraw(Canvas c){
             super.onDraw(c);if(!live()){finish();return;}if(getWidth()<=0||getHeight()<=0)return;
             int outer=c.save();c.scale(getWidth()/1920f,getHeight()/720f);
-            // The mist intro owns only the map: OEM status, route card and warnings stay visible.
-            if(mist)c.clipPath(mapPath);
+            // Night animation stays inside the free center inside the central map window.
+            if(night)c.clipPath(introClip);
             float t=progress,opening=ease(segment(t,.47f,.96f)),cards=ease(segment(t,.57f,.94f));
             float half=(map.bottom-map.top)*.5f,center=(map.top+map.bottom)*.5f,roof=center-half*opening,floor=center+half*opening,left=map.left,right=map.right;
             // Clear portions are simply not painted: they expose real decoded video.
-            if(!mist){int out=c.saveLayerAlpha(0,0,1920,720,Math.round(255*(1-cards)),31);c.clipPath(outside);background(c);c.restoreToCount(out);}
+            if(!night){int out=c.saveLayerAlpha(0,0,1920,720,Math.round(255*(1-cards)),31);c.clipPath(outside);background(c);c.restoreToCount(out);}
             covered.reset();covered.setFillType(Path.FillType.EVEN_ODD);covered.addPath(mapPath);
             if(opening>0){hole.set(left,roof,right,floor);covered.addRoundRect(hole,Math.min(mapRadius,half*opening),Math.min(mapRadius,half*opening),Path.Direction.CW);}
             int cover=c.save();c.clipPath(covered);background(c);c.restoreToCount(cover);

@@ -68,9 +68,9 @@ public class Canvas {
  public void drawBitmap(Bitmap b,Rect r,RectF f,Paint p){}
  public boolean inside(Shape limit){Area leaked=new Area(painted);leaked.subtract(new Area(limit));return leaked.isEmpty();}
 }'''
-files['com/shilapi/xcertplay/MistIntroProbe.java'] = r'''package com.shilapi.xcertplay;
+files['com/shilapi/xcertplay/NightIntroProbe.java'] = r'''package com.shilapi.xcertplay;
 import android.app.*;import android.content.*;import android.graphics.*;import android.os.*;import android.view.*;import android.widget.*;import android.animation.*;import java.lang.reflect.*;import java.util.*;
-public class MistIntroProbe {
+public class NightIntroProbe {
  static int checks;static Context c=new Context();static Presentation p;static View v;static SharedPreferences prefs=c.getSharedPreferences("06link_instrument",0);
  static void ok(boolean b,String message){checks++;if(!b)throw new AssertionError(message);}
  static Object field(Object o,String n)throws Exception{Field f=o.getClass().getDeclaredField(n);f.setAccessible(true);return f.get(o);}
@@ -83,13 +83,14 @@ public class MistIntroProbe {
  public static void main(String[] args)throws Exception{
   install("card");RectF card=(RectF)field(v,"map");ok(card.left==326&&card.top==122&&card.right==1593&&card.bottom==597,"existing card bounds remain exact");ok(((Path)field(v,"mapPath")).radius==40,"card corner preserved");newSession();ok(draw().painted.contains(20,20),"card legacy full backdrop preserved");
   install("full");RectF full=(RectF)field(v,"map");ok(full.left==0&&full.top==0&&full.right==1920&&full.bottom==720,"full bounds preserved");ok(((Path)field(v,"mapPath")).radius==0,"full corner preserved");
-  install("mist");RectF map=(RectF)field(v,"map");Path path=(Path)field(v,"mapPath");ok(map.left==400&&map.top==174&&map.right==1520&&map.bottom==594,"mist shares the 1120 by 420 map rectangle");ok(path.radius==28,"mist corner matches final bezel");
+  install("night");RectF map=(RectF)field(v,"map");Path path=(Path)field(v,"mapPath");ok(map.left==400&&map.top==174&&map.right==1520&&map.bottom==594,"night shares the central 1120 by 420 map rectangle");ok(path.radius==0,"night corner matches final bezel");
   Method geometry=v.getClass().getDeclaredMethod("geometry",int.class,int.class);geometry.setAccessible(true);geometry.invoke(v,960,360);ok(map.left==400&&map.top==174&&map.right==1520&&map.bottom==594,"half-resolution geometry transforms back to design coordinates");geometry.invoke(v,1920,720);
   E01ClusterIntro.connected();Handler.drain();ok(v.visibility==View.GONE,"connection alone never covers the instrument");E01ClusterIntro.opened();Handler.drain();visible("only accepted map open starts intro");ok(ValueAnimator.last.duration==5000&&Handler.lastDelay==5500,"five second animation and independent 5.5 second deadline retained");
   int paths=Path.allocations,paints=Paint.allocations;ValueAnimator running=ValueAnimator.last;int starts=ValueAnimator.starts;
-  Canvas initial=draw();ok(initial.colors.get(0)==0xff63879c&&initial.painted.contains(960,384),"mist begins with fixed blue map-only cover");
+  Canvas initial=draw();ok(initial.colors.get(0)==0xff071522&&initial.painted.contains(960,384),"night begins with dark center-only cover");
+  ok(!initial.painted.contains(980,130)&&!initial.painted.contains(220,355)&&!initial.painted.contains(1635,112)&&!initial.painted.contains(997,685)&&!initial.painted.contains(1700,355),"intro leaves OEM TBT, speed, RPM, footer and music untouched");
   boolean brands=false;
-  for(int i=0;i<500;i++){running.step(i/500f);Canvas frame=draw();ok(frame.inside(path.shape),"every mist frame stays inside rounded map, preserving OEM card/status/warnings");if(frame.texts.contains("LYNK & CO")&&frame.texts.contains("CarPlay"))brands=true;}
+  for(int i=0;i<500;i++){running.step(i/500f);Canvas frame=draw();ok(frame.inside(((Path)field(v,"introClip")).shape),"every night frame stays inside rounded map, preserving OEM card/status/warnings");if(frame.texts.contains("LYNK & CO")&&frame.texts.contains("CarPlay"))brands=true;}
   ok(brands,"confirmed LYNK & CO and CarPlay intro retained");ok(Path.allocations==paths&&Paint.allocations==paints,"frame drawing allocates no paths or paints");running.step(.8f);ok(!draw().painted.contains(960,384),"opening actually uncovers the real map");
   E01ClusterIntro.connected();E01ClusterIntro.opened();Handler.drain();ok(ValueAnimator.starts==starts,"repeated connection/open does not replay within same session");running.done();hidden("normal completion removes cover and deadline");
   newSession();running=ValueAnimator.last;running.cancel();hidden("external animator cancel removes mask");running.step(.2f);hidden("stale cancelled update cannot resurrect mask");
@@ -107,10 +108,10 @@ public class MistIntroProbe {
   newSession();E01ClusterMode.allowed=false;ValueAnimator.last.step(.5f);hidden("projection gate closes any active intro");E01ClusterMode.allowed=true;
   newSession();E01ClusterIntro.ended();Handler.drain();hidden("power-off/session-end hook cannot retain a mask");E01ClusterIntro.opened();Handler.drain();hidden("power recovery alone cannot animate without connected-session hook");
   newSession();visible("new post-recovery session may play");ValueAnimator.last.done();hidden("post-recovery completion is clean");
-  System.out.println("PASS "+checks+" mist intro geometry, Canvas clipping, asset reuse and cancellation/deadline assertions; Android fixtures, no physical-device proof");
+  System.out.println("PASS "+checks+" night intro geometry, Canvas clipping, asset reuse and cancellation/deadline assertions; Android fixtures, no physical-device proof");
  }
 }'''
-with tempfile.TemporaryDirectory(prefix='06link-mist-intro-') as temp:
+with tempfile.TemporaryDirectory(prefix='06link-night-intro-') as temp:
     d = Path(temp)
     for name, text in files.items():
         output = d / name
@@ -119,6 +120,6 @@ with tempfile.TemporaryDirectory(prefix='06link-mist-intro-') as temp:
     sources = [SOURCE / 'E01InstrumentStyle.java', Path(os.environ.get('LINK_INTRO_SOURCE', str(SOURCE / 'E01ClusterIntro.java')))]
     result = subprocess.run([str(JDK / 'javac'), '--release', '8', '-d', str(d / 'classes'), *map(str, d.rglob('*.java')), *map(str, sources)], text=True, capture_output=True)
     assert result.returncode == 0, result.stderr
-    result = subprocess.run([str(JDK / 'java'), '-Djava.awt.headless=true', '-cp', str(d / 'classes'), 'com.shilapi.xcertplay.MistIntroProbe'], capture_output=True, text=True, timeout=20)
+    result = subprocess.run([str(JDK / 'java'), '-Djava.awt.headless=true', '-cp', str(d / 'classes'), 'com.shilapi.xcertplay.NightIntroProbe'], capture_output=True, text=True, timeout=20)
     print(result.stdout + result.stderr)
     raise SystemExit(result.returncode)

@@ -189,7 +189,7 @@
 
     iget-object v1, p0, Lcom/shilapi/xcertplay/SessionLogFile;->file:Ljava/io/File;
 
-    invoke-static {v1, p1}, Lcom/shilapi/xcertplay/E01LogPolicy;->session(Ljava/io/File;Ljava/lang/String;)V
+    invoke-static {v1, p1}, Lcom/shilapi/xcertplay/E01LogPolicy;->queueSession(Ljava/io/File;Ljava/lang/String;)V
     :try_end_0
     .catchall {:try_start_0 .. :try_end_0} :catchall_0
 
@@ -262,7 +262,7 @@
 
     iget-object v1, p0, Lcom/shilapi/xcertplay/SessionLogFile;->file:Ljava/io/File;
 
-    invoke-static {v1, p1}, Lcom/shilapi/xcertplay/E01LogPolicy;->startSession(Ljava/io/File;Ljava/lang/String;)V
+    invoke-static {v1, p1}, Lcom/shilapi/xcertplay/E01LogPolicy;->queueStartSession(Ljava/io/File;Ljava/lang/String;)V
     :try_end_0
     .catchall {:try_start_0 .. :try_end_0} :catchall_0
 

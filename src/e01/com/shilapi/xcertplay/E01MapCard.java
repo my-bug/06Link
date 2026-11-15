@@ -27,13 +27,13 @@ public final class E01MapCard {
             && "BX11QJ".equals(Build.DEVICE);
     }
 
-    static double scaleFor(String style) { return "full".equals(style)?1.0:"mist".equals(style)?7.0/12.0:0.66; }
+    static double scaleFor(String style) { return E01InstrumentStyle.fullscreen(style)?1.0:E01InstrumentStyle.isNight(style)?7.0/12.0:0.66; }
 
     static Pair<Integer,Integer> streamSize(int width, int height) {
         return streamSizeFor(width,height,E01InstrumentStyle.selected());
     }
     static Pair<Integer,Integer> streamSizeFor(int width,int height,String style) {
-        if(width<=0||height<=0||"full".equals(style))return new Pair<Integer,Integer>(width,height);
+        if(width<=0||height<=0||E01InstrumentStyle.fullscreen(style))return new Pair<Integer,Integer>(width,height);
         int h=Math.max(24,(int)Math.round(height*scaleFor(style)/24.0)*24);
         int w=Math.max(8,(int)Math.round(h*(double)width/height/8.0)*8);
         return new Pair<Integer,Integer>(w,h);
@@ -42,20 +42,20 @@ public final class E01MapCard {
     static int[] bounds(int width,int height){return boundsFor(width,height,E01InstrumentStyle.selected());}
     /** Single layout source for real video, preview and transition. Reference panel is 1920x720. */
     public static int[] boundsFor(int width,int height,String style) {
-        if("full".equals(style))return new int[]{0,0,width,height};
+        if(E01InstrumentStyle.fullscreen(style))return new int[]{0,0,width,height};
         int w=Math.max(1,(int)Math.round(width*scaleFor(style)));
         int h=Math.max(1,(int)Math.round(height*scaleFor(style)));
-        return new int[]{(width-w)/2,"mist".equals(style)?Math.round(height*174f/720f):(height-h)/2,w,h};
+        return new int[]{(width-w)/2,E01InstrumentStyle.isNight(style)?Math.round(height*174f/720f):(height-h)/2,w,h};
     }
 
     static AirPlayInsets safe(int width,int height){return safeFor(width,height,E01InstrumentStyle.selected());}
     /** Keep the proven whole-panel x32%..68% corridor after scaling the complete video rectangle.
-     *  mist: (0.32 - 400/1920) / (1120/1920) = 67/350; card: 5/22.
+     *  Full: whole-panel margins; night: 67/350; card: 5/22 of the final video.
      *  Insets are computed from the final encoded video size, never a surface translation/crop.
      */
     static AirPlayInsets safeFor(int width,int height,String style) {
-        if("full".equals(style))return new AirPlayInsets((height*22+99)/100,(height*22+99)/100,(width*32+99)/100,(width*32+99)/100);
-        int x="mist".equals(style)?(int)((width*67L+349)/350):(int)((width*5L+21)/22);
+        if(E01InstrumentStyle.fullscreen(style))return new AirPlayInsets((height*22+99)/100,(height*22+99)/100,(width*32+99)/100,(width*32+99)/100);
+        int x=E01InstrumentStyle.isNight(style)?(int)((width*67L+349)/350):(int)((width*5L+21)/22);
         return new AirPlayInsets((height*20+99)/100,(height*8+99)/100,x,x);
     }
 
@@ -91,7 +91,7 @@ public final class E01MapCard {
             surface.setZOrderMediaOverlay(false);
         }
         String style=E01InstrumentStyle.selected(p.getContext());
-        if(!"full".equals(style)){place(content,size.x,size.y,style);place(waiting,size.x,size.y,style);}
+        if(!E01InstrumentStyle.fullscreen(style)){place(content,size.x,size.y,style);place(waiting,size.x,size.y,style);}
         E01MusicCard music = new E01MusicCard(p.getContext());
         music.place(size.x,size.y);
         music.setVisibility(musicEnabled(p.getContext())?View.VISIBLE:View.GONE);
@@ -150,7 +150,7 @@ public final class E01MapCard {
         private int panelWidth, panelHeight;
         private final String style;
         private final boolean full;
-        private final E01MistInstrument mist;
+        private final E01NightInstrument night;
         private boolean showMusic;
         private final Runnable refreshMusic=new Runnable(){public void run(){
             showMusic=musicEnabled(getContext());music.setVisibility(showMusic?VISIBLE:GONE);invalidate();
@@ -160,7 +160,7 @@ public final class E01MapCard {
         };
 
         Bezel(Context context, View content, View waiting, E01MusicCard music) {
-            super(context);style=E01InstrumentStyle.selected(context);full="full".equals(style);mist="mist".equals(style)?new E01MistInstrument():null; this.content = content; this.waiting = waiting; this.music = music;showMusic=musicEnabled(context);
+            super(context);style=E01InstrumentStyle.selected(context);full=E01InstrumentStyle.fullscreen(style);night="night".equals(style)?new E01NightInstrument():null; this.content = content; this.waiting = waiting; this.music = music;showMusic=musicEnabled(context);
             setFocusable(false);
             wavePaintA.setColor(0x47b3e8da); wavePaintB.setColor(0x545b41a8);
             glintPaint.setStyle(Paint.Style.STROKE); glintPaint.setColor(0x40e0f6df);
@@ -193,7 +193,7 @@ public final class E01MapCard {
             if (width <= 0 || height <= 0) return;
             panelWidth=width; panelHeight=height;
             if(!full){place(content,width,height,style);place(waiting,width,height,style);}music.place(width,height);
-            if(mist!=null){mist.resize(width,height);return;}
+            if(night!=null){night.resize(width,height);return;}
             int[] b=boundsFor(width,height,style); float radius=40f*height/720f;
             hole.reset(); hole.addRoundRect(b[0],b[1],b[0]+b[2],b[1]+b[3],radius,radius,Path.Direction.CW);
             outside.reset(); outside.setFillType(Path.FillType.EVEN_ODD);
@@ -231,7 +231,7 @@ public final class E01MapCard {
         @Override protected void onDraw(Canvas canvas) {
             super.onDraw(canvas);
             if (panelWidth <= 0 || panelHeight <= 0) return;
-            if(mist!=null){mist.draw(canvas,showMusic);return;}
+            if(night!=null){night.draw(canvas,showMusic);return;}
             if(!full){canvas.save(); canvas.clipPath(outside); backdrop(canvas); canvas.restore();
             canvas.drawPath(hole,mapEdge);}
             for (int i=full?4:0; i<panels.length; i++) {

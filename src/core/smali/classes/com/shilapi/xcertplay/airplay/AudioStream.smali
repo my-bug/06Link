@@ -546,6 +546,12 @@
     move-object/from16 v1, p0
 
     move-object/from16 v2, p2
+    sget-object v0, Lcom/shilapi/xcertplay/media/AudioThreadPriority;->INSTANCE:Lcom/shilapi/xcertplay/media/AudioThreadPriority;
+    const/4 v3, 0x0
+    const/4 v4, 0x1
+    invoke-static {v0, v3, v4, v3}, Lcom/shilapi/xcertplay/media/AudioThreadPriority;->raise$default(Lcom/shilapi/xcertplay/media/AudioThreadPriority;Lkotlin/jvm/functions/Function1;ILjava/lang/Object;)Ljava/lang/String;
+    move-result-object v0
+    invoke-static {v0}, Lcom/shilapi/xcertplay/E01VideoEvidence;->audioPriority(Ljava/lang/String;)V
 
     .line 89
     const-string v3, "copyOf(...)"

@@ -8,10 +8,17 @@ import java.lang.reflect.Field;
 
 /** Bounded main-screen evidence; no capture thread, frame dump, or protocol payload. */
 public final class E01VideoEvidence {
+    private static volatile Context application;
+    private static volatile String identity = "run=unknown configured=unknown";
     private static long started;
     private static int recoveries, failures;
     public static synchronized void begin(Activity owner, int maxFps) {
         started = System.nanoTime(); recoveries = 0; failures = 0;
+        application = owner.getApplicationContext();
+        String transport = "unknown";
+        try { Field f=owner.getClass().getDeclaredField("wirelessEnabled");f.setAccessible(true);transport=f.getBoolean(owner)?"wireless":"wired"; }
+        catch (ReflectiveOperationException | RuntimeException unavailable) { }
+        identity = "run=" + Long.toHexString(started) + " configured=" + transport;
         SharedPreferences p = owner.getSharedPreferences("xcertplay_airplay", 0);
         SharedPreferences v = owner.getSharedPreferences("06link-video", 0);
         write(owner, "config maxFPS=" + maxFps + " selected=" + p.getInt("display_fps", 30)
@@ -64,16 +71,32 @@ public final class E01VideoEvidence {
         return text.length() > 480 ? text.substring(0, 480) : text.toString();
     }
     private static String shortToken(String value) {
+        if(value==null)return "unknown";
         String clipped = value.length() > 100 ? value.substring(0, 100) : value;
         return clipped.replaceAll("[^A-Za-z0-9_.$:-]", "_");
     }
     public static void decision(Context c, String text) { write(c, "decision=" + text); }
+    static String identity() { return identity; }
+    static void sample(Context c, String source, String text) { write(c, "sample " + source + " " + text); }
+    static void ingress(String text) {
+        Context c=application;if(c==null)return;
+        try { File dir=c.getExternalFilesDir(null);if(dir==null)dir=c.getFilesDir();
+            E01LogPolicy.queueSession(new File(dir,"06link.log"),"[接收摘要] video " + text);
+        } catch (RuntimeException ignored) { }
+    }
+    /** Once on the actual audio receiver, never on the UI thread or per packet. */
+    public static void audioPriority(String result) {
+        Context c=application;if(c==null)return;
+        try { File dir=c.getExternalFilesDir(null);if(dir==null)dir=c.getFilesDir();
+            E01LogPolicy.queueSession(new File(dir,"06link.log"),"Audio RX priority=" + shortToken(result) + " " + identity);
+        } catch (RuntimeException ignored) { }
+    }
     private static void write(Context c, String text) {
         if (c == null) return;
         try {
             File dir = c.getExternalFilesDir(null); if (dir == null) dir = c.getFilesDir();
             // Inputs contain controlled settings, counters and decoder recovery reasons only.
-            E01LogPolicy.session(new File(dir, "06link.log"), "VIDEO " + text);
+            E01LogPolicy.queueSession(new File(dir, "06link.log"), "VIDEO " + text);
         } catch (RuntimeException ignored) { }
     }
     private E01VideoEvidence() { }

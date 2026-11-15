@@ -38545,6 +38545,31 @@
 
     .line 513
     :cond_4
+    invoke-virtual {p0}, Lcom/shilapi/xcertplay/CarPlayHostActivity;->getIntent()Landroid/content/Intent;
+
+    move-result-object p1
+
+    invoke-virtual {p1}, Landroid/content/Intent;->getAction()Ljava/lang/String;
+
+    move-result-object p1
+
+    invoke-static {p1, v3}, Lkotlin/jvm/internal/Intrinsics;->areEqual(Ljava/lang/Object;Ljava/lang/Object;)Z
+
+    move-result p1
+
+    if-eqz p1, :cond_5
+
+    invoke-static {v0, v4}, Lcom/shilapi/xcertplay/E01WiredUi;->beforeAutomaticConnect(Landroid/content/Context;Z)Z
+
+    move-result p1
+
+    if-nez p1, :cond_5
+
+    invoke-virtual {p0}, Lcom/shilapi/xcertplay/CarPlayHostActivity;->finish()V
+
+    return-void
+
+    :cond_5
     sget-object p1, Lcom/shilapi/xcertplay/HostLaunch;->INSTANCE:Lcom/shilapi/xcertplay/HostLaunch;
 
     invoke-virtual {p1, p0}, Lcom/shilapi/xcertplay/HostLaunch;->attach(Lcom/shilapi/xcertplay/CarPlayHostActivity;)V
@@ -38562,13 +38587,13 @@
 
     iput-boolean p1, p0, Lcom/shilapi/xcertplay/CarPlayHostActivity;->startedBehindHome:Z
 
-    if-eqz p1, :cond_5
+    if-eqz p1, :cond_6
 
     .line 517
     invoke-static {p0, v4, v5, v2}, Lcom/shilapi/xcertplay/CarPlayHostActivity;->goBehindHome$default(Lcom/shilapi/xcertplay/CarPlayHostActivity;ZILjava/lang/Object;)V
 
     .line 518
-    :cond_5
+    :cond_6
     invoke-virtual {p0}, Lcom/shilapi/xcertplay/CarPlayHostActivity;->getWindow()Landroid/view/Window;
 
     move-result-object p1
@@ -38678,7 +38703,7 @@
 
     move-result p1
 
-    if-eqz p1, :cond_6
+    if-eqz p1, :cond_7
 
     .line 536
     new-instance p1, Lcom/shilapi/xcertplay/ClusterDisplayWatcher;
@@ -38696,7 +38721,7 @@
     iput-object p1, p0, Lcom/shilapi/xcertplay/CarPlayHostActivity;->clusterDisplayWatcher:Lcom/shilapi/xcertplay/ClusterDisplayWatcher;
 
     .line 538
-    :cond_6
+    :cond_7
     invoke-direct {p0}, Lcom/shilapi/xcertplay/CarPlayHostActivity;->applyFullscreenMode()V
 
     .line 539
@@ -38736,13 +38761,13 @@
     .line 555
     iget-boolean v1, p0, Lcom/shilapi/xcertplay/CarPlayHostActivity;->wirelessEnabled:Z
 
-    if-eqz v1, :cond_7
+    if-eqz v1, :cond_8
 
     const-string/jumbo v1, "wireless"
 
     goto :goto_1
 
-    :cond_7
+    :cond_8
     const-string/jumbo v1, "wired"
 
     :goto_1
@@ -38775,11 +38800,11 @@
     .line 558
     iget-boolean v1, p0, Lcom/shilapi/xcertplay/CarPlayHostActivity;->startedBehindHome:Z
 
-    if-eqz v1, :cond_8
+    if-eqz v1, :cond_9
 
     iget-object v1, p0, Lcom/shilapi/xcertplay/CarPlayHostActivity;->activeDisplaySize:Lcom/shilapi/xcertplay/CarPlayHostActivity$DisplaySize;
 
-    if-nez v1, :cond_8
+    if-nez v1, :cond_9
 
     .line 559
     invoke-virtual {p0}, Lcom/shilapi/xcertplay/CarPlayHostActivity;->getIntent()Landroid/content/Intent;
@@ -38803,9 +38828,9 @@
 
     move-result v3
 
-    if-lez v1, :cond_8
+    if-lez v1, :cond_9
 
-    if-lez v3, :cond_8
+    if-lez v3, :cond_9
 
     .line 562
     new-instance v6, Lcom/shilapi/xcertplay/CarPlayHostActivity$DisplaySize;
@@ -38840,20 +38865,20 @@
     invoke-direct {p0, v1}, Lcom/shilapi/xcertplay/CarPlayHostActivity;->appendLog(Ljava/lang/String;)V
 
     .line 569
-    :cond_8
+    :cond_9
     const-string v1, "android.permission.RECORD_AUDIO"
 
     invoke-static {v0, v1}, Lcom/shilapi/xcertplay/compat/Api19Kt;->checkSelfPermissionCompat(Landroid/content/Context;Ljava/lang/String;)I
 
     move-result v0
 
-    if-nez v0, :cond_9
+    if-nez v0, :cond_a
 
     const/4 v0, 0x1
 
     goto :goto_2
 
-    :cond_9
+    :cond_a
     const/4 v0, 0x0
 
     .line 568
@@ -38863,15 +38888,15 @@
     .line 570
     iput-boolean v0, p0, Lcom/shilapi/xcertplay/CarPlayHostActivity;->microphonePermissionResolved:Z
 
-    if-eqz p1, :cond_a
+    if-eqz p1, :cond_b
 
     .line 572
     invoke-direct {p0}, Lcom/shilapi/xcertplay/CarPlayHostActivity;->updateDebugOverlays()V
 
     goto :goto_3
 
-    :cond_a
-    if-eqz v0, :cond_b
+    :cond_b
+    if-eqz v0, :cond_c
 
     .line 574
     invoke-direct {p0}, Lcom/shilapi/xcertplay/CarPlayHostActivity;->requestStartupPrerequisites()V
@@ -38879,7 +38904,7 @@
     goto :goto_3
 
     .line 576
-    :cond_b
+    :cond_c
     new-array p1, v5, [Ljava/lang/String;
 
     aput-object v1, p1, v4
@@ -38892,14 +38917,14 @@
 
     move-result p1
 
-    if-nez p1, :cond_c
+    if-nez p1, :cond_d
 
     .line 578
     iget-object p1, p0, Lcom/shilapi/xcertplay/CarPlayHostActivity;->microphonePermission:Landroidx/activity/result/ActivityResultLauncher;
 
     invoke-virtual {p1, v1}, Landroidx/activity/result/ActivityResultLauncher;->launch(Ljava/lang/Object;)V
 
-    :cond_c
+    :cond_d
     :goto_3
     return-void
 .end method

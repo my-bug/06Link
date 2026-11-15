@@ -78,14 +78,58 @@ public final class E01LogPolicy {
         }catch(IOException|SecurityException ignored){}
     }
 
+    private static final java.util.regex.Pattern NO_ERROR = java.util.regex.Pattern.compile(
+        "(?<![a-z0-9_])(?:(?:writeerrors|senderrors)\\s*=\\s*0|lastwriteerror\\s*=\\s*none)(?=$|[\\s,;]|\\])");
+    private static final java.util.regex.Pattern LEADING_TIME = java.util.regex.Pattern.compile(
+        "^(?:(?:[0-9]{4}-[0-9]{2}-[0-9]{2}[ T])?[0-9]{2}:[0-9]{2}:[0-9]{2}(?:\\.[0-9]+)?\\s+)+");
+    private static String body(String text) { return LEADING_TIME.matcher(text.trim()).replaceFirst(""); }
+    private static final Map<String,Long> samples = new HashMap<String,Long>();
+    private static final long SAMPLE_NS = 60000000000L;
+    private static String sampleKey(String s) {
+        if (s.startsWith("audio stats ") || s.startsWith("receive: audio type=")) {
+            String key=s.substring(0,s.indexOf(' '));
+            for(String word:s.split("\\s+")) if(word.startsWith("audiotype=")||word.startsWith("channel=")||word.startsWith("type=")) key+=" "+word;
+            return key;
+        }
+        return s.startsWith("airplay timing ") ? "airplay timing" : null;
+    }
+    private static synchronized boolean sample(String key) {
+        long now=System.nanoTime();Long before=samples.get(key);
+        if(before!=null&&now-before<SAMPLE_NS)return false;
+        if(samples.size()>=32)samples.clear();samples.put(key,now);return true;
+    }
+    private static String compactStats(String text) {
+        String b=body(text);
+        if(b.startsWith("audio stats sample=point"))return text;
+        if(b.startsWith("Receive: audio ") || b.startsWith("airplay timing "))
+            return text.contains("sample=point")?text:text+" sample=point";
+        if(!b.startsWith("audio stats "))return text;
+        StringBuilder result=new StringBuilder(text.substring(0,text.indexOf(b))).append("audio stats sample=point");
+        String[] words=b.split("\\s+"),fields={"audioType=","channel=","codec=","sampleRate=","writeErrors=","lastWriteError=","rx=","dropped=","underruns=","queue=","maxGapMs=","maxWriteMs=","estimatedQueuedFrames=","rebuffers="};
+        for(String field:fields)for(String word:words)if(word.startsWith(field)){
+            if(field.equals("underruns=")&&android.os.Build.VERSION.SDK_INT<24)word="underruns=unknown";
+            if(field.equals("estimatedQueuedFrames="))word=word.replace("estimatedQueuedFrames=","queuedFrames=");
+            result.append(' ').append(word.substring(0,Math.min(word.length(),80)));break;
+        }
+        return result.toString();
+    }
+
+    private static final java.util.regex.Pattern SAMPLE_POLLS = java.util.regex.Pattern.compile(
+        "(?<![a-z0-9_])polltimeouts\\s*=\\s*[0-9]+(?=$|[\\s,;]|\\])");
     private static boolean failure(String s) {
+        s = NO_ERROR.matcher(s).replaceAll("");
+        // A normal nonblocking input poll can time out without any media failure.
+        // Only the known numeric field of our controlled summary is ignored;
+        // other timeout/error/recovery text retains its original classification.
+        if(body(s).startsWith("video sample "))s=SAMPLE_POLLS.matcher(s).replaceAll("");
         return s.contains("error") || s.contains("exception") || s.contains("fail")
             || s.contains("timeout") || s.contains("timed out") || s.contains("unavailable")
             || s.contains("denied") || s.contains("accepted=false") || s.contains("guard not held")
             || s.contains("could not") || s.contains("cannot") || s.contains("refused")
             || s.contains("unreachable") || s.contains("unsupported") || s.contains("not approved")
             || s.contains("invalid") || s.contains("missing") || s.contains("no picture")
-            || s.contains("broken pipe") || s.contains("reset by peer");
+            || s.contains("broken pipe") || s.contains("reset by peer")
+            || s.contains("refilling after the track ran dry");
     }
 
     private static synchronized boolean accept(String source, String text, boolean bad) {
@@ -140,24 +184,77 @@ public final class E01LogPolicy {
         }catch(RuntimeException ignored){}
     }
 
-    public static void session(File file, String text) {
-        if (text == null) return;
-        String s = text.toLowerCase(Locale.US);
-        boolean bad = failure(s) || s.startsWith("video recovery=") || s.startsWith("video decision=");
-        if (s.startsWith("06link log started")) clearFailures("session");
-        if (!bad && !(text.startsWith("[音频场景]") || text.startsWith("[导航音量]") || text.startsWith("[音源交接]") || text.startsWith("[导航语音]")
+    private static boolean eligible(String text) {
+        if(text==null)return false;
+        String b=body(text),s=b.toLowerCase(Locale.US);
+        if(failure(s)||s.startsWith("video recovery=")||s.startsWith("video decision="))return true;
+        return sampleKey(s)!=null || s.startsWith("video sample ") || b.startsWith("[接收摘要] video ")
+            || s.startsWith("audio rx priority=") || b.startsWith("[音频场景]") || b.startsWith("[导航音量]")
+            || b.startsWith("[音源交接]") || b.startsWith("[导航语音]")
             || s.startsWith("audio: ready audiotype=") || s.contains("connected") || s.contains("disconnect")
             || s.contains("session active") || s.contains("session ended")
             || s.contains("session started") || s.contains("session closed")
             || s.contains("hotspot ready") || s.contains("watchdog") || s.startsWith("wired start:")
-            || s.contains("restored") || s.contains("recovery")
-            || s.contains("permission") || s.contains("authentication")
-            || s.contains("crash") || s.contains("stall") || s.startsWith("video config ")
-            || s.startsWith("06link log started"))) return;
+            || s.contains("restored") || s.contains("recovery") || s.contains("permission")
+            || s.contains("authentication") || s.contains("crash") || s.contains("stall")
+            || s.startsWith("video config ") || s.startsWith("06link log started");
+    }
+
+    public static void session(File file, String text) {
+        if(!eligible(text))return;
+        String s=body(text).toLowerCase(Locale.US);
+        boolean bad=failure(s)||s.startsWith("video recovery=")||s.startsWith("video decision=");
+        if(s.startsWith("06link log started")){clearFailures("session");synchronized(E01LogPolicy.class){samples.clear();}}
+        String key=sampleKey(s);if(!bad&&key!=null&&!sample(key))return;
         try {
-            String clean = DiagnosticRedactor.INSTANCE.redact(text);
-            if (clean != null && accept("session", clean, bad)) append(file, clean);
-        } catch (RuntimeException ignored) { }
+            String clean=DiagnosticRedactor.INSTANCE.redact(compactStats(text));
+            if(clean!=null&&accept("session",clean,bad))append(file,clean);
+        }catch(RuntimeException ignored){}
+    }
+
+    // SessionLogFile's UI-facing monitor only covers acceptance into this bounded queue.
+    // The sole writer never takes that monitor; close does not wait for storage or fsync.
+    private static final Object QUEUE_LOCK=new Object();
+    private static final int QUEUE_LIMIT=128;
+    private static final ArrayDeque<Pending> queue=new ArrayDeque<Pending>();
+    private static long queueGeneration,dropped;
+    private static boolean draining;
+    private static final java.util.concurrent.ExecutorService LOG_IO=java.util.concurrent.Executors.newSingleThreadExecutor(
+        new java.util.concurrent.ThreadFactory(){public Thread newThread(Runnable r){Thread t=new Thread(r,"06link-log-writer");t.setDaemon(true);return t;}});
+    private static final class Pending {
+        final File file;final String text;final boolean start;final long generation;
+        Pending(File f,String s,boolean begin,long g){file=f;text=s;start=begin;generation=g;}
+    }
+    public static void queueSession(File file,String text){enqueue(file,text,false);}
+    public static void queueStartSession(File file,String text){enqueue(file,text,true);}
+    private static void enqueue(File file,String text,boolean start){
+        // Pure memory filtering before any queue/worker work: packet traces never crowd out events.
+        if(file==null||text==null||(!start&&!eligible(text)))return;
+        text=compactStats(text);if(text.length()>2048)text=text.substring(0,2048);
+        synchronized(QUEUE_LOCK){
+            if(queue.size()>=QUEUE_LIMIT){dropped++;return;}
+            queue.addLast(new Pending(file,text,start,queueGeneration));
+            if(draining)return;draining=true;
+            try{LOG_IO.execute(new Runnable(){public void run(){drain();}});}
+            catch(RuntimeException rejected){queue.clear();draining=false;dropped++;}
+        }
+    }
+    private static void drain(){
+        for(;;){
+            Pending task;long overflow;
+            synchronized(QUEUE_LOCK){
+                task=queue.pollFirst();if(task==null){draining=false;return;}
+                overflow=dropped;dropped=0;
+            }
+            synchronized(E01LogPolicy.class){
+                // clear() holds this same writer lock and invalidates even a task already dequeued.
+                synchronized(QUEUE_LOCK){if(task.generation!=queueGeneration)continue;}
+                try{
+                    if(overflow>0)append(task.file,"[日志] 存储繁忙，省略记录="+overflow);
+                    if(task.start)startSession(task.file,task.text);else session(task.file,task.text);
+                }catch(RuntimeException ignored){}
+            }
+        }
     }
 
     private static String clip(String text) {
@@ -231,8 +328,8 @@ public final class E01LogPolicy {
             cap(file, limit(file), true);
             for (String line : text.split("\n")) {
                 if (line.length() == 0) continue;
-                String normalized=line.toLowerCase(Locale.US);
-                if ((normalized.startsWith("video ") && normalized.contains(" window="))
+                String normalized=body(line).toLowerCase(Locale.US);
+                if ((normalized.startsWith("video ") && !normalized.startsWith("video sample ") && normalized.contains(" window="))
                     || normalized.startsWith("smooth video negotiatedmax=")) continue;
                 String dated = line.matches("^[0-9]{4}-[0-9]{2}-[0-9]{2}[ T].*") ? line
                     : new java.text.SimpleDateFormat("yyyy-MM-dd HH:mm:ss",Locale.US).format(new Date()) + " " + line;
@@ -372,6 +469,8 @@ public final class E01LogPolicy {
     public static UiSnapshot readUiSnapshot(Context context) {return new UiSnapshot(parseUi(captureUi(context)));}
     /** Same monitor as all enabled writers; preserve app data and non-log files. */
     public static synchronized void clear(Context context) throws IOException {
+        synchronized(QUEUE_LOCK){queueGeneration++;queue.clear();dropped=0;}
+        samples.clear();
         install(context);
         for(File directory:directories){File[] list=directory.listFiles();if(list==null)continue;for(File f:list)if(f.isFile()&&known(f.getName())&&safe(f)){
             try(FileOutputStream out=new FileOutputStream(f,false)){out.getFD().sync();}

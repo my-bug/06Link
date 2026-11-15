@@ -100,7 +100,7 @@ public final class DirectLateCheck {
    ok(r.state.directLateAgeMaxNs>=150000000L,"late-age metric records receive-to-discard age");
    E01LogPolicy.messages.clear();r.state.reportAt=0;r.state.reports=0;
    for(int n=1;n<=20;n++)E01SmoothVideo.report(r.state,n*10000000000L);
-   ok(E01LogPolicy.messages.size()==3,"new counters retain three summaries per codec and no per-frame records");
+   ok(E01LogPolicy.messages.size()==5,"three startup summaries then minute summaries at 90 and 150 seconds, no per-frame records");
    String summary=E01LogPolicy.messages.get(0);
    ok(summary.contains("directLateSkipped=3")&&summary.contains("directLateBatches=1")&&summary.contains("directLateBatchMax=3")&&summary.contains("directLateAgeMaxMs="),"summary includes exact direct-coalescing diagnostics");
    ok(summary.length()<=512,"representative summary fits existing per-line log budget");

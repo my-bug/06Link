@@ -12,7 +12,7 @@ m=importlib.util.module_from_spec(spec);spec.loader.exec_module(m)
 jdk=find_java()['java_home'] / 'bin'
 with tempfile.TemporaryDirectory(prefix='06link-logs-') as d:
  p=Path(d)
- for name in ('android/content/res/Resources.java','android/util/DisplayMetrics.java','android/content/Context.java','android/content/Intent.java','android/content/SharedPreferences.java','android/content/ServiceConnection.java','android/content/ComponentName.java','android/os/IBinder.java','android/os/Parcel.java','android/content/pm/PackageManager.java','android/content/pm/PackageInfo.java','android/content/pm/Signature.java','com/shilapi/xcertplay/DiagnosticRedactor.java'):
+ for name in ('android/os/Build.java','android/content/res/Resources.java','android/util/DisplayMetrics.java','android/content/Context.java','android/content/Intent.java','android/content/SharedPreferences.java','android/content/ServiceConnection.java','android/content/ComponentName.java','android/os/IBinder.java','android/os/Parcel.java','android/content/pm/PackageManager.java','android/content/pm/PackageInfo.java','android/content/pm/Signature.java','com/shilapi/xcertplay/DiagnosticRedactor.java'):
   f=p/name;f.parent.mkdir(parents=True,exist_ok=True);f.write_text(m.STUBS[name])
  (p/'LogPolicyTest.java').write_text(r'''
 import com.shilapi.xcertplay.E01LogPolicy;
@@ -53,6 +53,43 @@ public class LogPolicyTest {
   check(session.length()==holdBytes,"same USB wait is deduplicated");
   E01LogPolicy.session(session,"wired start: repeated request after USB network opened");
   check(read(session).contains("wired start: repeated request"),"once-only wired restart retained");
+
+  android.os.Build.VERSION.SDK_INT=22;
+  E01LogPolicy.session(session,"00:43:50.561  audio stats audioType=media channel=MEDIA codec=LPCM sampleRate=48000 rx=736 dropped=0 underruns=+0 queue=41 maxGapMs=35 maxWriteMs=311 estimatedQueuedFrames=16654 writeErrors=0 lastWriteError=none rebuffers=3");
+  String stats=read(session);check(stats.contains("audio stats sample=point")&&stats.contains("rebuffers=3")&&stats.contains("underruns=unknown"),"compact sampled stats retain refill evidence without unsupported API22 zero");
+  long sampled=session.length();
+  for(int i=0;i<500;i++)E01LogPolicy.session(session,"00:43:51.000 audio stats audioType=media channel=MEDIA writeErrors=0 lastWriteError=none rx="+i);
+  check(session.length()==sampled,"normal numeric changes do not bypass minute audio limit");
+  E01LogPolicy.session(session,"00:44:01.000 airplay timing sent=25 responses=25 sendErrors=0 synced=true");long timing=session.length();
+  for(int i=0;i<500;i++)E01LogPolicy.session(session,"00:44:02.000 airplay timing sent="+i+" sendErrors=0 synced=true");
+  check(session.length()==timing,"zero send errors does not flood timing stats");
+  E01LogPolicy.session(session,"00:44:03.000 Receive: audio type=100 packets=900 seqForwardGaps=0 interArrivalMaxMs=35");long received=session.length();
+  E01LogPolicy.session(session,"00:44:04.000 Receive: audio type=100 packets=901 seqForwardGaps=0 interArrivalMaxMs=36");check(session.length()==received,"receive windows sampled, not mistaken for complete minute totals");
+  E01LogPolicy.session(session,"00:44:05.000 Audio: refilling after the track ran dry audioType=media queue=0");
+  check(read(session).contains("track ran dry"),"refill event remains diagnostic evidence");
+  E01LogPolicy.session(session,"audio stats audioType=media channel=MEDIA writeErrors=1 lastWriteError=-6 rx=1");
+  check(read(session).contains("writeErrors=1"),"real write error bypasses sample interval");
+  E01LogPolicy.session(session,"airplay timing sendErrors=1 lastError=SocketException");check(read(session).contains("sendErrors=1"),"real timing send error retained");
+  E01LogPolicy.session(session,"00:44:06.000 VIDEO sample id=0 window=60 inputFps=58 outputFps=57");
+  E01LogPolicy.session(session,"00:44:06.000 VIDEO sample run=12caa4e2bb16 configured=wireless n=4 spanMs=60000 maxFPS=60 submittedFps=58.6 decodedFps=58.5 releasedFps=58.4 skipped=2 recentQueueP90Ms=4 recentInputP90Ms=3 recentResidenceP90Ms=5 pollTimeouts=0 capPending=2 directCap4=true directLateSkipped=12 directLateBatches=8 directLateBatchMax=2 directLateAgeMaxMs=16");
+  E01LogPolicy.session(session,"00:44:06.001 VIDEO sample run=12caa4e2bb16 configured=wireless n=5 spanMs=60000 submittedFps=58.0 decodedFps=58.0 releasedFps=58.0 pollTimeouts=42 capPending=2");
+  E01LogPolicy.session(session,"00:44:06.002 VIDEO recovery=decoder timeout VERIFY_REAL_RECOVERY");
+  E01LogPolicy.session(session,"00:44:06.003 VIDEO sample run=12caa4e2bb16 pollTimeouts=0 error=VERIFY_REAL_ERROR");
+
+  E01LogPolicy.session(session,"00:44:06.001 [接收摘要] video transport=wireless frames=3500");
+  E01LogPolicy.session(session,"00:44:06.002 Audio RX priority=video");
+  check(read(session).contains("VIDEO sample")&&read(session).contains("[接收摘要]")&&read(session).contains("Audio RX priority="),"producer-limited media summaries and scheduler selection retained");
+  android.content.Context ui=new android.content.Context(){public File getFilesDir(){return root;}public File getExternalFilesDir(String ignored){return null;}};
+  E01LogPolicy.UiSnapshot snapshot=E01LogPolicy.readUiSnapshot(ui);
+  boolean writeFailed=false,refilled=false,recovered=false,sampleError=false;
+  for(String[] row:snapshot.errors){check(!row[2].contains("writeErrors=0 lastWriteError=none"),"zero write counters never appear as failure");check(!row[2].contains("sendErrors=0"),"zero timing counter never appears as failure");if(row[2].contains("writeErrors=1"))writeFailed=true;if(row[2].contains("track ran dry"))refilled=true;}
+  check(writeFailed&&refilled,"real failure and refill events visible in errors tab");
+  for(String[] row:snapshot.errors){check(!row[2].contains("pollTimeouts=42"),"ordinary input poll counts are not classified as faults");check(!row[2].contains("n=4 spanMs=60000"),"complete healthy video summary remains a normal record");if(row[2].contains("VERIFY_REAL_RECOVERY"))recovered=true;if(row[2].contains("VERIFY_REAL_ERROR"))sampleError=true;}
+  check(recovered&&sampleError,"actual recovery and additional error text stay visible despite numeric poll field");
+
+  java.lang.reflect.Field sf=E01LogPolicy.class.getDeclaredField("samples");sf.setAccessible(true);Map<String,Long> samples=(Map<String,Long>)sf.get(null);
+  for(String key:new ArrayList<String>(samples.keySet()))samples.put(key,System.nanoTime()-61000000000L);
+  long beforeSample=session.length();E01LogPolicy.session(session,"audio stats audioType=media channel=MEDIA writeErrors=0 lastWriteError=none rx=2");check(session.length()>beforeSample,"sample allowed after real minute boundary");
   check(E01LogPolicy.FILE_BYTES==16384,"daily file limit is 16 KiB");
   check(E01LogPolicy.keepCluster("[原厂引导] 暂停广播已分发，实际停发未观测"),"bounded publisher diagnostic retained");
   check(!E01LogPolicy.keepCluster("[原厂引导] 暂停广播已分发，实际停发未观测"),"identical publisher state suppressed");

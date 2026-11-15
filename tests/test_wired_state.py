@@ -41,8 +41,10 @@ public class WiredStateCheck {
 j=find_java()['java_home']/'bin'
 subprocess.run([str(j/'javac'),'--release','8','-d',str(T/'classes'),*map(str,T.rglob('*.java')),str(R/'src/e01/com/shilapi/xcertplay/E01HotspotControl.java')],check=True)
 r=subprocess.run([str(j/'java'),'-cp',str(T/'classes'),'com.shilapi.xcertplay.WiredStateCheck'],capture_output=True,text=True);print(r.stdout+r.stderr);r.check_returncode()
-# Check the packaged primary DEX actually invokes the new state transition.
-f=build_dir(R)/'merged-classes/com/shilapi/xcertplay/E01WiredUi.smali'
+# Check the assembled class in its configured DEX invokes the state transition.
+config=json.loads((R/'project.json').read_text())
+dex=config['sources']['java_dex']['com/shilapi/xcertplay/E01WiredUi']
+f=build_dir(R)/'verified'/dex[:-4]/'com/shilapi/xcertplay/E01WiredUi.smali'
 s=f.read_text();begin=s.index('.method public static beforeConnect(');end=s.index('.end method',begin)
 assert 'E01HotspotControl;->connectWired()V'in s[begin:end] and 'E01HotspotControl;->pause()V'not in s[begin:end]
 (R/'tests/wired-results.txt').write_text(r.stdout+'PASS packaged wired entry uses connectWired\n')

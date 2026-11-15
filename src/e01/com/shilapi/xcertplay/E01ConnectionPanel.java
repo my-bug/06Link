@@ -53,6 +53,7 @@ public final class E01ConnectionPanel extends FrameLayout {
         String title="准备连接";
         if(number>0&&number<=steps.size())title=getResources().getString((Integer)E01NativeSettings.call(steps.get(number-1),"getName"));
         else {Object latest=E01NativeSettings.field(host,"latestStage");if(latest!=null&&!latest.toString().trim().isEmpty())title=latest.toString();}
+        title=E01ConnectionStageText.title(wireless,number,title);
         String current=number>0?"当前停留：第 "+number+" / "+steps.size()+" 步":"正在准备连接";
         String transport=wireless?"无线连接":"有线连接";
         String snapshot=transport+'\n'+title+'\n'+current;

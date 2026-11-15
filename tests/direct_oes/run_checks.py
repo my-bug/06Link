@@ -19,7 +19,7 @@ with tempfile.TemporaryDirectory() as temporary:
  classes=work/'classes'
  subprocess.run([str(JAVA/'javac'),'--release','8','-Xlint:-options','-d',str(classes),*map(str,sources.rglob('*.java'))],check=True)
  results=[]
- for name in (args.checks.split(',') if args.checks else ['IntegrationCheck','HorizonCheck','ConcurrencyCheck','RecoveryCheck','GlCheck','GlIntegrationCheck','GlBindingCheck','GlEventCheck','DirectClockCheck','DirectInFlightCheck','DirectCapCheck','DirectLateCheck','DirectLifecycleCheck']):
+ for name in (args.checks.split(',') if args.checks else ['IntegrationCheck','HorizonCheck','ConcurrencyCheck','RecoveryCheck','GlCheck','GlIntegrationCheck','GlBindingCheck','GlEventCheck','DirectClockCheck','DirectInFlightCheck','DirectCapCheck','DirectLateCheck','DirectLifecycleCheck','LongEvidenceCheck']):
   result=subprocess.run([str(JAVA/'java'),'-cp',str(classes),'com.shilapi.xcertplay.'+name],capture_output=True,text=True,timeout=45)
   print(result.stdout,end='',flush=True);print(result.stderr,end='',flush=True);result.check_returncode();results.append(result.stdout)
  (HERE/('results-'+args.checks.replace(',', '-')+'.txt' if args.checks else 'results.txt')).write_text(''.join(results))

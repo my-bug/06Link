@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Compile production mist/display/music helpers and render them on the host; no device calls."""
+"""Compile production night/display/music helpers and render them on the host; no device calls."""
 from pathlib import Path
 import sys
 sys.path.insert(0, str(Path(__file__).resolve().parents[2] / 'scripts'))
@@ -16,6 +16,7 @@ legacy=ROOT/'scripts/validation/test_cluster_card.py'
 body=legacy.read_text();body=body[body.index('spec = '):body.index('# Avoid unrelated UI fixture')]
 env={'project':ROOT,'Path':Path,'importlib':importlib};exec(compile(body,str(legacy),'exec'),env)
 apis=env['apis']
+apis['android/graphics/LinearGradient.java']=apis['android/graphics/LinearGradient.java'].replace('value=new java.awt.LinearGradientPaint', 'if(stops==null){stops=new float[c.length];for(int i=0;i<c.length;i++)stops[i]=i/(float)(c.length-1);}value=new java.awt.LinearGradientPaint')
 def extend(name,source):apis[name]=apis[name].rsplit('}',1)[0]+source+'}'
 apis['android/content/SharedPreferences.java']='''package android.content;import java.util.Map;public interface SharedPreferences{
  Map<String,?> getAll();String getString(String k,String d);boolean getBoolean(String k,boolean d);Editor edit();
@@ -54,27 +55,34 @@ extend('android/graphics/Path.java','''
 ''')
 apis['android/graphics/RectF.java']='''package android.graphics;public class RectF{public float l,t,r,b,left,top,right,bottom;public void set(float l,float t,float r,float b){this.l=this.left=l;this.t=this.top=t;this.r=this.right=r;this.b=this.bottom=b;}public float width(){return right-left;}public float height(){return bottom-top;}}'''
 extend('android/graphics/Paint.java','''public static final int ANTI_ALIAS_FLAG=1;public enum Cap{BUTT,ROUND,SQUARE}public enum Join{MITER,ROUND,BEVEL}public int cap=0,join=0;public void setStrokeCap(Cap c){cap=c==Cap.ROUND?1:c==Cap.SQUARE?2:0;}public void setStrokeJoin(Join j){join=j==Join.ROUND?1:j==Join.BEVEL?2:0;}public void setPathEffect(DashPathEffect effect){}''')
+apis['android/graphics/PorterDuff.java']='package android.graphics;public class PorterDuff{public enum Mode{DST_IN}}'
+apis['android/graphics/PorterDuffXfermode.java']='package android.graphics;public class PorterDuffXfermode{public final PorterDuff.Mode mode;public PorterDuffXfermode(PorterDuff.Mode m){mode=m;}}'
+extend('android/graphics/Paint.java','public PorterDuffXfermode xfer;public void setXfermode(PorterDuffXfermode m){xfer=m;}')
 apis['android/graphics/Color.java']='package android.graphics;public class Color{public static final int WHITE=0xffffffff;}'
 apis['android/graphics/DashPathEffect.java']='package android.graphics;public class DashPathEffect{public DashPathEffect(float[] intervals,float phase){}}'
 apis['android/graphics/Region.java']='package android.graphics;public class Region{public enum Op{DIFFERENCE}}'
 apis['android/graphics/Typeface.java']='package android.graphics;public class Typeface{public static final int NORMAL=0;public static Typeface create(String name,int style){return new Typeface();}}'
+extend('android/graphics/Bitmap.java','public enum Config{ARGB_8888}public static Bitmap createBitmap(int w,int h,Config c){return new Bitmap(new java.awt.image.BufferedImage(w,h,java.awt.image.BufferedImage.TYPE_INT_ARGB));}')
 apis['android/graphics/Canvas.java']='''package android.graphics;import java.awt.*;import java.awt.geom.*;import java.awt.image.*;import java.util.*;
 public class Canvas{
  public static final class TextDraw{public final String text;public final float x,y,size;public TextDraw(String text,float x,float y,float size){this.text=text;this.x=x;this.y=y;this.size=size;}}
  public final java.util.List<TextDraw> texts=new java.util.ArrayList<TextDraw>();
- public final BufferedImage image;public int draws;private Graphics2D g;private final ArrayDeque<Graphics2D> states=new ArrayDeque<Graphics2D>();
- public Canvas(int w,int h){image=new BufferedImage(w,h,BufferedImage.TYPE_INT_ARGB);g=image.createGraphics();g.setClip(0,0,w,h);g.setRenderingHint(RenderingHints.KEY_ANTIALIASING,RenderingHints.VALUE_ANTIALIAS_ON);g.setRenderingHint(RenderingHints.KEY_INTERPOLATION,RenderingHints.VALUE_INTERPOLATION_BILINEAR);}
- public int save(){states.push(g);g=(Graphics2D)g.create();return states.size();}public void restore(){g.dispose();g=states.pop();}public void restoreToCount(int count){while(states.size()>=count)restore();}
+ public final BufferedImage image;public int draws;private Graphics2D g;private static class Saved{Graphics2D g;BufferedImage layer;Saved(Graphics2D g,BufferedImage layer){this.g=g;this.layer=layer;}}private final ArrayDeque<Saved> states=new ArrayDeque<Saved>();
+ public Canvas(int w,int h){this(new Bitmap(new BufferedImage(w,h,BufferedImage.TYPE_INT_ARGB)));}
+ public Canvas(Bitmap bitmap){image=bitmap.image;g=image.createGraphics();g.setClip(0,0,image.getWidth(),image.getHeight());g.setRenderingHint(RenderingHints.KEY_ANTIALIASING,RenderingHints.VALUE_ANTIALIAS_ON);g.setRenderingHint(RenderingHints.KEY_INTERPOLATION,RenderingHints.VALUE_INTERPOLATION_BILINEAR);}
+ public int save(){states.push(new Saved(g,null));g=(Graphics2D)g.create();return states.size();}
+ public int saveLayer(float l,float t,float r,float b,Paint p,int flags){BufferedImage layer=new BufferedImage(image.getWidth(),image.getHeight(),BufferedImage.TYPE_INT_ARGB);states.push(new Saved(g,layer));Graphics2D next=layer.createGraphics();next.setRenderingHints(g.getRenderingHints());next.setTransform(g.getTransform());next.setClip(g.getClip());g=next;clipRect(l,t,r,b);return states.size();}
+ public void restore(){g.dispose();Saved s=states.pop();g=s.g;if(s.layer!=null){AffineTransform matrix=g.getTransform();g.setTransform(new AffineTransform());g.setComposite(AlphaComposite.SrcOver);g.drawImage(s.layer,0,0,null);g.setTransform(matrix);}}public void restoreToCount(int count){while(states.size()>=count)restore();}
  public void scale(float x,float y){g.scale(x,y);}public void translate(float x,float y){g.translate(x,y);}public boolean clipPath(Path p){g.clip(p.value);return true;}
  public boolean clipRect(float l,float t,float r,float b){g.clip(new Rectangle2D.Float(l,t,r-l,b-t));return true;}
  public boolean clipRect(float l,float t,float r,float b,Region.Op op){Area area=new Area(g.getClip());area.subtract(new Area(new Rectangle2D.Float(l,t,r-l,b-t)));g.setClip(area);return true;}
- private void draw(Shape s,Paint p){draws++;g.setPaint(p.shader==null?new java.awt.Color(p.color,true):p.shader.value);g.setStroke(new BasicStroke(Math.max(.01f,p.width),p.cap,p.join));if(p.style==Paint.Style.STROKE)g.draw(s);else g.fill(s);}
+ private void draw(Shape s,Paint p){draws++;g.setComposite(p.xfer==null?AlphaComposite.SrcOver:AlphaComposite.DstIn);g.setPaint(p.shader==null?new java.awt.Color(p.color,true):p.shader.value);g.setStroke(new BasicStroke(Math.max(.01f,p.width),p.cap,p.join));if(p.style==Paint.Style.STROKE)g.draw(s);else g.fill(s);}
  public void drawRect(float l,float t,float r,float b,Paint p){draw(new Rectangle2D.Float(l,t,r-l,b-t),p);}public void drawRect(RectF r,Paint p){drawRect(r.left,r.top,r.right,r.bottom,p);}
  public void drawRoundRect(float l,float t,float r,float b,float rx,float ry,Paint p){draw(new RoundRectangle2D.Float(l,t,r-l,b-t,2*rx,2*ry),p);}
  public void drawPath(Path p,Paint b){draw(p.value,b);}public void drawCircle(float x,float y,float r,Paint p){draw(new Ellipse2D.Float(x-r,y-r,2*r,2*r),p);}
  public void drawLine(float x,float y,float xx,float yy,Paint p){draw(new BasicStroke(Math.max(.01f,p.width),p.cap,p.join).createStrokedShape(new Line2D.Float(x,y,xx,yy)),p);}
- public void drawText(String s,float x,float y,Paint p){texts.add(new TextDraw(s,x,y,p.textSize));draws++;g.setFont(p.font());g.setColor(new java.awt.Color(p.color,true));float dx=p.align==Paint.Align.CENTER?p.measureText(s)/2:p.align==Paint.Align.RIGHT?p.measureText(s):0;g.drawString(s,x-dx,y);}
- public void drawBitmap(Bitmap bitmap,Rect s,RectF d,Paint p){draws++;g.drawImage(bitmap.image,Math.round(d.l),Math.round(d.t),Math.round(d.r),Math.round(d.b),s.l,s.t,s.r,s.b,null);}
+ public void drawText(String s,float x,float y,Paint p){g.setComposite(AlphaComposite.SrcOver);texts.add(new TextDraw(s,x,y,p.textSize));draws++;g.setFont(p.font());g.setColor(new java.awt.Color(p.color,true));float dx=p.align==Paint.Align.CENTER?p.measureText(s)/2:p.align==Paint.Align.RIGHT?p.measureText(s):0;g.drawString(s,x-dx,y);}
+ public void drawBitmap(Bitmap bitmap,Rect s,RectF d,Paint p){draws++;g.setComposite(AlphaComposite.SrcOver);g.drawImage(bitmap.image,Math.round(d.l),Math.round(d.t),Math.round(d.r),Math.round(d.b),s.l,s.t,s.r,s.b,null);}
 }'''
 apis['com/shilapi/xcertplay/E01NativeSettings.java']='''package com.shilapi.xcertplay;public class E01NativeSettings{static Object singleton(String n){return null;}static Object call(Object o,String n,Object...args){return Boolean.TRUE;}static boolean musicVisible(android.content.Context c){return c.getSharedPreferences("06link_instrument",0).getBoolean("music_enabled",true);}}'''
 apis['com/shilapi/xcertplay/E01ClusterMode.java']='package com.shilapi.xcertplay;public class E01ClusterMode{public static void displayConfigured(String s){}}'
@@ -83,15 +91,15 @@ needed={
  'android/app/Presentation.java','android/app/ActivityThread.java','android/view/Display.java','android/content/Context.java','android/os/Build.java',
  'android/content/SharedPreferences.java','android/content/res/Configuration.java','android/content/res/Resources.java',
  'android/view/View.java','android/view/ViewGroup.java','android/view/ViewParent.java','android/view/SurfaceView.java','android/view/TextureView.java','android/widget/TextView.java','android/widget/FrameLayout.java',
- 'android/graphics/Point.java','android/graphics/Canvas.java','android/graphics/Path.java','android/graphics/Paint.java','android/graphics/Shader.java','android/graphics/LinearGradient.java',
+ 'android/graphics/PorterDuff.java','android/graphics/PorterDuffXfermode.java','android/graphics/Point.java','android/graphics/Canvas.java','android/graphics/Path.java','android/graphics/Paint.java','android/graphics/Shader.java','android/graphics/LinearGradient.java',
  'android/graphics/Bitmap.java','android/graphics/BitmapFactory.java','android/graphics/Rect.java','android/graphics/RectF.java','android/graphics/Typeface.java','android/graphics/Region.java','android/graphics/Color.java','android/graphics/DashPathEffect.java',
  'com/shilapi/xcertplay/E01MapOptions.java','com/shilapi/xcertplay/iap2/wire/Iap2Frame.java','kotlin/Pair.java','com/shilapi/xcertplay/airplay/AirPlayInsets.java','com/shilapi/xcertplay/airplay/AirPlayDisplayConfig.java','com/shilapi/xcertplay/E01NativeSettings.java','com/shilapi/xcertplay/E01ClusterMode.java'}
 jdk=find_java()['java_home']
-with tempfile.TemporaryDirectory(prefix='06link-mist-') as temporary:
+with tempfile.TemporaryDirectory(prefix='06link-night-') as temporary:
  tmp=Path(temporary);output=args.output.resolve() if args.output else tmp/'rendered';output.mkdir(parents=True,exist_ok=True)
  for name in needed:
   file=tmp/'src'/name;file.parent.mkdir(parents=True,exist_ok=True);file.write_text(apis[name])
- production=[ROOT/'src/e01/com/shilapi/xcertplay'/(n+'.java') for n in ['E01MapCard','E01DisplayConfig','E01MusicCard','E01Artwork','E01InstrumentStyle','E01MistInstrument','E01InstrumentPreview']]
+ production=[ROOT/'src/e01/com/shilapi/xcertplay'/(n+'.java') for n in ['E01MapCard','E01DisplayConfig','E01MusicCard','E01Artwork','E01InstrumentStyle','E01NightInstrument','E01InstrumentPreview']]
  probes=[HERE/'GeometryProbe.java',HERE/'RendererProbe.java',HERE/'InstallerProbe.java']+[ROOT/'scripts/validation/session_fixes_1_0_29'/(n+'.java') for n in ['MusicCardProbe','ArtworkProbe']]
  compile_result=subprocess.run([str(jdk/'bin/javac'),'--release','8','-d',str(tmp/'classes'),*map(str,sorted((tmp/'src').rglob('*.java'))),*map(str,production+probes)],capture_output=True,text=True)
  assert compile_result.returncode==0,compile_result.stderr

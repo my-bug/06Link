@@ -1,8 +1,8 @@
 {
   "schema": 3,
   "display_name": "06Link",
-  "version_name": "1.2.37",
-  "version_code": 142,
+  "version_name": "1.2.43",
+  "version_code": 148,
   "application_id": "com.sixlink.car",
   "architecture": "Source build: Java + Smali + XML/resources; native and crypto dependencies. No application APK or method-patch input.",
   "source_origin": {
@@ -24,7 +24,7 @@
       "com/shilapi/xcertplay/E01OemBluetooth": "classes2.dex",
       "com/shilapi/xcertplay/E01PrivilegedShell": "classes2.dex",
       "com/shilapi/xcertplay/E01ServiceAccessUi": "classes2.dex",
-      "com/shilapi/xcertplay/E01WiredUi": "classes.dex",
+      "com/shilapi/xcertplay/E01WiredUi": "classes2.dex",
       "com/shilapi/xcertplay/E01HotspotControl": "classes2.dex",
       "com/shilapi/xcertplay/E01WiredPort": "classes2.dex",
       "com/shilapi/xcertplay/E01WiredStartState": "classes2.dex",
@@ -42,7 +42,7 @@
       "com/shilapi/xcertplay/E01AudioSettings": "classes2.dex",
       "com/shilapi/xcertplay/E01BtPersistent": "classes2.dex",
       "com/shilapi/xcertplay/E01LogPolicy": "classes2.dex",
-      "com/shilapi/xcertplay/E01VideoEvidence": "classes.dex",
+      "com/shilapi/xcertplay/E01VideoEvidence": "classes2.dex",
       "com/shilapi/xcertplay/E01BtLegacyRelease": "classes2.dex",
       "com/shilapi/xcertplay/E01NativeUi": "classes2.dex",
       "com/shilapi/xcertplay/E01NativeSettings": "classes2.dex",
@@ -74,7 +74,6 @@
       "com/shilapi/xcertplay/E01AudioScene": "classes2.dex",
       "com/shilapi/xcertplay/E01AudioMixDiagnostic": "classes2.dex",
       "com/shilapi/xcertplay/E01InstrumentStyle": "classes2.dex",
-      "com/shilapi/xcertplay/E01MistInstrument": "classes2.dex",
       "com/shilapi/xcertplay/E01DisplayConfig": "classes2.dex",
       "com/shilapi/xcertplay/E01MusicCard": "classes2.dex",
       "com/shilapi/xcertplay/E01InstrumentPreview": "classes2.dex",
@@ -97,7 +96,11 @@
       "com/shilapi/xcertplay/E01MapZoom": "classes2.dex",
       "com/shilapi/xcertplay/E01BuildVariant": "classes.dex",
       "com/shilapi/xcertplay/E01FrameRatePolicy": "classes2.dex",
-      "com/shilapi/xcertplay/E01NavigationVoice": "classes2.dex"
+      "com/shilapi/xcertplay/E01NavigationVoice": "classes2.dex",
+      "com/shilapi/xcertplay/E01NightInstrument": "classes2.dex",
+      "com/shilapi/xcertplay/E01InstrumentTextColor": "classes2.dex",
+      "com/shilapi/xcertplay/E01MainStallEvidence": "classes2.dex",
+      "com/shilapi/xcertplay/E01ConnectionStageText": "classes2.dex"
     },
     "smali_roots": {
       "classes.dex": "src/core/smali/classes",

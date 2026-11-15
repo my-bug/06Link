@@ -4360,7 +4360,7 @@
     .line 2010
     iget-boolean v0, p0, Lcom/shilapi/xcertplay/orchestration/CarPlayController;->closed:Z
 
-    if-nez v0, :cond_2
+    if-nez v0, :cond_3
 
     iget-object v0, p0, Lcom/shilapi/xcertplay/orchestration/CarPlayController;->phase:Lcom/shilapi/xcertplay/orchestration/CarPlayController$Phase;
 
@@ -4372,6 +4372,12 @@
 
     .line 2011
     :cond_0
+    invoke-static {p0}, Lcom/shilapi/xcertplay/E01WiredPort;->controllerReady(Ljava/lang/Object;)Z
+
+    move-result v0
+
+    if-eqz v0, :cond_1
+
     iget-object v0, p0, Lcom/shilapi/xcertplay/orchestration/CarPlayController;->iphoneHost:Lcom/shilapi/xcertplay/transport/IphoneUsbHost;
 
     invoke-virtual {v0}, Lcom/shilapi/xcertplay/transport/IphoneUsbHost;->discover()Ljava/util/List;
@@ -4384,8 +4390,9 @@
 
     check-cast v0, Landroid/hardware/usb/UsbDevice;
 
-    if-nez v0, :cond_1
+    if-nez v0, :cond_2
 
+    :cond_1
     .line 2013
     sget-object v0, Lcom/shilapi/xcertplay/orchestration/CarPlayStatus$WaitingForIphone;->INSTANCE:Lcom/shilapi/xcertplay/orchestration/CarPlayStatus$WaitingForIphone;
 
@@ -4407,7 +4414,7 @@
     return-void
 
     .line 2017
-    :cond_1
+    :cond_2
     invoke-virtual {v0}, Landroid/hardware/usb/UsbDevice;->getVendorId()I
 
     move-result v1
@@ -4476,7 +4483,7 @@
     .line 2021
     invoke-direct {p0, v0}, Lcom/shilapi/xcertplay/orchestration/CarPlayController;->requestIphonePermission(Landroid/hardware/usb/UsbDevice;)V
 
-    :cond_2
+    :cond_3
     :goto_0
     return-void
 .end method
@@ -4630,6 +4637,8 @@
 
     .line 710
     :goto_1
+    invoke-static {p0}, Lcom/shilapi/xcertplay/E01WiredPort;->controllerClosed(Ljava/lang/Object;)V
+
     iget-object p0, p0, Lcom/shilapi/xcertplay/orchestration/CarPlayController;->teardownComplete:Ljava/util/concurrent/CountDownLatch;
 
     invoke-virtual {p0}, Ljava/util/concurrent/CountDownLatch;->countDown()V
@@ -4666,6 +4675,8 @@
 
     .line 710
     :goto_2
+    invoke-static {p0}, Lcom/shilapi/xcertplay/E01WiredPort;->controllerClosed(Ljava/lang/Object;)V
+
     iget-object p0, p0, Lcom/shilapi/xcertplay/orchestration/CarPlayController;->teardownComplete:Ljava/util/concurrent/CountDownLatch;
 
     invoke-virtual {p0}, Ljava/util/concurrent/CountDownLatch;->countDown()V
@@ -22821,6 +22832,21 @@
 
     :cond_1
     :try_start_1
+    iget-object v0, p0, Lcom/shilapi/xcertplay/orchestration/CarPlayController;->config:Lcom/shilapi/xcertplay/orchestration/CarPlayRuntimeConfig;
+
+    invoke-virtual {v0}, Lcom/shilapi/xcertplay/orchestration/CarPlayRuntimeConfig;->getTransport()Lcom/shilapi/xcertplay/orchestration/CarPlayTransport;
+
+    move-result-object v0
+
+    sget-object v1, Lcom/shilapi/xcertplay/orchestration/CarPlayTransport;->WIRED:Lcom/shilapi/xcertplay/orchestration/CarPlayTransport;
+
+    if-ne v0, v1, :cond_2
+
+    iget-object v0, p0, Lcom/shilapi/xcertplay/orchestration/CarPlayController;->appContext:Landroid/content/Context;
+
+    invoke-static {v0, p0}, Lcom/shilapi/xcertplay/E01WiredPort;->controllerStarted(Landroid/content/Context;Ljava/lang/Object;)V
+
+    :cond_2
     sget-object v0, Lkotlin/Unit;->INSTANCE:Lkotlin/Unit;
     :try_end_1
     .catchall {:try_start_1 .. :try_end_1} :catchall_0
@@ -22869,7 +22895,7 @@
 
     iget-object v0, p0, Lcom/shilapi/xcertplay/orchestration/CarPlayController;->videoListener:Lcom/shilapi/xcertplay/orchestration/CarPlayVideoListener;
 
-    if-eqz v0, :cond_2
+    if-eqz v0, :cond_3
 
     new-instance v1, Lcom/shilapi/xcertplay/orchestration/VideoInCarGate;
 
@@ -22889,7 +22915,7 @@
 
     iput-object v1, p0, Lcom/shilapi/xcertplay/orchestration/CarPlayController;->videoGate:Lcom/shilapi/xcertplay/orchestration/VideoInCarGate;
 
-    :cond_2
+    :cond_3
     invoke-direct {p0}, Lcom/shilapi/xcertplay/orchestration/CarPlayController;->startMfi()V
 
     return-void

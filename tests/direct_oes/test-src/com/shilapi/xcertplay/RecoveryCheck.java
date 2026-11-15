@@ -86,7 +86,7 @@ public final class RecoveryCheck {
   Throwable chain=failure;for(int i=0;i<20;i++)chain=new IllegalStateException("private",chain);
   ok(E01VideoEvidence.failureSummary(chain).length()<=480,"bounded causes and length");
   E01LogPolicy.messages.clear();state.reportAt=System.nanoTime()-11000000000L;E01SmoothVideo.report(state,System.nanoTime());
-  ok(E01LogPolicy.messages.size()==1&&E01LogPolicy.messages.get(0).contains("decodedFps=")&&E01LogPolicy.messages.get(0).contains("immediate="),"one compact rate summary");
+  ok(E01LogPolicy.messages.size()==1&&E01LogPolicy.messages.get(0).startsWith("VIDEO sample ")&&E01LogPolicy.messages.get(0).contains("submittedFps=")&&E01LogPolicy.messages.get(0).contains("decodedFps=")&&E01LogPolicy.messages.get(0).contains("releasedFps=")&&E01LogPolicy.messages.get(0).contains("recentQueueP90Ms="),"one compact rate summary");
   System.out.println("PASS "+checks+" recovery/timestamp/queue/logging checks (fake Android APIs, not physical FPS)");
  }
 }

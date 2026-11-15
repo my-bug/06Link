@@ -39,7 +39,7 @@ public class HorizonCheck{
   E01SmoothVideo.forget(codec);E01SmoothVideo.dequeueInput(codec);ok(codec.inputTimeout==10000L,"stale state removed");
   E01LogPolicy.messages.clear();s.reportAt=0;s.reports=0;s.reportOutput=s.outputCount;s.reportSubmitted=s.submitted;
   for(int i=1;i<=100;i++){s.submitted+=600;s.outputCount+=590;E01SmoothVideo.report(s,i*10000000000L);}
-  ok(E01LogPolicy.messages.size()==3,"bounded summary count");ok(E01LogPolicy.messages.get(0).contains("submittedFps=60.0"),"submit rate");ok(E01LogPolicy.messages.get(0).contains("releasedFps=59.0"),"release rate");
+  ok(E01LogPolicy.messages.size()==19,"three startup then one-minute summary count");ok(E01LogPolicy.messages.get(0).contains("submittedFps=60.0"),"submit rate");ok(E01LogPolicy.messages.get(0).contains("releasedFps=59.0"),"release rate");
   System.out.println("PASS "+checks+" horizon/routing/actual release/summary checks; fake codec, not physical FPS");
  }
 }

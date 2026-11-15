@@ -111,7 +111,7 @@
     "dex": "classes.dex",
     "class": "com/shilapi/xcertplay/CrashRecorder.smali",
     "method": "startMainWatch$lambda$21(Lcom/shilapi/xcertplay/CrashRecorder$MainStallWatch;Ljava/io/File;)V",
-    "sha256": "9adfa0c124c87a30f83285412080f5ff394f8af894b0da213f70ead834a0a30b"
+    "sha256": "f3a207d818c7a614e543037c2eaed4bf377ef49ab1cba523b629eeebad163672"
   },
   "log-budget-CrashRecorder-19": {
     "dex": "classes.dex",
@@ -129,7 +129,7 @@
     "dex": "classes.dex",
     "class": "com/shilapi/xcertplay/SessionLogFile.smali",
     "method": "reset(Ljava/lang/String;)V",
-    "sha256": "ef37a8ae8ae4ac729ad1aa24dfe2e4045c5a26c8a5700125f2cc0a515761348f"
+    "sha256": "b515eaba37161549b9c96d778ae7a04523d0a31a6b72e9e9420eecd2d5e15325"
   },
   "remove-legacy-goc-0": {
     "dex": "classes.dex",

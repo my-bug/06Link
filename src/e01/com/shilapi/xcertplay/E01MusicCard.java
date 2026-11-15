@@ -8,6 +8,10 @@ import android.graphics.RectF;
 import android.graphics.Path;
 import android.graphics.Paint;
 import android.graphics.Typeface;
+import android.graphics.LinearGradient;
+import android.graphics.Shader;
+import android.graphics.PorterDuff;
+import android.graphics.PorterDuffXfermode;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.FrameLayout;
@@ -39,12 +43,17 @@ public final class E01MusicCard extends View {
     private State rendered;
     private String headingText="音乐", titleText="暂无歌曲", titleSecond="", artistText="CarPlay 音乐";
     private float sx, sy;
-    private final boolean mist;
-    private boolean night=true;
-    private final android.content.SharedPreferences.OnSharedPreferenceChangeListener appearanceListener=new android.content.SharedPreferences.OnSharedPreferenceChangeListener(){public void onSharedPreferenceChanged(android.content.SharedPreferences p,String key){if("appearance_mode".equals(key)){updateInk();postInvalidate();}}};
+    private final boolean immersive;
+    private Bitmap preparedCover,preparedArtwork;
+    private final Rect preparedSource=new Rect();
+    private final RectF preparedBounds=new RectF();
+    private int coverWidth,coverHeight;
+    private final Paint albumFade=new Paint(3),albumShade=new Paint(3),albumBase=new Paint(3);
 
-    public E01MusicCard(Context context) {
-        super(context);mist=E01InstrumentStyle.mist(context); setFocusable(false);
+
+    public E01MusicCard(Context context) {this(context,E01InstrumentStyle.night(context));}
+    E01MusicCard(Context context,boolean nightStyle) {
+        super(context);immersive=nightStyle; setFocusable(false);
         heading.setColor(0xffe2edf7); titlePaint.setColor(0xffffffff); artistPaint.setColor(0xffe2edf7);
         heading.setTextAlign(Paint.Align.CENTER); titlePaint.setTextAlign(Paint.Align.CENTER);
         artistPaint.setTextAlign(Paint.Align.CENTER);
@@ -52,10 +61,10 @@ public final class E01MusicCard extends View {
         icon.setColor(0xfff0f7ff); stem.setColor(0xfff0f7ff);
     }
 
-    /** Mirror the existing x85/y202/270x306 speed panel in the 1920x720 reference space. */
+    /** Fixed music region below RPM: x1515/y185, clear of OEM route and footer. */
     void place(int width, int height) {
         float x=width/1920f, y=height/720f;
-        int w=Math.max(1,Math.round(370*x)), h=Math.max(1,Math.round((mist?380:340)*y));
+        int w=Math.max(1,Math.round(370*x)), h=Math.max(1,Math.round((immersive?380:340)*y));
         int left=Math.round(1515*x), top=Math.round(185*y);
         ViewGroup.LayoutParams old=getLayoutParams();
         if (old instanceof FrameLayout.LayoutParams) {
@@ -68,25 +77,32 @@ public final class E01MusicCard extends View {
 
     @Override protected void onAttachedToWindow() {
         super.onAttachedToWindow();
-        if(mist){getContext().getSharedPreferences("06link-native-ui",0).registerOnSharedPreferenceChangeListener(appearanceListener);updateInk();}
         synchronized (LOCK) { VIEWS.put(this,Boolean.TRUE); }
         postInvalidate();
     }
 
     @Override protected void onDetachedFromWindow() {
         synchronized (LOCK) { VIEWS.remove(this); }
-        if(mist)getContext().getSharedPreferences("06link-native-ui",0).unregisterOnSharedPreferenceChangeListener(appearanceListener);
+        preparedCover=null;preparedArtwork=null;
         super.onDetachedFromWindow();
     }
 
     @Override protected void onSizeChanged(int width,int height,int oldWidth,int oldHeight) {
         super.onSizeChanged(width,height,oldWidth,oldHeight);
-        if(mist){
+        if(immersive){
+            preparedCover=null;preparedArtwork=null;coverWidth=width;coverHeight=height;
+            preparedSource.set(0,0,width,height);preparedBounds.set(0,0,width,height);
             sx=width/370f;sy=height/380f;rendered=null;
-            heading.setTextSize(16*sy);titlePaint.setTextSize(22*sy);artistPaint.setTextSize(20*sy);
+            titlePaint.setTextSize(28*sy);artistPaint.setTextSize(24*sy);
             stem.setStrokeWidth(Math.max(1,5*Math.min(sx,sy)));
-            coverBounds.set(109*sx,38*sy,261*sx,190*sy);coverClip.reset();
-            coverClip.addRoundRect(coverBounds,24*sx,24*sy,Path.Direction.CW);return;
+            heading.setTextAlign(Paint.Align.LEFT);titlePaint.setTextAlign(Paint.Align.LEFT);artistPaint.setTextAlign(Paint.Align.LEFT);
+            heading.setColor(0xffd8e7f2);titlePaint.setColor(0xffffffff);artistPaint.setColor(0xffbdcbd5);
+            coverBounds.set(0,5*sy,370*sx,375*sy);coverClip.reset();
+            coverClip.addRoundRect(coverBounds,12*sx,12*sy,Path.Direction.CW);
+            albumBase.setColor(0xff173043);
+            albumShade.setShader(new LinearGradient(0,160*sy,0,375*sy,new int[]{0x00071522,0xe6071522},null,Shader.TileMode.CLAMP));
+            albumFade.setShader(new LinearGradient(0,0,112*sx,0,new int[]{0x00ffffff,0xffffffff},null,Shader.TileMode.CLAMP));
+            albumFade.setXfermode(new PorterDuffXfermode(PorterDuff.Mode.DST_IN));return;
         }
         sx=width/270f; sy=sx; // Uniform enlargement keeps covers square and fits 370x340 card.
         rendered=null;
@@ -94,18 +110,6 @@ public final class E01MusicCard extends View {
         stem.setStrokeWidth(Math.max(1,5*Math.min(sx,sy)));
         coverBounds.set(79*sx,52*sy,191*sx,164*sy);coverClip.reset();
         coverClip.addRoundRect(79*sx,52*sy,191*sx,164*sy,16*sx,16*sy,Path.Direction.CW);
-    }
-
-    private void updateInk(){
-        if(!mist)return;
-        try{night=(Boolean)E01NativeSettings.call(E01NativeSettings.singleton("Appearance"),"isDark",getContext(),java.util.Calendar.getInstance());}
-        catch(RuntimeException unavailable){night=(getResources().getConfiguration().uiMode&48)==32;}
-        int color=night?0xffffffff:0xff252c32;
-        heading.setColor(color);titlePaint.setColor(color);artistPaint.setColor(color);
-        // Icons and artwork retain their original colors in both text states.
-    }
-    @Override protected void onConfigurationChanged(android.content.res.Configuration configuration){
-        super.onConfigurationChanged(configuration);updateInk();invalidate();
     }
 
     /** Existing iAP2 subscription already asks for media group0 title1/artist12/artworkId26 and playback group1 status0.
@@ -198,8 +202,8 @@ public final class E01MusicCard extends View {
      * display it on two lines in the new style instead of inventing a second lyric protocol. */
     private void updateTitle(String value){
         titleSecond="";
-        if(!mist){titleText=fit(value,titlePaint,230*sx);return;}
-        float width=310*sx;
+        if(!immersive){titleText=fit(value,titlePaint,230*sx);return;}
+        float width=286*sx;
         int n=titlePaint.breakText(value,true,width,null);
         if(n>=value.length()){titleText=value;return;}
         if(n>0&&Character.isHighSurrogate(value.charAt(n-1)))n--;
@@ -215,10 +219,11 @@ public final class E01MusicCard extends View {
                 current.status==3?"正在快进":current.status==4?"正在快退":"音乐";
             String title=current.title.isEmpty()?(current.status==1?"等待歌曲信息":"暂无歌曲"):current.title;
             updateTitle(title);
-            artistText=fit(current.artist.isEmpty()?"CarPlay 音乐":current.artist,artistPaint,(mist?310:230)*sx);
+            artistText=fit(current.artist.isEmpty()?"CarPlay 音乐":current.artist,artistPaint,(immersive?286:230)*sx);
             rendered=current;
         }
-        canvas.drawText(headingText,(mist?185:135)*sx,(mist?16:39)*sy,heading);
+        if(immersive){drawImmersive(canvas,current);return;}
+        canvas.drawText(headingText,135*sx,39*sy,heading);
         if(current.artwork!=null) {
             int w=current.artwork.getWidth(),h=current.artwork.getHeight(),side=Math.min(w,h);
             coverSource.set((w-side)/2,(h-side)/2,(w+side)/2,(h+side)/2);
@@ -227,7 +232,6 @@ public final class E01MusicCard extends View {
         } else {
         // Preserve the note fallback without inventing progress or discarding retained artwork.
         int noteSave=canvas.save();
-        if(mist){canvas.translate(50*sx,25*sy);}
         canvas.drawLine(130*sx,62*sy,130*sx,129*sy,stem);
         canvas.drawLine(162*sx,53*sy,162*sx,119*sy,stem);
         canvas.drawLine(130*sx,62*sy,162*sx,53*sy,stem);
@@ -236,8 +240,44 @@ public final class E01MusicCard extends View {
         canvas.drawCircle(150*sx,119*sy,12*Math.min(sx,sy),icon);
         canvas.restoreToCount(noteSave);
         }
-        canvas.drawText(titleText,(mist?185:135)*sx,(mist?232:195)*sy,titlePaint);
-        if(mist&&!titleSecond.isEmpty())canvas.drawText(titleSecond,185*sx,260*sy,titlePaint);
-        canvas.drawText(artistText,(mist?185:135)*sx,(mist?305:235)*sy,artistPaint);
+        canvas.drawText(titleText,135*sx,195*sy,titlePaint);
+        canvas.drawText(artistText,135*sx,235*sy,artistPaint);
     }
+    void drawPreview(Canvas canvas){
+        updateTitle("沿着熟悉的街道慢慢向前");artistText=fit("歌曲名称 / 歌手",artistPaint,286*sx);
+        drawImmersive(canvas,PREVIEW);
+    }
+    private static final State PREVIEW=new State("","",-1,-1,null);
+
+    private void prepareCover(Bitmap artwork){
+        if(preparedCover!=null&&preparedArtwork==artwork)return;
+        if(coverWidth<=0||coverHeight<=0)return;
+        // Software composition avoids saveLayer/DST_IN on the E01 Android 5.1 GPU.
+        // Cache by image identity and size: lyric-only updates never recompose/upload artwork.
+        Bitmap result=Bitmap.createBitmap(coverWidth,coverHeight,Bitmap.Config.ARGB_8888);
+        Canvas canvas=new Canvas(result);
+        int saved=canvas.save();
+        canvas.clipPath(coverClip);canvas.drawRect(coverBounds,albumBase);
+        if(artwork!=null){
+            int w=artwork.getWidth(),h=artwork.getHeight(),side=Math.min(w,h);
+            coverSource.set((w-side)/2,(h-side)/2,(w+side)/2,(h+side)/2);
+            canvas.drawBitmap(artwork,coverSource,coverBounds,icon);
+        }else{
+            canvas.drawLine(222*sx,72*sy,222*sx,162*sy,stem);
+            canvas.drawLine(222*sx,72*sy,263*sx,60*sy,stem);
+            canvas.drawCircle(207*sx,162*sy,15*Math.min(sx,sy),icon);
+        }
+        canvas.drawRect(coverBounds,albumShade);canvas.drawRect(0,0,370*sx,380*sy,albumFade);
+        canvas.restoreToCount(saved);
+        preparedCover=result;preparedArtwork=artwork;
+    }
+
+    private void drawImmersive(Canvas canvas,State current){
+        prepareCover(current.artwork);
+        if(preparedCover!=null)canvas.drawBitmap(preparedCover,preparedSource,preparedBounds,icon);
+        canvas.drawText(titleText,64*sx,252*sy,titlePaint);
+        if(!titleSecond.isEmpty())canvas.drawText(titleSecond,64*sx,290*sy,titlePaint);
+        canvas.drawText(artistText,64*sx,342*sy,artistPaint);
+    }
+
 }

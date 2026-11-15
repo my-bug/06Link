@@ -23,7 +23,7 @@ public final class E01DisplayConfig {
         Pair<Integer,Integer> size = E01MapCard.streamSize(a.getWidthPixels(), a.getHeightPixels());
         int width = size.component1(), height = size.component2();
         double scale=E01MapCard.scaleFor(E01InstrumentStyle.selected());
-        int h = E01MapOptions.fullscreen()?99:E01InstrumentStyle.mist()?58:65; // 99 mm calibration scaled to the 66% card when DPI is unavailable.
+        int h = Math.max(1,(int)Math.round(99*scale)); // Same window scale for the calibrated fallback physical size.
         if (a.getHeightPhysicalMm() != null && a.getHeightPhysicalMm() > 0)
             h = Math.max(1, (int)Math.round(a.getHeightPhysicalMm() * 1.15 * scale));
         int w = Math.max(1, (int)Math.round(h * (double)width / height));
@@ -32,7 +32,7 @@ public final class E01DisplayConfig {
     }
     /** Keep negotiated geometry; large full-panel streams use a smaller secondary-only frame budget. */
     static int clusterFps(String style, int width, int height, int requested) {
-        if ("full".equals(style) && width > 0 && height > 0
+        if (E01InstrumentStyle.fullscreen(style) && width > 0 && height > 0
             && (long)width * height > 1280L * 480L && requested > 15) return 15;
         return requested;
     }
