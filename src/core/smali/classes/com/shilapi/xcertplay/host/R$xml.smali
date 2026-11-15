@@ -20,8 +20,6 @@
 
 .field public static locales_config:I = 0x7f0f0003
 
-.field public static update_file_paths:I = 0x7f0f0004
-
 .field public static usb_device_filter:I = 0x7f0f0005
 
 

@@ -3,7 +3,7 @@ package com.shilapi.xcertplay;
 import android.content.Context;
 import android.os.Build;
 
-/** Identification-time lane metadata opt-in; no renderer, subscription or OEM writes. */
+/** Identification capability and actual route subscription observations; no OEM writes. */
 public final class E01LaneCapability {
     public static final int DESCRIPTION_CAPACITY = 64;
     public static final int EVENT_CAPACITY = 1;
@@ -11,6 +11,14 @@ public final class E01LaneCapability {
     private static final ThreadLocal<Pending> pending = new ThreadLocal<Pending>();
     private static long generation;
     private static volatile Declaration lastBuilt = new Declaration(false, 0, "not-built");
+    private static volatile Subscription lastSent;
+    private static final class Subscription {
+        final long generation;
+        final int component, tags;
+        Subscription(long generation, int component, int tags) {
+            this.generation = generation; this.component = component; this.tags = tags;
+        }
+    }
 
     private static final class Pending {
         final boolean enabled;
@@ -56,6 +64,7 @@ public final class E01LaneCapability {
         pending.set(new Pending(enabled, next));
         // An early route callback during this handshake must not inherit the previous link.
         lastBuilt = new Declaration(false, next, "building");
+        lastSent = null;
     }
 
     /** Called after the existing GPS additions, before the existing wireless additions. */
@@ -96,6 +105,25 @@ public final class E01LaneCapability {
 
     static Declaration declaration() { return lastBuilt; }
 
+    /** Called only after the common iAP2 channel send has returned successfully. Not a phone ACK. */
+    public static synchronized void subscriptionSent(int id, byte[] data) {
+        if (id != 0x5200 || data == null || data.length > 8192) return;
+        int component = -1, tags = 0;
+        for (int p = 0; p < data.length;) {
+            if (data.length - p < 4) return;
+            int size = ((data[p] & 255) << 8) | (data[p + 1] & 255);
+            int tag = ((data[p + 2] & 255) << 8) | (data[p + 3] & 255);
+            if (size < 4 || size > data.length - p) return;
+            if (tag == 0) {
+                if (size != 6 || component != -1) return;
+                component = ((data[p + 4] & 255) << 8) | (data[p + 5] & 255);
+            }
+            if (tag < 4) tags |= 1 << tag;
+            p += size;
+        }
+        if (component == 42) lastSent = new Subscription(lastBuilt.generation, component, tags);
+    }
+
     /** Settings toggles after identification must not rewrite the recorded capability. */
     static E01LaneDiagnostic newDiagnostic() {
         E01LaneDiagnostic diagnostic = new E01LaneDiagnostic(false, 0, 0);
@@ -110,5 +138,8 @@ public final class E01LaneCapability {
         diagnostic.setCapability(declaration.advertised,
             declaration.advertised ? DESCRIPTION_CAPACITY : 0,
             declaration.advertised ? EVENT_CAPACITY : 0, declaration.source, declaration.generation);
+        Subscription subscription = lastSent;
+        boolean sent = subscription != null && subscription.generation == declaration.generation;
+        diagnostic.setSubscription(sent, sent ? subscription.component : -1, sent ? subscription.tags : 0);
     }
 }

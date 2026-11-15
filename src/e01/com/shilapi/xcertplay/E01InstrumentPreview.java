@@ -49,11 +49,12 @@ public final class E01InstrumentPreview extends View {
 
     public void setStyle(String value){
         style=E01InstrumentStyle.normalize(value);
+        nightOverlay.setStyle(style);previewMusic.setPaletteStyle(style);previewMusic.setBackdrop(nightOverlay.backdrop());
         int[] bounds=E01MapCard.boundsFor(WIDTH,HEIGHT,style);
         map.set(bounds[0],bounds[1],bounds[0]+bounds[2],bounds[1]+bounds[3]);
-        mapClip.reset();float radius=E01InstrumentStyle.fullscreen(style)||E01InstrumentStyle.isNight(style)?0:40;
+        mapClip.reset();float radius=E01InstrumentStyle.fullscreen(style)||E01InstrumentStyle.isImmersive(style)?0:40;
         mapClip.addRoundRect(map,radius,radius,Path.Direction.CW);
-        setContentDescription(("night".equals(style)?"夜航仪表":"full".equals(style)?"全屏地图":"信息卡片")
+        setContentDescription(E01InstrumentStyle.label(style)
             +"预览，地图、读数和音乐仅为示意，原厂导航卡片仅预留位置");invalidate();
     }
 
@@ -78,7 +79,7 @@ public final class E01InstrumentPreview extends View {
         if(scale<=0)return;
         canvas.save();canvas.translate((getWidth()-WIDTH*scale)/2,(getHeight()-HEIGHT*scale)/2);canvas.scale(scale,scale);
         canvas.clipRect(0,0,WIDTH,HEIGHT);
-        boolean modern="night".equals(style),full="full".equals(style);
+        boolean modern=E01InstrumentStyle.isImmersive(style),full="full".equals(style);
         if(!modern&&!full){fill(Color.WHITE);paint.setShader(legacyBackground);canvas.drawRect(0,0,WIDTH,HEIGHT,paint);paint.setShader(null);}
         drawMap(canvas);
         if(modern)nightOverlay.draw(canvas,music);else drawLegacyPanels(canvas,full);
@@ -89,14 +90,14 @@ public final class E01InstrumentPreview extends View {
 
     private void drawMap(Canvas canvas){
         canvas.save();canvas.clipPath(mapClip);canvas.translate(map.left,map.top);canvas.scale(map.width()/1120f,map.height()/420f);
-        // One neutral sample map remains the same in both text modes; phone map appearance is independent.
-        boolean immersive="night".equals(style);
-        fill(immersive?0xff0d2435:0xffe1ece7);canvas.drawRect(0,0,1120,420,paint);
-        fill(immersive?0xff1c3c51:0xffc9ded1);
+        // Illustrative day/night maps only; the live map remains controlled by the phone.
+        boolean immersive=night;
+        fill(immersive?0xff151e29:0xffe8ebe7);canvas.drawRect(0,0,1120,420,paint);
+        fill(immersive?0xff202d38:0xffd3e1cf);
         for(int row=0;row<3;row++)for(int col=0;col<6;col++){
             float x=col*210-12,y=row*160-34;canvas.drawRoundRect(x,y,x+166,y+122,15,15,paint);
         }
-        stroke(immersive?0xff49687b:0xfff9fcf6,18);canvas.drawPath(roads,paint);
+        stroke(immersive?0xff46515c:0xffb9c4cd,18);canvas.drawPath(roads,paint);
         stroke(0xffffffff,30);canvas.drawPath(route,paint);stroke(0xff117ab2,18);canvas.drawPath(route,paint);stroke(0xff24bbd3,11);canvas.drawPath(route,paint);
         fill(Color.WHITE);canvas.drawPath(arrow,paint);stroke(0xff117ab2,3);canvas.drawPath(arrow,paint);
         label(canvas,"地图示意",990,383,24,immersive?0xff9cb9c9:0xff627c77);canvas.restore();
@@ -120,7 +121,7 @@ public final class E01InstrumentPreview extends View {
 
     private void drawOemPlaceholders(Canvas canvas){
         String color=preferences.getString("text_color","auto");
-        boolean lightText="light".equals(color)||(!"dark".equals(color)&&(night||"night".equals(style)));
+        boolean lightText="light".equals(color)||(!"dark".equals(color)&&(night||E01InstrumentStyle.isImmersive(style)));
         int text=lightText?0xfff7fbff:0xff252c32;
         label(canvas,"舒适",690,62,30,text);label(canvas,"--°C",888,62,30,text);
         label(canvas,"D",960,62,35,text);label(canvas,"--:--",1058,62,31,text);

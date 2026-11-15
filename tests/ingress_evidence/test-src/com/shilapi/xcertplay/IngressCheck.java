@@ -67,6 +67,27 @@ public final class IngressCheck {
   ok(summaries==120,"two hours produces 120 summaries, never per packet");
   E01IngressEvidence peer=new E01IngressEvidence(88,base+500000000L,base);ok(peer.reportIfDue(base+10500000000L).contains("winMs=500..10500"),"different sockets use same event epoch");
  }
+ static void pairedSummary()throws Exception{
+  long b=1000000000L;E01IngressEvidence e=new E01IngressEvidence(91,b,b);
+  e.sourceRead(b,b+140000000L,1440);e.sourceRead(b+200000000L,b+210000000L,8000);
+  e.packet(0,b,10,b+1000000000L);
+  e.packet(0,b+33000000L,10,b+1130000000L);
+  e.packet(1,0,10,b+1140000000L);
+  e.packet(0,b+99000000L,10,b+1190000000L);
+  e.packet(0,b+115000000L,10,b+1210000000L);
+  e.reportIfDue(b+60000000000L);
+  E01IngressEvidence.Summary snap=(E01IngressEvidence.Summary)object(e,"summary");
+  final java.util.concurrent.atomic.AtomicReference<String> formatted=new java.util.concurrent.atomic.AtomicReference<String>();
+  synchronized(e){Thread t=new Thread(()->formatted.set(snap.format()));t.start();t.join(2000);ok(!t.isAlive(),"minute summary formatting does not acquire ingress lock");}
+  String value=e.takeSummary();ok(value.equals(formatted.get()),"published minute summary uses stable captured window");
+  ok(value.contains("arrivalMaxMs=130")&&value.contains("senderStepMaxMs=66")&&value.contains("senderAtGapMs=33"),"largest arrival pairs with its own sender delta, not independent maximum");
+  ok(value.contains("gapsOver50=2")&&value.contains("gapsOver100=1"),"threshold counts ignore config and distinguish frequency from one maximum");
+  ok(value.contains("readMaxMs=140")&&value.contains("readMaxBytes=1440"),"slowest read preserves its returned byte count");
+  e.reportIfDue(b+120000000000L);value=e.takeSummary();
+  ok(value.contains("frames=0")&&value.contains("senderAtGapMs=-1")&&value.contains("gapsOver50=0")&&value.contains("readMaxBytes=0"),"new window resets correlation and counters without inventing a frame");
+  e.packet(0,0,10,b+121000000000L);e.reportIfDue(b+180000000000L);
+  ok(e.takeSummary().contains("senderAtGapMs=-1"),"missing sender timestamps remain unknown at a large arrival gap");
+ }
  static void byteEquality()throws Exception{
   byte[] expected=new byte[131173];new Random(912).nextBytes(expected);
   for(int capacity:new int[]{1,7,32768}){
@@ -93,5 +114,5 @@ public final class IngressCheck {
   android.util.Log.forbiddenRing=logs;android.util.Log.forbiddenStats=logs.evidence;E01VideoIngress.message(logs,0,100,50);ok(android.util.Log.lines.size()==1&&android.util.Log.lines.get(0).startsWith("06Link-Ingress ingress"),"only consumer message hook logs, outside both locks");
   E01VideoIngress.message(new ByteArrayInputStream(new byte[0]),0,100,50);ok(android.util.Log.lines.size()==1,"foreign stream ignored");set(logs.evidence,"window",System.nanoTime()-11000000000L);android.util.Log.fail=true;E01VideoIngress.message(logs,0,101,50);ok(true,"logging failure does not interrupt media");android.util.Log.fail=false;logs.close();
  }
- public static void main(String[] args)throws Exception{workerPriority();timing();byteEquality();waitsAndErrors();closeAndLogs();System.out.println("PASS "+checks+" ingress evidence priority/denial/caller-isolation/timing/quotas/type/byte-order/wrap/EOF/error/wait/close/log-lock checks (fake Android, no vehicle)");}
+ public static void main(String[] args)throws Exception{workerPriority();timing();pairedSummary();byteEquality();waitsAndErrors();closeAndLogs();System.out.println("PASS "+checks+" ingress evidence priority/denial/caller-isolation/timing/quotas/type/byte-order/wrap/EOF/error/wait/close/log-lock checks (fake Android, no vehicle)");}
 }

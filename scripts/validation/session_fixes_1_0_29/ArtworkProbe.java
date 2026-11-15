@@ -40,7 +40,7 @@ public final class ArtworkProbe {
   MusicCardProbe.send(tlv(0,tlv(26,new byte[]{7})));image(7,blue);
   MusicCardProbe.send(tlv(0,str(1,"蓝色封面")));
   ok(state().artwork!=null,"initial title delta retains previously announced artwork ID");
-  Bitmap first=state().artwork;ok(first!=null&&first.getWidth()==200&&first.getHeight()==150,"decode downsampled to <=256px off the link thread");
+  Bitmap first=state().artwork;ok(first!=null&&first.getWidth()==800&&first.getHeight()==600,"decode preserves enough real pixels for the 370px square crop off the link thread");
   E01MusicCard view=new E01MusicCard(new Context());view.onAttachedToWindow();view.onSizeChanged(270,306,0,0);
   Canvas rendered=new Canvas(270,306);view.onDraw(rendered);
   ok((rendered.image.getRGB(135,108)&0xffffff)==0x227eea,"actual decoded album image replaces symbol");
@@ -74,6 +74,10 @@ public final class ArtworkProbe {
   ok(state()==previous,"wrong artwork-ID width is rejected atomically");
   Bitmap validCover=state().artwork;image(8,picture(9000,1,0x115577));ok(state().artwork==validCover,"invalid replacement dimensions retain last valid image");
   image(8,new byte[]{0,1,2,3});ok(state().artwork==validCover,"corrupt replacement cannot clear a valid displayed image");
+  image(8,picture(2048,2048,0x115577));
+  ok(state().artwork.getWidth()==512&&state().artwork.getHeight()==512,"large square retains display detail without full-resolution allocation");
+  image(8,picture(8192,1,0x115577));
+  ok(state().artwork.getWidth()<=1024&&state().artwork.getHeight()==1,"extreme aspect ratio remains bounded by longest edge");
   reply(setup(1,E01Artwork.MAX_BYTES+1L,2),1,6,"oversized image rejected before allocation");
   reply(setup(1,-1L,2),1,6,"unsigned size overflow rejected");
   reply(setup(1,100,1),1,6,"unsupported file type rejected");

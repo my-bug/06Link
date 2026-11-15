@@ -53,7 +53,7 @@ public final class E01NativeSettings {
         case "phone":return E01OemBluetooth.selectedPhoneName(host);
         case "ssid":String ssid=E01HotspotSettings.customName(host);if(ssid!=null)return ssid;call(singleton("AirPlayPersistence"),"syncManualHotspotFromSystem",host);ssid=String.valueOf(load("ManualHotspotSsid"));return ssid.isEmpty()?String.valueOf(call(singleton("network.FreeAutoHotspotName"),"name",host,"")):ssid;
         case "password":String pass=host.getSharedPreferences("free_auto_hotspot_name",0).getString("password",null);return pass!=null?pass:load("ManualHotspotPassphrase").toString();
-        case "layout":String layout=E01InstrumentStyle.selected(host);return "night".equals(layout)?"夜航仪表":"full".equals(layout)?"全屏地图":"信息卡片";
+        case "layout":return E01InstrumentStyle.label(E01InstrumentStyle.selected(host));
         case "text_color":return E01InstrumentTextColor.label(host);
         case "map_size":int scale=(Integer)load("ClusterMapScalePercent");return scale==100?"标准":scale==83?"较大":scale==67?"最大":scale+"%";
         case "fps":if(force60(host))return "强制 60 帧";return (Boolean)load("FpsAuto")?"自动 · 30 帧":load("Fps")+" 帧";
@@ -81,7 +81,7 @@ public final class E01NativeSettings {
         case "tracks":ok=E01WheelKeys.setEnabled(host,(Boolean)v);break;
         case "play":ok=E01WheelKeys.setPlayPauseEnabled(host,(Boolean)v);break;
         case "siri":ok=E01SiriKey.setEnabled(host,(Boolean)v);break;
-        case "layout":ok=instrument().edit().putString("layout",v.equals("夜航仪表")?"night":v.equals("全屏地图")?"full":"card").commit();break;
+        case "layout":ok=instrument().edit().putString("layout",E01InstrumentStyle.fromLabel(String.valueOf(v))).commit();break;
         case "text_color":ok=E01InstrumentTextColor.save(host,(String)v);break;
         case "map_size":save("ClusterMapScalePercent",v.equals("标准")?100:v.equals("较大")?83:67);break;
         case "quality":save("DisplayScaleTenths",v.equals("原始分辨率")?10:v.equals("均衡")?8:6);break;

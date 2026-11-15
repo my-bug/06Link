@@ -63,6 +63,11 @@ apis['android/graphics/DashPathEffect.java']='package android.graphics;public cl
 apis['android/graphics/Region.java']='package android.graphics;public class Region{public enum Op{DIFFERENCE}}'
 apis['android/graphics/Typeface.java']='package android.graphics;public class Typeface{public static final int NORMAL=0;public static Typeface create(String name,int style){return new Typeface();}}'
 extend('android/graphics/Bitmap.java','public enum Config{ARGB_8888}public static Bitmap createBitmap(int w,int h,Config c){return new Bitmap(new java.awt.image.BufferedImage(w,h,java.awt.image.BufferedImage.TYPE_INT_ARGB));}')
+extend('android/graphics/Bitmap.java',"public void getPixels(int[] p,int o,int stride,int x,int y,int w,int h){image.getRGB(x,y,w,h,p,o,stride);}public void setPixels(int[] p,int o,int stride,int x,int y,int w,int h){image.setRGB(x,y,w,h,p,o,stride);}")
+apis['android/graphics/BitmapFactory.java']=apis['android/graphics/BitmapFactory.java'].replace('public boolean inJustDecodeBounds,inScaled;', 'public boolean inJustDecodeBounds,inScaled;public Bitmap.Config inPreferredConfig;')
+apis['android/view/Window.java']='package android.view;public class Window{public int format;public void setFormat(int value){format=value;}}'
+apis['android/graphics/PixelFormat.java']='package android.graphics;public class PixelFormat{public static final int RGBA_8888=1;}'
+extend('android/app/Presentation.java','private final android.view.Window window=new android.view.Window();public android.view.Window getWindow(){return window;}')
 apis['android/graphics/Canvas.java']='''package android.graphics;import java.awt.*;import java.awt.geom.*;import java.awt.image.*;import java.util.*;
 public class Canvas{
  public static final class TextDraw{public final String text;public final float x,y,size;public TextDraw(String text,float x,float y,float size){this.text=text;this.x=x;this.y=y;this.size=size;}}
@@ -91,7 +96,7 @@ needed={
  'android/app/Presentation.java','android/app/ActivityThread.java','android/view/Display.java','android/content/Context.java','android/os/Build.java',
  'android/content/SharedPreferences.java','android/content/res/Configuration.java','android/content/res/Resources.java',
  'android/view/View.java','android/view/ViewGroup.java','android/view/ViewParent.java','android/view/SurfaceView.java','android/view/TextureView.java','android/widget/TextView.java','android/widget/FrameLayout.java',
- 'android/graphics/PorterDuff.java','android/graphics/PorterDuffXfermode.java','android/graphics/Point.java','android/graphics/Canvas.java','android/graphics/Path.java','android/graphics/Paint.java','android/graphics/Shader.java','android/graphics/LinearGradient.java',
+ 'android/view/Window.java','android/graphics/PixelFormat.java','android/graphics/PorterDuff.java','android/graphics/PorterDuffXfermode.java','android/graphics/Point.java','android/graphics/Canvas.java','android/graphics/Path.java','android/graphics/Paint.java','android/graphics/Shader.java','android/graphics/LinearGradient.java',
  'android/graphics/Bitmap.java','android/graphics/BitmapFactory.java','android/graphics/Rect.java','android/graphics/RectF.java','android/graphics/Typeface.java','android/graphics/Region.java','android/graphics/Color.java','android/graphics/DashPathEffect.java',
  'com/shilapi/xcertplay/E01MapOptions.java','com/shilapi/xcertplay/iap2/wire/Iap2Frame.java','kotlin/Pair.java','com/shilapi/xcertplay/airplay/AirPlayInsets.java','com/shilapi/xcertplay/airplay/AirPlayDisplayConfig.java','com/shilapi/xcertplay/E01NativeSettings.java','com/shilapi/xcertplay/E01ClusterMode.java'}
 jdk=find_java()['java_home']
@@ -99,11 +104,11 @@ with tempfile.TemporaryDirectory(prefix='06link-night-') as temporary:
  tmp=Path(temporary);output=args.output.resolve() if args.output else tmp/'rendered';output.mkdir(parents=True,exist_ok=True)
  for name in needed:
   file=tmp/'src'/name;file.parent.mkdir(parents=True,exist_ok=True);file.write_text(apis[name])
- production=[ROOT/'src/e01/com/shilapi/xcertplay'/(n+'.java') for n in ['E01MapCard','E01DisplayConfig','E01MusicCard','E01Artwork','E01InstrumentStyle','E01NightInstrument','E01InstrumentPreview']]
- probes=[HERE/'GeometryProbe.java',HERE/'RendererProbe.java',HERE/'InstallerProbe.java']+[ROOT/'scripts/validation/session_fixes_1_0_29'/(n+'.java') for n in ['MusicCardProbe','ArtworkProbe']]
+ production=[ROOT/'src/e01/com/shilapi/xcertplay'/(n+'.java') for n in ['E01MapCard','E01DisplayConfig','E01MusicCard','E01Artwork','E01InstrumentStyle','E01NightInstrument','E01InstrumentFeather','E01InstrumentPrecision','E01SportInstrument','E01InstrumentPreview']]
+ probes=[HERE/'GeometryProbe.java',HERE/'RendererProbe.java',HERE/'InstallerProbe.java',HERE/'FeatherProbe.java',HERE/'ReliefProbe.java',HERE/'SportProbe.java',HERE/'PrecisionProbe.java']+[ROOT/'scripts/validation/session_fixes_1_0_29'/(n+'.java') for n in ['MusicCardProbe','ArtworkProbe']]
  compile_result=subprocess.run([str(jdk/'bin/javac'),'--release','8','-d',str(tmp/'classes'),*map(str,sorted((tmp/'src').rglob('*.java'))),*map(str,production+probes)],capture_output=True,text=True)
  assert compile_result.returncode==0,compile_result.stderr
- for name in ['GeometryProbe','RendererProbe','InstallerProbe','MusicCardProbe','ArtworkProbe']:
+ for name in ['GeometryProbe','RendererProbe','InstallerProbe','MusicCardProbe','ArtworkProbe','FeatherProbe','ReliefProbe','SportProbe','PrecisionProbe']:
   target=output if name=='RendererProbe' else output/(name+'.png')
   result=subprocess.run([str(jdk/'bin/java'),'-Djava.awt.headless=true','-cp',str(tmp/'classes'),'com.shilapi.xcertplay.'+name,str(target)],capture_output=True,text=True,timeout=30)
   print(result.stdout,end='');assert result.returncode==0,result.stderr

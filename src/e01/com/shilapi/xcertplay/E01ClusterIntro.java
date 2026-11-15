@@ -110,7 +110,7 @@ public final class E01ClusterIntro {
         Overlay(Presentation owner,Point size){
             super(owner.getContext());this.owner=new WeakReference<Presentation>(owner);
             style=E01InstrumentStyle.selected(getContext());
-            full=E01InstrumentStyle.fullscreen(style);night="night".equals(style);mapRadius=full||night?0:40;
+            full=E01InstrumentStyle.fullscreen(style);night=E01InstrumentStyle.isImmersive(style);mapRadius=full||night?0:40;
             // Keep all photo-calibrated OEM regions and the music card outside the animation.
             introClip.addRect(405,190,1515,597,Path.Direction.CW);
             setFocusable(false);setClickable(false);setImportantForAccessibility(2);setVisibility(GONE);
@@ -173,7 +173,7 @@ public final class E01ClusterIntro {
         static float ease(float x){return 1-(float)Math.pow(1-Math.max(0,Math.min(1,x)),3);}
         void background(Canvas c){
             p.setStyle(Paint.Style.FILL);p.setAlpha(255);
-            if(night){p.setShader(null);p.setColor(0xff071522);c.drawRect(map,p);return;}
+            if(night){p.setShader(null);p.setColor(E01InstrumentStyle.background(style));c.drawRect(map,p);return;}
             p.setShader(backdrop);c.drawRect(0,0,1920,720,p);p.setShader(null);p.setColor(0x255fffe1);c.drawPath(wave,p);
         }
         @Override protected void onDraw(Canvas c){

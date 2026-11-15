@@ -216,7 +216,7 @@ public final class E01NativeUi extends android.view.ContextThemeWrapper {
         section("卡片与过场",null);g=group();valueRow(g,"原厂路口提示","原厂样式，预览仅保留位置","随导航更新",null);toggle(g,"音乐卡片","music",true,null);toggle(g,"仪表过场动画","intro",false,"关闭立即生效，下次连接播放");
     }
     private void instrumentPreview(){
-        LinearLayout body=column();final String[] names={"信息卡片","全屏地图","夜航仪表"},styles={"card","full","night"};
+        LinearLayout body=column();final String[] names={"信息卡片","全屏地图","石墨仪表","浮影仪表","竞速仪表"},styles={"card","full","night","relief","sport"};
         final String[] selected={E01InstrumentStyle.selected(host)};
         final E01InstrumentPreview preview=new E01InstrumentPreview(this,dark);
         LinearLayout choices=row();final TextView[] options=new TextView[names.length];
@@ -227,13 +227,13 @@ public final class E01NativeUi extends android.view.ContextThemeWrapper {
         int previewWidth=Math.min(dp(920),getResources().getDisplayMetrics().widthPixels-dp(40))-dp(44);
         int previewHeight=Math.min(Math.round(previewWidth*3f/8f),Math.max(dp(90),getResources().getDisplayMetrics().heightPixels-dp(218)));
         body.addView(preview,new LinearLayout.LayoutParams(-1,previewHeight));gap(body,12);
-        LinearLayout modes=row();modes.addView(text("文字预览",13,muted,false),new LinearLayout.LayoutParams(0,-2,1));
+        LinearLayout modes=row();modes.addView(text("日夜预览",13,muted,false),new LinearLayout.LayoutParams(0,-2,1));
         final TextView[] theme=new TextView[2];final boolean[] night={dark};
         Runnable updateTheme=()->{for(int i=0;i<theme.length;i++){boolean active=night[0]==(i==1);theme[i].setSelected(active);theme[i].setTextColor(active?accent:ink);touch(theme[i],active?tint:control,9);}preview.setNight(night[0]);};
         theme[0]=button("白天",false,()->{night[0]=false;updateTheme.run();});theme[1]=button("夜间",false,()->{night[0]=true;updateTheme.run();});
         modes.addView(theme[0],lp(-2,48));horizontalGap(modes,8);modes.addView(theme[1],lp(-2,48));body.addView(modes,lp(-1,48));gap(body,12);
         body.addView(text("地图、车辆读数和音乐仅作位置示意。原厂导航卡片保留原样，不能在此定制。",12,muted,false));gap(body,6);
-        body.addView(text("仅模拟文字颜色，原厂信息由车机控制。",12,muted,false));update.run();updateTheme.run();
+        body.addView(text("日夜地图仅为预览，实际跟随手机导航；原厂信息由车机控制。",12,muted,false));update.run();updateTheme.run();
         showDialog("仪表样式预览",body,"取消",null,"应用样式",()->{for(int i=0;i<styles.length;i++)if(styles[i].equals(selected[0])){store("layout",names[i]);notice=selectionNotice("layout",names[i]);refresh();break;}},true);
     }
     private void displaySettings(){section("CarPlay 画面","更改画面参数后，需要重新连接。");LinearLayout g=group();valueRow(g,"帧率",getValue("fps", "自动 · 30 帧").equals("强制 60 帧")?"不自动降帧":getValue("fps", "自动 · 30 帧").equals("60 帧")?"每次连接尝试 60 帧，异常时仅本次降帧":null,getValue("fps","自动 · 30 帧"),()->frameRate());choice(g,"画质","quality","原始分辨率",new String[]{"原始分辨率","均衡","低负载"},null);choice(g,"界面大小","size","标准",new String[]{"较小","标准","较大"},null);section("视频优化",null);g=group();toggle(g,"流畅视频","smooth",true,"调整后重连生效");toggle(g,"MTK 低延迟","mtk",true,"自动检查视频参数，重连后生效");if(E01PrivilegedShell.supported())toggle(g,"中控 60Hz 输出","display60",true,"配合流畅视频及60帧，退出画面后恢复");section("外观",null);g=group();valueRow(g,"日夜模式",null,getValue("appearance","跟随系统"),()->appearance());section("更多",null);g=group();valueRow(g,"更多显示设置",null,"",()->navigate("display-more"));}

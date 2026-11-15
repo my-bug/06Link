@@ -57,12 +57,24 @@ public final class LaneCapabilityTest {
         E01LaneCapability.refreshDiagnostic(early);
         check(early.poll(60001,false)==null,"no extra logging during same minute");
         check(E01LaneCapability.declaration().advertised,"later setting off does not falsify sent body");
+        byte[] subscription={0,6,0,0,0,42,0,4,0,1,0,4,0,2};
+        E01LaneCapability.subscriptionSent(0x5201,subscription);
+        E01LaneCapability.subscriptionSent(0x5200,null);
+        E01LaneCapability.subscriptionSent(0x5200,new byte[]{0,6,0,0,0,42,0});
+        E01LaneCapability.subscriptionSent(0x5200,new byte[]{0,6,0,0,0,99});
+        check(E01LaneCapability.newDiagnostic().poll(0,false)[0].contains("subscribe=未观测"),"only well-framed current-component 5200 can record a subscription");
+        E01LaneCapability.subscriptionSent(0x5200,subscription);
+        String sent=E01LaneCapability.newDiagnostic().poll(0,false)[0];
+        check(sent.contains("subscribe=sent subComponent=42 subTags=7"),"real component and sent request fields recorded");
+        E01LaneCapability.subscriptionSent(0x5200,new byte[]{0,6,0,0,0,42,0,3,0,1});
+        check(E01LaneCapability.newDiagnostic().poll(0,false)[0].contains("subscribe=sent"),"malformed later body does not invent a replacement");
         E01LaneDiagnostic ended=E01LaneCapability.newDiagnostic();
         check(ended.poll(60000,true)[0].contains("cap5204=true"),"end snapshot captured");
 
         E01LaneCapability.beginIdentification(); // The setting is now off.
         check(!E01LaneCapability.declaration().advertised,"new identity clears previous link capability");
         check("building".equals(E01LaneCapability.declaration().source),"new incomplete identity visible");
+        check(E01LaneCapability.newDiagnostic().poll(0,false)[0].contains("subscribe=未观测"),"new handshake cannot inherit old subscription");
         check(E01LaneCapability.messagesReceived(BASE)==BASE,"off link baseline");
         finish(false);
         E01LaneCapability.refreshDiagnostic(ended);

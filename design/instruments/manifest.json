@@ -1,0 +1,70 @@
+{
+  "styles": [
+    {
+      "name": "石墨仪表",
+      "style_key": "night",
+      "reference_version": "1.2.46",
+      "files": [
+        {
+          "path": "graphite/concept.png",
+          "sha256": "4767b89abfe42f793e056211ae5c7f03413ab4090d743817e168f1aea8847c62",
+          "bytes": 1605413
+        },
+        {
+          "path": "graphite/preview-day.png",
+          "sha256": "e18e5e350b2d2309f440adcc3b4342d88cd0a83560e11504953794249429b26c",
+          "bytes": 256134
+        },
+        {
+          "path": "graphite/preview-night.png",
+          "sha256": "3138f20f3a3ad2de8518756df0ef4d52c413b183093f41c284a68bea4eda2f8f",
+          "bytes": 240044
+        }
+      ]
+    },
+    {
+      "name": "浮影仪表",
+      "style_key": "relief",
+      "reference_version": "1.2.46",
+      "files": [
+        {
+          "path": "relief/concept.png",
+          "sha256": "4783cbe5a8c6a9a453653ecbe9ce60e3a7cd64b4956eab1c10843ea603704c48",
+          "bytes": 1631778
+        },
+        {
+          "path": "relief/preview-day.png",
+          "sha256": "85b100d6c45fa625f855b4e2fb9d61810b6232ac3ef53443250dbf45fabe556d",
+          "bytes": 202044
+        },
+        {
+          "path": "relief/preview-night.png",
+          "sha256": "be2220cd21087ae35c7c1802b79c867097976d8c63e035f1a0bdc389799bd378",
+          "bytes": 199479
+        }
+      ]
+    },
+    {
+      "name": "竞速仪表",
+      "style_key": "sport",
+      "reference_version": "1.2.48",
+      "files": [
+        {
+          "path": "sport/concept.png",
+          "sha256": "046de951e235059e5d0274d4f241fd40e6ee7c9f024154aa78fe2415b97f2b33",
+          "bytes": 1699865
+        },
+        {
+          "path": "sport/preview-day.png",
+          "sha256": "bd8ac9c35e34ebc421b3b0e5a5f83f2acb3116b9d9e942f9ec3cf9da9e1fae45",
+          "bytes": 634536
+        },
+        {
+          "path": "sport/preview-night.png",
+          "sha256": "894ec6794f063faffcde626302cdff84365d7f02716343e64cc92b6d1b207790",
+          "bytes": 633624
+        }
+      ]
+    }
+  ]
+}

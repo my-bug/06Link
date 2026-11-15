@@ -87,7 +87,7 @@ public class NightIntroProbe {
   Method geometry=v.getClass().getDeclaredMethod("geometry",int.class,int.class);geometry.setAccessible(true);geometry.invoke(v,960,360);ok(map.left==400&&map.top==174&&map.right==1520&&map.bottom==594,"half-resolution geometry transforms back to design coordinates");geometry.invoke(v,1920,720);
   E01ClusterIntro.connected();Handler.drain();ok(v.visibility==View.GONE,"connection alone never covers the instrument");E01ClusterIntro.opened();Handler.drain();visible("only accepted map open starts intro");ok(ValueAnimator.last.duration==5000&&Handler.lastDelay==5500,"five second animation and independent 5.5 second deadline retained");
   int paths=Path.allocations,paints=Paint.allocations;ValueAnimator running=ValueAnimator.last;int starts=ValueAnimator.starts;
-  Canvas initial=draw();ok(initial.colors.get(0)==0xff071522&&initial.painted.contains(960,384),"night begins with dark center-only cover");
+  Canvas initial=draw();ok(initial.colors.get(0)==0xff141c26&&initial.painted.contains(960,384),"night begins with dark center-only cover");
   ok(!initial.painted.contains(980,130)&&!initial.painted.contains(220,355)&&!initial.painted.contains(1635,112)&&!initial.painted.contains(997,685)&&!initial.painted.contains(1700,355),"intro leaves OEM TBT, speed, RPM, footer and music untouched");
   boolean brands=false;
   for(int i=0;i<500;i++){running.step(i/500f);Canvas frame=draw();ok(frame.inside(((Path)field(v,"introClip")).shape),"every night frame stays inside rounded map, preserving OEM card/status/warnings");if(frame.texts.contains("LYNK & CO")&&frame.texts.contains("CarPlay"))brands=true;}
@@ -108,6 +108,13 @@ public class NightIntroProbe {
   newSession();E01ClusterMode.allowed=false;ValueAnimator.last.step(.5f);hidden("projection gate closes any active intro");E01ClusterMode.allowed=true;
   newSession();E01ClusterIntro.ended();Handler.drain();hidden("power-off/session-end hook cannot retain a mask");E01ClusterIntro.opened();Handler.drain();hidden("power recovery alone cannot animate without connected-session hook");
   newSession();visible("new post-recovery session may play");ValueAnimator.last.done();hidden("post-recovery completion is clean");
+  install("relief");newSession();Canvas relief=draw();ok(relief.colors.get(0)==0xff3c4650,"relief intro matches its background");
+  RectF r=(RectF)field(v,"map");ok(r.left==400&&r.top==174&&r.right==1520&&r.bottom==594,"new style has the same calibrated map bounds");
+  for(int i=0;i<100;i++){ValueAnimator.last.step(i/100f);ok(draw().inside(((Path)field(v,"introClip")).shape),"relief transition cannot cover OEM information or music");}
+  ValueAnimator.last.done();hidden("relief intro cannot leave permanent cover");
+  install("sport");newSession();Canvas sport=draw();ok(sport.colors.get(0)==0xff24272d,"sport intro uses charcoal background");
+  for(int i=0;i<100;i++){ValueAnimator.last.step(i/100f);ok(draw().inside(((Path)field(v,"introClip")).shape),"sport intro leaves calibrated OEM and music zones untouched");}
+  ValueAnimator.last.done();hidden("sport intro clears at completion");
   System.out.println("PASS "+checks+" night intro geometry, Canvas clipping, asset reuse and cancellation/deadline assertions; Android fixtures, no physical-device proof");
  }
 }'''

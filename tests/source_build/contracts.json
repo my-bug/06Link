@@ -27,13 +27,13 @@
     "dex": "classes.dex",
     "class": "com/shilapi/xcertplay/CarPlayHostActivity.smali",
     "method": "onIphoneUsbAttached()V",
-    "sha256": "79dc8f4b870208aadd9c308a8a81c752a792dec272d04884878eff09bc2b90a2"
+    "sha256": "986071ccb8a4cb25d2511d25086d547f5afe1cd322d9fb50485f2699c7d2fbe2"
   },
   "wired-presence-onIphoneUsbDetached": {
     "dex": "classes.dex",
     "class": "com/shilapi/xcertplay/CarPlayHostActivity.smali",
     "method": "onIphoneUsbDetached()V",
-    "sha256": "1eabd72df655d7ed96f95f6165730c3427d42d9c13d959199ada1bab82273e3a"
+    "sha256": "3fc24eefd9ef88d29b1d1a66984bde69fe0a6729c8e6c560d5bc2796095ac9f0"
   },
   "wired-shutdown-order": {
     "dex": "classes.dex",
@@ -101,12 +101,6 @@
     "method": "regainFocusLocked(Z)V",
     "sha256": "ec605e8aa87686d91595d0e06f060ba14f28faf2e9ec4d08dcb55778e70b183e"
   },
-  "e01-audio-settings": {
-    "dex": "classes.dex",
-    "class": "com/shilapi/xcertplay/DiPlayActivity.smali",
-    "method": "settings$lambda$216(Lcom/shilapi/xcertplay/DiPlayActivity;Landroid/widget/LinearLayout;)Lkotlin/Unit;",
-    "sha256": "c472ff96a5d9ccb322313a63f03da386bccd866dd18adbb4a8c79b3b0e05a93a"
-  },
   "log-budget-CrashRecorder-18": {
     "dex": "classes.dex",
     "class": "com/shilapi/xcertplay/CrashRecorder.smali",
@@ -130,30 +124,6 @@
     "class": "com/shilapi/xcertplay/SessionLogFile.smali",
     "method": "reset(Ljava/lang/String;)V",
     "sha256": "b515eaba37161549b9c96d778ae7a04523d0a31a6b72e9e9420eecd2d5e15325"
-  },
-  "remove-legacy-goc-0": {
-    "dex": "classes.dex",
-    "class": "com/shilapi/xcertplay/DiPlayActivity.smali",
-    "method": "bluetoothSettings$gocShaThen(Lcom/shilapi/xcertplay/DiPlayActivity;Lkotlin/jvm/functions/Function1;)Lcom/shilapi/xcertplay/network/RootShell$Result;",
-    "sha256": "4a6868c77a88d32136332bf7b6b6ceac6c215524b31a0ddc0f1cfe704d84099c"
-  },
-  "remove-legacy-goc-1": {
-    "dex": "classes.dex",
-    "class": "com/shilapi/xcertplay/DiPlayActivity.smali",
-    "method": "bluetoothSettings$lambda$273$lambda$272(Lcom/shilapi/xcertplay/DiPlayActivity;)Lcom/shilapi/xcertplay/network/RootShell$Result;",
-    "sha256": "149ad9ed5114b59506edeae355ebb633dc2a2389d01328d119a10cdcbdc013ef"
-  },
-  "remove-legacy-goc-2": {
-    "dex": "classes.dex",
-    "class": "com/shilapi/xcertplay/DiPlayActivity.smali",
-    "method": "bluetoothSettings$lambda$278$lambda$277$lambda$276$lambda$275(Lcom/shilapi/xcertplay/DiPlayActivity;Ljava/lang/String;)Lcom/shilapi/xcertplay/network/RootShell$Result;",
-    "sha256": "41d7316b607d9b22d90d5561628e70f7bc31d3ff137059504a68d78c99048b02"
-  },
-  "remove-legacy-goc-3": {
-    "dex": "classes.dex",
-    "class": "com/shilapi/xcertplay/DiPlayActivity.smali",
-    "method": "bluetoothSettings$lambda$283$lambda$282$lambda$281$lambda$280(Lcom/shilapi/xcertplay/DiPlayActivity;Ljava/lang/String;)Lcom/shilapi/xcertplay/network/RootShell$Result;",
-    "sha256": "a9f225e946971c89f51e573ea54b6bcedb73c43b65c4d1ca039a48067781ac82"
   },
   "native-ui-0": {
     "dex": "classes.dex",
@@ -303,7 +273,7 @@
     "dex": "classes.dex",
     "class": "com/shilapi/xcertplay/media/VideoDecoder.smali",
     "method": "run()V",
-    "sha256": "7baea2e0937299f54bec533ac1a8002e5da90e0ec50618da1a65501f4d063ce5"
+    "sha256": "91d24c3c3a43bf5b91cd0712ec1f8039b975dd981fb729767b1b18928087b27b"
   },
   "e01-gl-input-cancel": {
     "dex": "classes.dex",
@@ -321,7 +291,7 @@
     "dex": "classes.dex",
     "class": "com/shilapi/xcertplay/media/VideoDecoder.smali",
     "method": "run()V",
-    "sha256": "7baea2e0937299f54bec533ac1a8002e5da90e0ec50618da1a65501f4d063ce5"
+    "sha256": "91d24c3c3a43bf5b91cd0712ec1f8039b975dd981fb729767b1b18928087b27b"
   },
   "video-visibility-home": {
     "dex": "classes.dex",
@@ -592,12 +562,6 @@
     "class": "com/shilapi/xcertplay/media/AudioFocusCoordinator.smali",
     "method": "setKeyGain(F)V",
     "sha256": "b9d987dd5c495e4206b4468b4aed80adc717147c384ba61882db882ec248f7f0"
-  },
-  "audio-scene-settings": {
-    "dex": "classes.dex",
-    "class": "com/shilapi/xcertplay/DiPlayActivity.smali",
-    "method": "settings$lambda$216(Lcom/shilapi/xcertplay/DiPlayActivity;Landroid/widget/LinearLayout;)Lkotlin/Unit;",
-    "sha256": "c472ff96a5d9ccb322313a63f03da386bccd866dd18adbb4a8c79b3b0e05a93a"
   },
   "audio-mix-diagnostic-context": {
     "dex": "classes.dex",

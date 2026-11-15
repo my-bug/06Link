@@ -22,6 +22,11 @@
 !/tests/
 !/tooling/
 !/docs/
+!/design/
+
+# Instrument gallery and its documentation. Other local designs stay local.
+/design/*
+!/design/instruments/
 
 # Necessary engineering docs are versioned; old device/research reports stay local.
 /docs/*

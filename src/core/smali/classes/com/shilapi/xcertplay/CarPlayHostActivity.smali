@@ -23909,6 +23909,8 @@
 
     move-result-object v0
 
+    if-eqz v0, :cond_3
+
     const/4 v1, 0x1
 
     invoke-static {v1}, Ljava/lang/Boolean;->valueOf(Z)Ljava/lang/Boolean;
@@ -25982,6 +25984,9 @@
 .method private final onIphoneUsbAttached()V
     .locals 8
 
+    const/4 v0, 0x1
+    invoke-static {v0}, Lcom/shilapi/xcertplay/E01UsbPresence;->changed(Z)V
+
     .line 5119
     iget-boolean v0, p0, Lcom/shilapi/xcertplay/CarPlayHostActivity;->vpnConsentAwaitsIphone:Z
 
@@ -26236,6 +26241,9 @@
 
 .method private final onIphoneUsbDetached()V
     .locals 3
+
+    const/4 v0, 0x0
+    invoke-static {v0}, Lcom/shilapi/xcertplay/E01UsbPresence;->changed(Z)V
 
     .line 5110
     iget-object v0, p0, Lcom/shilapi/xcertplay/CarPlayHostActivity;->usbPresence:Lcom/shilapi/xcertplay/orchestration/UsbPresenceTracker;

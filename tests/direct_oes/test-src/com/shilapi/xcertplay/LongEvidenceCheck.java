@@ -20,6 +20,16 @@ public final class LongEvidenceCheck {
   for(int n=0;n<120;n++){stamp=s.reportAt;s.submitted+=3600;s.decoded+=3600;s.outputCount+=3600;E01SmoothVideo.report(s,stamp+60000000000L);}
   ok(s.reports==124,"two more hours remain observable");
   ok(s.inFlight.pending()==0&&!s.retired&&s.skipped==0,"reporting does not change decoder policy");
-  System.out.println("PASS "+checks+" prolonged output evidence checks");
+  E01SmoothVideo.State isolated=new E01SmoothVideo.State(out);isolated.reportAt=1000000000L;
+  isolated.submitted=600;isolated.decoded=590;isolated.outputCount=580;isolated.queueAgeSlot=3;isolated.waitSlot=1;isolated.residenceSlot=1;
+  isolated.recentQueueAge[0]=3000000L;isolated.recentQueueAge[1]=1000000L;isolated.recentQueueAge[2]=2000000L;
+  isolated.recentWait[0]=4000000L;isolated.recentResidence[0]=5000000L;
+  E01SmoothVideo.Report snapshot;synchronized(isolated){snapshot=new E01SmoothVideo.Report(isolated,11000000000L);}
+  isolated.submitted=0;isolated.recentQueueAge[0]=99000000L;
+  final java.util.concurrent.atomic.AtomicReference<String> formatted=new java.util.concurrent.atomic.AtomicReference<String>();
+  synchronized(isolated){Thread formatting=new Thread(()->formatted.set(snapshot.format()));formatting.start();formatting.join(2000);ok(!formatting.isAlive(),"snapshot formatting never needs playback state lock");}
+  String value=formatted.get();ok(value.contains("submittedFps=60.0")&&value.contains("recentQueueP90Ms=2")&&value.contains("recentInputP90Ms=4")&&value.contains("recentResidenceP90Ms=5"),"immutable snapshot keeps same counter/percentile window after producer advances");
+  ok(isolated.recentQueueAge[0]==99000000L&&isolated.recentQueueAge[1]==1000000L,"sorting a snapshot never reorders producer ring");
+  System.out.println("PASS "+checks+" prolonged output evidence and snapshot isolation checks");
  }
 }

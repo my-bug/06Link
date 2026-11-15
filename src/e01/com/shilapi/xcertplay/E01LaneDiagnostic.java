@@ -7,7 +7,8 @@ package com.shilapi.xcertplay;
 final class E01LaneDiagnostic {
     private static final int MAX_BYTES = 8192, MAX_LANES = 8, MAX_ANGLES = 16, MAX_FIELDS = 16;
     private static final long INTERVAL_MS = 60000;
-    private boolean advertised;
+    private boolean advertised, subscribed, mapped;
+    private int subscriptionComponent = -1, subscriptionTags;
     private int descriptionCapacity, eventCapacity;
     private String capabilitySource = "not-built";
     private long capabilityGeneration;
@@ -42,6 +43,16 @@ final class E01LaneDiagnostic {
         this.eventCapacity = eventCapacity;
         this.capabilitySource = source;
         this.capabilityGeneration = generation;
+    }
+
+    void setSubscription(boolean sent, int component, int tags) {
+        if (ended) return;
+        if (subscribed != sent || subscriptionComponent != component || subscriptionTags != tags) revision++;
+        subscribed = sent; subscriptionComponent = component; subscriptionTags = tags;
+    }
+
+    void setMapped(boolean value) {
+        if (!ended && mapped != value) { mapped = value; revision++; }
     }
 
     void accept(int id, byte[] data) {
@@ -113,11 +124,13 @@ final class E01LaneDiagnostic {
         b.append("[车道诊断] ").append(end?"结束":"观察")
             .append(" cap5204=").append(advertised).append(" capDesc=").append(descriptionCapacity).append(" capEvents=").append(eventCapacity)
             .append(" capSource=").append(capabilitySource).append(" capGen=").append(capabilityGeneration)
-            .append(" subscribe=未观测 routeRx=").append(routeFrames).append(" maneuverRx=").append(maneuverFrames)
+            .append(" subscribe=").append(subscribed ? "sent" : "未观测")
+            .append(subscribed ? " subComponent=" + subscriptionComponent + " subTags=" + subscriptionTags : "")
+            .append(" routeRx=").append(routeFrames).append(" maneuverRx=").append(maneuverFrames)
             .append(" laneRx=").append(laneFrames).append(" malformed=").append(badFrames).append(" oversize=").append(oversizedFrames)
             .append(" state=").append(routeState).append(" index=").append(routeIndex).append(" total=").append(routeTotal)
             .append(" showing=").append(routeShowing).append(" on/off=").append(shownOnCount).append('/').append(shownOffCount)
-            .append(" mapped=false");
+            .append(" mapped=").append(mapped);
         if(!advertised)b.append(" 未声明车道能力，未收到不代表手机不支持");
         if(laneFrames==0)return new String[]{b.toString()};
         StringBuilder schema=new StringBuilder(480);

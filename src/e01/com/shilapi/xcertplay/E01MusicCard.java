@@ -8,10 +8,6 @@ import android.graphics.RectF;
 import android.graphics.Path;
 import android.graphics.Paint;
 import android.graphics.Typeface;
-import android.graphics.LinearGradient;
-import android.graphics.Shader;
-import android.graphics.PorterDuff;
-import android.graphics.PorterDuffXfermode;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.FrameLayout;
@@ -36,7 +32,7 @@ public final class E01MusicCard extends View {
     }
 
     private final Paint heading=new Paint(3), titlePaint=new Paint(3), artistPaint=new Paint(3);
-    private final Paint icon=new Paint(3), stem=new Paint(3);
+    private final Paint icon=new Paint(7), stem=new Paint(3);
     private final Path coverClip=new Path();
     private final RectF coverBounds=new RectF();
     private final Rect coverSource=new Rect();
@@ -44,21 +40,29 @@ public final class E01MusicCard extends View {
     private String headingText="音乐", titleText="暂无歌曲", titleSecond="", artistText="CarPlay 音乐";
     private float sx, sy;
     private final boolean immersive;
-    private Bitmap preparedCover,preparedArtwork;
+    private String paletteStyle;
+    private Bitmap preparedCover,preparedArtwork,backdrop;
     private final Rect preparedSource=new Rect();
     private final RectF preparedBounds=new RectF();
     private int coverWidth,coverHeight;
-    private final Paint albumFade=new Paint(3),albumShade=new Paint(3),albumBase=new Paint(3);
+    private final Paint albumBase=new Paint(7);
 
 
-    public E01MusicCard(Context context) {this(context,E01InstrumentStyle.night(context));}
-    E01MusicCard(Context context,boolean nightStyle) {
-        super(context);immersive=nightStyle; setFocusable(false);
+    public E01MusicCard(Context context) {this(context,E01InstrumentStyle.selected(context));}
+    E01MusicCard(Context context,boolean nightStyle) {this(context,nightStyle?"night":"card");}
+    E01MusicCard(Context context,String style) {
+        super(context);paletteStyle=E01InstrumentStyle.normalize(style);immersive=E01InstrumentStyle.isImmersive(style);setFocusable(false);
         heading.setColor(0xffe2edf7); titlePaint.setColor(0xffffffff); artistPaint.setColor(0xffe2edf7);
         heading.setTextAlign(Paint.Align.CENTER); titlePaint.setTextAlign(Paint.Align.CENTER);
         artistPaint.setTextAlign(Paint.Align.CENTER);
         titlePaint.setTypeface(Typeface.create("sans-serif-medium", 0));
         icon.setColor(0xfff0f7ff); stem.setColor(0xfff0f7ff);
+    }
+
+    void setBackdrop(Bitmap value){if(backdrop==value)return;backdrop=value;preparedCover=null;preparedArtwork=null;invalidate();}
+    void setPaletteStyle(String value){
+        String next=E01InstrumentStyle.normalize(value);if(next.equals(paletteStyle))return;
+        paletteStyle=next;preparedCover=null;preparedArtwork=null;invalidate();
     }
 
     /** Fixed music region below RPM: x1515/y185, clear of OEM route and footer. */
@@ -100,9 +104,7 @@ public final class E01MusicCard extends View {
             coverBounds.set(0,5*sy,370*sx,375*sy);coverClip.reset();
             coverClip.addRoundRect(coverBounds,12*sx,12*sy,Path.Direction.CW);
             albumBase.setColor(0xff173043);
-            albumShade.setShader(new LinearGradient(0,160*sy,0,375*sy,new int[]{0x00071522,0xe6071522},null,Shader.TileMode.CLAMP));
-            albumFade.setShader(new LinearGradient(0,0,112*sx,0,new int[]{0x00ffffff,0xffffffff},null,Shader.TileMode.CLAMP));
-            albumFade.setXfermode(new PorterDuffXfermode(PorterDuff.Mode.DST_IN));return;
+            return;
         }
         sx=width/270f; sy=sx; // Uniform enlargement keeps covers square and fits 370x340 card.
         rendered=null;
@@ -252,9 +254,10 @@ public final class E01MusicCard extends View {
     private void prepareCover(Bitmap artwork){
         if(preparedCover!=null&&preparedArtwork==artwork)return;
         if(coverWidth<=0||coverHeight<=0)return;
-        // Software composition avoids saveLayer/DST_IN on the E01 Android 5.1 GPU.
+        // Software composition avoids GPU masking and repeated low-alpha quantization on E01.
         // Cache by image identity and size: lyric-only updates never recompose/upload artwork.
         Bitmap result=Bitmap.createBitmap(coverWidth,coverHeight,Bitmap.Config.ARGB_8888);
+        albumBase.setColor("sport".equals(paletteStyle)?0xff34383e:"relief".equals(paletteStyle)?0xff52606a:0xff27343e);
         Canvas canvas=new Canvas(result);
         int saved=canvas.save();
         canvas.clipPath(coverClip);canvas.drawRect(coverBounds,albumBase);
@@ -267,8 +270,8 @@ public final class E01MusicCard extends View {
             canvas.drawLine(222*sx,72*sy,263*sx,60*sy,stem);
             canvas.drawCircle(207*sx,162*sy,15*Math.min(sx,sy),icon);
         }
-        canvas.drawRect(coverBounds,albumShade);canvas.drawRect(0,0,370*sx,380*sy,albumFade);
         canvas.restoreToCount(saved);
+        E01InstrumentFeather.finishCover(result,sx,sy,paletteStyle,backdrop);
         preparedCover=result;preparedArtwork=artwork;
     }
 

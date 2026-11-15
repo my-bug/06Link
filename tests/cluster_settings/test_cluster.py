@@ -77,11 +77,13 @@ public class Probe {
 # Blocked-service race, using the existing fixture's separate transport worker.
 files['com/shilapi/xcertplay/Probe.java']=files['com/shilapi/xcertplay/Probe.java'].replace('  E01AmapOutput.block=true;final int prior=E01ClusterMode.maintainAmapOutput(Integer.MIN_VALUE); // block is set below instead','''  E01AmapOutput.block=true;ExecutorService service=Executors.newSingleThreadExecutor();Future<Integer> result=service.submit(()->E01ClusterMode.maintainAmapOutput(Integer.MIN_VALUE));
   ok(E01AmapOutput.entered.await(2,TimeUnit.SECONDS),"service operation can be held independently");int beforeRestore=E01AmapOutput.finishes;projection(false);tick();E01AmapOutput.release.countDown();result.get(2,TimeUnit.SECONDS);ok(E01AmapOutput.finishes>beforeRestore,"disable during in-flight OEM pause restores ownership after completion");service.shutdownNow();''')
-files['com/shilapi/xcertplay/E01InstrumentStyle.java']=(ROOT/'src/e01/com/shilapi/xcertplay/E01InstrumentStyle.java').read_text()
-files['com/shilapi/xcertplay/E01MapCard.java']='package com.shilapi.xcertplay;public class E01MapCard {public static int[] boundsFor(int w,int h,String style){if(E01InstrumentStyle.fullscreen(style))return new int[]{0,0,w,h};double scale=E01InstrumentStyle.isNight(style)?7.0/12.0:.66;int x=(int)Math.round(w*scale),y=(int)Math.round(h*scale);return new int[]{(w-x)/2,E01InstrumentStyle.isNight(style)?Math.round(h*174f/720f):(h-y)/2,x,y};}}'
+files['com/shilapi/xcertplay/E01InstrumentStyle.java'] = (ROOT/'src/e01/com/shilapi/xcertplay/E01InstrumentStyle.java').read_text()
+files['com/shilapi/xcertplay/E01MapCard.java']='package com.shilapi.xcertplay;public class E01MapCard {public static int[] boundsFor(int w,int h,String style){if(E01InstrumentStyle.fullscreen(style))return new int[]{0,0,w,h};double scale=E01InstrumentStyle.isImmersive(style)?7.0/12.0:.66;int x=(int)Math.round(w*scale),y=(int)Math.round(h*scale);return new int[]{(w-x)/2,E01InstrumentStyle.isImmersive(style)?Math.round(h*174f/720f):(h-y)/2,x,y};}}'
 files['com/shilapi/xcertplay/E01InstrumentTextColor.java']=(ROOT/'src/e01/com/shilapi/xcertplay/E01InstrumentTextColor.java').read_text()
 files['android/content/res/Configuration.java']='package android.content.res;public class Configuration{public int uiMode=16;}'
 files['android/content/res/Resources.java']=files['android/content/res/Resources.java'].replace('public class Resources{','public class Resources{public static final Configuration system=new Configuration();public static Resources getSystem(){return new Resources();}public Configuration getConfiguration(){return system;}')
+for name in ('E01LaneState.java','E01LaneOutput.java','E01LaneIcons.java'):
+ files['com/shilapi/xcertplay/'+name]=(ROOT/'src/e01/com/shilapi/xcertplay'/name).read_text()
 source=ROOT/'src/e01/com/shilapi/xcertplay'
 # Compile production source; temporary Android/RPC fixtures remain outside the repository.
 with tempfile.TemporaryDirectory(prefix='06link-cluster-regression-') as temp:

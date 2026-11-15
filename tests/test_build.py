@@ -20,7 +20,8 @@ assert not (ROOT/'src/patches').exists()
 checks.append('old patch chain archived outside source tree')
 audit=json.loads((work/'audit.json').read_text())
 assert audit['application_apk_inputs']==audit['method_patch_inputs']==[]
-assert audit['source_round_trip'] and audit['resource_ids_preserved']==1699
+assert audit['source_round_trip']
+assert audit['resource_ids_preserved']==len(set((ROOT/c['sources']['resource_ids']).read_text().splitlines()))
 assert set(audit['compiled_sources'])=={p.relative_to(ROOT).as_posix() for p in java}
 assert audit['assembled_source_classes']==sum(map(len,smali.values()))
 checks.append('all compiled and assembly source files included and verified')

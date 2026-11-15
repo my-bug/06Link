@@ -51,7 +51,11 @@ public final class E01Artwork {
                 int w=bounds.outWidth,h=bounds.outHeight;
                 if(w>0&&h>0&&w<=8192&&h<=8192&&(long)w*h<=32000000L) {
                     BitmapFactory.Options options=new BitmapFactory.Options();options.inScaled=false;
-                    int sample=1;while((w+sample-1)/sample>256||(h+sample-1)/sample>256)sample*=2;
+                    // Keep enough pixels for the 370px square crop, bounded to 1024px per edge.
+                    int sample=1;
+                    while(Math.min(w,h)/(sample*2)>=370)sample*=2;
+                    while((w+sample-1)/sample>1024||(h+sample-1)/sample>1024)sample*=2;
+                    options.inPreferredConfig=Bitmap.Config.ARGB_8888;
                     options.inSampleSize=sample;
                     bitmap=BitmapFactory.decodeByteArray(bytes,0,bytes.length,options);
                 }

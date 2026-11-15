@@ -27,7 +27,7 @@ public final class E01MapCard {
             && "BX11QJ".equals(Build.DEVICE);
     }
 
-    static double scaleFor(String style) { return E01InstrumentStyle.fullscreen(style)?1.0:E01InstrumentStyle.isNight(style)?7.0/12.0:0.66; }
+    static double scaleFor(String style) { return E01InstrumentStyle.fullscreen(style)?1.0:E01InstrumentStyle.isImmersive(style)?7.0/12.0:0.66; }
 
     static Pair<Integer,Integer> streamSize(int width, int height) {
         return streamSizeFor(width,height,E01InstrumentStyle.selected());
@@ -45,7 +45,7 @@ public final class E01MapCard {
         if(E01InstrumentStyle.fullscreen(style))return new int[]{0,0,width,height};
         int w=Math.max(1,(int)Math.round(width*scaleFor(style)));
         int h=Math.max(1,(int)Math.round(height*scaleFor(style)));
-        return new int[]{(width-w)/2,E01InstrumentStyle.isNight(style)?Math.round(height*174f/720f):(height-h)/2,w,h};
+        return new int[]{(width-w)/2,E01InstrumentStyle.isImmersive(style)?Math.round(height*174f/720f):(height-h)/2,w,h};
     }
 
     static AirPlayInsets safe(int width,int height){return safeFor(width,height,E01InstrumentStyle.selected());}
@@ -55,7 +55,7 @@ public final class E01MapCard {
      */
     static AirPlayInsets safeFor(int width,int height,String style) {
         if(E01InstrumentStyle.fullscreen(style))return new AirPlayInsets((height*22+99)/100,(height*22+99)/100,(width*32+99)/100,(width*32+99)/100);
-        int x=E01InstrumentStyle.isNight(style)?(int)((width*67L+349)/350):(int)((width*5L+21)/22);
+        int x=E01InstrumentStyle.isImmersive(style)?(int)((width*67L+349)/350):(int)((width*5L+21)/22);
         return new AirPlayInsets((height*20+99)/100,(height*8+99)/100,x,x);
     }
 
@@ -91,6 +91,8 @@ public final class E01MapCard {
             surface.setZOrderMediaOverlay(false);
         }
         String style=E01InstrumentStyle.selected(p.getContext());
+        // Explicit UI window precision; does not alter decoder surfaces or panel hardware.
+        if(E01InstrumentStyle.isImmersive(style)&&p.getWindow()!=null)p.getWindow().setFormat(android.graphics.PixelFormat.RGBA_8888);
         if(!E01InstrumentStyle.fullscreen(style)){place(content,size.x,size.y,style);place(waiting,size.x,size.y,style);}
         E01MusicCard music = new E01MusicCard(p.getContext());
         music.place(size.x,size.y);
@@ -160,7 +162,7 @@ public final class E01MapCard {
         };
 
         Bezel(Context context, View content, View waiting, E01MusicCard music) {
-            super(context);style=E01InstrumentStyle.selected(context);full=E01InstrumentStyle.fullscreen(style);night="night".equals(style)?new E01NightInstrument():null; this.content = content; this.waiting = waiting; this.music = music;showMusic=musicEnabled(context);
+            super(context);style=E01InstrumentStyle.selected(context);full=E01InstrumentStyle.fullscreen(style);night=E01InstrumentStyle.isImmersive(style)?new E01NightInstrument(style):null; this.content = content; this.waiting = waiting; this.music = music;showMusic=musicEnabled(context);
             setFocusable(false);
             wavePaintA.setColor(0x47b3e8da); wavePaintB.setColor(0x545b41a8);
             glintPaint.setStyle(Paint.Style.STROKE); glintPaint.setColor(0x40e0f6df);
@@ -193,7 +195,7 @@ public final class E01MapCard {
             if (width <= 0 || height <= 0) return;
             panelWidth=width; panelHeight=height;
             if(!full){place(content,width,height,style);place(waiting,width,height,style);}music.place(width,height);
-            if(night!=null){night.resize(width,height);return;}
+            if(night!=null){night.resize(width,height);music.setBackdrop(night.backdrop());return;}
             int[] b=boundsFor(width,height,style); float radius=40f*height/720f;
             hole.reset(); hole.addRoundRect(b[0],b[1],b[0]+b[2],b[1]+b[3],radius,radius,Path.Direction.CW);
             outside.reset(); outside.setFillType(Path.FillType.EVEN_ODD);

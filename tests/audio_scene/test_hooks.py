@@ -15,7 +15,7 @@ def check(value,why):
 import sys
 sys.path.insert(0,str(ROOT/'tests/source_build'))
 from contracts import assert_contract,method_for
-for name in ('register','release','pcm','drain','navigation','duck','key-gain','media-keys','settings'):
+for name in ('register','release','pcm','drain','navigation','duck','key-gain','media-keys'):
     after[name]=assert_contract('audio-scene-'+name)
     check(True,'effective integration method preserved: '+name)
 
@@ -44,7 +44,7 @@ check(after['drain'].index('if-nez v0')<after['drain'].index('->tick(')<after['d
 nav=after['navigation']
 check('E01AudioRoute;->supported()Z' in nav,'device-scoped navigation routing gate')
 check('->acquire(' in nav,'navigation reaches coordinator registration')
-for name in ('register','release','duck','key-gain','media-keys','settings'):
+for name in ('register','release','duck','key-gain','media-keys'):
     check('if-eqz' in after[name] and 'return' in after[name],'handled-only return and original fallback '+name)
 check('->register(Landroid/media/AudioManager;Landroid/media/AudioTrack;Ljava/lang/String;ILkotlin/jvm/functions/Function1;)Z' in after['register'],'scene gets original reporter')
 check('->release(Landroid/media/AudioTrack;)Z' in after['release'],'track close returns scene ownership')

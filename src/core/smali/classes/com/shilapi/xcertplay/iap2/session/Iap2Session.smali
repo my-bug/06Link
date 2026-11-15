@@ -495,7 +495,22 @@
 
     invoke-virtual {v0, p1, p2, p3}, Lcom/shilapi/xcertplay/transport/Iap2CsmChannel;->send(Lcom/shilapi/xcertplay/iap2/wire/Iap2Frame;J)V
 
+    invoke-virtual {p1}, Lcom/shilapi/xcertplay/iap2/wire/Iap2Frame;->getMessageId()I
+
+    move-result v0
+
+    const/16 v1, 0x5200
+
+    if-ne v0, v1, :cond_0
+
+    invoke-virtual {p1}, Lcom/shilapi/xcertplay/iap2/wire/Iap2Frame;->getPayload()[B
+
+    move-result-object v1
+
+    invoke-static {v0, v1}, Lcom/shilapi/xcertplay/E01LaneCapability;->subscriptionSent(I[B)V
+
     .line 36
+    :cond_0
     sget-object p2, Lcom/shilapi/xcertplay/iap2/trace/Iap2TraceDirection;->TX:Lcom/shilapi/xcertplay/iap2/trace/Iap2TraceDirection;
 
     invoke-direct {p0, p2, p1}, Lcom/shilapi/xcertplay/iap2/session/Iap2Session;->emitFrameTrace(Lcom/shilapi/xcertplay/iap2/trace/Iap2TraceDirection;Lcom/shilapi/xcertplay/iap2/wire/Iap2Frame;)V

@@ -28,6 +28,20 @@ public final class E01ClusterMode {
     private static final E01RouteSummary summary = new E01RouteSummary();
     private static final E01CardDiagnostic cardDiagnostic = new E01CardDiagnostic();
     private static E01LaneDiagnostic laneDiagnostic;
+    private static final E01LaneState laneState = new E01LaneState();
+    private static long laneStateGeneration = -1;
+    private static int laneOutputGeneration = -1, laneOutputToken = -1;
+    private static final E01LaneOutput laneOutput = new E01LaneOutput(new E01LaneOutput.Mapping() {
+        public int icon(int status, int highlight, int[] angles) { return E01LaneIcons.icon(status, highlight, angles); }
+    }, new E01LaneOutput.Sink() {
+        public boolean send(byte[] packet) {
+            synchronized (lock) {
+                if (laneOutputToken != generation || powerSuspended || powerResetRequested) return false;
+            }
+            return E01ClusterMode.send(0x76b, packet);
+        }
+        public void note(String message) { event(message); }
+    });
     private static final ArrayDeque<E01LaneDiagnostic> laneEnds = new ArrayDeque<E01LaneDiagnostic>();
     private static long nextRouteDiagnostic;
     private static Context context;
@@ -45,6 +59,7 @@ public final class E01ClusterMode {
                 if (!off && !recover) return; // Initial unknown -> on is only a baseline.
                 powerSuspended = off;
                 powerResetRequested = true;
+                laneState.clear();
                 generation++; // Cancel an in-flight initialization/open from before this edge.
                 E01ClusterIntro.ended();
                 // The existing 500 ms worker applies the edge; no RPC or file I/O in this callback.
@@ -106,7 +121,13 @@ public final class E01ClusterMode {
         event("Instrument projection enabled=" + enabled);
     }
 
+    private static void refreshLaneGenerationLocked() {
+        long current = E01LaneCapability.declaration().generation;
+        if (current != laneStateGeneration) { laneState.clear(); laneStateGeneration = current; }
+    }
+
     private static void clearGuidanceLocked() {
+        laneState.clear(); laneStateGeneration = -1;
         if (laneDiagnostic != null) {
             E01LaneCapability.refreshDiagnostic(laneDiagnostic);
             if (laneEnds.size() >= 2) laneEnds.removeFirst();
@@ -202,6 +223,8 @@ public final class E01ClusterMode {
             if (laneDiagnostic == null) laneDiagnostic = E01LaneCapability.newDiagnostic();
             E01LaneCapability.refreshDiagnostic(laneDiagnostic);
             laneDiagnostic.accept(frame.getMessageId(), frame.getPayload());
+            refreshLaneGenerationLocked();
+            if (!powerSuspended && !powerResetRequested) laneState.accept(frame.getMessageId(), frame.getPayload());
         }
         int id = frame.getMessageId();
         if (id != 0x5201 && id != 0x5202) return;
@@ -212,7 +235,7 @@ public final class E01ClusterMode {
             try {
                 route.accept(id, frame.getPayload());
                 boolean valid = summary.accept(id, frame.getPayload());
-                if (id == 0x5201 && valid) routeRevision++;
+                if (id == 0x5201 && valid && !E01LaneState.selectionOnly(frame.getPayload())) routeRevision++;
                 if (id == 0x5201) routeFrames++; else maneuverFrames++;
                 int count = id == 0x5201 ? routeFrames : maneuverFrames;
                 if (count == 1 || count % 20 == 0)
@@ -298,6 +321,8 @@ public final class E01ClusterMode {
     private static void tick() {
         try { tickOutput(); }
         finally {
+            try { tickLaneOutput(); }
+            catch (RuntimeException error) { event("[车道诊断] 输出 failure=" + error.getClass().getSimpleName()); }
             // Independent optional output: never participates in navigation initialization,
             // map-open success, intro visibility, or navigation recovery failure counters.
             Context c; boolean live, owned, suspended;
@@ -316,6 +341,25 @@ public final class E01ClusterMode {
                 textColorFailure = failure;
             }
         }
+    }
+
+    /** Lane changes never alter normal TBT revisions or the map/card lifecycle. */
+    private static void tickLaneOutput() {
+        E01LaneState.Snapshot snapshot;
+        boolean live, owned, suspended;
+        synchronized (lock) {
+            refreshProjectionLocked(); refreshLaneGenerationLocked();
+            laneOutputToken = generation;
+            if (laneOutputGeneration != generation) {
+                laneOutput.invalidated(); laneOutputGeneration = generation;
+            }
+            owned = projectionEnabled && connected;
+            suspended = powerSuspended || powerResetRequested;
+            live = initialized && !closing && current(outputGeneration, false);
+            snapshot = laneState.snapshot();
+        }
+        laneOutput.update(snapshot, live, owned, suspended, android.os.SystemClock.elapsedRealtime());
+        synchronized (lock) { if (laneDiagnostic != null) laneDiagnostic.setMapped(laneOutput.mapped()); }
     }
 
     private static void tickOutput() {

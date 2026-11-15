@@ -94,6 +94,21 @@ public final class E01VideoOutput {
         return current != null && current.codec == codec ? current.info : null;
     }
 
+    /** Queue.offer wakes this wait immediately; only idle input polling is reduced.
+     * Failure returns zero so the existing drain/recovery path observes the original error.
+     * A failure racing this check is observed within the bounded 20 ms input wait. */
+    public static long inputWaitMillis(Object owner, MediaCodec codec, boolean recovering) {
+        if (recovering || codec == null) return 5L;
+        Session session;
+        synchronized (SESSIONS) { session = SESSIONS.get(codec); }
+        if (session == null || session.owner != owner) return 5L;
+        if (session.failure != null) return 0L;
+        E01SmoothVideo.State state = E01SmoothVideo.STATES.get(codec);
+        if (state == null || !state.boundedRender || state.retired || session.stopping
+                || !session.thread.isAlive()) return 5L;
+        return 20L;
+    }
+
     static long timeoutUs(MediaCodec codec) {
         Session current = CURRENT.get();
         return current != null && current.codec == codec && !current.stopping ? 10000L : 0L;

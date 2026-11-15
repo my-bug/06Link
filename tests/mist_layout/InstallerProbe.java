@@ -24,7 +24,8 @@ public final class InstallerProbe {
   root.addView(content,new FrameLayout.LayoutParams(-1,-1));
   if(shape==3)root.addView(new View(context)); // Existing TextureView contrast overlay.
   TextView waiting=shape==4?null:new TextView(context);if(waiting!=null)root.addView(waiting,new FrameLayout.LayoutParams(-1,-1));
-  int original=root.getChildCount();E01MapCard.install(new Presentation(context,1),root,new Point(1920,720));
+  int original=root.getChildCount();Presentation presentation=new Presentation(context,1);E01MapCard.install(presentation,root,new Point(1920,720));
+  ok(presentation.getWindow().format==(E01InstrumentStyle.isImmersive(style)?1:0),"RGBA UI precision applies only to immersive E01 styles");
   ok(root.getChildCount()==original+2,"decor installed for "+style+" shape "+shape);
   View b=bezel(root);ok(root.getChildAt(original)==b,"bezel above existing content and contrast overlay");
   ok(root.getChildAt(original+1) instanceof E01MusicCard,"music above static bezel");
@@ -45,7 +46,7 @@ public final class InstallerProbe {
   Build.VERSION.SDK_INT=23;ok(!E01MapCard.target(1),"route does not affect another Android release");Build.VERSION.SDK_INT=22;
   Build.DEVICE="OTHER";ok(!E01MapCard.target(1),"route does not affect another device");Build.DEVICE="BX11QJ";
   Build.MODEL="OTHER";ok(!E01MapCard.target(1),"route does not affect another model");Build.MODEL="E01";
-  for(String s:new String[]{"card","night","full"})for(int shape=0;shape<5;shape++)exercise(s,shape);
+  for(String s:new String[]{"card","night","relief","sport","full"})for(int shape=0;shape<5;shape++)exercise(s,shape);
   FrameLayout root=new FrameLayout(context);root.addView(new View(context));int n=root.getChildCount();E01MapCard.install(new Presentation(context,1),root,new Point(1920,720));ok(root.getChildCount()==n,"missing renderer left intact");
   root.addView(new SurfaceView(context));n=root.getChildCount();E01MapCard.install(new Presentation(context,0),root,new Point(1920,720));ok(root.getChildCount()==n,"primary display left intact");E01MapCard.install(new Presentation(context,1),root,new Point(0,0));ok(root.getChildCount()==n,"invalid display size left intact");
   Build.MODEL="OTHER";E01MapCard.install(new Presentation(context,1),root,new Point(1920,720));ok(root.getChildCount()==n,"other vehicle left intact");

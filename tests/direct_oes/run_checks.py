@@ -8,6 +8,14 @@ parser=argparse.ArgumentParser();parser.add_argument('--root',type=Path,default=
 ROOT=args.root.resolve();STAGED=args.staged.resolve() if args.staged else None
 JAVA=find_java()['java_home'] / 'bin'
 hashes={}
+# JVM checks exercise the actual helper; additionally guard the production Smali call site.
+core=ROOT/'src/core/smali/classes/com/shilapi/xcertplay/media/VideoDecoder.smali'
+body=core.read_text().split('.method private final run()V',1)[1].split('.end method',1)[0]
+assert body.count('->inputWaitMillis(Ljava/lang/Object;Landroid/media/MediaCodec;Z)J')==1
+software=body.split('->software:Lcom/shilapi/xcertplay/media/SoftwareH264Decoder;',1)[1].split(':e01_idle_input',2)[1]
+assert 'const-wide/16 v1, 0x32' in software and 'goto :cond_1' in software
+assert body.index('->getNeedsKeyFrame()Z') < body.index('->inputWaitMillis(') < body.index('->poll(J)')
+assert '->interrupt()V' in core.read_text().split('.method public close()V',1)[1].split('.end method',1)[0]
 PRODUCTION=['E01SmoothVideo','E01VideoOutput','E01VideoEvidence','E01MtkRuntime','E01BacklogRecovery','E01PacingClock','E01MtkTuning','E01GlOutput','E01DirectOutputClock','E01DirectInFlight']
 with tempfile.TemporaryDirectory() as temporary:
  work=Path(temporary);sources=work/'src';shutil.copytree(HERE/'test-src',sources)
@@ -19,7 +27,7 @@ with tempfile.TemporaryDirectory() as temporary:
  classes=work/'classes'
  subprocess.run([str(JAVA/'javac'),'--release','8','-Xlint:-options','-d',str(classes),*map(str,sources.rglob('*.java'))],check=True)
  results=[]
- for name in (args.checks.split(',') if args.checks else ['IntegrationCheck','HorizonCheck','ConcurrencyCheck','RecoveryCheck','GlCheck','GlIntegrationCheck','GlBindingCheck','GlEventCheck','DirectClockCheck','DirectInFlightCheck','DirectCapCheck','DirectLateCheck','DirectLifecycleCheck','LongEvidenceCheck']):
+ for name in (args.checks.split(',') if args.checks else ['IntegrationCheck','HorizonCheck','ConcurrencyCheck','RecoveryCheck','GlCheck','GlIntegrationCheck','GlBindingCheck','GlEventCheck','DirectClockCheck','DirectInFlightCheck','DirectCapCheck','DirectLateCheck','DirectLifecycleCheck','LongEvidenceCheck','VideoIdleCheck']):
   result=subprocess.run([str(JAVA/'java'),'-cp',str(classes),'com.shilapi.xcertplay.'+name],capture_output=True,text=True,timeout=45)
   print(result.stdout,end='',flush=True);print(result.stderr,end='',flush=True);result.check_returncode();results.append(result.stdout)
  (HERE/('results-'+args.checks.replace(',', '-')+'.txt' if args.checks else 'results.txt')).write_text(''.join(results))

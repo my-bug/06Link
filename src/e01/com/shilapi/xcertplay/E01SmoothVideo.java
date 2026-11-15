@@ -312,15 +312,33 @@ public final class E01SmoothVideo {
  }
  // Initial three 10-second summaries, then one per minute while frames flow.
  // Statistics only: codec input, pacing, cap4, output and transport behavior are unchanged.
- static void report(State s,long now){
-  String text; synchronized(s){long span=now-s.reportAt;if(span<(s.reports<3?10000000000L:60000000000L))return;
-  text=String.format(java.util.Locale.US,
+ static final class Report {
+  final long number,span,submitted,decoded,released,skipped,pollTimeouts,lateSkipped,lateBatches,lateAge;
+  final int fps,pending,lateBatchMax;final boolean direct;final long[] queue,wait,residence;
+  Report(State s,long now){
+   number=s.reports+1;span=now-s.reportAt;fps=s.output.fps;
+   submitted=s.submitted-s.reportSubmitted;decoded=s.decoded-s.reportDecoded;
+   released=s.outputCount-s.reportOutput;skipped=s.skipped-s.reportSkipped;
+   pollTimeouts=s.inputPollTimeouts-s.reportPollTimeouts;pending=s.inFlight.pending();direct=s.directCap4;
+   lateSkipped=s.directLateSkipped;lateBatches=s.directLateBatches;lateBatchMax=s.directLateBatchMax;lateAge=s.directLateAgeMaxNs;
+   queue=Arrays.copyOf(s.recentQueueAge,Math.min(s.queueAgeSlot,s.recentQueueAge.length));
+   wait=Arrays.copyOf(s.recentWait,Math.min(s.waitSlot,s.recentWait.length));
+   residence=Arrays.copyOf(s.recentResidence,Math.min(s.residenceSlot,s.recentResidence.length));
+  }
+  String format(){return String.format(java.util.Locale.US,
    "n=%d spanMs=%d maxFPS=%d submittedFps=%.1f decodedFps=%.1f releasedFps=%.1f skipped=%d recentQueueP90Ms=%d recentInputP90Ms=%d recentResidenceP90Ms=%d pollTimeouts=%d capPending=%d directCap4=%s directLateSkipped=%d directLateBatches=%d directLateBatchMax=%d directLateAgeMaxMs=%d",
-   s.reports+1,span/1000000,s.output.fps,(s.submitted-s.reportSubmitted)*1e9/span,
-   (s.decoded-s.reportDecoded)*1e9/span,(s.outputCount-s.reportOutput)*1e9/span,s.skipped-s.reportSkipped,
-   p90(s.recentQueueAge,s.queueAgeSlot)/1000000,p90(s.recentWait,s.waitSlot)/1000000,
-   p90(s.recentResidence,s.residenceSlot)/1000000,s.inputPollTimeouts-s.reportPollTimeouts,s.inFlight.pending(),s.directCap4,s.directLateSkipped,s.directLateBatches,s.directLateBatchMax,s.directLateAgeMaxNs/1000000);
-  s.reports++;s.reportAt=now;s.reportSubmitted=s.submitted;s.reportOutput=s.outputCount;s.reportSkipped=s.skipped;s.reportDecoded=s.decoded;s.reportPollTimeouts=s.inputPollTimeouts;}
-  E01VideoEvidence.sample(s.output.context,s.evidenceIdentity,text);
+   number,span/1000000,fps,submitted*1e9/span,decoded*1e9/span,released*1e9/span,skipped,
+   percentile(queue)/1000000,percentile(wait)/1000000,percentile(residence)/1000000,
+   pollTimeouts,pending,direct,lateSkipped,lateBatches,lateBatchMax,lateAge/1000000);}
+  private static long percentile(long[] values){if(values.length==0)return 0;Arrays.sort(values);return values[(values.length-1)*90/100];}
+ }
+ static void report(State s,long now){
+  final Report snapshot;
+  synchronized(s){long span=now-s.reportAt;if(span<(s.reports<3?10000000000L:60000000000L))return;
+   snapshot=new Report(s,now);
+   s.reports++;s.reportAt=now;s.reportSubmitted=s.submitted;s.reportOutput=s.outputCount;s.reportSkipped=s.skipped;s.reportDecoded=s.decoded;s.reportPollTimeouts=s.inputPollTimeouts;
+  }
+  // Sorting and formatting cannot hold the state needed by the codec input/output owners.
+  E01VideoEvidence.sample(s.output.context,s.evidenceIdentity,snapshot.format());
  }
 }

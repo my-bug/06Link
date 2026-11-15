@@ -1268,12 +1268,6 @@
 
 .field public static one_time_setup_on_this_car:I = 0x7f0c027c
 
-.field public static online_update_hint:I = 0x7f0c027d
-
-.field public static online_update_title:I = 0x7f0c027e
-
-.field public static online_update_verify_note:I = 0x7f0c027f
-
 .field public static open:I = 0x7f0c0280
 
 .field public static open_after_the_car_starts:I = 0x7f0c0281
@@ -2363,98 +2357,6 @@
 .field public static turning_on_bluetooth:I = 0x7f0c04a0
 
 .field public static turning_on_hotspot:I = 0x7f0c04a1
-
-.field public static update_available:I = 0x7f0c04a2
-
-.field public static update_available_title:I = 0x7f0c04a3
-
-.field public static update_blocked_message:I = 0x7f0c04a4
-
-.field public static update_blocked_title:I = 0x7f0c04a5
-
-.field public static update_check_failed:I = 0x7f0c04a6
-
-.field public static update_checking:I = 0x7f0c04a7
-
-.field public static update_continue_install:I = 0x7f0c04a8
-
-.field public static update_dialog_size:I = 0x7f0c04a9
-
-.field public static update_dialog_version:I = 0x7f0c04aa
-
-.field public static update_download_failed:I = 0x7f0c04ab
-
-.field public static update_download_install:I = 0x7f0c04ac
-
-.field public static update_download_only:I = 0x7f0c04ad
-
-.field public static update_downloading:I = 0x7f0c04ae
-
-.field public static update_install_failed:I = 0x7f0c04af
-
-.field public static update_install_now:I = 0x7f0c04b0
-
-.field public static update_install_now_body:I = 0x7f0c04b1
-
-.field public static update_install_now_title:I = 0x7f0c04b2
-
-.field public static update_installed:I = 0x7f0c04b3
-
-.field public static update_installing:I = 0x7f0c04b4
-
-.field public static update_kept_ready:I = 0x7f0c04b5
-
-.field public static update_kept_unknown_sources:I = 0x7f0c04b6
-
-.field public static update_open_security_settings:I = 0x7f0c04b7
-
-.field public static update_privileged_dispatched:I = 0x7f0c04b8
-
-.field public static update_privileged_unavailable:I = 0x7f0c04b9
-
-.field public static update_refused_incompatible:I = 0x7f0c04ba
-
-.field public static update_refused_incompatible_short:I = 0x7f0c04bb
-
-.field public static update_refused_package:I = 0x7f0c04bc
-
-.field public static update_refused_package_short:I = 0x7f0c04bd
-
-.field public static update_refused_sha:I = 0x7f0c04be
-
-.field public static update_refused_sha_short:I = 0x7f0c04bf
-
-.field public static update_refused_signature:I = 0x7f0c04c0
-
-.field public static update_refused_signature_short:I = 0x7f0c04c1
-
-.field public static update_refused_title:I = 0x7f0c04c2
-
-.field public static update_refused_version:I = 0x7f0c04c3
-
-.field public static update_refused_version_short:I = 0x7f0c04c4
-
-.field public static update_running_note:I = 0x7f0c04c5
-
-.field public static update_set_url_first:I = 0x7f0c04c6
-
-.field public static update_source_not_set:I = 0x7f0c04c7
-
-.field public static update_source_url:I = 0x7f0c04c8
-
-.field public static update_staged:I = 0x7f0c04c9
-
-.field public static update_staged_desc:I = 0x7f0c04ca
-
-.field public static update_try_privileged:I = 0x7f0c04cb
-
-.field public static update_unknown_sources_message:I = 0x7f0c04cc
-
-.field public static update_unknown_sources_title:I = 0x7f0c04cd
-
-.field public static update_up_to_date:I = 0x7f0c04ce
-
-.field public static update_verifying:I = 0x7f0c04cf
 
 .field public static usage_access_enabled:I = 0x7f0c04d0
 

@@ -2814,7 +2814,22 @@
 
     const-wide/16 v1, 0x32
 
+    goto :goto_1
+
     :cond_1
+    iget-object v3, p0, Lcom/shilapi/xcertplay/media/VideoDecoder;->referenceChain:Lcom/shilapi/xcertplay/media/VideoReferenceChain;
+
+    invoke-virtual {v3}, Lcom/shilapi/xcertplay/media/VideoReferenceChain;->getNeedsKeyFrame()Z
+
+    move-result v4
+
+    iget-object v3, p0, Lcom/shilapi/xcertplay/media/VideoDecoder;->decoder:Landroid/media/MediaCodec;
+
+    invoke-static {p0, v3, v4}, Lcom/shilapi/xcertplay/E01VideoOutput;->inputWaitMillis(Ljava/lang/Object;Landroid/media/MediaCodec;Z)J
+
+    move-result-wide v1
+
+    :goto_1
     invoke-virtual {v0, v1, v2}, Lcom/shilapi/xcertplay/media/VideoDecodeQueue;->poll(J)Lcom/shilapi/xcertplay/media/VideoJob;
 
     move-result-object v0
@@ -2835,7 +2850,7 @@
 
     invoke-direct {p0, v2}, Lcom/shilapi/xcertplay/media/VideoDecoder;->configureDecoder(Lcom/shilapi/xcertplay/media/VideoJob$Config;)V
 
-    goto :goto_1
+    goto :goto_2
 
     :cond_2
     instance-of v2, v0, Lcom/shilapi/xcertplay/media/VideoJob$Frame;
@@ -2874,7 +2889,7 @@
 
     invoke-direct {p0, v2, v3}, Lcom/shilapi/xcertplay/media/VideoDecoder;->recover(Ljava/lang/String;Z)V
 
-    goto :goto_1
+    goto :goto_2
 
     :cond_3
     move-object v2, v0
@@ -2897,7 +2912,7 @@
 
     invoke-direct {p0, v2}, Lcom/shilapi/xcertplay/media/VideoDecoder;->feed([B)V
 
-    goto :goto_1
+    goto :goto_2
 
     :cond_4
     instance-of v2, v0, Lcom/shilapi/xcertplay/media/VideoJob$SurfaceChanged;
@@ -2914,7 +2929,7 @@
 
     invoke-direct {p0, v2}, Lcom/shilapi/xcertplay/media/VideoDecoder;->changeSurface(Landroid/view/Surface;)V
 
-    goto :goto_1
+    goto :goto_2
 
     :cond_5
     instance-of v2, v0, Lcom/shilapi/xcertplay/media/VideoJob$Resync;
@@ -2929,12 +2944,12 @@
 
     invoke-static {p0, v2, v3, v4, v1}, Lcom/shilapi/xcertplay/media/VideoDecoder;->recover$default(Lcom/shilapi/xcertplay/media/VideoDecoder;Ljava/lang/String;ZILjava/lang/Object;)V
 
-    goto :goto_1
+    goto :goto_2
 
     :cond_6
     if-nez v0, :cond_9
 
-    :goto_1
+    :goto_2
     iget-object v2, p0, Lcom/shilapi/xcertplay/media/VideoDecoder;->decoder:Landroid/media/MediaCodec;
 
     if-eqz v2, :cond_7

@@ -31,8 +31,8 @@ public final class GeometryProbe {
   boolean found=false;for(Canvas.TextDraw draw:canvas.texts)if(draw.text.equals(expected)&&Math.abs(draw.y-baseline)<.01&&Math.abs(draw.size-size)<.01)found=true;
   ok(found,why);
  }
- static void lyrics(String output)throws Exception{
-  E01MusicCard.clear();style("night");
+ static void lyrics(String output,String layout)throws Exception{
+  E01MusicCard.clear();style(layout);
   MusicCardProbe.send(MusicCardProbe.join(MusicCardProbe.tlv(0,MusicCardProbe.join(MusicCardProbe.str(1,"初始歌曲"),MusicCardProbe.str(12,"测试歌手"),MusicCardProbe.tlv(26,new byte[]{7}))),MusicCardProbe.tlv(1,MusicCardProbe.tlv(0,new byte[]{1}))));
   ArtworkProbe.image(7,ArtworkProbe.picture(128,128,0x227eea));
   android.graphics.Bitmap cover=MusicCardProbe.state().artwork;ok(cover!=null,"lyrics fixture receives actual decoded cover");
@@ -53,7 +53,7 @@ public final class GeometryProbe {
   textAt(drawn,"测试歌手",342,24,"artist is separated below lyric rows");
   for(Canvas.TextDraw row:drawn.texts)ok(!row.text.equals("正在播放")&&!row.text.equals("已暂停"),"night artwork contains no playback-status label");
   javax.imageio.ImageIO.write(drawn.image,"png",new java.io.File(output));
-  ok((drawn.image.getRGB(2,150)>>>24)<12,"cover left edge truly fades to transparency");
+  ok(!"night".equals(layout)?(drawn.image.getRGB(0,150)>>>24)==0:(drawn.image.getRGB(0,150)&0xffffff)==0x141c26,"cover edge preserves map overlap or matches graphite background");
   ok((drawn.image.getRGB(130,150)>>>24)>245,"cover away from left fade stays visible");
   for(Canvas.TextDraw row:drawn.texts){ok(row.x>=64&&row.x<350&&row.y>=5&&row.y<375,"all music text stays inside full cover");}
   ok(MusicCardProbe.state().artwork==cover&&MusicCardProbe.state().artist.equals("测试歌手"),"lyric-only update retains artwork and artist");
@@ -90,7 +90,7 @@ public final class GeometryProbe {
   legacy.onDetachedFromWindow();night.onDetachedFromWindow();
   ok(field(night,"preparedCover")==null,"detached music card releases prepared bitmap reference");
   E01MusicCard.clear();
-  style("night");E01MusicCard empty=new E01MusicCard(context);empty.onSizeChanged(370,380,0,0);
+  style(layout);E01MusicCard empty=new E01MusicCard(context);empty.onSizeChanged(370,380,0,0);
   Canvas fallback=drawMusic(empty,370,380);
   ok((fallback.image.getRGB(207,162)>>>24)>245&&(fallback.image.getRGB(207,162)&0xffffff)!=0x173043,"missing metadata renders a visible note, never a blank GPU layer");
  }
@@ -102,10 +102,11 @@ public final class GeometryProbe {
   style("night");
   ok(Arrays.equals(E01MapCard.boundsFor(1920,720,"night"),new int[]{400,174,1120,420}),"reference bounds match approved map");
   int[][] vectors={{1920,720,1152,432,221,87,35},{1600,600,960,360,184,72,29},{1280,480,768,288,148,58,24},{960,360,576,216,111,44,18}};
-  for(int[] v:vectors){
-   Pair<Integer,Integer> size=E01MapCard.streamSizeFor(v[0],v[1],"night");int w=size.component1(),h=size.component2();
+  for(String layout:new String[]{"night","relief","sport"})for(int[] v:vectors){
+   style(layout);
+   Pair<Integer,Integer> size=E01MapCard.streamSizeFor(v[0],v[1],layout);int w=size.component1(),h=size.component2();
    ok(w==v[2]&&h==v[3],"encoded size aligned to 8x24 at "+v[0]);
-   AirPlayInsets safe=E01MapCard.safeFor(w,h,"night");
+   AirPlayInsets safe=E01MapCard.safeFor(w,h,layout);
    ok(safe.getLeft()==v[4]&&safe.getRight()==v[4]&&safe.getTop()==v[5]&&safe.getBottom()==v[6],"insets use encoded dimensions "+w);
    double left=400+1120.0*safe.getLeft()/w,right=400+1120.0*(w-safe.getRight())/w;
    ok(left>=1920*.32&&left<1920*.32+1120.0/w,"left boundary rounds inward within one stream pixel");
@@ -144,16 +145,16 @@ public final class GeometryProbe {
    ok(limited.getSafeArea().getLeft()==full.getSafeArea().getLeft()&&limited.getSafeArea().getTop()==full.getSafeArea().getTop(),"secondary load limit preserves centering and safety");
    ok(limited.getWidthPhysicalMm().equals(policy.getWidthPhysicalMm())&&limited.getHeightPhysicalMm().equals(policy.getHeightPhysicalMm()),"secondary load limit preserves physical size");
   }
-  for(String layout:new String[]{"card","night","full"})for(int requested:new int[]{0,10,15,20,30,60}){
+  for(String layout:new String[]{"card","night","relief","sport","sport","full"})for(int requested:new int[]{0,10,15,20,30,60}){
    int result=E01DisplayConfig.clusterFps(layout,1920,720,requested);
    ok(result==(E01InstrumentStyle.fullscreen(layout)&&requested>15?15:requested),"budget applies only to large full-map stream");
   }
   ok(E01DisplayConfig.clusterFps("full",0,720,20)==20,"invalid dimensions do not enable secondary policy");
   style("unknown");ok("card".equals(E01InstrumentStyle.selected()),"unknown preference defaults to card");
   Build.MODEL="other";ok(E01DisplayConfig.adjust(unknownPhysical,1)==unknownPhysical,"non-E01 model unaffected");Build.MODEL="E01";
-  for(String name:new String[]{"card","night"}){
+  for(String name:new String[]{"card","night","relief","sport"}){
    style(name);E01MusicCard view=new E01MusicCard(context);view.place(1920,720);FrameLayout.LayoutParams p=(FrameLayout.LayoutParams)view.getLayoutParams();
-   ok(p.leftMargin==1515&&p.topMargin==185&&p.width==370&&p.height==(name.equals("night")?380:340),"actual music layout "+name);
+   ok(p.leftMargin==1515&&p.topMargin==185&&p.width==370&&p.height==(E01InstrumentStyle.isImmersive(name)?380:340),"actual music layout "+name);
    view.onAttachedToWindow();view.onSizeChanged(p.width,p.height,0,0);RectF cover=(RectF)field(view,"coverBounds");
    ok(Math.abs((cover.r-cover.l)-(cover.b-cover.t))<.01,"square album art "+name);
    Canvas drawn=new Canvas(p.width,p.height);view.onDraw(drawn);ok(drawn.draws>0,"music draws when enabled "+name);
@@ -162,6 +163,6 @@ public final class GeometryProbe {
    Canvas hidden=new Canvas(p.width,p.height);view.onDraw(hidden);ok(hidden.draws==0,"visibility guard retained "+name);
    context.getSharedPreferences("06link_instrument",0).edit().putBoolean("music_enabled",true).commit();view.onDetachedFromWindow();
   }
-  lyrics(args[0]);style("card");System.out.println("PASS "+checks+" geometry/display/music layout assertions; Android/OEM transport mocked");
+  lyrics(args[0],"night");lyrics(args[0]+"-relief.png","relief");lyrics(args[0]+"-sport.png","sport");style("card");System.out.println("PASS "+checks+" geometry/display/music layout assertions; Android/OEM transport mocked");
  }
 }
