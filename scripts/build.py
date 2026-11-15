@@ -130,13 +130,16 @@ def source_inputs(root, config, variant='debug'):
     java = sorted(inside(root, layout['java_root']).rglob('*.java'))
     if not java:
         raise ValueError('No Java sources')
+    java_partitions = {layout['java_dex'].get(
+        p.relative_to(inside(root, layout['java_root'])).with_suffix('').as_posix(),
+        layout['default_java_dex']) for p in java}
     smali = {}
     for dex, rel in layout['smali_roots'].items():
         if not re.fullmatch(r'classes(?:[2-9]|[1-9]\d+)?.dex', dex):
             raise ValueError('Invalid DEX partition: ' + dex)
         files = sorted(inside(root, rel).rglob('*.smali'))
-        if not files:
-            raise ValueError('No Smali sources: ' + rel)
+        if not files and dex not in java_partitions:
+            raise ValueError('No Java or Smali sources for ' + dex + ': ' + rel)
         smali[dex] = files
     for f in [*java, *(p for files in smali.values() for p in files)]:
         inside(root, f.relative_to(root))
@@ -252,7 +255,11 @@ def main():
     targets = {}
     for dex, rel in layout['smali_roots'].items():
         target = output_folder(work, dex)
-        shutil.copytree(inside(root, rel), target)
+        source = inside(root, rel)
+        if source.is_dir():
+            shutil.copytree(source, target)
+        else:
+            target.mkdir()  # A partition may be populated entirely by compiled Java.
         targets[dex] = target
     java_root = inside(root, layout['java_root'])
     families = {p.relative_to(java_root).with_suffix('').as_posix() for p in sources}

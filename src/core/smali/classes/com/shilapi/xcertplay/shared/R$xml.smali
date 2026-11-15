@@ -13,8 +13,7 @@
 .end annotation
 
 
-# static fields
-.field public static automotive_app_desc:I = 0x7f0f0000
+
 
 
 # direct methods

@@ -42,7 +42,6 @@
 
 .field public static notification_icon_background:I = 0x7f06001c
 
-.field public static notification_oversize_large_icon_bg:I = 0x7f06001d
 
 .field public static notification_template_icon_bg:I = 0x7f06001e
 

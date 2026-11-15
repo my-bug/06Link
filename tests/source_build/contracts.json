@@ -129,7 +129,7 @@
     "dex": "classes.dex",
     "class": "com/shilapi/xcertplay/DiPlayActivity.smali",
     "method": "render()V",
-    "sha256": "af44d12c15ee037becdf23c04567d79179b5a86d3ed2583ea1264b532af8e46d"
+    "sha256": "55fe7145d070d3e5fbadef2041b3a5c5139958fc15f0a9e28ac89da80aee2250"
   },
   "native-ui-1": {
     "dex": "classes.dex",
@@ -202,12 +202,6 @@
     "class": "com/shilapi/xcertplay/CarPlayHostActivity.smali",
     "method": "renderPanelRow()V",
     "sha256": "aef8299eebdcd177f62106056cb49f080c3706037faa8f7bdbdb55876e505c98"
-  },
-  "native-waiting-no-extras": {
-    "dex": "classes.dex",
-    "class": "com/shilapi/xcertplay/CarPlayHostActivity.smali",
-    "method": "renderPanelExtras(Lcom/shilapi/xcertplay/ConnectionUi$Input;Z)V",
-    "sha256": "e04e4405390bd69eeffa8ea94f7d63275f4dc3dd8175c00dc95ff568eb40ed96"
   },
   "native-waiting-no-expand-CarPlayHostActivity": {
     "dex": "classes.dex",
@@ -489,7 +483,7 @@
     "dex": "classes.dex",
     "class": "com/shilapi/xcertplay/DiPlayActivity.smali",
     "method": "onResume()V",
-    "sha256": "56cfe4b3c034e8920dc4f2105eee1bb2f0392b89907d6e46aab2ace4e6774def"
+    "sha256": "52756c9270dba0f37c71fd1d69af3828e9b2e01df6fe7595dfac9fee81b34a59"
   },
   "startup-default-transport": {
     "dex": "classes.dex",

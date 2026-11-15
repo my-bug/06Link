@@ -16,7 +16,6 @@
 # static fields
 .field public static ic_car_home:I = 0x7f0b0000
 
-.field public static placeholder_icon:I = 0x7f0b0001
 
 
 # direct methods

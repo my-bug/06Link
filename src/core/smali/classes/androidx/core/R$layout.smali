@@ -14,11 +14,8 @@
 
 
 # static fields
-.field public static custom_dialog:I = 0x7f090000
 
-.field public static ime_base_split_test_activity:I = 0x7f090001
 
-.field public static ime_secondary_split_test_activity:I = 0x7f090002
 
 .field public static notification_action:I = 0x7f090003
 

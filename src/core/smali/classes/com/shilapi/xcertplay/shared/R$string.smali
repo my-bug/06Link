@@ -13,10 +13,8 @@
 .end annotation
 
 
-# static fields
-.field public static carapp_hw_not_configured:I = 0x7f0c0094
 
-.field public static carapp_hw_status_title:I = 0x7f0c0095
+
 
 
 # direct methods

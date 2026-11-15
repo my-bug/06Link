@@ -21,7 +21,10 @@ with zipfile.ZipFile(build_apk(R)) as z:
  ok(not any(b'GocSdkPayload;' in z.read(n) for n in names if n.endswith('.dex')),'legacy installer class and references absent')
  ok(not any(b'E01BtResume;' in z.read(n) for n in names if n.endswith('.dex')),'temporary reconnect helper absent')
  ok('assets/navigation_test.pcm' not in names and 'res/xml/update_file_paths.xml' not in names,'retired test audio and updater resource absent')
- for retired in (b'BluetoothStackOverride;', b'Lcom/shilapi/xcertplay/update/', b'navigation_test.pcm', b'E01AudioSettings;', b'E01SmoothSettings;'):
+ for retired in (b'BluetoothStackOverride;', b'Lcom/shilapi/xcertplay/update/', b'navigation_test.pcm', b'E01AudioSettings;', b'E01SmoothSettings;',
+                 b'HeadUnitCheckActivity;', b'WheelKeysActivity;', b'CarBrandPickerActivity;', b'ImageCropActivity;',
+                 b'WifiJoinCard;', b'DiagnosticReportHttp;', b'DiagnosticUsbExport;',
+                 b'Lcom/google/zxing/', b'Lorg/bouncycastle/oer/', b'Landroidx/profileinstaller/'):
   ok(not any(retired in z.read(n) for n in names if n.endswith('.dex')),'retired feature absent '+retired.decode())
  ok(all(z.getinfo(n).compress_type==zipfile.ZIP_DEFLATED for n in names if n.endswith('.dex') and z.getinfo(n).file_size>=16384),'large DEX compressed')
  ok(os.path.getsize(R/'dist'/('06Link-'+c['version_name']+'.apk'))<14000000,'APK under 14 MB')

@@ -13,16 +13,11 @@
 .end annotation
 
 
-# static fields
-.field public static ic_launcher:I = 0x7f0a0000
 
-.field public static ic_launcher_background:I = 0x7f0a0001
 
-.field public static ic_launcher_foreground:I = 0x7f0a0002
 
-.field public static ic_launcher_monochrome:I = 0x7f0a0003
 
-.field public static ic_launcher_round:I = 0x7f0a0004
+
 
 
 # direct methods
