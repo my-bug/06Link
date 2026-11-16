@@ -24,21 +24,15 @@ public final class FeatherProbe {
         for(int y=5;y<375;y++)ok(cover.image.getRGB(0,y)==0xff141c26,"no seam at start of cover fade");
         ok(cover.image.getRGB(200,100)==0xffb0b0b0,"full-opacity artwork outside ramps is untouched");
         ok(cover.image.getRGB(200,0)==0,"transparent outer margin preserved");
-        int diversified=0;
         for(int x=20;x<120;x++) {
-            int low=255,high=0;java.util.Set<Integer> levels=new java.util.HashSet<Integer>();
-            for(int y=20;y<150;y++) {
-                int red=(cover.image.getRGB(x,y)>>>16)&255;low=Math.min(low,red);high=Math.max(high,red);levels.add(red>>3);
-            }
-            ok(high-low<=8,"dither remains subtle and bounded to one 5-bit channel step");
-            if(levels.size()>1)diversified++;
+            int expected=cover.image.getRGB(x,20);
+            for(int y=21;y<150;y++)ok(cover.image.getRGB(x,y)==expected,"constant artwork has no added spatial grain in the left fade");
         }
-        ok(diversified>5,"simulated 5-bit output has spatially mixed steps instead of solid column bands");
         Bitmap again=Bitmap.createBitmap(370,380,Bitmap.Config.ARGB_8888);
         for(int y=5;y<375;y++)again.setPixels(row,0,370,0,y,370,1);
         E01InstrumentFeather.finishCover(again,1,1);
-        for(int y=0;y<380;y+=7)for(int x=0;x<370;x+=7)ok(again.image.getRGB(x,y)==cover.image.getRGB(x,y),"fixed grain does not shimmer on rebuild");
+        for(int y=0;y<380;y+=7)for(int x=0;x<370;x+=7)ok(again.image.getRGB(x,y)==cover.image.getRGB(x,y),"cached gradient is reproducible on rebuild");
         ImageIO.write(cover.image,"png",new File(args[0]));
-        System.out.println("PASS "+checks+" feather/precision checks (quantization model, not physical panel proof)");
+        System.out.println("PASS "+checks+" feather/precision checks (host pixels, not physical panel proof)");
     }
 }

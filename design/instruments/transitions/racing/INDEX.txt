@@ -1,0 +1,10 @@
+竞速启幕
+批准时长：3000 毫秒
+适用：全部仪表主题，全屏覆盖
+实际绘制：src/e01/com/shilapi/xcertplay/E01RacingIntroRenderer.java
+concept.png 为设计分镜；分镜标注采用初稿 2 秒，实际实现按确认的 3 秒等比例调整。
+preview-300ms.png：速度线入场。
+preview-1200ms.png：品牌停留。
+preview-2175ms.png：双侧揭幕。
+preview-3000ms.png：覆盖层退出。
+预览来自正式 Java 绘制器与主机绘图适配器，不是实车截图；车机字体及原厂独立图层仍需实车核对。

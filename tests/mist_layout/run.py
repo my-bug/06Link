@@ -61,7 +61,11 @@ extend('android/graphics/Paint.java','public PorterDuffXfermode xfer;public void
 apis['android/graphics/Color.java']='package android.graphics;public class Color{public static final int WHITE=0xffffffff;}'
 apis['android/graphics/DashPathEffect.java']='package android.graphics;public class DashPathEffect{public DashPathEffect(float[] intervals,float phase){}}'
 apis['android/graphics/Region.java']='package android.graphics;public class Region{public enum Op{DIFFERENCE}}'
-apis['android/graphics/Typeface.java']='package android.graphics;public class Typeface{public static final int NORMAL=0;public static Typeface create(String name,int style){return new Typeface();}}'
+apis['android/graphics/Typeface.java']='package android.graphics;public class Typeface{public static final int NORMAL=0;public int style;public static Typeface create(String name,int style){Typeface result=new Typeface();result.style=style;return result;}}'
+# Preserve the racing wordmark's weight, slant and subtitle width in source-rendered previews.
+extend('android/graphics/Paint.java','public float textScale=1;public Typeface face;public void setTextScaleX(float scale){textScale=scale;}')
+apis['android/graphics/Paint.java']=apis['android/graphics/Paint.java'].replace('public java.awt.Font font(){return BASE.deriveFont(textSize);}', 'public java.awt.Font font(){java.awt.Font f=face!=null&&face.style!=0?new java.awt.Font("Arial",face.style,12):BASE;return f.deriveFont(textSize).deriveFont(java.awt.geom.AffineTransform.getScaleInstance(textScale,1));}').replace('public android.graphics.Typeface setTypeface(android.graphics.Typeface t){return null;}', 'public android.graphics.Typeface setTypeface(android.graphics.Typeface t){Typeface old=face;face=t;return old;}')
+
 extend('android/graphics/Bitmap.java','public enum Config{ARGB_8888}public static Bitmap createBitmap(int w,int h,Config c){return new Bitmap(new java.awt.image.BufferedImage(w,h,java.awt.image.BufferedImage.TYPE_INT_ARGB));}')
 extend('android/graphics/Bitmap.java',"public void getPixels(int[] p,int o,int stride,int x,int y,int w,int h){image.getRGB(x,y,w,h,p,o,stride);}public void setPixels(int[] p,int o,int stride,int x,int y,int w,int h){image.setRGB(x,y,w,h,p,o,stride);}")
 apis['android/graphics/BitmapFactory.java']=apis['android/graphics/BitmapFactory.java'].replace('public boolean inJustDecodeBounds,inScaled;', 'public boolean inJustDecodeBounds,inScaled;public Bitmap.Config inPreferredConfig;')
@@ -104,11 +108,11 @@ with tempfile.TemporaryDirectory(prefix='06link-night-') as temporary:
  tmp=Path(temporary);output=args.output.resolve() if args.output else tmp/'rendered';output.mkdir(parents=True,exist_ok=True)
  for name in needed:
   file=tmp/'src'/name;file.parent.mkdir(parents=True,exist_ok=True);file.write_text(apis[name])
- production=[ROOT/'src/e01/com/shilapi/xcertplay'/(n+'.java') for n in ['E01InstrumentRenderer','E01MapCard','E01DisplayConfig','E01MusicCard','E01Artwork','E01InstrumentStyle','E01NightInstrument','E01InstrumentFeather','E01InstrumentPrecision','E01SportInstrument','E01InstrumentPreview']]
- probes=[HERE/'ThemeRegistryProbe.java',HERE/'GeometryProbe.java',HERE/'RendererProbe.java',HERE/'InstallerProbe.java',HERE/'FeatherProbe.java',HERE/'ReliefProbe.java',HERE/'SportProbe.java',HERE/'PrecisionProbe.java']+[ROOT/'scripts/validation/session_fixes_1_0_29'/(n+'.java') for n in ['MusicCardProbe','ArtworkProbe']]
+ production=[ROOT/'src/e01/com/shilapi/xcertplay'/(n+'.java') for n in ['E01InstrumentRenderer','E01MapCard','E01DisplayConfig','E01MusicCard','E01Artwork','E01InstrumentStyle','E01NightInstrument','E01InstrumentFeather','E01InstrumentPrecision','E01SportInstrument','E01RacingIntroRenderer','E01InstrumentPreview']]
+ probes=[HERE/'ThemeRegistryProbe.java',HERE/'GeometryProbe.java',HERE/'RendererProbe.java',HERE/'InstallerProbe.java',HERE/'FeatherProbe.java',HERE/'ReliefProbe.java',HERE/'SportProbe.java',HERE/'PrecisionProbe.java',HERE/'RacingIntroProbe.java']+[ROOT/'scripts/validation/session_fixes_1_0_29'/(n+'.java') for n in ['MusicCardProbe','ArtworkProbe']]
  compile_result=subprocess.run([str(jdk/'bin/javac'),'--release','8','-d',str(tmp/'classes'),*map(str,sorted((tmp/'src').rglob('*.java'))),*map(str,production+probes)],capture_output=True,text=True)
  assert compile_result.returncode==0,compile_result.stderr
- for name in ['ThemeRegistryProbe','GeometryProbe','RendererProbe','InstallerProbe','MusicCardProbe','ArtworkProbe','FeatherProbe','ReliefProbe','SportProbe','PrecisionProbe']:
+ for name in ['ThemeRegistryProbe','GeometryProbe','RendererProbe','InstallerProbe','MusicCardProbe','ArtworkProbe','FeatherProbe','ReliefProbe','SportProbe','PrecisionProbe','RacingIntroProbe']:
   target=output if name=='RendererProbe' else output/(name+'.png')
   result=subprocess.run([str(jdk/'bin/java'),'-Djava.awt.headless=true','-cp',str(tmp/'classes'),'com.shilapi.xcertplay.'+name,str(target)],capture_output=True,text=True,timeout=30)
   print(result.stdout,end='');assert result.returncode==0,result.stderr

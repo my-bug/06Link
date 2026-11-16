@@ -66,5 +66,40 @@
         }
       ]
     }
+  ],
+  "transitions": [
+    {
+      "name": "竞速启幕",
+      "duration_ms": 3000,
+      "reference_base_version": "1.2.53",
+      "implementation": "src/e01/com/shilapi/xcertplay/E01RacingIntroRenderer.java",
+      "files": [
+        {
+          "path": "transitions/racing/concept.png",
+          "sha256": "4bb4ede7581356ca9ca6388c408eba3ce681c5b985e8e39990d737c605887436",
+          "bytes": 1395053
+        },
+        {
+          "path": "transitions/racing/preview-1200ms.png",
+          "sha256": "0f15ff3dcf03dc999255ce57e4f8ac17bd793d4056a931099c72e8a61452eaf6",
+          "bytes": 50132
+        },
+        {
+          "path": "transitions/racing/preview-2175ms.png",
+          "sha256": "fbd056e155fef55d3f4917147a18a265149b3c6fad573bbab13587a0064c6d08",
+          "bytes": 85999
+        },
+        {
+          "path": "transitions/racing/preview-3000ms.png",
+          "sha256": "3a82a75fa488e15137f1bc16a56aacabe6532aa13999f755959550626a175b60",
+          "bytes": 120146
+        },
+        {
+          "path": "transitions/racing/preview-300ms.png",
+          "sha256": "209dbac00feb98c7f834a22f387ec15bdfca15e66bbb2ee6aaf8d7fbc7fb1d84",
+          "bytes": 49172
+        }
+      ]
+    }
   ]
 }

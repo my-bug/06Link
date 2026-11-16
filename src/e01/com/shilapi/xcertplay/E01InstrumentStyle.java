@@ -7,6 +7,8 @@ public final class E01InstrumentStyle {
     public static final String PREFERENCES="06link_instrument";
     public static final boolean DEFAULT_INTRO=true, DEFAULT_MUSIC=true;
     public static final int WIDTH=1920, HEIGHT=720;
+    public static final long INTRO_DURATION_MS=3000, INTRO_DEADLINE_MS=3500;
+    public static final int INTRO_BACKGROUND=0xff20242a, INTRO_ACCENT=0xfff04436;
 
     public enum Material { GLASS, GRAPHITE, RELIEF, SPORT }
     public enum Layout {
@@ -31,8 +33,8 @@ public final class E01InstrumentStyle {
             return new int[]{Math.round(1515*width/(float)WIDTH),Math.round(185*height/(float)HEIGHT),
                 Math.max(1,Math.round(370*width/(float)WIDTH)),Math.max(1,Math.round(layout.musicHeight*height/(float)HEIGHT))};
         }
-        /** Reference-coordinate animation clip; never expands over OEM readouts in inset layouts. */
-        public int[] introBounds(){return immersive()?new int[]{405,190,1515,597}:new int[]{0,0,WIDTH,HEIGHT};}
+        /** Shared full-screen transition bounds, independent of the final map layout. */
+        public int[] introBounds(){return new int[]{0,0,WIDTH,HEIGHT};}
         public int[] backdropColors(){return material==Material.GLASS?new int[]{0xff319fbb,0xff3c83bb,0xff626ab1}:new int[]{background,background,background};}
     }
     private static final Theme[] THEMES={

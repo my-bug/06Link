@@ -47,7 +47,6 @@ final class E01SportInstrument {
             fill(c,p,0xffee473d,1869,109,1880,93,1886,93,1875,109);
             c.restoreToCount(saved);
         }
-        E01InstrumentPrecision.finishBackdrop(bitmap);
         finishMap(bitmap,map);
         return bitmap;
     }
@@ -64,7 +63,6 @@ final class E01SportInstrument {
             bitmap.getPixels(row,0,row.length,l,y,row.length,1);
             for(int i=0;i<row.length;i++){
                 int x=l+i;float d=distance((x-map[0])/sx,(y-map[1])/sy,(map[2]-1)/sx,(map[3]-1)/sy);
-                float n=E01InstrumentPrecision.noise(x,y);
                 if(d>=0){
                     int bg=(row[i]>>>24)==0?BACKGROUND:row[i];float fade=1-E01InstrumentFeather.smooth(d/32),shade=.30f*fade*fade;
                     row[i]=0xff000000|(E01InstrumentPrecision.channel(((bg>>>16)&255)*(1-shade))<<16)
@@ -72,7 +70,7 @@ final class E01SportInstrument {
                 }else{
                     float depth=-d;
                     if(depth<1.2f){int a=E01InstrumentPrecision.channel(210*(1-depth/1.2f));row[i]=(a<<24)|0xabb2b8;}
-                    else {float a=.14f*(1-E01InstrumentFeather.smooth((depth-1.2f)/9));int alpha=E01InstrumentPrecision.channel(255*a+n*4*a*(1-a));row[i]=alpha==0?0:(alpha<<24)|0x11151a;}
+                    else {float a=.14f*(1-E01InstrumentFeather.smooth((depth-1.2f)/9));int alpha=E01InstrumentPrecision.channel(255*a);row[i]=alpha==0?0:(alpha<<24)|0x11151a;}
                 }
             }
             bitmap.setPixels(row,0,row.length,l,y,row.length,1);

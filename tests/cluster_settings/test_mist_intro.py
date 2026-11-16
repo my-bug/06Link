@@ -1,7 +1,7 @@
 """Exercise the real intro with deterministic Android timing and recorded Canvas clips.
 
-Geometry methods are extracted from E01MapCard to avoid unrelated media fixtures;
-production E01InstrumentStyle and E01ClusterIntro compile unchanged.
+The production theme registry, racing renderer and overlay compile unchanged.
+The historical filename is kept as the maintained lifecycle-test entry point.
 """
 from pathlib import Path
 import os
@@ -55,11 +55,11 @@ files['android/graphics/Canvas.java'] = r'''package android.graphics;
 import java.awt.Shape;import java.awt.BasicStroke;import java.awt.geom.*;import java.util.*;
 public class Canvas {
  static class State {Area clip=new Area(new Rectangle2D.Float(0,0,1920,720));AffineTransform matrix=new AffineTransform();int alpha=255;State copy(){State s=new State();s.clip=new Area(clip);s.matrix=new AffineTransform(matrix);s.alpha=alpha;return s;}}
- State state=new State();List<State> stack=new ArrayList<State>();public final Area painted=new Area();public final List<String> texts=new ArrayList<String>();public final List<Integer> colors=new ArrayList<Integer>();
+ public static boolean failDraw;State state=new State();List<State> stack=new ArrayList<State>();public final Area painted=new Area();public final List<String> texts=new ArrayList<String>();public final List<Integer> colors=new ArrayList<Integer>();
  public int save(){stack.add(state.copy());return stack.size();}public void restore(){state=stack.remove(stack.size()-1);}public void restoreToCount(int n){while(stack.size()>=n)restore();}
  public int saveLayerAlpha(float l,float t,float r,float b,int a,int flags){int n=save();state.alpha=state.alpha*a/255;return n;}
  public void scale(float x,float y){state.matrix.scale(x,y);}public void translate(float x,float y){state.matrix.translate(x,y);}public boolean clipPath(Path p){state.clip.intersect(new Area(state.matrix.createTransformedShape(p.shape)));return !state.clip.isEmpty();}
- void paint(Shape s,Paint p){if(p.alpha<=0||state.alpha<=0)return;Area a=new Area(state.matrix.createTransformedShape(s));a.intersect(state.clip);painted.add(a);if(!a.isEmpty())colors.add(p.color);}
+ void paint(Shape s,Paint p){if(failDraw)throw new IllegalStateException("draw failed");if(p.alpha<=0||state.alpha<=0)return;Area a=new Area(state.matrix.createTransformedShape(s));a.intersect(state.clip);painted.add(a);if(!a.isEmpty())colors.add(p.color);}
  public void drawPath(Path path,Paint p){paint(p.style==Paint.Style.STROKE?new BasicStroke(Math.max(.01f,p.strokeWidth)).createStrokedShape(path.shape):path.shape,p);}
  public void drawRect(float l,float t,float r,float b,Paint p){paint(new Rectangle2D.Float(l,t,r-l,b-t),p);}public void drawRect(RectF r,Paint p){drawRect(r.left,r.top,r.right,r.bottom,p);}
  public void drawLine(float x,float y,float xx,float yy,Paint p){paint(new BasicStroke(Math.max(.01f,p.strokeWidth)).createStrokedShape(new Line2D.Float(x,y,xx,yy)),p);}
@@ -81,21 +81,32 @@ public class NightIntroProbe {
  static void hidden(String why){ok(v.visibility==View.GONE&&Handler.delayed.isEmpty(),why);}
  static void visible(String why){ok(v.visibility==View.VISIBLE,why);}
  public static void main(String[] args)throws Exception{
-  install("card");RectF card=(RectF)field(v,"map");ok(card.left==326&&card.top==122&&card.right==1593&&card.bottom==597,"existing card bounds remain exact");ok(((Path)field(v,"mapPath")).radius==40,"card corner preserved");newSession();ok(draw().painted.contains(20,20),"card legacy full backdrop preserved");
-  install("full");RectF full=(RectF)field(v,"map");ok(full.left==0&&full.top==0&&full.right==1920&&full.bottom==720,"full bounds preserved");ok(((Path)field(v,"mapPath")).radius==0,"full corner preserved");
-  install("night");RectF map=(RectF)field(v,"map");Path path=(Path)field(v,"mapPath");ok(map.left==400&&map.top==174&&map.right==1520&&map.bottom==594,"night shares the central 1120 by 420 map rectangle");ok(path.radius==0,"night corner matches final bezel");
-  Method geometry=v.getClass().getDeclaredMethod("geometry",int.class,int.class);geometry.setAccessible(true);geometry.invoke(v,960,360);ok(map.left==400&&map.top==174&&map.right==1520&&map.bottom==594,"half-resolution geometry transforms back to design coordinates");geometry.invoke(v,1920,720);
-  E01ClusterIntro.connected();Handler.drain();ok(v.visibility==View.GONE,"connection alone never covers the instrument");E01ClusterIntro.opened();Handler.drain();visible("only accepted map open starts intro");ok(ValueAnimator.last.duration==5000&&Handler.lastDelay==5500,"five second animation and independent 5.5 second deadline retained");
-  int paths=Path.allocations,paints=Paint.allocations;ValueAnimator running=ValueAnimator.last;int starts=ValueAnimator.starts;
-  Canvas initial=draw();ok(initial.colors.get(0)==0xff141c26&&initial.painted.contains(960,384),"night begins with dark center-only cover");
-  ok(!initial.painted.contains(980,130)&&!initial.painted.contains(220,355)&&!initial.painted.contains(1635,112)&&!initial.painted.contains(997,685)&&!initial.painted.contains(1700,355),"intro leaves OEM TBT, speed, RPM, footer and music untouched");
-  boolean brands=false;
-  for(int i=0;i<500;i++){running.step(i/500f);Canvas frame=draw();ok(frame.inside(((Path)field(v,"introClip")).shape),"every night frame stays inside rounded map, preserving OEM card/status/warnings");if(frame.texts.contains("LYNK & CO")&&frame.texts.contains("CarPlay"))brands=true;}
-  ok(brands,"confirmed LYNK & CO and CarPlay intro retained");ok(Path.allocations==paths&&Paint.allocations==paints,"frame drawing allocates no paths or paints");running.step(.8f);ok(!draw().painted.contains(960,384),"opening actually uncovers the real map");
+  for(int theme=0;theme<E01InstrumentStyle.count();theme++){
+   String style=E01InstrumentStyle.at(theme).id;install(style);
+   int[] bounds=E01InstrumentStyle.theme(style).introBounds();ok(Arrays.equals(bounds,new int[]{0,0,1920,720}),style+" shares full-screen transition bounds");
+   newSession();Canvas initial=draw();
+   for(int y=1;y<720;y+=35)for(int x=1;x<1920;x+=53)ok(initial.painted.contains(x,y),style+" initial cover fills whole panel including OEM and music zones");
+   ok(initial.colors.get(0)==0xff20242a,style+" uses common graphite transition palette");
+   int paths=Path.allocations,paints=Paint.allocations;boolean brand=false;
+   for(int i=0;i<=100;i++){
+    ValueAnimator.last.step(i/100f);Canvas image=draw();
+    ok(image.inside(new java.awt.geom.Rectangle2D.Double(-.0001,-.0001,1920.0002,720.0002)),style+" drawing stays within display (subpixel Area arithmetic tolerance)");
+    ok(!image.texts.contains("LYNK & CO")&&!image.texts.contains("CONNECTED BY 06Link"),"old brand scene removed");
+    if(String.join("",image.texts).contains("06LINKCarPlay"))brand=true;
+    if(i>=95)ok(image.painted.isEmpty(),"tail frame is completely clear before overlay removal");
+   }
+   ok(brand,style+" displays racing 06LINK / CarPlay scene");
+   ok(Path.allocations==paths&&Paint.allocations==paints,"all animated shapes and paints are reused");
+   ValueAnimator.last.step(.72f);Canvas reveal=draw();ok(!reveal.painted.contains(960,360)&&reveal.painted.contains(50,360)&&reveal.painted.contains(1870,360),"center reveals while left and right shutters move outward");
+   ValueAnimator.last.done();hidden(style+" completion removes mask and deadline");
+  }
+  install("night");prefs.edit().remove("transition_enabled").commit();ok(E01InstrumentStyle.introEnabled(c),"shared default remains enabled without saved preference");
+  E01ClusterIntro.connected();Handler.drain();ok(v.visibility==View.GONE,"connection alone never covers the instrument");E01ClusterIntro.opened();Handler.drain();visible("only accepted map open starts intro");ok(ValueAnimator.last.duration==3000&&Handler.lastDelay==3500,"three second animation has independent 3.5 second deadline");
+  ValueAnimator running=ValueAnimator.last;int starts=ValueAnimator.starts;
   E01ClusterIntro.connected();E01ClusterIntro.opened();Handler.drain();ok(ValueAnimator.starts==starts,"repeated connection/open does not replay within same session");running.done();hidden("normal completion removes cover and deadline");
   newSession();running=ValueAnimator.last;running.cancel();hidden("external animator cancel removes mask");running.step(.2f);hidden("stale cancelled update cannot resurrect mask");
   newSession();Handler.expire();hidden("stalled animator releases cover without any decoder or first-frame signal");
-  newSession();SystemClock.now+=5500;draw();hidden("draw deadline removes mask when delayed callback has not run");
+  newSession();SystemClock.now+=3500;draw();hidden("draw deadline removes mask when delayed callback has not run");
   Handler.rejectDeadline=true;newSession();hidden("deadline enqueue failure never shows cover");Handler.rejectDeadline=false;
   newSession();Runnable stale=(Runnable)field(v,"deadline");ValueAnimator staleAnimator=ValueAnimator.last;newSession();visible("fresh real reconnect may animate");stale.run();staleAnimator.done();visible("prior deadline and callback cannot cancel new session");
   E01ClusterIntro.ended();E01ClusterIntro.connected();E01ClusterIntro.opened();E01ClusterIntro.ended();Handler.drain();hidden("disconnect invalidates queued open");
@@ -107,14 +118,9 @@ public class NightIntroProbe {
   newSession();E01ClusterMode.allowed=false;ValueAnimator.last.step(.5f);hidden("projection gate closes any active intro");E01ClusterMode.allowed=true;
   newSession();E01ClusterIntro.ended();Handler.drain();hidden("power-off/session-end hook cannot retain a mask");E01ClusterIntro.opened();Handler.drain();hidden("power recovery alone cannot animate without connected-session hook");
   newSession();visible("new post-recovery session may play");ValueAnimator.last.done();hidden("post-recovery completion is clean");
-  install("relief");newSession();Canvas relief=draw();ok(relief.colors.get(0)==0xff3c4650,"relief intro matches its background");
-  RectF r=(RectF)field(v,"map");ok(r.left==400&&r.top==174&&r.right==1520&&r.bottom==594,"new style has the same calibrated map bounds");
-  for(int i=0;i<100;i++){ValueAnimator.last.step(i/100f);ok(draw().inside(((Path)field(v,"introClip")).shape),"relief transition cannot cover OEM information or music");}
-  ValueAnimator.last.done();hidden("relief intro cannot leave permanent cover");
-  install("sport");newSession();Canvas sport=draw();ok(sport.colors.get(0)==0xff24272d,"sport intro uses charcoal background");
-  for(int i=0;i<100;i++){ValueAnimator.last.step(i/100f);ok(draw().inside(((Path)field(v,"introClip")).shape),"sport intro leaves calibrated OEM and music zones untouched");}
-  ValueAnimator.last.done();hidden("sport intro clears at completion");
-  System.out.println("PASS "+checks+" night intro geometry, Canvas clipping, asset reuse and cancellation/deadline assertions; Android fixtures, no physical-device proof");
+  int invalidates=v.invalidates;ValueAnimator.last.step(.3f);ok(v.invalidates==invalidates,"finished animator cannot schedule further redraws");
+  newSession();Canvas.failDraw=true;draw();Canvas.failDraw=false;hidden("rendering failure clears full-screen overlay");
+  System.out.println("PASS "+checks+" full-screen racing intro, all themes, cached assets and cancellation/deadline assertions; Android fixtures, no physical-device proof");
  }
 }'''
 with tempfile.TemporaryDirectory(prefix='06link-night-intro-') as temp:

@@ -20,3 +20,5 @@
   Logo：x64，y61。
 
 manifest.json 记录文件校验值。原始设计文件保留，本目录保存独立副本。
+
+全屏过场：transitions/racing/，竞速启幕，3000 毫秒，五种仪表共用。

@@ -8,12 +8,6 @@ final class E01InstrumentFeather {
     static float smooth(float value) {
         float t=Math.max(0,Math.min(1,value));return t*t*(3-2*t);
     }
-    // Spatially fixed, zero-mean monochrome noise: no temporal shimmer or tiled stripes.
-    private static float noise(int x,int y) {
-        int n=x*374761393+y*668265263;
-        n=(n^(n>>>13))*1274126177;n^=n>>>16;
-        return (n&65535)/32767.5f-1;
-    }
     private static int channel(float value) {return Math.max(0,Math.min(255,Math.round(value)));}
 
     static Bitmap mapShadow(int width,int height,float sx,float sy) {
@@ -26,9 +20,8 @@ final class E01InstrumentFeather {
                 // One envelope, not two source-over layers: corners never compound darkness.
                 float a=Math.max(horizontal,vertical);a*=a;
                 if(a<=0){row[x]=0;continue;}
-                float grain=noise(x,y)*4*a*(1-a);
-                int alpha=channel(a*255+grain);
-                row[x]=(alpha<<24)|(channel(20+2*grain)<<16)|(channel(28+2*grain)<<8)|channel(38+2*grain);
+                int alpha=channel(a*255);
+                row[x]=(alpha<<24)|0x141c26;
             }
             result.setPixels(row,0,width,0,y,width,1);
         }
@@ -42,10 +35,10 @@ final class E01InstrumentFeather {
         float ox=Math.max(qx,0),oy=Math.max(qy,0);
         return (float)Math.sqrt(ox*ox+oy*oy)+Math.min(Math.max(qx,qy),0)-12;
     }
-    private static int outside(float d,float grain){
+    private static int outside(float d){
         float fall=1-smooth(Math.max(0,d)/32),shade=.36f*fall*fall;
-        return 0xff000000|(channel(60*(1-shade)+grain)<<16)
-            |(channel(70*(1-shade)+grain)<<8)|channel(80*(1-shade)+grain);
+        return 0xff000000|(channel(60*(1-shade))<<16)
+            |(channel(70*(1-shade))<<8)|channel(80*(1-shade));
     }
     static Bitmap reliefFrame(int width,int height,int padX,int padY,float sx,float sy){
         int w=width+2*padX,h=height+2*padY;
@@ -54,15 +47,14 @@ final class E01InstrumentFeather {
             for(int x=0;x<w;x++){
                 float d=distance((x-padX)/sx,(y-padY)/sy,(width-1)/sx,(height-1)/sy);
                 if(d>=0){
-                    float ramp=1-smooth(d/32);
-                    row[x]=outside(d,noise(x,y)*1.5f*4*ramp*(1-ramp));
+                    row[x]=outside(d);
                 }else{
                     // Only a 12px inside rim. The central video is untouched and transparent.
                     float depth=-d,edge=1-smooth(depth/Math.max(1/sx,1/sy));
                     float a=Math.max(edge,.16f*(1-smooth(depth/12)));
                     if(a<=0){row[x]=0;continue;}
-                    int alpha=channel(255*a+noise(x,y)*4*a*(1-a));
-                    row[x]=(alpha<<24)|(outside(0,0)&0xffffff);
+                    int alpha=channel(255*a);
+                    row[x]=(alpha<<24)|(outside(0)&0xffffff);
                 }
             }
             result.setPixels(row,0,w,0,y,w,1);
@@ -88,19 +80,16 @@ final class E01InstrumentFeather {
                 // transparent in the framed style so it cannot erase the live map or its rim.
                 float globalX=1515+x/sx,globalY=185+y/sy;
                 if((relief||sport)&&globalX<=1520){row[x]=0;continue;}
-                int bg=behind!=null?behind[x]:relief?outside(distance(globalX-400,globalY-174,1120,420),0):background;
+                int bg=behind!=null?behind[x]:relief?outside(distance(globalX-400,globalY-174,1120,420)):background;
                 int br=(bg>>>16)&255,bgGreen=(bg>>>8)&255,bb=bg&255;
                 float fade=smooth(x/(128*sx));
                 float amount=fade*(1-shade);
                 // Resolve to the actual instrument background before quantization. Keeping a
                 // low-alpha dark cover would introduce another premultiply/unpremultiply step.
-                float ramp=Math.max(4*fade*(1-fade),4*shade*(1-shade));
-                // Match a 5-bit channel step before physical output quantization, spatially
-                // balanced per 4x4 cell. At endpoints the cover and background still meet exactly.
-                float grain=4*E01InstrumentPrecision.noise(x,y)*ramp*fade;
-                row[x]=(alpha<<24)|(channel(br+(((c>>>16)&255)-br)*amount+grain)<<16)
-                    |(channel(bgGreen+(((c>>>8)&255)-bgGreen)*amount+grain)<<8)
-                    |channel(bb+((c&255)-bb)*amount+grain);
+                // Keep equal tones equal; artificial grain can become visible on the cluster.
+                row[x]=(alpha<<24)|(channel(br+(((c>>>16)&255)-br)*amount)<<16)
+                    |(channel(bgGreen+(((c>>>8)&255)-bgGreen)*amount)<<8)
+                    |channel(bb+((c&255)-bb)*amount);
             }
             bitmap.setPixels(row,0,width,0,y,width,1);
         }
