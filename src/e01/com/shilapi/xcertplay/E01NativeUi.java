@@ -210,15 +210,15 @@ public final class E01NativeUi extends android.view.ContextThemeWrapper {
         choice(g,"原厂文字颜色","text_color","跟随原车",new String[]{"跟随原车","强制浅色","强制深色"},"投屏时生效，结束后恢复原车模式");
         section("地图",null);g=group();choice(g,"内容大小","map_size","标准",new String[]{"标准","较大","最大"},"调整文字与道路的显示大小");
         valueRow(g,"地图视野","临时调节；高德可能恢复自动缩放","选择",()->zoom());
-        section("卡片与过场",null);g=group();valueRow(g,"原厂路口提示","原厂样式，预览仅保留位置","随导航更新",null);toggle(g,"音乐卡片","music",true,null);toggle(g,"仪表过场动画","intro",false,"关闭立即生效，下次连接播放");
+        section("卡片与过场",null);g=group();valueRow(g,"原厂路口提示","原厂样式，预览仅保留位置","随导航更新",null);toggle(g,"音乐卡片","music",E01InstrumentStyle.DEFAULT_MUSIC,null);toggle(g,"仪表过场动画","intro",E01InstrumentStyle.DEFAULT_INTRO,"关闭立即生效，下次连接播放");
     }
     private void instrumentPreview(){
-        LinearLayout body=column();final String[] names={"信息卡片","全屏地图","石墨仪表","浮影仪表","竞速仪表"},styles={"card","full","night","relief","sport"};
+        LinearLayout body=column();final int count=E01InstrumentStyle.count();
         final String[] selected={E01InstrumentStyle.selected(host)};
         final E01InstrumentPreview preview=new E01InstrumentPreview(this,dark);
-        LinearLayout choices=row();final TextView[] options=new TextView[names.length];
-        final Runnable update=()->{for(int i=0;i<options.length;i++){boolean active=styles[i].equals(selected[0]);options[i].setSelected(active);options[i].setTextColor(active?accent:ink);touch(options[i],active?tint:control,9);}preview.setStyle(selected[0]);};
-        for(int i=0;i<names.length;i++){final int index=i;if(i>0)horizontalGap(choices,8);options[i]=button(names[i],false,()->{selected[0]=styles[index];update.run();});options[i].setPadding(dp(8),0,dp(8),0);choices.addView(options[i],new LinearLayout.LayoutParams(0,dp(48),1));}
+        LinearLayout choices=row();final TextView[] options=new TextView[count];
+        final Runnable update=()->{for(int i=0;i<options.length;i++){boolean active=E01InstrumentStyle.at(i).id.equals(selected[0]);options[i].setSelected(active);options[i].setTextColor(active?accent:ink);touch(options[i],active?tint:control,9);}preview.setStyle(selected[0]);};
+        for(int i=0;i<count;i++){final E01InstrumentStyle.Theme theme=E01InstrumentStyle.at(i);if(i>0)horizontalGap(choices,8);options[i]=button(theme.label,false,()->{selected[0]=theme.id;update.run();});options[i].setPadding(dp(8),0,dp(8),0);choices.addView(options[i],new LinearLayout.LayoutParams(0,dp(48),1));}
         body.addView(choices,lp(-1,48));gap(body,12);
         // Fit the complete instrument above the fold on short landscape displays.
         int previewWidth=Math.min(dp(920),getResources().getDisplayMetrics().widthPixels-dp(40))-dp(44);
@@ -231,7 +231,7 @@ public final class E01NativeUi extends android.view.ContextThemeWrapper {
         modes.addView(theme[0],lp(-2,48));horizontalGap(modes,8);modes.addView(theme[1],lp(-2,48));body.addView(modes,lp(-1,48));gap(body,12);
         body.addView(text("地图、车辆读数和音乐仅作位置示意。原厂导航卡片保留原样，不能在此定制。",12,muted,false));gap(body,6);
         body.addView(text("日夜地图仅为预览，实际跟随手机导航；原厂信息由车机控制。",12,muted,false));update.run();updateTheme.run();
-        showDialog("仪表样式预览",body,"取消",null,"应用样式",()->{for(int i=0;i<styles.length;i++)if(styles[i].equals(selected[0])){store("layout",names[i]);notice=selectionNotice("layout",names[i]);refresh();break;}},true);
+        showDialog("仪表样式预览",body,"取消",null,"应用样式",()->{String label=E01InstrumentStyle.label(selected[0]);store("layout",label);notice=selectionNotice("layout",label);refresh();},true);
     }
     private void displaySettings(){section("CarPlay 画面","更改画面参数后，需要重新连接。");LinearLayout g=group();valueRow(g,"帧率",null,getValue("fps","30 帧"),()->frameRate());choice(g,"画质","quality","原始分辨率",new String[]{"原始分辨率","均衡","低负载"},null);choice(g,"界面大小","size","标准",new String[]{"较小","标准","较大"},null);section("视频优化",null);g=group();toggle(g,"流畅视频","smooth",true,"调整后重连生效");toggle(g,"MTK 低延迟","mtk",true,"自动检查视频参数，重连后生效");if(E01PrivilegedShell.supported())toggle(g,"中控 60Hz 输出","display60",true,"配合流畅视频及60帧，退出画面后恢复");section("外观",null);g=group();valueRow(g,"日夜模式",null,getValue("appearance","跟随系统"),()->appearance());section("更多",null);g=group();valueRow(g,"更多显示设置",null,"",()->navigate("display-more"));}
     private void frameRate(){choose("帧率","fps","30 帧",new String[]{"30 帧","60 帧"},null);}

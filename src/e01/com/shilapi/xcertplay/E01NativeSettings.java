@@ -29,7 +29,7 @@ public final class E01NativeSettings {
     Object load(String suffix){return call(singleton("AirPlayPersistence"),"load"+suffix,host);}
     void save(String suffix,Object v){call(singleton("AirPlayPersistence"),"save"+suffix,host,v);}
     SharedPreferences video(){return host.getSharedPreferences("06link-video",0);}
-    SharedPreferences instrument(){return host.getSharedPreferences("06link_instrument",0);}
+    SharedPreferences instrument(){return host.getSharedPreferences(E01InstrumentStyle.PREFERENCES,0);}
     boolean bool(String key,boolean ignored){switch(key){
         case "cluster":return (Boolean)load("ClusterMapEnabled");
         case "auto_connect":return (Boolean)call(singleton("DiPlayPreferences"),"autoConnect",host);
@@ -41,8 +41,8 @@ public final class E01NativeSettings {
         case "smooth":return video().getBoolean("smooth",false);
         case "mtk":return video().getBoolean("mtk",true);
         case "display60":return E01DisplayClock.enabled(host);
-        case "intro":return instrument().getBoolean("transition_enabled",true);
-        case "music":return instrument().getBoolean("music_enabled",true);
+        case "intro":return E01InstrumentStyle.introEnabled(host);
+        case "music":return E01InstrumentStyle.musicEnabled(host);
         case "tracks":E01WheelKeys.init(host);return E01WheelKeys.isEnabled();
         case "play":E01WheelKeys.init(host);return E01WheelKeys.isPlayPauseEnabled();
         case "siri":E01SiriKey.init(host);return E01SiriKey.isEnabled();
@@ -96,7 +96,7 @@ public final class E01NativeSettings {
     }if(!ok)throw new IllegalStateException("保存失败");}
     public static Object appearance(Context c){String name=c.getSharedPreferences("06link-native-ui",0).getString("appearance_mode","AUTO");if(!name.equals("LIGHT")&&!name.equals("DARK"))name="AUTO";return value("Appearance$Mode",name);}
     public static void saveAppearance(Context c,Object mode){c.getSharedPreferences("06link-native-ui",0).edit().putString("appearance_mode",mode.toString()).apply();}
-    public static boolean musicVisible(Context c){return c.getSharedPreferences("06link_instrument",0).getBoolean("music_enabled",true);}
+    public static boolean musicVisible(Context c){return E01InstrumentStyle.musicEnabled(c);}
     private static final Map<Activity,Boolean> startupModes=new WeakHashMap<Activity,Boolean>();
     private static String startupMode(Activity a){return a.getSharedPreferences("06link-native-ui",0).getString("default_connection","无线");}
     private static boolean connectionActive(){

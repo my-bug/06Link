@@ -104,11 +104,11 @@ with tempfile.TemporaryDirectory(prefix='06link-night-') as temporary:
  tmp=Path(temporary);output=args.output.resolve() if args.output else tmp/'rendered';output.mkdir(parents=True,exist_ok=True)
  for name in needed:
   file=tmp/'src'/name;file.parent.mkdir(parents=True,exist_ok=True);file.write_text(apis[name])
- production=[ROOT/'src/e01/com/shilapi/xcertplay'/(n+'.java') for n in ['E01MapCard','E01DisplayConfig','E01MusicCard','E01Artwork','E01InstrumentStyle','E01NightInstrument','E01InstrumentFeather','E01InstrumentPrecision','E01SportInstrument','E01InstrumentPreview']]
- probes=[HERE/'GeometryProbe.java',HERE/'RendererProbe.java',HERE/'InstallerProbe.java',HERE/'FeatherProbe.java',HERE/'ReliefProbe.java',HERE/'SportProbe.java',HERE/'PrecisionProbe.java']+[ROOT/'scripts/validation/session_fixes_1_0_29'/(n+'.java') for n in ['MusicCardProbe','ArtworkProbe']]
+ production=[ROOT/'src/e01/com/shilapi/xcertplay'/(n+'.java') for n in ['E01InstrumentRenderer','E01MapCard','E01DisplayConfig','E01MusicCard','E01Artwork','E01InstrumentStyle','E01NightInstrument','E01InstrumentFeather','E01InstrumentPrecision','E01SportInstrument','E01InstrumentPreview']]
+ probes=[HERE/'ThemeRegistryProbe.java',HERE/'GeometryProbe.java',HERE/'RendererProbe.java',HERE/'InstallerProbe.java',HERE/'FeatherProbe.java',HERE/'ReliefProbe.java',HERE/'SportProbe.java',HERE/'PrecisionProbe.java']+[ROOT/'scripts/validation/session_fixes_1_0_29'/(n+'.java') for n in ['MusicCardProbe','ArtworkProbe']]
  compile_result=subprocess.run([str(jdk/'bin/javac'),'--release','8','-d',str(tmp/'classes'),*map(str,sorted((tmp/'src').rglob('*.java'))),*map(str,production+probes)],capture_output=True,text=True)
  assert compile_result.returncode==0,compile_result.stderr
- for name in ['GeometryProbe','RendererProbe','InstallerProbe','MusicCardProbe','ArtworkProbe','FeatherProbe','ReliefProbe','SportProbe','PrecisionProbe']:
+ for name in ['ThemeRegistryProbe','GeometryProbe','RendererProbe','InstallerProbe','MusicCardProbe','ArtworkProbe','FeatherProbe','ReliefProbe','SportProbe','PrecisionProbe']:
   target=output if name=='RendererProbe' else output/(name+'.png')
   result=subprocess.run([str(jdk/'bin/java'),'-Djava.awt.headless=true','-cp',str(tmp/'classes'),'com.shilapi.xcertplay.'+name,str(target)],capture_output=True,text=True,timeout=30)
   print(result.stdout,end='');assert result.returncode==0,result.stderr

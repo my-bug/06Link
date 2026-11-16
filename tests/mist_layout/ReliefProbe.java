@@ -8,7 +8,7 @@ public final class ReliefProbe {
   for(String style:new String[]{"card","full","night","relief","sport"})ok(style.equals(E01InstrumentStyle.fromLabel(E01InstrumentStyle.label(style))),"style selector label roundtrip");
   ok(E01InstrumentStyle.fromLabel("夜航仪表").equals("night"),"old label migration retained");
   ok(E01InstrumentStyle.normalize("mist").equals("night"),"legacy saved selection survives upgrade");
-  String next="card";for(String expected:new String[]{"full","night","relief","sport","card"}){next=E01InstrumentStyle.next(next);ok(next.equals(expected),"quick selector reaches every style");}
+  String[] expected={"card","full","night","relief","sport"};ok(E01InstrumentStyle.count()==expected.length,"registry contains all themes");for(int i=0;i<expected.length;i++)ok(E01InstrumentStyle.at(i).id.equals(expected[i]),"selector uses registry order");
   for(int width:new int[]{1920,1280,960}){
    int height=width*3/8;E01NightInstrument renderer=new E01NightInstrument("relief");renderer.resize(width,height);
    Object cache=field(renderer,"shadow");Canvas canvas=new Canvas(width,height);renderer.draw(canvas,true);renderer.resize(width,height);renderer.draw(canvas,true);

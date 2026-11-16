@@ -5,39 +5,36 @@ import android.content.SharedPreferences;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.DashPathEffect;
-import android.graphics.LinearGradient;
 import android.graphics.Paint;
 import android.graphics.Path;
 import android.graphics.RectF;
-import android.graphics.Shader;
 import android.graphics.Typeface;
 import android.view.View;
 
-/** Settings-only preview: production night overlay with explicitly illustrative content. */
+/** Settings preview: the same production bezel and music renderers with illustrative map/OEM data. */
 public final class E01InstrumentPreview extends View {
     private static final int WIDTH=1920,HEIGHT=720;
-    private final E01NightInstrument nightOverlay=new E01NightInstrument();
-    private final E01MusicCard previewMusic;
+    private E01InstrumentRenderer renderer;
+    private E01MusicCard previewMusic;
+    private int[] musicBounds;
     private final Paint paint=new Paint(Paint.ANTI_ALIAS_FLAG);
     private final Path mapClip=new Path(),route=new Path(),roads=new Path(),arrow=new Path();
     private final RectF map=new RectF();
     private final SharedPreferences preferences;
-    private final Shader legacyBackground=new LinearGradient(0,0,960,720,
-        new int[]{0xff319fbb,0xff3c83bb,0xff626ab1},new float[]{0f,.5f,1f},Shader.TileMode.CLAMP);
     private final DashPathEffect reservedDash=new DashPathEffect(new float[]{7,8},0);
     private final Typeface regular=Typeface.create("sans-serif",Typeface.NORMAL);
     private final Typeface light=Typeface.create("sans-serif-light",Typeface.NORMAL);
     private String style;
     private boolean night,music;
-    private final Runnable refreshMusic=new Runnable(){public void run(){music=preferences.getBoolean("music_enabled",true);invalidate();}};
+    private final Runnable refreshMusic=new Runnable(){public void run(){music=E01InstrumentStyle.musicEnabled(getContext());invalidate();}};
     private final SharedPreferences.OnSharedPreferenceChangeListener changes=(prefs,key)->{
         if("music_enabled".equals(key))post(refreshMusic);
         if("text_color".equals(key))post(()->invalidate());
     };
 
     public E01InstrumentPreview(Context context,boolean night){
-        super(context);this.night=night;previewMusic=new E01MusicCard(context,true);previewMusic.onSizeChanged(370,380,0,0);preferences=context.getSharedPreferences("06link_instrument",0);
-        music=preferences.getBoolean("music_enabled",true);nightOverlay.resize(WIDTH,HEIGHT);
+        super(context);this.night=night;preferences=context.getSharedPreferences(E01InstrumentStyle.PREFERENCES,0);
+        music=E01InstrumentStyle.musicEnabled(getContext());
         paint.setStrokeCap(Paint.Cap.ROUND);paint.setStrokeJoin(Paint.Join.ROUND);
         roads.moveTo(-30,110);roads.lineTo(1150,110);roads.moveTo(-30,270);roads.lineTo(1150,270);
         roads.moveTo(180,-30);roads.lineTo(180,450);roads.moveTo(390,-30);roads.lineTo(390,450);
@@ -48,11 +45,14 @@ public final class E01InstrumentPreview extends View {
     }
 
     public void setStyle(String value){
-        style=E01InstrumentStyle.normalize(value);
-        nightOverlay.setStyle(style);previewMusic.setPaletteStyle(style);previewMusic.setBackdrop(nightOverlay.backdrop());
+        String next=E01InstrumentStyle.normalize(value);if(next.equals(style))return;style=next;
+        renderer=new E01InstrumentRenderer(style);renderer.resize(WIDTH,HEIGHT);
+        musicBounds=E01InstrumentStyle.theme(style).musicBounds(WIDTH,HEIGHT);
+        previewMusic=new E01MusicCard(getContext(),style);
+        previewMusic.onSizeChanged(musicBounds[2],musicBounds[3],0,0);previewMusic.setBackdrop(renderer.backdrop());
         int[] bounds=E01MapCard.boundsFor(WIDTH,HEIGHT,style);
         map.set(bounds[0],bounds[1],bounds[0]+bounds[2],bounds[1]+bounds[3]);
-        mapClip.reset();float radius=E01InstrumentStyle.fullscreen(style)||E01InstrumentStyle.isImmersive(style)?0:40;
+        mapClip.reset();float radius=E01InstrumentStyle.theme(style).layout.mapRadius;
         mapClip.addRoundRect(map,radius,radius,Path.Direction.CW);
         setContentDescription(E01InstrumentStyle.label(style)
             +"预览，地图、读数和音乐仅为示意，原厂导航卡片仅预留位置");invalidate();
@@ -79,12 +79,8 @@ public final class E01InstrumentPreview extends View {
         if(scale<=0)return;
         canvas.save();canvas.translate((getWidth()-WIDTH*scale)/2,(getHeight()-HEIGHT*scale)/2);canvas.scale(scale,scale);
         canvas.clipRect(0,0,WIDTH,HEIGHT);
-        boolean modern=E01InstrumentStyle.isImmersive(style),full="full".equals(style);
-        if(!modern&&!full){fill(Color.WHITE);paint.setShader(legacyBackground);canvas.drawRect(0,0,WIDTH,HEIGHT,paint);paint.setShader(null);}
-        drawMap(canvas);
-        if(modern)nightOverlay.draw(canvas,music);else drawLegacyPanels(canvas,full);
-        drawOemPlaceholders(canvas);
-        if(music)drawMusicPlaceholder(canvas,modern);
+        drawMap(canvas);renderer.draw(canvas,music);drawOemPlaceholders(canvas);
+        if(music){int saved=canvas.save();canvas.translate(musicBounds[0],musicBounds[1]);previewMusic.drawPreview(canvas);canvas.restoreToCount(saved);}
         canvas.restore();
     }
 
@@ -101,22 +97,6 @@ public final class E01InstrumentPreview extends View {
         stroke(0xffffffff,30);canvas.drawPath(route,paint);stroke(0xff117ab2,18);canvas.drawPath(route,paint);stroke(0xff24bbd3,11);canvas.drawPath(route,paint);
         fill(Color.WHITE);canvas.drawPath(arrow,paint);stroke(0xff117ab2,3);canvas.drawPath(arrow,paint);
         label(canvas,"地图示意",990,383,24,immersive?0xff9cb9c9:0xff627c77);canvas.restore();
-    }
-
-    private void drawLegacyPanels(Canvas canvas,boolean full){
-        if(!full){
-            stroke(0x99f1f6fb,2);canvas.drawPath(mapClip,paint);
-            legacyPanel(canvas,35,185,370,340,42);legacyPanel(canvas,555,20,810,64,24);
-            legacyPanel(canvas,1408,64,455,96,26);legacyPanel(canvas,205,HEIGHT*.83f-4,1510,HEIGHT*.17f+2,27);
-        }
-        if(music)legacyPanel(canvas,1515,185,370,340,42);
-    }
-
-    private void legacyPanel(Canvas canvas,float x,float y,float width,float height,float radius){
-        fill(0xff3c83bb);paint.setShader(legacyBackground);canvas.drawRoundRect(x,y,x+width,y+height,radius,radius,paint);paint.setShader(null);
-        fill(0x68133153);canvas.drawRoundRect(x,y,x+width,y+height,radius,radius,paint);
-        fill(0x20ffffff);canvas.drawRoundRect(x,y,x+width,y+height,radius,radius,paint);
-        stroke(0x75ffffff,1.5f);canvas.drawRoundRect(x,y,x+width,y+height,radius,radius,paint);
     }
 
     private void drawOemPlaceholders(Canvas canvas){
@@ -146,19 +126,6 @@ public final class E01InstrumentPreview extends View {
         canvas.drawLine(328,699,355,699,paint);canvas.drawLine(351,668,364,680,paint);canvas.drawLine(364,680,364,696,paint);
         canvas.drawLine(1235,659,1235,680,paint);canvas.drawCircle(1235,685,8,paint);canvas.drawLine(1240,666,1248,666,paint);
         canvas.drawLine(1240,677,1248,677,paint);canvas.drawLine(402,687,610,687,paint);canvas.drawLine(1290,684,1494,684,paint);
-    }
-
-    private void drawMusicPlaceholder(Canvas canvas,boolean modern){
-        if(modern){
-            // Uses production music rendering and a local example state; never mutates live metadata.
-            int saved=canvas.save();canvas.translate(1515,185);previewMusic.drawPreview(canvas);canvas.restoreToCount(saved);
-            return;
-        }
-        int text=night?0xfff7fbff:0xff252c32;
-        fill(0xff416e85);canvas.drawRoundRect(1638,214,1758,334,20,20,paint);
-        label(canvas,"♪",1698,298,72,0xffcbe9ef);
-        label(canvas,"音乐示意",1698,205,16,text);
-        label(canvas,"歌曲名称",1698,384,30,text);label(canvas,"歌手 / 专辑",1698,417,20,text);
     }
 
     private void fill(int color){paint.setStyle(Paint.Style.FILL);paint.setColor(color);paint.setShader(null);paint.setPathEffect(null);}

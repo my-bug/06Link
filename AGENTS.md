@@ -28,3 +28,5 @@
 - 文档随实际实现更新，内部排查过程与历史研究记录保留在本地。
 
 详见 `README.md`、`docs/BUILD.md` 与 `CONTRIBUTING.md`。
+
+仪表主题、预览和过场动画统一遵循 `docs/INSTRUMENT_THEMES.md`；新增主题通过主题表和共用绘制入口接入。

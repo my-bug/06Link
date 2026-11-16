@@ -40,7 +40,7 @@ public final class E01MusicCard extends View {
     private String headingText="音乐", titleText="暂无歌曲", titleSecond="", artistText="CarPlay 音乐";
     private float sx, sy;
     private final boolean immersive;
-    private String paletteStyle;
+    private final String paletteStyle;
     private Bitmap preparedCover,preparedArtwork,backdrop;
     private final Rect preparedSource=new Rect();
     private final RectF preparedBounds=new RectF();
@@ -60,16 +60,10 @@ public final class E01MusicCard extends View {
     }
 
     void setBackdrop(Bitmap value){if(backdrop==value)return;backdrop=value;preparedCover=null;preparedArtwork=null;invalidate();}
-    void setPaletteStyle(String value){
-        String next=E01InstrumentStyle.normalize(value);if(next.equals(paletteStyle))return;
-        paletteStyle=next;preparedCover=null;preparedArtwork=null;invalidate();
-    }
-
     /** Fixed music region below RPM: x1515/y185, clear of OEM route and footer. */
     void place(int width, int height) {
-        float x=width/1920f, y=height/720f;
-        int w=Math.max(1,Math.round(370*x)), h=Math.max(1,Math.round((immersive?380:340)*y));
-        int left=Math.round(1515*x), top=Math.round(185*y);
+        int[] bounds=E01InstrumentStyle.theme(paletteStyle).musicBounds(width,height);
+        int left=bounds[0],top=bounds[1],w=bounds[2],h=bounds[3];
         ViewGroup.LayoutParams old=getLayoutParams();
         if (old instanceof FrameLayout.LayoutParams) {
             FrameLayout.LayoutParams p=(FrameLayout.LayoutParams)old;
@@ -215,7 +209,9 @@ public final class E01MusicCard extends View {
 
     @Override protected void onDraw(Canvas canvas) {
         super.onDraw(canvas); if (sx<=0 || sy<=0 || !E01NativeSettings.musicVisible(getContext())) return;
-        State current=state;
+        drawState(canvas,state);
+    }
+    private void drawState(Canvas canvas,State current){
         if (current!=rendered) {
             headingText=current.status==1?"正在播放":current.status==2?"已暂停":current.status==0?"已停止":
                 current.status==3?"正在快进":current.status==4?"正在快退":"音乐";
@@ -246,10 +242,9 @@ public final class E01MusicCard extends View {
         canvas.drawText(artistText,135*sx,235*sy,artistPaint);
     }
     void drawPreview(Canvas canvas){
-        updateTitle("沿着熟悉的街道慢慢向前");artistText=fit("歌曲名称 / 歌手",artistPaint,286*sx);
-        drawImmersive(canvas,PREVIEW);
+        drawState(canvas,PREVIEW);
     }
-    private static final State PREVIEW=new State("","",-1,-1,null);
+    private static final State PREVIEW=new State("沿着熟悉的街道慢慢向前","歌曲名称 / 歌手",1,-1,null);
 
     private void prepareCover(Bitmap artwork){
         if(preparedCover!=null&&preparedArtwork==artwork)return;
@@ -257,7 +252,7 @@ public final class E01MusicCard extends View {
         // Software composition avoids GPU masking and repeated low-alpha quantization on E01.
         // Cache by image identity and size: lyric-only updates never recompose/upload artwork.
         Bitmap result=Bitmap.createBitmap(coverWidth,coverHeight,Bitmap.Config.ARGB_8888);
-        albumBase.setColor("sport".equals(paletteStyle)?0xff34383e:"relief".equals(paletteStyle)?0xff52606a:0xff27343e);
+        albumBase.setColor(E01InstrumentStyle.theme(paletteStyle).albumBackground);
         Canvas canvas=new Canvas(result);
         int saved=canvas.save();
         canvas.clipPath(coverClip);canvas.drawRect(coverBounds,albumBase);
