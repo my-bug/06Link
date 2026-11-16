@@ -220,7 +220,7 @@ iPhone 出现提示时允许使用 CarPlay。"</string>
     <string name="permission_reason_microphone">麦克风：CarPlay 里的 Siri 和打电话需要。</string>
     <string name="permission_reason_nearby_wifi">附近的 Wi‑Fi 设备：与 iPhone 建立无线连接需要。</string>
     <string name="pic_decoded">第一帧已解码 · 正在显示</string>
-    <string name="pic_downgraded">画面解不出来，这次连接已改用 30 帧 H.264 重连</string>
+    <string name="pic_codec_reconnecting">画面解码未完成，正在保持所选帧率重试 H.264</string>
     <string name="pic_fail_decode">30 秒没有画面：收到了 %1$s 画面数据，但解码器一帧也没解出来（Android %2$s，%3$s），请求关键帧并降低负载后仍然没有。</string>
     <string name="pic_fail_no_data">30 秒没有画面：CarPlay 已连上，但 iPhone 一直没发画面数据，请求了 %1$d 次关键帧也没有。可能：iPhone 上的 CarPlay 卡住了，或只有控制通道通了。</string>
     <string name="pic_fail_no_surface">30 秒没有画面：收到了 %1$s 画面数据，但系统没给 CarPlay 画面显示位置（它在 06Link 后面）。打开 CarPlay，或再试一次。</string>

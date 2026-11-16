@@ -5,5 +5,11 @@ public interface SharedPreferences {
     int getInt(String key, int fallback);
     boolean contains(String key);
     Editor edit();
-    interface Editor { Editor remove(String key); void apply(); }
+    interface Editor {
+        Editor remove(String key);
+        Editor putInt(String key, int value);
+        Editor putBoolean(String key, boolean value);
+        void apply();
+        boolean commit();
+    }
 }

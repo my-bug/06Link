@@ -56,7 +56,7 @@ public final class E01NativeSettings {
         case "layout":return E01InstrumentStyle.label(E01InstrumentStyle.selected(host));
         case "text_color":return E01InstrumentTextColor.label(host);
         case "map_size":int scale=(Integer)load("ClusterMapScalePercent");return scale==100?"标准":scale==83?"较大":scale==67?"最大":scale+"%";
-        case "fps":if(force60(host))return "强制 60 帧";return (Boolean)load("FpsAuto")?"自动 · 30 帧":load("Fps")+" 帧";
+        case "fps":return E01FrameRatePolicy.selectedFps(host)+" 帧";
         case "quality":int q=(Integer)load("DisplayScaleTenths");return q==10?"原始分辨率":q==8?"均衡":q==6?"低负载":(q*10)+"%";
         case "size":int sz=(Integer)load("UiScalePercent");return sz==100?"标准":sz==85?"较小":sz==115?"较大":sz+"%";
         case "rotation":String rot=call(singleton("ScreenRotation"),"saved",host).toString();return rot.equals("AUTO")?"自动":rot.substring(1)+"°";
@@ -91,14 +91,11 @@ public final class E01NativeSettings {
         case "current":ok=E01WiredUi.save(host,v.equals("0.5 A")?500:v.equals("1.5 A")?1500:2400);break;
         case "rotation":call(singleton("ScreenRotation"),"save",host,value("ScreenRotation$Choice",v.equals("自动")?"AUTO":"R"+v.toString().replace("°","")));call(singleton("CarDisplay"),"fullScreen",host);host.recreate();break;
         case "appearance":call(singleton("Appearance"),"save",host,value("Appearance$Mode",v.equals("白天")?"LIGHT":v.equals("夜间")?"DARK":"AUTO"));call(host,"applyAppearance");break;
-        case "fps":boolean force=v.equals("强制 60 帧");ok=video().edit().putBoolean("force60",force).commit();if(v.equals("自动 · 30 帧"))call(singleton("AirPlayPersistence"),"saveFpsAuto",host);else save("ManualFps",v.equals("30 帧")?30:60);break;
+        case "fps":ok=E01FrameRatePolicy.save(host,v.equals("60 帧")?60:30);break;
         default:throw new IllegalArgumentException(key);
     }if(!ok)throw new IllegalStateException("保存失败");}
     public static Object appearance(Context c){String name=c.getSharedPreferences("06link-native-ui",0).getString("appearance_mode","AUTO");if(!name.equals("LIGHT")&&!name.equals("DARK"))name="AUTO";return value("Appearance$Mode",name);}
     public static void saveAppearance(Context c,Object mode){c.getSharedPreferences("06link-native-ui",0).edit().putString("appearance_mode",mode.toString()).apply();}
-    public static boolean force60(Context c){return E01FrameRatePolicy.force60(c);}
-    public static Object filterAdaptation(Context c,Object a){if(!force60(c)||!(Boolean)call(a,"getTo30Fps"))return a;if(!(Boolean)call(a,"getToH264"))return null;try{return a.getClass().getConstructor(boolean.class,boolean.class,String.class).newInstance(false,true,call(a,"getWhy"));}catch(Exception e){throw new IllegalStateException(e);}}
-    public static boolean reduceFps(Context c,boolean requested){return requested&&!force60(c);}
     public static boolean musicVisible(Context c){return c.getSharedPreferences("06link_instrument",0).getBoolean("music_enabled",true);}
     private static final Map<Activity,Boolean> startupModes=new WeakHashMap<Activity,Boolean>();
     private static String startupMode(Activity a){return a.getSharedPreferences("06link-native-ui",0).getString("default_connection","无线");}

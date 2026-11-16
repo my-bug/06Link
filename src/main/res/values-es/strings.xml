@@ -218,7 +218,7 @@ Permite CarPlay si tu iPhone lo pide."</string>
     <string name="permission_reason_microphone">Micrófono: necesario para Siri y las llamadas en CarPlay.</string>
     <string name="permission_reason_nearby_wifi">Dispositivos Wi-Fi cercanos: necesario para la conexión inalámbrica con el iPhone.</string>
     <string name="pic_decoded">Primer fotograma decodificado · mostrándolo</string>
-    <string name="pic_downgraded">La imagen no se decodificó; reconectado a 30 fps H.264 solo para esta conexión</string>
+    <string name="pic_codec_reconnecting">No se pudo decodificar la imagen; reintentando con H.264 a la frecuencia seleccionada</string>
     <string name="pic_fail_decode">Sin imagen en 30 s: llegaron %1$s de imagen pero el decodificador no produjo ningún fotograma (Android %2$s, %3$s), tampoco tras pedir un fotograma clave y bajar la carga.</string>
     <string name="pic_fail_no_data">Sin imagen en 30 s: CarPlay está conectado pero el iPhone no envió datos de imagen, ni tras %1$d peticiones de fotograma clave. Probable: CarPlay está bloqueado en el iPhone o solo funciona el canal de control.</string>
     <string name="pic_fail_no_surface">Sin imagen en 30 s: llegaron %1$s de imagen, pero el sistema no dio superficie a la pantalla de CarPlay (estaba detrás de 06Link). Abre CarPlay o reinténtalo.</string>

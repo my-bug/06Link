@@ -3,9 +3,9 @@ import android.app.*;import android.view.*;import android.media.*;import android
 public class IntegrationCheck{
  static int checks;static void ok(boolean b){checks++;if(!b)throw new AssertionError("check "+checks);}
  public static class Sink{public int clears;public Surface old,active;public void clearSurface(int type,Surface s){if(type==110&&s==active){clears++;old=s;active=null;}}}
- public static class Owner extends Activity{public Surface currentSurface;public Object currentSurfaceTexture;public View videoView;public Sink sink=new Sink();public boolean sessionForce30Fps;public TextureView.SurfaceTextureListener textureListener=new TextureView.SurfaceTextureListener(){};int attaches,width,height;private void attachSurface(Surface s){if(s!=currentSurface)throw new AssertionError();attaches++;sink.active=s;}private void scheduleDisplaySize(int w,int h){width=w;height=h;}}
+ public static class Owner extends Activity{public Surface currentSurface;public Object currentSurfaceTexture;public View videoView;public Sink sink=new Sink();public TextureView.SurfaceTextureListener textureListener=new TextureView.SurfaceTextureListener(){};int attaches,width,height;private void attachSurface(Surface s){if(s!=currentSurface)throw new AssertionError();attaches++;sink.active=s;}private void scheduleDisplaySize(int w,int h){width=w;height=h;}}
  public static class Decoder{private MediaCodec decoder;Decoder(MediaCodec c){decoder=c;}}
- static void prefs(Owner o,int fps){o.getSharedPreferences("xcertplay_airplay",0).values.put("display_fps_mode","manual");o.getSharedPreferences("xcertplay_airplay",0).values.put("display_fps",fps);}
+ static void prefs(Owner o,int fps){E01FrameRatePolicy.save(o,fps);}
  static byte[] header(){long n=2000000000L;byte[] b=new byte[128];for(int i=0;i<8;i++)b[8+i]=(byte)(n>>>(i*8));return b;}
  public static void main(String[] args){
   Owner owner=new Owner();prefs(owner,30);E01SmoothVideo.negotiatedFps(owner,30);View old=E01SmoothVideo.create(owner);owner.videoView=old;ok(old instanceof TextureView);ok(((TextureView)old).listener==owner.textureListener);ok(!E01SmoothVideo.recreateIfNeeded(owner));
@@ -16,8 +16,8 @@ public class IntegrationCheck{
   MediaCodec paced=new MediaCodec();E01SmoothVideo.configure(paced,new MediaFormat(),surface,true);ok(E01SmoothVideo.STATES.get(paced).clock.delay()==140000000L);
   prefs(owner,60);E01SmoothVideo.negotiatedFps(owner,60);MediaCodec sixty=new MediaCodec();E01SmoothVideo.configure(sixty,new MediaFormat(),surface,true);ok(E01SmoothVideo.STATES.get(sixty).output.fps==60);ok(E01SmoothVideo.STATES.get(sixty).clock.delay()==90000000L);
   prefs(owner,30);E01SmoothVideo.negotiatedFps(owner,30);MediaCodec thirtyAgain=new MediaCodec();E01SmoothVideo.configure(thirtyAgain,new MediaFormat(),surface,true);ok(E01SmoothVideo.STATES.get(thirtyAgain).output.fps==30);ok(E01SmoothVideo.STATES.get(thirtyAgain).clock.delay()==140000000L);
-  owner.getSharedPreferences("xcertplay_airplay",0).values.put("display_fps_mode","auto");E01SmoothVideo.negotiatedFps(owner,30);MediaCodec auto=new MediaCodec();E01SmoothVideo.configure(auto,new MediaFormat(),surface,true);ok(E01SmoothVideo.STATES.get(auto).output.fps==30);prefs(owner,60);
-  // The clock must follow the negotiated fallback, even when manual preference is 60.
+  prefs(owner,30);E01SmoothVideo.negotiatedFps(owner,30);MediaCodec auto=new MediaCodec();E01SmoothVideo.configure(auto,new MediaFormat(),surface,true);ok(E01SmoothVideo.STATES.get(auto).output.fps==30);prefs(owner,60);
+  // An existing session keeps its negotiated rate until reconnection applies the new preference.
   E01SmoothVideo.negotiatedFps(owner,30);MediaCodec fallback=new MediaCodec();E01SmoothVideo.configure(fallback,new MediaFormat(),surface,true);ok(E01SmoothVideo.STATES.get(fallback).output.fps==30&&E01SmoothVideo.STATES.get(fallback).clock.delay()==140000000L);
   E01SmoothVideo.negotiatedFps(owner,60);MediaCodec retried=new MediaCodec();E01SmoothVideo.configure(retried,new MediaFormat(),surface,true);ok(E01SmoothVideo.STATES.get(retried).output.fps==60&&E01SmoothVideo.STATES.get(retried).clock.delay()==90000000L);
   // An existing codec keeps its own clock when settings for a later session change.

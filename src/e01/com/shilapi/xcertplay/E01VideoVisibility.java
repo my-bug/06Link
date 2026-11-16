@@ -20,7 +20,7 @@ public final class E01VideoVisibility {
         boolean foreground;
         Surface surface;
         long epoch, sampleEpoch = -1, visibleSince;
-        Object guard, watch;
+        Object guard;
     }
     static final class Ticket {
         final WeakReference<Activity> owner;
@@ -65,16 +65,16 @@ public final class E01VideoVisibility {
         State s = STATES.get(a);
         return active(a, s) && s.surface == surface;
     }
-    public static synchronized boolean acceptWindow(Activity a, Object guard, Object watch) {
+    public static synchronized boolean acceptWindow(Activity a, Object guard) {
         WINDOW.remove(); State s = STATES.get(a);
         if (!active(a, s)) {
-            reset(guard); reset(watch);
+            reset(guard);
             if (s != null) s.sampleEpoch = -1;
             return false;
         }
-        if (s.sampleEpoch != s.epoch || s.guard != guard || s.watch != watch) {
-            reset(guard); reset(watch);
-            s.sampleEpoch = s.epoch; s.guard = guard; s.watch = watch;
+        if (s.sampleEpoch != s.epoch || s.guard != guard) {
+            reset(guard);
+            s.sampleEpoch = s.epoch; s.guard = guard;
             // This first callback can include hidden time, even after a long pause.
             // The next VideoStats callback covers a complete foreground window.
             return false;

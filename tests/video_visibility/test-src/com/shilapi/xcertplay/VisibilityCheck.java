@@ -20,26 +20,19 @@ public final class VisibilityCheck {
         private int windows = 9;
         Guard() { recent.add("old output=0 window"); }
     }
-    static final class Watch {
-        private final ArrayList<Object> recent = new ArrayList<Object>();
-        private boolean concluded = true;
-        Watch() { recent.add("old 60fps evidence"); }
-    }
     static final class Run {
         final Activity owner = new Activity();
         final Guard guard = new Guard();
-        final Watch watch = new Watch();
         Surface surface = new Surface();
-        boolean window() { return E01VideoVisibility.acceptWindow(owner, guard, watch); }
+        boolean window() { return E01VideoVisibility.acceptWindow(owner, guard); }
         void show() { E01VideoVisibility.surfaceReady(owner, surface); E01VideoVisibility.resumed(owner); }
         Object decision() { Object value = new Object(); E01VideoVisibility.recordDecision(owner, value); return value; }
     }
     public static void main(String[] args) throws Exception {
         Run r = new Run();
-        ok(!r.window(), "never-visible Activity cannot downgrade");
+        ok(!r.window(), "never-visible Activity cannot codec fallback");
         ok(r.guard.recent.isEmpty() && !r.guard.concluded && r.guard.windows == 0,
             "load guard history, conclusion and warmup reset");
-        ok(r.watch.recent.isEmpty() && !r.watch.concluded, "FPS watch history and conclusion reset");
         E01VideoVisibility.resumed(r.owner);
         ok(!r.window(), "foreground without main surface is not visible output");
         E01VideoVisibility.surfaceReady(r.owner, r.surface);
@@ -53,7 +46,6 @@ public final class VisibilityCheck {
         // Reported reproduction: 60fps packets continue while three fingers open settings.
         Object queuedBeforeSettings = r.decision();
         r.guard.recent.add("bad foreground sample"); r.guard.concluded = true; r.guard.windows = 20;
-        r.watch.recent.add("bad sample"); r.watch.concluded = true;
         E01VideoVisibility.paused(r.owner);
         for (int n = 0; n < 24; n++) {
             SystemClock.now += 5000;
@@ -62,7 +54,6 @@ public final class VisibilityCheck {
         ok(!E01VideoVisibility.takeDecision(r.owner, queuedBeforeSettings), "queued pre-settings adaptation cancelled");
         ok(r.guard.recent.isEmpty() && !r.guard.concluded && r.guard.windows == 0,
             "hidden samples do not retain old load history");
-        ok(r.watch.recent.isEmpty() && !r.watch.concluded, "hidden samples cannot poison next auto FPS choice");
         E01VideoVisibility.resumed(r.owner);
         ok(!r.window(), "return drops mixed hidden/visible interval even after long wait");
         ok(r.window(), "second window resumes normal judgement");
@@ -89,14 +80,14 @@ public final class VisibilityCheck {
         ok(!r.window(), "invalid native surface excluded even before loss callback");
         r.surface.valid = true;
         ok(!r.window() && r.window(), "invalid surface interval cannot leak into recovery");
-        ok(!E01VideoVisibility.acceptWindow(r.owner, new Guard(), r.watch), "new session guard has independent warmup");
+        ok(!E01VideoVisibility.acceptWindow(r.owner, new Guard()), "new session guard has independent warmup");
         ok(!r.window() && r.window(), "switching guard/session resets previous evidence");
 
         SystemClock.now = 150000;
         E01VideoVisibility.paused(r.owner); E01VideoVisibility.resumed(r.owner);
         ok(!E01VideoVisibility.allowSessionAdaptation(r.owner), "first-picture fallback waits for visible interval");
         SystemClock.now += 4999;
-        ok(!E01VideoVisibility.allowSessionAdaptation(r.owner), "no first-picture downgrade during resume grace");
+        ok(!E01VideoVisibility.allowSessionAdaptation(r.owner), "no first-picture codec fallback during resume grace");
         SystemClock.now++;
         ok(E01VideoVisibility.allowSessionAdaptation(r.owner), "real visible first-picture timeout retains fallback");
         E01VideoVisibility.paused(r.owner); SystemClock.now += 60000;
@@ -119,7 +110,7 @@ public final class VisibilityCheck {
         E01VideoVisibility.paused(r.owner); E01VideoVisibility.resumed(r.owner);
         continueWorker.countDown(); worker.join(2000);
         ok(!worker.isAlive() && failure.get() == null, "in-flight worker window invalidated across UI transition");
-        ok(!E01VideoVisibility.takeDecision(r.owner, stale), "worker cannot enqueue downgrade after foreground epoch changes");
+        ok(!E01VideoVisibility.takeDecision(r.owner, stale), "worker cannot enqueue codec fallback after foreground epoch changes");
 
         Run other = new Run(); other.show(); other.window(); ok(other.window(), "second activity valid independently");
         Object own = other.decision();

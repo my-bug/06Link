@@ -1,1 +1,33 @@
-package android.content;import java.util.*;public class Context{public final Map<String,Prefs> preferences=new HashMap<>();public static class Prefs implements SharedPreferences{public final Map<String,Object> values=new HashMap<>();public boolean getBoolean(String k,boolean d){return values.containsKey(k)?(Boolean)values.get(k):d;}public String getString(String k,String d){return values.containsKey(k)?(String)values.get(k):d;}public int getInt(String k,int d){return values.containsKey(k)?(Integer)values.get(k):d;}}public Context getApplicationContext(){return this;}public Prefs getSharedPreferences(String n,int m){if(!preferences.containsKey(n))preferences.put(n,new Prefs());return preferences.get(n);}public java.io.File getExternalFilesDir(String s){return new java.io.File("/tmp");}public java.io.File getFilesDir(){return new java.io.File("/tmp");}}
+package android.content;
+import java.util.*;
+public class Context {
+    public final Map<String, Prefs> stores = new HashMap<String, Prefs>();
+    public final Map<String, Prefs> preferences = stores;
+    public Context getApplicationContext() { return this; }
+    public java.io.File getExternalFilesDir(String name) { return new java.io.File("/tmp"); }
+    public java.io.File getFilesDir() { return new java.io.File("/tmp"); }
+    public Prefs getSharedPreferences(String name, int mode) {
+        if (!stores.containsKey(name)) stores.put(name, new Prefs());
+        return stores.get(name);
+    }
+    public static final class Prefs implements SharedPreferences {
+        public final Map<String, Object> values = new HashMap<String, Object>();
+        public int writes;
+        public boolean failCommit;
+        public String getString(String key, String fallback) { return values.containsKey(key) ? (String)values.get(key) : fallback; }
+        public boolean getBoolean(String key, boolean fallback) { return values.containsKey(key) ? (Boolean)values.get(key) : fallback; }
+        public int getInt(String key, int fallback) { return values.containsKey(key) ? (Integer)values.get(key) : fallback; }
+        public boolean contains(String key) { return values.containsKey(key); }
+        public Editor edit() {
+            return new Editor() {
+                final Set<String> removed = new HashSet<String>();
+                final Map<String, Object> added = new HashMap<String, Object>();
+                public Editor remove(String key) { removed.add(key); return this; }
+                public Editor putInt(String key, int value) { added.put(key, value); return this; }
+                public Editor putBoolean(String key, boolean value) { added.put(key, value); return this; }
+                public void apply() { for (String key : removed) values.remove(key); values.putAll(added); writes++; }
+                public boolean commit() { if (failCommit) return false; apply(); return true; }
+            };
+        }
+    }
+}

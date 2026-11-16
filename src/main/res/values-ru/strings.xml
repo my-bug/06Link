@@ -218,7 +218,7 @@ SSID: "</string>
     <string name="permission_reason_microphone">Микрофон: нужен для Siri и звонков в CarPlay.</string>
     <string name="permission_reason_nearby_wifi">Wi-Fi-устройства поблизости: нужно для беспроводного подключения к iPhone.</string>
     <string name="pic_decoded">Первый кадр декодирован · показываем</string>
-    <string name="pic_downgraded">Изображение не декодировалось; переподключено с 30 к/с H.264 только для этого подключения</string>
+    <string name="pic_codec_reconnecting">Не удалось декодировать изображение; повтор с H.264 при выбранной частоте кадров</string>
     <string name="pic_fail_decode">Нет изображения за 30 с: пришло %1$s данных, но декодер не выдал ни одного кадра (Android %2$s, %3$s), даже после запроса ключевого кадра и снижения нагрузки.</string>
     <string name="pic_fail_no_data">Нет изображения за 30 с: CarPlay подключён, но iPhone не прислал данных изображения даже после %1$d запросов ключевого кадра. Вероятно: CarPlay завис на iPhone или работает только канал управления.</string>
     <string name="pic_fail_no_surface">Нет изображения за 30 с: пришло %1$s данных, но система не дала экрану CarPlay поверхность (он был за 06Link). Откройте CarPlay или повторите.</string>

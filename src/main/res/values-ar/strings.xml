@@ -218,7 +218,7 @@ SSID: "</string>
     <string name="permission_reason_microphone">الميكروفون: مطلوب لـ Siri والمكالمات في CarPlay.</string>
     <string name="permission_reason_nearby_wifi">أجهزة Wi-Fi القريبة: مطلوب للاتصال اللاسلكي مع iPhone.</string>
     <string name="pic_decoded">تم فك ترميز الإطار الأول · جارٍ عرضه</string>
-    <string name="pic_downgraded">تعذّر فك ترميز الصورة؛ أُعيد الاتصال بـ 30 إطارًا/ث و H.264 لهذا الاتصال فقط</string>
+    <string name="pic_codec_reconnecting">تعذر فك ترميز الصورة؛ إعادة المحاولة باستخدام H.264 بمعدل الإطارات المحدد</string>
     <string name="pic_fail_decode">لا صورة خلال 30 ث: وصل %1$s من بيانات الصورة لكن فك الترميز لم ينتج أي إطار (Android %2$s، %3$s)، حتى بعد طلب إطار مفتاحي وتخفيف الحمل.</string>
     <string name="pic_fail_no_data">لا صورة خلال 30 ث: CarPlay متصل لكن iPhone لم يرسل بيانات صورة، حتى بعد %1$d طلبات إطار مفتاحي. المرجح: تعليق CarPlay على iPhone أو أن قناة التحكم وحدها تعمل.</string>
     <string name="pic_fail_no_surface">لا صورة خلال 30 ث: وصل %1$s من بيانات الصورة لكن النظام لم يمنح شاشة CarPlay سطح عرض (كانت خلف 06Link). افتح CarPlay أو أعد المحاولة.</string>

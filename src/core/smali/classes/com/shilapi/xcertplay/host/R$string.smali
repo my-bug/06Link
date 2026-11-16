@@ -782,9 +782,9 @@
 
 
 
-.field public static pic_decoded:I = 0x7f0c02bc
+.field public static pic_codec_reconnecting:I = 0x7f0c02bd
 
-.field public static pic_downgraded:I = 0x7f0c02bd
+.field public static pic_decoded:I = 0x7f0c02bc
 
 .field public static pic_fail_decode:I = 0x7f0c02be
 

@@ -2,6 +2,10 @@ package android.content;
 import java.util.*;
 public class Context {
     public final Map<String, Prefs> stores = new HashMap<String, Prefs>();
+    public final Map<String, Prefs> preferences = stores;
+    public Context getApplicationContext() { return this; }
+    public java.io.File getExternalFilesDir(String name) { return new java.io.File("/tmp"); }
+    public java.io.File getFilesDir() { return new java.io.File("/tmp"); }
     public Prefs getSharedPreferences(String name, int mode) {
         if (!stores.containsKey(name)) stores.put(name, new Prefs());
         return stores.get(name);
@@ -9,6 +13,7 @@ public class Context {
     public static final class Prefs implements SharedPreferences {
         public final Map<String, Object> values = new HashMap<String, Object>();
         public int writes;
+        public boolean failCommit;
         public String getString(String key, String fallback) { return values.containsKey(key) ? (String)values.get(key) : fallback; }
         public boolean getBoolean(String key, boolean fallback) { return values.containsKey(key) ? (Boolean)values.get(key) : fallback; }
         public int getInt(String key, int fallback) { return values.containsKey(key) ? (Integer)values.get(key) : fallback; }
@@ -16,8 +21,12 @@ public class Context {
         public Editor edit() {
             return new Editor() {
                 final Set<String> removed = new HashSet<String>();
+                final Map<String, Object> added = new HashMap<String, Object>();
                 public Editor remove(String key) { removed.add(key); return this; }
-                public void apply() { for (String key : removed) values.remove(key); writes++; }
+                public Editor putInt(String key, int value) { added.put(key, value); return this; }
+                public Editor putBoolean(String key, boolean value) { added.put(key, value); return this; }
+                public void apply() { for (String key : removed) values.remove(key); values.putAll(added); writes++; }
+                public boolean commit() { if (failCommit) return false; apply(); return true; }
             };
         }
     }

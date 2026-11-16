@@ -222,7 +222,7 @@ Allow CarPlay if your iPhone asks."</string>
     <string name="permission_reason_microphone">Microphone: needed for Siri and phone calls in CarPlay.</string>
     <string name="permission_reason_nearby_wifi">Nearby Wi-Fi devices: needed for the wireless connection with the iPhone.</string>
     <string name="pic_decoded">First frame decoded · showing it</string>
-    <string name="pic_downgraded">The picture did not decode; reconnected at 30 fps H.264 for this connection only</string>
+    <string name="pic_codec_reconnecting">The picture did not decode; retrying H.264 at the selected frame rate</string>
     <string name="pic_fail_decode">No picture in 30 s: %1$s of picture data arrived but the decoder produced no frame (Android %2$s, %3$s), also after a key frame request and a lower load.</string>
     <string name="pic_fail_no_data">No picture in 30 s: CarPlay is connected but the iPhone sent no picture data, even after %1$d key frame requests. Likely: CarPlay is stuck on the iPhone, or only the control channel got through.</string>
     <string name="pic_fail_no_surface">"No picture in 30 s: %1$s of picture data arrived, but CarPlay's screen got no Surface from the system (it was behind 06Link). Open CarPlay, or try again."</string>

@@ -4,64 +4,64 @@ import java.util.*;
 public final class FrameRateCheck {
     static int checks;
     static void check(boolean value, String message) { checks++; if (!value) throw new AssertionError(message); }
-    static Context.Prefs air(Context context) { return context.getSharedPreferences("xcertplay_airplay", 0); }
-    static Context.Prefs video(Context context) { return context.getSharedPreferences("06link-video", 0); }
-    static int connect(Context context, boolean reduced) {
-        return E01FrameRatePolicy.connectionFps(context, E01FrameRatePolicy.automatic(context),
-                air(context).getInt("display_fps", 30), reduced);
-    }
+    static Context.Prefs air(Context c) { return c.getSharedPreferences("xcertplay_airplay", 0); }
+    static Context.Prefs video(Context c) { return c.getSharedPreferences("06link-video", 0); }
+    static int fps(Context c) { return E01FrameRatePolicy.selectedFps(c); }
     static Context restart(Context previous) {
-        Context context = new Context();
-        for (Map.Entry<String, Context.Prefs> entry : previous.stores.entrySet())
-            context.getSharedPreferences(entry.getKey(), 0).values.putAll(entry.getValue().values);
-        return context;
+        Context c = new Context();
+        for (Map.Entry<String, Context.Prefs> e : previous.stores.entrySet())
+            c.getSharedPreferences(e.getKey(), 0).values.putAll(e.getValue().values);
+        return c;
     }
     public static void main(String[] args) {
-        Context context = new Context();
-        check(E01FrameRatePolicy.automatic(context), "fresh install defaults to auto");
-        check(connect(context, false) == 30, "auto remains 30");
-        check(air(context).values.isEmpty() && air(context).writes == 0, "reading settings must not write defaults");
-
-        air(context).values.put("display_fps_mode", "manual");
-        air(context).values.put("display_fps", 60);
-        air(context).values.put("display_fps60_unsustainable", true);
-        air(context).values.put("fix7_power_policy_applied", false);
-        air(context).values.put("display_scale_tenths", 10);
-        video(context).values.put("smooth", true);
-        video(context).values.put("display60", true);
-        check(!E01FrameRatePolicy.automatic(context), "missing migration flag cannot reset manual selection");
-        check(connect(context, false) == 60, "old overload cannot cap a new manual 60 connection");
-        check(!air(context).contains("display_fps60_unsustainable") && air(context).writes == 1, "old cap retired once");
-        check(air(context).getInt("display_fps", 0) == 60 && "manual".equals(air(context).getString("display_fps_mode", "")), "selection preserved");
-        check(air(context).getInt("display_scale_tenths", 0) == 10 && video(context).getBoolean("smooth", false)
-                && video(context).getBoolean("display60", false), "other video settings unchanged");
-        check(connect(context, true) == 30, "genuine foreground overload may reduce current normal session");
-        check(connect(context, true) == 30 && air(context).writes == 1, "automatic recovery keeps session fallback without writing global cap");
-        check(connect(context, false) == 60, "explicit new attempt retries selected 60");
-        check(connect(restart(context), false) == 60, "restart never inherits transient session downgrade");
-
-        for (boolean oldMigration : new boolean[]{false, true}) {
-            context = new Context();
-            air(context).values.put("display_fps", 60);
-            air(context).values.put("fix7_power_policy_applied", oldMigration);
-            check(!E01FrameRatePolicy.automatic(context) && connect(context, false) == 60, "legacy explicit rate preserved regardless of migration marker");
+        Context c = new Context();
+        check(fps(c) == 30, "fresh install keeps default 30");
+        int writes = air(c).writes;
+        for (int i=0;i<100;i++) check(fps(c)==30, "stable default");
+        check(air(c).writes == writes, "normal reads never rewrite preferences");
+        for (String mode : new String[]{null,"auto","manual"}) {
+            for (int selected : new int[]{30,60}) for (boolean forced : new boolean[]{false,true}) {
+                c = new Context();
+                if (mode != null) air(c).values.put("display_fps_mode",mode);
+                air(c).values.put("display_fps", selected);
+                air(c).values.put("display_fps60_unsustainable",true);
+                air(c).values.put("display_fps_auto_last","30 overload");
+                air(c).values.put("display_scale_tenths",10);
+                air(c).values.put("fix7_power_policy_applied",false);
+                video(c).values.put("force60",forced);
+                video(c).values.put("smooth",true); video(c).values.put("mtk",true);
+                int expected = forced ? 60 : "auto".equals(mode) ? 30 : selected;
+                check(fps(c)==expected,"legacy choice migrated: "+mode+" "+selected+" forced="+forced);
+                check(!air(c).contains("display_fps_mode") && !air(c).contains("display_fps60_unsustainable")
+                    && !air(c).contains("display_fps_auto_last") && !video(c).contains("force60"),"retired settings removed");
+                check(air(c).getInt("display_scale_tenths",0)==10 && video(c).getBoolean("smooth",false)
+                    && video(c).getBoolean("mtk",false),"other picture options unchanged");
+                check(fps(restart(c))==expected,"selection survives restart");
+                // A stale global downgrade flag cannot override either transport's new selection.
+                air(c).values.put("display_fps60_unsustainable",true);
+                check(fps(c)==expected,"stale cap has no runtime reader");
+            }
         }
-        air(context).values.put("display_fps_mode", "auto");
-        check(connect(context, false) == 30, "explicit auto wins over old saved numeric 60");
-        air(context).values.put("display_fps_mode", "manual");
-        air(context).values.put("display_fps", 30);
-        check(connect(context, false) == 30, "manual 30 preserved");
-        air(context).values.put("display_fps", 45);
-        check(connect(context, false) == 45, "legacy sanitized intermediate rate preserved");
-
-        video(context).values.put("force60", true);
-        air(context).values.put("display_fps_mode", "auto");
-        air(context).values.put("display_fps60_unsustainable", true);
-        check(connect(context, true) == 60, "force 60 overrides session fallback and inconsistent old mode");
-        check(E01FrameRatePolicy.force60(context), "force switch read consistently");
-        video(context).values.put("force60", false);
-        check(connect(context, false) == 30, "turning force off restores auto setting");
-        check(!E01FrameRatePolicy.force60(context), "force can be disabled");
-        System.out.println("PASS " + checks + " frame-rate preference and connection lifecycle checks");
+        c = new Context(); video(c).values.put("force60",true);
+        for (int selected : new int[]{60,30,60,30,60}) {
+            check(E01FrameRatePolicy.save(c,selected),"save succeeds");
+            check(fps(c)==selected && fps(restart(c))==selected,"explicit 30/60 survives reconnect and restart");
+            check(!video(c).contains("force60"),"old force flag cannot override new manual 30");
+        }
+        writes=air(c).writes;
+        for(int i=0;i<100;i++)check(fps(c)==60,"60 never falls back over repeated reads");
+        check(air(c).writes==writes,"60 is not periodically rewritten");
+        video(c).values.put("force60",true);
+        air(c).values.put("display_fps",30);
+        check(fps(c)==30,"completed migration ignores a late old override");
+        check(E01FrameRatePolicy.save(c,60),"restore60");
+        air(c).failCommit=true;
+        check(!E01FrameRatePolicy.save(c,30),"failed save is reported");
+        check(fps(c)==60,"failed save cannot silently apply 30");
+        air(c).failCommit=false;
+        try { E01FrameRatePolicy.save(c,45); throw new AssertionError("invalid rate accepted"); }
+        catch(IllegalArgumentException expected) { checks++; }
+        check(fps(c)==60,"invalid choice leaves current selection intact");
+        System.out.println("PASS "+checks+" fixed FPS, migration, persistence and selection checks");
     }
 }

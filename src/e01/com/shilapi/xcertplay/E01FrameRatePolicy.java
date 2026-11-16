@@ -3,35 +3,39 @@ package com.shilapi.xcertplay;
 import android.content.Context;
 import android.content.SharedPreferences;
 
-/** Saved frame-rate intent is independent of a failed previous connection. */
+/** One saved rate for settings, negotiation and rendering; no automatic downgrade. */
 public final class E01FrameRatePolicy {
     private static final String AIRPLAY = "xcertplay_airplay";
-    private static final String LEGACY_LIMIT = "display_fps60_unsustainable";
+    private static final String MIGRATED = "fixed_fps_selection";
 
-    public static boolean automatic(Context context) {
+    public static synchronized int selectedFps(Context context) {
         SharedPreferences prefs = context.getSharedPreferences(AIRPLAY, 0);
-        String mode = prefs.getString("display_fps_mode", null);
-        if ("auto".equals(mode)) return true;
-        if ("manual".equals(mode)) return false;
-        // Preserve a legacy explicit choice. Reading settings must never overwrite it.
-        return !prefs.contains("display_fps");
+        if (!prefs.getBoolean(MIGRATED, false)) {
+            SharedPreferences video = context.getSharedPreferences("06link-video", 0);
+            int fps = video.getBoolean("force60", false) ? 60
+                : "auto".equals(prefs.getString("display_fps_mode", null)) ? 30
+                : normalize(prefs.getInt("display_fps", 30));
+            // Store the migrated selection before retiring the old override.
+            editor(prefs, fps).apply();
+            video.edit().remove("force60").apply();
+            return fps;
+        }
+        return normalize(prefs.getInt("display_fps", 30));
     }
 
-    public static boolean force60(Context context) {
-        return context.getSharedPreferences("06link-video", 0).getBoolean("force60", false);
+    public static synchronized boolean save(Context context, int fps) {
+        if (fps != 30 && fps != 60) throw new IllegalArgumentException("Unsupported frame rate");
+        boolean saved = editor(context.getSharedPreferences(AIRPLAY, 0), fps).commit();
+        if (saved) context.getSharedPreferences("06link-video", 0).edit().remove("force60").apply();
+        return saved;
     }
 
-    /** selectedFps has already been sanitized by AirPlayPersistence. Called at negotiation only. */
-    public static int connectionFps(Context context, boolean automatic, int selectedFps,
-                                    boolean reducedForSession) {
-        SharedPreferences prefs = context.getSharedPreferences(AIRPLAY, 0);
-        // Old versions persisted transient overload and silently capped all later connections.
-        // Retire that flag without changing the user's mode, rate or other video options.
-        if (prefs.contains(LEGACY_LIMIT)) prefs.edit().remove(LEGACY_LIMIT).apply();
-        if (force60(context)) return 60;
-        if (automatic || reducedForSession) return 30;
-        return selectedFps;
+    private static SharedPreferences.Editor editor(SharedPreferences prefs, int fps) {
+        return prefs.edit().putInt("display_fps", fps).putBoolean(MIGRATED, true)
+            .remove("display_fps_mode").remove("display_fps60_unsustainable")
+            .remove("display_fps_auto_last");
     }
 
+    private static int normalize(int fps) { return fps >= 60 ? 60 : 30; }
     private E01FrameRatePolicy() { }
 }

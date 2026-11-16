@@ -2,7 +2,7 @@ from pathlib import Path
 import sys
 sys.path.insert(0, str(Path(__file__).resolve().parents[2] / 'scripts'))
 from test_support import find_java, resolve
-import subprocess, tempfile, shutil, argparse, hashlib, json
+import subprocess, tempfile, shutil, argparse, hashlib, json, re
 HERE=Path(__file__).resolve().parent
 parser=argparse.ArgumentParser();parser.add_argument('--root',type=Path,default=HERE.parents[1]);parser.add_argument('--staged',type=Path);parser.add_argument('--checks',help='comma separated Java check class names');args=parser.parse_args()
 ROOT=args.root.resolve();STAGED=args.staged.resolve() if args.staged else None
@@ -12,11 +12,13 @@ hashes={}
 core=ROOT/'src/core/smali/classes/com/shilapi/xcertplay/media/VideoDecoder.smali'
 body=core.read_text().split('.method private final run()V',1)[1].split('.end method',1)[0]
 assert body.count('->inputWaitMillis(Ljava/lang/Object;Landroid/media/MediaCodec;Z)J')==1
-software=body.split('->software:Lcom/shilapi/xcertplay/media/SoftwareH264Decoder;',1)[1].split(':e01_idle_input',2)[1]
-assert 'const-wide/16 v1, 0x32' in software and 'goto :cond_1' in software
+software=body.split('->software:Lcom/shilapi/xcertplay/media/SoftwareH264Decoder;',1)[1]
+branch=re.search(r'if-eqz v3, (:\w+)\s+const-wide/16 v1, 0x32\s+goto (:\w+)\s+(?P<label>:\w+)',software)
+assert branch and branch[1]==branch['label']
+assert software.index(branch[2]+'\n') < software.index('->poll(J)')
 assert body.index('->getNeedsKeyFrame()Z') < body.index('->inputWaitMillis(') < body.index('->poll(J)')
 assert '->interrupt()V' in core.read_text().split('.method public close()V',1)[1].split('.end method',1)[0]
-PRODUCTION=['E01SmoothVideo','E01VideoOutput','E01VideoEvidence','E01MtkRuntime','E01BacklogRecovery','E01PacingClock','E01MtkTuning','E01GlOutput','E01DirectOutputClock','E01DirectInFlight']
+PRODUCTION=['E01FrameRatePolicy','E01SmoothVideo','E01VideoOutput','E01VideoEvidence','E01MtkRuntime','E01BacklogRecovery','E01PacingClock','E01MtkTuning','E01GlOutput','E01DirectOutputClock','E01DirectInFlight']
 with tempfile.TemporaryDirectory() as temporary:
  work=Path(temporary);sources=work/'src';shutil.copytree(HERE/'test-src',sources)
  for name in PRODUCTION:

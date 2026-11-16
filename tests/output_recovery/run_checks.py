@@ -8,7 +8,7 @@ parser=argparse.ArgumentParser();parser.add_argument('--root',type=Path,default=
 ROOT=args.root.resolve();STAGED=args.staged.resolve() if args.staged else None
 JAVA=find_java()['java_home'] / 'bin'
 hashes={}
-PRODUCTION=['E01SmoothVideo','E01VideoOutput','E01VideoEvidence','E01MtkRuntime','E01BacklogRecovery','E01PacingClock','E01MtkTuning','E01GlOutput']
+PRODUCTION=['E01FrameRatePolicy','E01SmoothVideo','E01VideoOutput','E01VideoEvidence','E01MtkRuntime','E01BacklogRecovery','E01PacingClock','E01MtkTuning','E01GlOutput']
 with tempfile.TemporaryDirectory() as temporary:
  work=Path(temporary);sources=work/'src';shutil.copytree(HERE/'test-src',sources)
  for name in PRODUCTION:

@@ -38,8 +38,7 @@ public final class E01SmoothVideo {
  static Binding binding(Activity a){java.lang.ref.WeakReference<Binding> ref=BINDINGS.get(a);return ref==null?null:ref.get();}
  static int selectedFps(Activity a){Integer negotiated=NEGOTIATED.get(a);return negotiated==null?fps(a):negotiated;}
  static boolean wantsDirect(Activity a){return glDevice()&&selectedFps(a)>=60&&E01DisplayClock.enabled(a)&&!Boolean.TRUE.equals(GL_FALLBACK.get(a));}
- static int fps(Activity a){try{if(Boolean.TRUE.equals(get(a,"sessionForce30Fps")))return 30;}catch(Exception ignored){}
-  android.content.SharedPreferences p=a.getSharedPreferences("xcertplay_airplay",0);return "manual".equals(p.getString("display_fps_mode","auto"))&&p.getInt("display_fps",30)>=60?60:30;}
+ static int fps(Activity a){return E01FrameRatePolicy.selectedFps(a);}
  static Field field(Object o,String n)throws Exception{Field f=o.getClass().getDeclaredField(n);f.setAccessible(true);return f;}
  static Object get(Object o,String n)throws Exception{return field(o,n).get(o);}
  static void call(Object o,String n,Class<?>[] types,Object...args)throws Exception{Method m=o.getClass().getDeclaredMethod(n,types);m.setAccessible(true);m.invoke(o,args);}

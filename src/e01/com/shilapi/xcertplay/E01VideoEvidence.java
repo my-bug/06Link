@@ -19,11 +19,8 @@ public final class E01VideoEvidence {
         try { Field f=owner.getClass().getDeclaredField("wirelessEnabled");f.setAccessible(true);transport=f.getBoolean(owner)?"wireless":"wired"; }
         catch (ReflectiveOperationException | RuntimeException unavailable) { }
         identity = "run=" + Long.toHexString(started) + " configured=" + transport;
-        SharedPreferences p = owner.getSharedPreferences("xcertplay_airplay", 0);
         SharedPreferences v = owner.getSharedPreferences("06link-video", 0);
-        write(owner, "config maxFPS=" + maxFps + " selected=" + p.getInt("display_fps", 30)
-            + " mode=" + p.getString("display_fps_mode", "auto")
-            + " force60=" + v.getBoolean("force60", false)
+        write(owner, "config maxFPS=" + maxFps + " selected=" + E01FrameRatePolicy.selectedFps(owner)
             + " smooth=" + v.getBoolean("smooth", false) + " mtk=" + v.getBoolean("mtk", true));
     }
     /** Routine frame samples are disabled in release builds; decoder behavior is unchanged. */
