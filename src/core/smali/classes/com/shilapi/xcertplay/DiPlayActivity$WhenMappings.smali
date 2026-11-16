@@ -37,8 +37,6 @@
 
 .field public static final synthetic $EnumSwitchMapping$4:[I
 
-.field public static final synthetic $EnumSwitchMapping$5:[I
-
 
 .field public static final synthetic $EnumSwitchMapping$7:[I
 
@@ -415,7 +413,7 @@
     :catch_18
     sput-object v0, Lcom/shilapi/xcertplay/DiPlayActivity$WhenMappings;->$EnumSwitchMapping$4:[I
 
-    invoke-static {}, Lcom/shilapi/xcertplay/HeadUnitCapabilities$Status;->values()[Lcom/shilapi/xcertplay/HeadUnitCapabilities$Status;
+    invoke-static {}, Lcom/shilapi/xcertplay/DiPlayActivity$CarWifiRowMode;->values()[Lcom/shilapi/xcertplay/DiPlayActivity$CarWifiRowMode;
 
     move-result-object v0
 
@@ -424,9 +422,9 @@
     new-array v0, v0, [I
 
     :try_start_19
-    sget-object v5, Lcom/shilapi/xcertplay/HeadUnitCapabilities$Status;->GOOD:Lcom/shilapi/xcertplay/HeadUnitCapabilities$Status;
+    sget-object v5, Lcom/shilapi/xcertplay/DiPlayActivity$CarWifiRowMode;->SYSTEM:Lcom/shilapi/xcertplay/DiPlayActivity$CarWifiRowMode;
 
-    invoke-virtual {v5}, Lcom/shilapi/xcertplay/HeadUnitCapabilities$Status;->ordinal()I
+    invoke-virtual {v5}, Lcom/shilapi/xcertplay/DiPlayActivity$CarWifiRowMode;->ordinal()I
 
     move-result v5
 
@@ -436,9 +434,9 @@
 
     :catch_19
     :try_start_1a
-    sget-object v5, Lcom/shilapi/xcertplay/HeadUnitCapabilities$Status;->INFO:Lcom/shilapi/xcertplay/HeadUnitCapabilities$Status;
+    sget-object v5, Lcom/shilapi/xcertplay/DiPlayActivity$CarWifiRowMode;->P2P:Lcom/shilapi/xcertplay/DiPlayActivity$CarWifiRowMode;
 
-    invoke-virtual {v5}, Lcom/shilapi/xcertplay/HeadUnitCapabilities$Status;->ordinal()I
+    invoke-virtual {v5}, Lcom/shilapi/xcertplay/DiPlayActivity$CarWifiRowMode;->ordinal()I
 
     move-result v5
 
@@ -448,9 +446,9 @@
 
     :catch_1a
     :try_start_1b
-    sget-object v5, Lcom/shilapi/xcertplay/HeadUnitCapabilities$Status;->WARN:Lcom/shilapi/xcertplay/HeadUnitCapabilities$Status;
+    sget-object v5, Lcom/shilapi/xcertplay/DiPlayActivity$CarWifiRowMode;->LOCAL_ONLY:Lcom/shilapi/xcertplay/DiPlayActivity$CarWifiRowMode;
 
-    invoke-virtual {v5}, Lcom/shilapi/xcertplay/HeadUnitCapabilities$Status;->ordinal()I
+    invoke-virtual {v5}, Lcom/shilapi/xcertplay/DiPlayActivity$CarWifiRowMode;->ordinal()I
 
     move-result v5
 
@@ -460,9 +458,9 @@
 
     :catch_1b
     :try_start_1c
-    sget-object v5, Lcom/shilapi/xcertplay/HeadUnitCapabilities$Status;->BAD:Lcom/shilapi/xcertplay/HeadUnitCapabilities$Status;
+    sget-object v5, Lcom/shilapi/xcertplay/DiPlayActivity$CarWifiRowMode;->OTHER:Lcom/shilapi/xcertplay/DiPlayActivity$CarWifiRowMode;
 
-    invoke-virtual {v5}, Lcom/shilapi/xcertplay/HeadUnitCapabilities$Status;->ordinal()I
+    invoke-virtual {v5}, Lcom/shilapi/xcertplay/DiPlayActivity$CarWifiRowMode;->ordinal()I
 
     move-result v5
 
@@ -471,64 +469,6 @@
     .catch Ljava/lang/NoSuchFieldError; {:try_start_1c .. :try_end_1c} :catch_1c
 
     :catch_1c
-    sput-object v0, Lcom/shilapi/xcertplay/DiPlayActivity$WhenMappings;->$EnumSwitchMapping$5:[I
-
-    invoke-static {}, Lcom/shilapi/xcertplay/DiPlayActivity$CarWifiRowMode;->values()[Lcom/shilapi/xcertplay/DiPlayActivity$CarWifiRowMode;
-
-    move-result-object v0
-
-    array-length v0, v0
-
-    new-array v0, v0, [I
-
-    :try_start_1d
-    sget-object v5, Lcom/shilapi/xcertplay/DiPlayActivity$CarWifiRowMode;->SYSTEM:Lcom/shilapi/xcertplay/DiPlayActivity$CarWifiRowMode;
-
-    invoke-virtual {v5}, Lcom/shilapi/xcertplay/DiPlayActivity$CarWifiRowMode;->ordinal()I
-
-    move-result v5
-
-    aput v1, v0, v5
-    :try_end_1d
-    .catch Ljava/lang/NoSuchFieldError; {:try_start_1d .. :try_end_1d} :catch_1d
-
-    :catch_1d
-    :try_start_1e
-    sget-object v5, Lcom/shilapi/xcertplay/DiPlayActivity$CarWifiRowMode;->P2P:Lcom/shilapi/xcertplay/DiPlayActivity$CarWifiRowMode;
-
-    invoke-virtual {v5}, Lcom/shilapi/xcertplay/DiPlayActivity$CarWifiRowMode;->ordinal()I
-
-    move-result v5
-
-    aput v2, v0, v5
-    :try_end_1e
-    .catch Ljava/lang/NoSuchFieldError; {:try_start_1e .. :try_end_1e} :catch_1e
-
-    :catch_1e
-    :try_start_1f
-    sget-object v5, Lcom/shilapi/xcertplay/DiPlayActivity$CarWifiRowMode;->LOCAL_ONLY:Lcom/shilapi/xcertplay/DiPlayActivity$CarWifiRowMode;
-
-    invoke-virtual {v5}, Lcom/shilapi/xcertplay/DiPlayActivity$CarWifiRowMode;->ordinal()I
-
-    move-result v5
-
-    aput v3, v0, v5
-    :try_end_1f
-    .catch Ljava/lang/NoSuchFieldError; {:try_start_1f .. :try_end_1f} :catch_1f
-
-    :catch_1f
-    :try_start_20
-    sget-object v5, Lcom/shilapi/xcertplay/DiPlayActivity$CarWifiRowMode;->OTHER:Lcom/shilapi/xcertplay/DiPlayActivity$CarWifiRowMode;
-
-    invoke-virtual {v5}, Lcom/shilapi/xcertplay/DiPlayActivity$CarWifiRowMode;->ordinal()I
-
-    move-result v5
-
-    aput v4, v0, v5
-    :try_end_20
-    .catch Ljava/lang/NoSuchFieldError; {:try_start_20 .. :try_end_20} :catch_20
-
-    :catch_20
     sput-object v0, Lcom/shilapi/xcertplay/DiPlayActivity$WhenMappings;->$EnumSwitchMapping$7:[I
 
     invoke-static {}, Lcom/shilapi/xcertplay/orchestration/WirelessHotspotMode;->values()[Lcom/shilapi/xcertplay/orchestration/WirelessHotspotMode;
@@ -539,7 +479,7 @@
 
     new-array v0, v0, [I
 
-    :try_start_21
+    :try_start_1d
     sget-object v5, Lcom/shilapi/xcertplay/orchestration/WirelessHotspotMode;->MANUAL:Lcom/shilapi/xcertplay/orchestration/WirelessHotspotMode;
 
     invoke-virtual {v5}, Lcom/shilapi/xcertplay/orchestration/WirelessHotspotMode;->ordinal()I
@@ -547,11 +487,11 @@
     move-result v5
 
     aput v1, v0, v5
-    :try_end_21
-    .catch Ljava/lang/NoSuchFieldError; {:try_start_21 .. :try_end_21} :catch_21
+    :try_end_1d
+    .catch Ljava/lang/NoSuchFieldError; {:try_start_1d .. :try_end_1d} :catch_1d
 
-    :catch_21
-    :try_start_22
+    :catch_1d
+    :try_start_1e
     sget-object v5, Lcom/shilapi/xcertplay/orchestration/WirelessHotspotMode;->WIFI_P2P:Lcom/shilapi/xcertplay/orchestration/WirelessHotspotMode;
 
     invoke-virtual {v5}, Lcom/shilapi/xcertplay/orchestration/WirelessHotspotMode;->ordinal()I
@@ -559,11 +499,11 @@
     move-result v5
 
     aput v2, v0, v5
-    :try_end_22
-    .catch Ljava/lang/NoSuchFieldError; {:try_start_22 .. :try_end_22} :catch_22
+    :try_end_1e
+    .catch Ljava/lang/NoSuchFieldError; {:try_start_1e .. :try_end_1e} :catch_1e
 
-    :catch_22
-    :try_start_23
+    :catch_1e
+    :try_start_1f
     sget-object v5, Lcom/shilapi/xcertplay/orchestration/WirelessHotspotMode;->EXTERNAL_WIFI:Lcom/shilapi/xcertplay/orchestration/WirelessHotspotMode;
 
     invoke-virtual {v5}, Lcom/shilapi/xcertplay/orchestration/WirelessHotspotMode;->ordinal()I
@@ -571,11 +511,11 @@
     move-result v5
 
     aput v3, v0, v5
-    :try_end_23
-    .catch Ljava/lang/NoSuchFieldError; {:try_start_23 .. :try_end_23} :catch_23
+    :try_end_1f
+    .catch Ljava/lang/NoSuchFieldError; {:try_start_1f .. :try_end_1f} :catch_1f
 
-    :catch_23
-    :try_start_24
+    :catch_1f
+    :try_start_20
     sget-object v5, Lcom/shilapi/xcertplay/orchestration/WirelessHotspotMode;->LOCAL_ONLY_HOTSPOT:Lcom/shilapi/xcertplay/orchestration/WirelessHotspotMode;
 
     invoke-virtual {v5}, Lcom/shilapi/xcertplay/orchestration/WirelessHotspotMode;->ordinal()I
@@ -583,10 +523,10 @@
     move-result v5
 
     aput v4, v0, v5
-    :try_end_24
-    .catch Ljava/lang/NoSuchFieldError; {:try_start_24 .. :try_end_24} :catch_24
+    :try_end_20
+    .catch Ljava/lang/NoSuchFieldError; {:try_start_20 .. :try_end_20} :catch_20
 
-    :catch_24
+    :catch_20
     sput-object v0, Lcom/shilapi/xcertplay/DiPlayActivity$WhenMappings;->$EnumSwitchMapping$8:[I
 
     invoke-static {}, Lcom/shilapi/xcertplay/hud/BydAdbAccess$State;->values()[Lcom/shilapi/xcertplay/hud/BydAdbAccess$State;
@@ -597,7 +537,7 @@
 
     new-array v0, v0, [I
 
-    :try_start_25
+    :try_start_21
     sget-object v5, Lcom/shilapi/xcertplay/hud/BydAdbAccess$State;->READY:Lcom/shilapi/xcertplay/hud/BydAdbAccess$State;
 
     invoke-virtual {v5}, Lcom/shilapi/xcertplay/hud/BydAdbAccess$State;->ordinal()I
@@ -605,11 +545,11 @@
     move-result v5
 
     aput v1, v0, v5
-    :try_end_25
-    .catch Ljava/lang/NoSuchFieldError; {:try_start_25 .. :try_end_25} :catch_25
+    :try_end_21
+    .catch Ljava/lang/NoSuchFieldError; {:try_start_21 .. :try_end_21} :catch_21
 
-    :catch_25
-    :try_start_26
+    :catch_21
+    :try_start_22
     sget-object v5, Lcom/shilapi/xcertplay/hud/BydAdbAccess$State;->NOT_APPROVED:Lcom/shilapi/xcertplay/hud/BydAdbAccess$State;
 
     invoke-virtual {v5}, Lcom/shilapi/xcertplay/hud/BydAdbAccess$State;->ordinal()I
@@ -617,11 +557,11 @@
     move-result v5
 
     aput v2, v0, v5
-    :try_end_26
-    .catch Ljava/lang/NoSuchFieldError; {:try_start_26 .. :try_end_26} :catch_26
+    :try_end_22
+    .catch Ljava/lang/NoSuchFieldError; {:try_start_22 .. :try_end_22} :catch_22
 
-    :catch_26
-    :try_start_27
+    :catch_22
+    :try_start_23
     sget-object v5, Lcom/shilapi/xcertplay/hud/BydAdbAccess$State;->ADB_OFF:Lcom/shilapi/xcertplay/hud/BydAdbAccess$State;
 
     invoke-virtual {v5}, Lcom/shilapi/xcertplay/hud/BydAdbAccess$State;->ordinal()I
@@ -629,11 +569,11 @@
     move-result v5
 
     aput v3, v0, v5
-    :try_end_27
-    .catch Ljava/lang/NoSuchFieldError; {:try_start_27 .. :try_end_27} :catch_27
+    :try_end_23
+    .catch Ljava/lang/NoSuchFieldError; {:try_start_23 .. :try_end_23} :catch_23
 
-    :catch_27
-    :try_start_28
+    :catch_23
+    :try_start_24
     sget-object v5, Lcom/shilapi/xcertplay/hud/BydAdbAccess$State;->PAIRING_ONLY:Lcom/shilapi/xcertplay/hud/BydAdbAccess$State;
 
     invoke-virtual {v5}, Lcom/shilapi/xcertplay/hud/BydAdbAccess$State;->ordinal()I
@@ -641,10 +581,10 @@
     move-result v5
 
     aput v4, v0, v5
-    :try_end_28
-    .catch Ljava/lang/NoSuchFieldError; {:try_start_28 .. :try_end_28} :catch_28
+    :try_end_24
+    .catch Ljava/lang/NoSuchFieldError; {:try_start_24 .. :try_end_24} :catch_24
 
-    :catch_28
+    :catch_24
     sput-object v0, Lcom/shilapi/xcertplay/DiPlayActivity$WhenMappings;->$EnumSwitchMapping$9:[I
 
     invoke-static {}, Lcom/shilapi/xcertplay/VendorBluetoothNotice$Show;->values()[Lcom/shilapi/xcertplay/VendorBluetoothNotice$Show;
@@ -655,7 +595,7 @@
 
     new-array v0, v0, [I
 
-    :try_start_29
+    :try_start_25
     sget-object v4, Lcom/shilapi/xcertplay/VendorBluetoothNotice$Show;->DIALOG:Lcom/shilapi/xcertplay/VendorBluetoothNotice$Show;
 
     invoke-virtual {v4}, Lcom/shilapi/xcertplay/VendorBluetoothNotice$Show;->ordinal()I
@@ -663,11 +603,11 @@
     move-result v4
 
     aput v1, v0, v4
-    :try_end_29
-    .catch Ljava/lang/NoSuchFieldError; {:try_start_29 .. :try_end_29} :catch_29
+    :try_end_25
+    .catch Ljava/lang/NoSuchFieldError; {:try_start_25 .. :try_end_25} :catch_25
 
-    :catch_29
-    :try_start_2a
+    :catch_25
+    :try_start_26
     sget-object v1, Lcom/shilapi/xcertplay/VendorBluetoothNotice$Show;->TOAST:Lcom/shilapi/xcertplay/VendorBluetoothNotice$Show;
 
     invoke-virtual {v1}, Lcom/shilapi/xcertplay/VendorBluetoothNotice$Show;->ordinal()I
@@ -675,11 +615,11 @@
     move-result v1
 
     aput v2, v0, v1
-    :try_end_2a
-    .catch Ljava/lang/NoSuchFieldError; {:try_start_2a .. :try_end_2a} :catch_2a
+    :try_end_26
+    .catch Ljava/lang/NoSuchFieldError; {:try_start_26 .. :try_end_26} :catch_26
 
-    :catch_2a
-    :try_start_2b
+    :catch_26
+    :try_start_27
     sget-object v1, Lcom/shilapi/xcertplay/VendorBluetoothNotice$Show;->NOTHING:Lcom/shilapi/xcertplay/VendorBluetoothNotice$Show;
 
     invoke-virtual {v1}, Lcom/shilapi/xcertplay/VendorBluetoothNotice$Show;->ordinal()I
@@ -687,10 +627,10 @@
     move-result v1
 
     aput v3, v0, v1
-    :try_end_2b
-    .catch Ljava/lang/NoSuchFieldError; {:try_start_2b .. :try_end_2b} :catch_2b
+    :try_end_27
+    .catch Ljava/lang/NoSuchFieldError; {:try_start_27 .. :try_end_27} :catch_27
 
-    :catch_2b
+    :catch_27
     sput-object v0, Lcom/shilapi/xcertplay/DiPlayActivity$WhenMappings;->$EnumSwitchMapping$10:[I
 
     return-void

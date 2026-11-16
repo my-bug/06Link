@@ -2,13 +2,19 @@ from pathlib import Path
 import sys
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / 'scripts'))
 from test_support import find_java, resolve, build_apk, asset_inputs, build_variant
-import json,zipfile,hashlib,subprocess,tempfile,os
+import json,zipfile,hashlib,subprocess,tempfile,os,struct
 R=Path(__file__).resolve().parents[1];c=json.loads((R/'project.json').read_text());checks=[]
 def ok(value,name):
  assert value,name
  checks.append(name)
 with zipfile.ZipFile(build_apk(R)) as z:
  names=z.namelist();ok(not any(n.startswith(('lib/x86/','lib/x86_64/','assets/e01-goc/','assets/oem-bt-test1/')) for n in names),'obsolete binaries and x86 absent')
+ libraries=[n for n in names if n.startswith('lib/') and n.endswith('.so')]
+ ok(len(libraries)==5 and {n.split('/')[1] for n in libraries}=={'arm64-v8a'},'only five ARM64 runtime libraries packaged')
+ ok(c['crypto_dependency']['abis']==['arm64-v8a'],'crypto ABI matches E01 application ABI')
+ for n in libraries:
+  b=z.read(n);ok(b[:6]==b'\x7fELF\x02\x01' and struct.unpack_from('<H',b,18)[0]==183,'valid ELF64 AArch64 '+n)
+ ok('DebugProbesKt.bin' not in names,'retired coroutine debug agent resource absent')
  for f in sorted((R/c['sources']['native_libs']).rglob('*.so')):
   n='lib/'+f.relative_to(R/c['sources']['native_libs']).as_posix()
   ok(z.read(n)==f.read_bytes(),'source dependency preserved '+n)
@@ -24,7 +30,12 @@ with zipfile.ZipFile(build_apk(R)) as z:
  for retired in (b'BluetoothStackOverride;', b'Lcom/shilapi/xcertplay/update/', b'navigation_test.pcm', b'E01AudioSettings;', b'E01SmoothSettings;',
                  b'HeadUnitCheckActivity;', b'WheelKeysActivity;', b'CarBrandPickerActivity;', b'ImageCropActivity;',
                  b'WifiJoinCard;', b'DiagnosticReportHttp;', b'DiagnosticUsbExport;',
-                 b'Lcom/google/zxing/', b'Lorg/bouncycastle/oer/', b'Landroidx/profileinstaller/'):
+                 b'Lcom/google/zxing/', b'Lorg/bouncycastle/oer/', b'Landroidx/profileinstaller/',
+                 b'Landroidx/core/location/', b'Landroidx/core/animation/', b'Landroidx/core/transition/',
+                 b'Lkotlin/uuid/', b'Lkotlinx/coroutines/debug/', b'MicrophoneTestReceiver;', b'LivenessTestReceiver;',
+                 b'BluetoothRfcommDuplexStream;', b'BydStarterBridge;', b'BydDisplayMatch;',
+                 b'GocPresence;', b'UsbBluetoothSelfTest;', b'HeadUnitCheck;', b'HeadUnitCapabilities;',
+                 b'HeadUnitCheckSummary;', b'HeadUnitCheckText;', b'ConnectionStatusRow;', b'StepSegmentsView;', b'ChipFlow;'):
   ok(not any(retired in z.read(n) for n in names if n.endswith('.dex')),'retired feature absent '+retired.decode())
  ok(all(z.getinfo(n).compress_type==zipfile.ZIP_DEFLATED for n in names if n.endswith('.dex') and z.getinfo(n).file_size>=16384),'large DEX compressed')
  ok(os.path.getsize(R/'dist'/('06Link-'+c['version_name']+'.apk'))<14000000,'APK under 14 MB')

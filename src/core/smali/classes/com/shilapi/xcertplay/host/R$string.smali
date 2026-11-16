@@ -283,271 +283,27 @@
 
 
 
-.field public static check_summary_port:I = 0x7f0c00ce
-
 .field public static check_technical_details:I = 0x7f0c00cf
 
 
 
 
 
-.field public static chk_after_step:I = 0x7f0c00d4
 
 
-.field public static chk_c_android:I = 0x7f0c00d6
 
-.field public static chk_c_back:I = 0x7f0c00d7
 
-.field public static chk_c_carbt:I = 0x7f0c00d8
 
-.field public static chk_c_discovery:I = 0x7f0c00d9
 
-.field public static chk_c_mic:I = 0x7f0c00da
 
-.field public static chk_c_others:I = 0x7f0c00db
 
-.field public static chk_c_ports:I = 0x7f0c00dc
 
-.field public static chk_c_sound:I = 0x7f0c00dd
 
-.field public static chk_c_touch:I = 0x7f0c00de
 
-.field public static chk_c_video:I = 0x7f0c00df
 
 
 
-.field public static chk_connecting_now:I = 0x7f0c00e2
 
-.field public static chk_d_allowed:I = 0x7f0c00e3
-
-.field public static chk_d_android_claimed:I = 0x7f0c00e4
-
-.field public static chk_d_android_match:I = 0x7f0c00e5
-
-.field public static chk_d_android_probed:I = 0x7f0c00e6
-
-.field public static chk_d_android_prop:I = 0x7f0c00e7
-
-.field public static chk_d_android_spoof:I = 0x7f0c00e8
-
-.field public static chk_d_android_unknown:I = 0x7f0c00e9
-
-.field public static chk_d_back_no:I = 0x7f0c00ea
-
-.field public static chk_d_back_yes:I = 0x7f0c00eb
-
-.field public static chk_d_band_24:I = 0x7f0c00ec
-
-.field public static chk_d_band_5:I = 0x7f0c00ed
-
-.field public static chk_d_bt_native:I = 0x7f0c00ee
-
-.field public static chk_d_bt_off:I = 0x7f0c00ef
-
-.field public static chk_d_bt_vendor:I = 0x7f0c00f0
-
-.field public static chk_d_bt_version:I = 0x7f0c00f1
-
-
-.field public static chk_d_bt_version_old:I = 0x7f0c00f3
-
-.field public static chk_d_carbt_no:I = 0x7f0c00f4
-
-.field public static chk_d_carbt_unknown:I = 0x7f0c00f5
-
-.field public static chk_d_carbt_yes:I = 0x7f0c00f6
-
-.field public static chk_d_cp_mode_later:I = 0x7f0c00f7
-
-.field public static chk_d_cp_mode_yes:I = 0x7f0c00f8
-
-.field public static chk_d_discovery_ok:I = 0x7f0c00f9
-
-.field public static chk_d_dongle_named:I = 0x7f0c00fa
-
-.field public static chk_d_dongle_none:I = 0x7f0c00fb
-
-.field public static chk_d_dongle_not_allowed:I = 0x7f0c00fc
-
-.field public static chk_d_dongle_unneeded:I = 0x7f0c00fd
-
-.field public static chk_d_hotspot_conflict:I = 0x7f0c00fe
-
-.field public static chk_d_hotspot_off:I = 0x7f0c00ff
-
-.field public static chk_d_hotspot_used:I = 0x7f0c0100
-
-.field public static chk_d_iphone_no:I = 0x7f0c0101
-
-.field public static chk_d_iphone_yes:I = 0x7f0c0102
-
-.field public static chk_d_mic_denied:I = 0x7f0c0103
-
-.field public static chk_d_mic_none:I = 0x7f0c0104
-
-.field public static chk_d_mic_ok:I = 0x7f0c0105
-
-.field public static chk_d_modes:I = 0x7f0c0106
-
-.field public static chk_d_modes_none:I = 0x7f0c0107
-
-.field public static chk_d_no_decoder:I = 0x7f0c0108
-
-.field public static chk_d_others_idle:I = 0x7f0c0109
-
-.field public static chk_d_others_maybe:I = 0x7f0c010a
-
-.field public static chk_d_others_none:I = 0x7f0c010b
-
-.field public static chk_d_others_running:I = 0x7f0c010c
-
-
-.field public static chk_d_paired_known:I = 0x7f0c010e
-
-.field public static chk_d_paired_none:I = 0x7f0c010f
-
-.field public static chk_d_port_blocked:I = 0x7f0c0110
-
-.field public static chk_d_port_free:I = 0x7f0c0111
-
-.field public static chk_d_port_leave:I = 0x7f0c0112
-
-.field public static chk_d_port_moved:I = 0x7f0c0113
-
-.field public static chk_d_port_self:I = 0x7f0c0114
-
-.field public static chk_d_ports_ok:I = 0x7f0c0115
-
-.field public static chk_d_rfcomm_no:I = 0x7f0c0116
-
-.field public static chk_d_rfcomm_yes:I = 0x7f0c0117
-
-.field public static chk_d_sound:I = 0x7f0c0118
-
-.field public static chk_d_touch_1:I = 0x7f0c0119
-
-.field public static chk_d_touch_2:I = 0x7f0c011a
-
-.field public static chk_d_touch_5:I = 0x7f0c011b
-
-.field public static chk_d_touch_none:I = 0x7f0c011c
-
-.field public static chk_d_usb_maybe:I = 0x7f0c011d
-
-.field public static chk_d_usb_none:I = 0x7f0c011e
-
-.field public static chk_d_usb_perm_no:I = 0x7f0c011f
-
-.field public static chk_d_video_60_bad:I = 0x7f0c0120
-
-.field public static chk_d_video_fps:I = 0x7f0c0121
-
-.field public static chk_d_video_hevc:I = 0x7f0c0122
-
-.field public static chk_d_video_hevc_bad:I = 0x7f0c0123
-
-.field public static chk_d_video_hw:I = 0x7f0c0124
-
-.field public static chk_d_video_sw:I = 0x7f0c0125
-
-.field public static chk_d_vpn_no:I = 0x7f0c0126
-
-.field public static chk_d_vpn_yes:I = 0x7f0c0127
-
-
-
-.field public static chk_h_android_spoof:I = 0x7f0c012a
-
-.field public static chk_h_band_24:I = 0x7f0c012b
-
-.field public static chk_h_bt_off:I = 0x7f0c012c
-
-.field public static chk_h_carbt:I = 0x7f0c012d
-
-.field public static chk_h_dongle_none:I = 0x7f0c012e
-
-.field public static chk_h_dongle_not_allowed:I = 0x7f0c012f
-
-.field public static chk_h_hotspot_conflict:I = 0x7f0c0130
-
-.field public static chk_h_iphone_no:I = 0x7f0c0131
-
-.field public static chk_h_live_wired:I = 0x7f0c0132
-
-.field public static chk_h_live_wireless:I = 0x7f0c0133
-
-.field public static chk_h_mic_denied:I = 0x7f0c0134
-
-.field public static chk_h_modes_none:I = 0x7f0c0135
-
-.field public static chk_h_no_decoder:I = 0x7f0c0136
-
-.field public static chk_h_others_running:I = 0x7f0c0137
-
-.field public static chk_h_paired_none:I = 0x7f0c0138
-
-.field public static chk_h_port_blocked:I = 0x7f0c0139
-
-.field public static chk_h_rfcomm_no:I = 0x7f0c013a
-
-.field public static chk_h_usb_none:I = 0x7f0c013b
-
-.field public static chk_h_vpn:I = 0x7f0c013c
-
-
-
-
-.field public static chk_mode_auto:I = 0x7f0c0140
-
-.field public static chk_mode_external:I = 0x7f0c0141
-
-.field public static chk_mode_hotspot:I = 0x7f0c0142
-
-.field public static chk_mode_p2p:I = 0x7f0c0143
-
-.field public static chk_no_advice:I = 0x7f0c0144
-
-.field public static chk_on_connect:I = 0x7f0c0145
-
-.field public static chk_owner_gps:I = 0x7f0c0146
-
-.field public static chk_owner_system:I = 0x7f0c0147
-
-.field public static chk_owner_unknown:I = 0x7f0c0148
-
-.field public static chk_passed_live:I = 0x7f0c0149
-
-.field public static chk_pill_bad:I = 0x7f0c014a
-
-.field public static chk_pill_ok:I = 0x7f0c014b
-
-.field public static chk_pill_stuck:I = 0x7f0c014c
-
-.field public static chk_port_moved:I = 0x7f0c014d
-
-
-
-
-
-
-.field public static chk_short_android:I = 0x7f0c0153
-
-.field public static chk_short_mic:I = 0x7f0c0154
-
-.field public static chk_short_others:I = 0x7f0c0155
-
-.field public static chk_short_port:I = 0x7f0c0156
-
-.field public static chk_short_video:I = 0x7f0c0157
-
-.field public static chk_short_volume:I = 0x7f0c0158
-
-
-.field public static chk_v_route:I = 0x7f0c015a
-
-.field public static chk_v_wired_ok:I = 0x7f0c015b
-
-.field public static chk_v_wired_ready:I = 0x7f0c015c
 
 
 
@@ -1736,8 +1492,6 @@
 
 
 
-
-.field public static steps_bt_switched_usb:I = 0x7f0c045c
 
 
 

@@ -1,8 +1,8 @@
 {
   "schema": 3,
   "display_name": "06Link",
-  "version_name": "1.2.50",
-  "version_code": 155,
+  "version_name": "1.2.51",
+  "version_code": 156,
   "application_id": "com.sixlink.car",
   "architecture": "Source build: Java + Smali + XML/resources; native and crypto dependencies. No application APK or method-patch input.",
   "source_origin": {
@@ -151,7 +151,6 @@
     "source": "https://repo.maven.apache.org/maven2/org/conscrypt/conscrypt-android/2.8.0/conscrypt-android-2.8.0.aar",
     "dex": "classes5.dex",
     "abis": [
-      "armeabi-v7a",
       "arm64-v8a"
     ],
     "notice": "src/notices/conscrypt-NOTICE.txt"

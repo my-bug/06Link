@@ -104,8 +104,6 @@
 
 .field private final handler:Landroid/os/Handler;
 
-.field private homeRow:Lcom/shilapi/xcertplay/ConnectionStatusRow;
-
 .field private homeStepsScroll:Landroid/widget/ScrollView;
 
 .field private hostConsentDone:Lkotlin/jvm/functions/Function2;
@@ -6410,15 +6408,8 @@
     return-void
 
     .line 1438
-    :pswitch_3
-    iget-object v0, p0, Lcom/shilapi/xcertplay/DiPlayActivity;->homeRow:Lcom/shilapi/xcertplay/ConnectionStatusRow;
-
-    if-eqz v0, :cond_4
-
-    invoke-virtual {v0, v4}, Lcom/shilapi/xcertplay/ConnectionStatusRow;->setEnabled(Z)V
-
     .line 1439
-    :cond_4
+    :pswitch_3
     sget-object v0, Lcom/shilapi/xcertplay/orchestration/WirelessLinkMemory;->INSTANCE:Lcom/shilapi/xcertplay/orchestration/WirelessLinkMemory;
 
     invoke-virtual {v0}, Lcom/shilapi/xcertplay/orchestration/WirelessLinkMemory;->clearOverride()V
@@ -6486,6 +6477,8 @@
     invoke-direct {p0}, Lcom/shilapi/xcertplay/DiPlayActivity;->render()V
 
     return-void
+
+    nop
 
     :pswitch_data_0
     .packed-switch 0x1
@@ -7770,15 +7763,12 @@
     iput-object v1, v0, Lcom/shilapi/xcertplay/DiPlayActivity;->wiredButton:Landroid/widget/TextView;
 
     .line 714
-    iput-object v1, v0, Lcom/shilapi/xcertplay/DiPlayActivity;->homeRow:Lcom/shilapi/xcertplay/ConnectionStatusRow;
-
     iput-object v1, v0, Lcom/shilapi/xcertplay/DiPlayActivity;->stepsList:Landroid/widget/LinearLayout;
 
     iput-object v1, v0, Lcom/shilapi/xcertplay/DiPlayActivity;->lastUi:Lcom/shilapi/xcertplay/ConnectionUi$Ui;
 
     .line 715
     iput-object v1, v0, Lcom/shilapi/xcertplay/DiPlayActivity;->homeStepsScroll:Landroid/widget/ScrollView;
-
 
     .line 716
     invoke-direct {v0}, Lcom/shilapi/xcertplay/DiPlayActivity;->applyAppearance()V

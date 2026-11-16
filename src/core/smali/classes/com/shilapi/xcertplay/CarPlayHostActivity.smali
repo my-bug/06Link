@@ -455,8 +455,6 @@
 
 .field private panelExtrasScroll:Lcom/shilapi/xcertplay/MaxHeightScrollView;
 
-.field private panelRow:Lcom/shilapi/xcertplay/ConnectionStatusRow;
-
 .field private final panelRowTick:Lcom/shilapi/xcertplay/CarPlayHostActivity$panelRowTick$1;
 
 .field private panelStepsList:Landroid/widget/LinearLayout;
@@ -15394,14 +15392,6 @@
     iput-boolean v0, p0, Lcom/shilapi/xcertplay/CarPlayHostActivity;->backLongDone:Z
 
     .line 5297
-    sget-object v1, Lcom/shilapi/xcertplay/HeadUnitCheckSummary;->INSTANCE:Lcom/shilapi/xcertplay/HeadUnitCheckSummary;
-
-    move-object v2, p0
-
-    check-cast v2, Landroid/content/Context;
-
-    invoke-virtual {v1, v2}, Lcom/shilapi/xcertplay/HeadUnitCheckSummary;->noteBackLongPress(Landroid/content/Context;)V
-
     .line 5298
     new-instance v1, Ljava/lang/StringBuilder;
 
@@ -19431,7 +19421,7 @@
     :cond_12
     iget-object v2, v0, Lcom/shilapi/xcertplay/CarPlayHostActivity;->spinnerView:Landroid/view/View;
 
-    if-eqz v2, :cond_16
+    if-eqz v2, :cond_15
 
     if-eqz v1, :cond_13
 
@@ -19442,37 +19432,29 @@
     if-eqz v6, :cond_14
 
     :cond_13
-    iget-object v6, v0, Lcom/shilapi/xcertplay/CarPlayHostActivity;->panelRow:Lcom/shilapi/xcertplay/ConnectionStatusRow;
-
-    if-eqz v6, :cond_15
-
-    invoke-virtual {v6}, Lcom/shilapi/xcertplay/ConnectionStatusRow;->getVisibility()I
-
-    move-result v6
-
-    if-nez v6, :cond_15
+    goto :goto_9
 
     :cond_14
     const/16 v6, 0x8
 
-    goto :goto_9
-
-    :cond_15
-    const/4 v6, 0x0
+    goto :goto_a
 
     :goto_9
+    const/4 v6, 0x0
+
+    :goto_a
     invoke-virtual {v2, v6}, Landroid/view/View;->setVisibility(I)V
 
     .line 1975
-    :cond_16
+    :cond_15
     invoke-direct {v0}, Lcom/shilapi/xcertplay/CarPlayHostActivity;->renderPanelRow()V
 
     .line 1978
     iget-object v2, v0, Lcom/shilapi/xcertplay/CarPlayHostActivity;->threeFingerHintView:Landroid/view/View;
 
-    if-eqz v2, :cond_18
+    if-eqz v2, :cond_17
 
-    if-nez v1, :cond_17
+    if-nez v1, :cond_16
 
     sget-object v6, Lcom/shilapi/xcertplay/CarPlayGestureHint;->INSTANCE:Lcom/shilapi/xcertplay/CarPlayGestureHint;
 
@@ -19484,43 +19466,43 @@
 
     move-result v6
 
-    if-eqz v6, :cond_17
+    if-eqz v6, :cond_16
 
     const/4 v6, 0x0
-
-    goto :goto_a
-
-    :cond_17
-    const/16 v6, 0x8
-
-    :goto_a
-    invoke-virtual {v2, v6}, Landroid/view/View;->setVisibility(I)V
-
-    .line 1979
-    :cond_18
-    iget-object v2, v0, Lcom/shilapi/xcertplay/CarPlayHostActivity;->setupActionButton:Landroid/widget/Button;
-
-    if-eqz v2, :cond_1a
-
-    if-nez v4, :cond_19
-
-    const/16 v6, 0x8
 
     goto :goto_b
 
-    :cond_19
-    const/4 v6, 0x0
+    :cond_16
+    const/16 v6, 0x8
 
     :goto_b
+    invoke-virtual {v2, v6}, Landroid/view/View;->setVisibility(I)V
+
+    .line 1979
+    :cond_17
+    iget-object v2, v0, Lcom/shilapi/xcertplay/CarPlayHostActivity;->setupActionButton:Landroid/widget/Button;
+
+    if-eqz v2, :cond_19
+
+    if-nez v4, :cond_18
+
+    const/16 v6, 0x8
+
+    goto :goto_c
+
+    :cond_18
+    const/4 v6, 0x0
+
+    :goto_c
     invoke-virtual {v2, v6}, Landroid/widget/Button;->setVisibility(I)V
 
-    :cond_1a
-    if-eqz v4, :cond_1b
+    :cond_19
+    if-eqz v4, :cond_1a
 
     .line 1980
     iget-object v2, v0, Lcom/shilapi/xcertplay/CarPlayHostActivity;->setupActionButton:Landroid/widget/Button;
 
-    if-eqz v2, :cond_1b
+    if-eqz v2, :cond_1a
 
     invoke-virtual {v4}, Lcom/shilapi/xcertplay/SetupProblemText$Action;->getLabel()I
 
@@ -19535,25 +19517,25 @@
     invoke-virtual {v2, v6}, Landroid/widget/Button;->setText(Ljava/lang/CharSequence;)V
 
     .line 1982
-    :cond_1b
+    :cond_1a
     iget-object v2, v0, Lcom/shilapi/xcertplay/CarPlayHostActivity;->backToFreeAutoButton:Landroid/widget/Button;
 
-    if-eqz v2, :cond_20
+    if-eqz v2, :cond_1f
 
     .line 1983
     sget-object v6, Lcom/shilapi/xcertplay/Glass;->INSTANCE:Lcom/shilapi/xcertplay/Glass;
 
     iget-object v7, v0, Lcom/shilapi/xcertplay/CarPlayHostActivity;->panelDark:Ljava/lang/Boolean;
 
-    if-eqz v7, :cond_1c
+    if-eqz v7, :cond_1b
 
     invoke-virtual {v7}, Ljava/lang/Boolean;->booleanValue()Z
 
     move-result v7
 
-    goto :goto_c
+    goto :goto_d
 
-    :cond_1c
+    :cond_1b
     sget-object v7, Lcom/shilapi/xcertplay/Appearance;->INSTANCE:Lcom/shilapi/xcertplay/Appearance;
 
     move-object v12, v0
@@ -19564,34 +19546,34 @@
 
     move-result v7
 
-    :goto_c
+    :goto_d
     invoke-virtual {v6, v7}, Lcom/shilapi/xcertplay/Glass;->use(Z)Lcom/shilapi/xcertplay/Glass$Palette;
 
     move-result-object v6
 
-    if-nez v4, :cond_1d
+    if-nez v4, :cond_1c
 
-    goto :goto_d
+    goto :goto_e
 
-    :cond_1d
+    :cond_1c
     const/4 v9, 0x0
 
-    :goto_d
-    if-eqz v9, :cond_1e
+    :goto_e
+    if-eqz v9, :cond_1d
 
     .line 1985
     invoke-virtual {v6}, Lcom/shilapi/xcertplay/Glass$Palette;->getOnPrimary()I
 
     move-result v4
 
-    goto :goto_e
+    goto :goto_f
 
-    :cond_1e
+    :cond_1d
     invoke-virtual {v6}, Lcom/shilapi/xcertplay/Glass$Palette;->getText()I
 
     move-result v4
 
-    :goto_e
+    :goto_f
     invoke-virtual {v2, v4}, Landroid/widget/Button;->setTextColor(I)V
 
     .line 1986
@@ -19603,16 +19585,16 @@
 
     check-cast v13, Landroid/content/Context;
 
-    if-eqz v9, :cond_1f
+    if-eqz v9, :cond_1e
 
     sget-object v4, Lcom/shilapi/xcertplay/Glass$Kind;->PRIMARY:Lcom/shilapi/xcertplay/Glass$Kind;
 
-    goto :goto_f
+    goto :goto_10
 
-    :cond_1f
+    :cond_1e
     sget-object v4, Lcom/shilapi/xcertplay/Glass$Kind;->CONTROL:Lcom/shilapi/xcertplay/Glass$Kind;
 
-    :goto_f
+    :goto_10
     move-object v14, v4
 
     const/16 v17, 0xc
@@ -19630,38 +19612,38 @@
     invoke-static {v2, v4}, Lcom/shilapi/xcertplay/LegacyViewsKt;->setBackgroundCompat(Landroid/view/View;Landroid/graphics/drawable/Drawable;)V
 
     .line 1988
-    :cond_20
+    :cond_1f
     iget-object v2, v0, Lcom/shilapi/xcertplay/CarPlayHostActivity;->setupProblemDetail:Ljava/lang/String;
 
-    if-eqz v2, :cond_21
+    if-eqz v2, :cond_20
 
-    if-eqz v1, :cond_21
+    if-eqz v1, :cond_20
 
     move-object v5, v2
 
     .line 1989
-    :cond_21
+    :cond_20
     iget-object v1, v0, Lcom/shilapi/xcertplay/CarPlayHostActivity;->setupDetailsToggle:Landroid/widget/TextView;
 
-    if-eqz v1, :cond_23
+    if-eqz v1, :cond_22
 
-    if-nez v5, :cond_22
+    if-nez v5, :cond_21
 
     const/16 v2, 0x8
 
-    goto :goto_10
+    goto :goto_11
 
-    :cond_22
+    :cond_21
     const/4 v2, 0x0
 
-    :goto_10
+    :goto_11
     invoke-virtual {v1, v2}, Landroid/widget/TextView;->setVisibility(I)V
 
     .line 1990
-    :cond_23
+    :cond_22
     iget-object v1, v0, Lcom/shilapi/xcertplay/CarPlayHostActivity;->setupDetailsToggle:Landroid/widget/TextView;
 
-    if-eqz v1, :cond_25
+    if-eqz v1, :cond_24
 
     sget v2, Lcom/shilapi/xcertplay/host/R$string;->check_technical_details:I
 
@@ -19671,16 +19653,16 @@
 
     iget-boolean v4, v0, Lcom/shilapi/xcertplay/CarPlayHostActivity;->setupDetailsOpen:Z
 
-    if-eqz v4, :cond_24
+    if-eqz v4, :cond_23
 
     const-string v4, "  \u02c5"
 
-    goto :goto_11
+    goto :goto_12
 
-    :cond_24
+    :cond_23
     const-string v4, "  \u203a"
 
-    :goto_11
+    :goto_12
     new-instance v6, Ljava/lang/StringBuilder;
 
     invoke-direct {v6}, Ljava/lang/StringBuilder;-><init>()V
@@ -19698,44 +19680,44 @@
     invoke-virtual {v1, v2}, Landroid/widget/TextView;->setText(Ljava/lang/CharSequence;)V
 
     .line 1991
-    :cond_25
+    :cond_24
     iget-object v1, v0, Lcom/shilapi/xcertplay/CarPlayHostActivity;->setupDetailsView:Landroid/widget/TextView;
 
-    if-eqz v1, :cond_27
+    if-eqz v1, :cond_26
 
-    if-nez v5, :cond_26
+    if-nez v5, :cond_25
 
-    goto :goto_12
+    goto :goto_13
 
-    :cond_26
+    :cond_25
     move-object v3, v5
 
-    :goto_12
+    :goto_13
     check-cast v3, Ljava/lang/CharSequence;
 
     invoke-virtual {v1, v3}, Landroid/widget/TextView;->setText(Ljava/lang/CharSequence;)V
 
     .line 1992
-    :cond_27
+    :cond_26
     iget-object v1, v0, Lcom/shilapi/xcertplay/CarPlayHostActivity;->setupDetailsView:Landroid/widget/TextView;
 
-    if-eqz v1, :cond_29
+    if-eqz v1, :cond_28
 
-    if-eqz v5, :cond_28
+    if-eqz v5, :cond_27
 
     iget-boolean v2, v0, Lcom/shilapi/xcertplay/CarPlayHostActivity;->setupDetailsOpen:Z
 
-    if-eqz v2, :cond_28
+    if-eqz v2, :cond_27
 
-    goto :goto_13
+    goto :goto_14
 
-    :cond_28
+    :cond_27
     const/16 v11, 0x8
 
-    :goto_13
+    :goto_14
     invoke-virtual {v1, v11}, Landroid/widget/TextView;->setVisibility(I)V
 
-    :cond_29
+    :cond_28
     return-void
 .end method
 

@@ -40,3 +40,31 @@ manifest=(ROOT/'src/main/AndroidManifest.xml').read_text()
 for name in ('HeadUnitCheckActivity','WheelKeysActivity','ImageCropActivity','CarBrandPickerActivity'):
     assert name not in manifest
 print('PASS current settings bindings and host settings routing; retired activities unregistered')
+
+# Retired screens must not leave classes or references that can fail DEX verification.
+retired=('HeadUnitCheck','HeadUnitCapabilities','HeadUnitCheckSummary','HeadUnitCheckText',
+         'ConnectionStatusRow','ConnectionStatusRowKt','StepSegmentsView','ChipFlow')
+retired_type=re.compile(r'Lcom/shilapi/xcertplay/(?:'+ '|'.join(retired) +r')(?:\$[^;]+)?;')
+bridge='ChipFlow$$ExternalSyntheticApiModelOutline0'
+for source in (ROOT/'src').rglob('*'):
+    if source.suffix not in ('.smali','.java','.xml'):continue
+    text=source.read_text()
+    for reference in retired_type.findall(text):
+        assert reference=='Lcom/shilapi/xcertplay/'+bridge+';', (source,reference)
+    for name in retired:
+        assert '"com.shilapi.xcertplay.'+name+'"' not in text,(source,name)
+bridge_methods=methods((base/(bridge+'.smali')).read_text())
+# This shared compiler bridge still serves display/video paths; every call must resolve.
+bridge_calls=set()
+for source in (ROOT/'src/core/smali').rglob('*.smali'):
+    bridge_calls.update(re.findall(r'Lcom/shilapi/xcertplay/'+re.escape(bridge)+r';->([^\s]+)',source.read_text()))
+assert bridge_calls and bridge_calls<=bridge_methods.keys(),bridge_calls-bridge_methods.keys()
+assert '->show(Landroid/app/Activity;)V' in activity['render()V']
+assert 'E01ConnectionPanel;->update(Landroid/app/Activity;)V' in host['renderPanelRow()V']
+# Playback is invoked by the protocol and remains registered even without a settings item.
+assert 'com.shilapi.xcertplay.CarPlayVideoActivity' in manifest
+video=methods((base/'CarPlayVideo.smali').read_text())
+assert '->setVideoListener(' in video['attach(Landroid/content/Context;Lcom/shilapi/xcertplay/orchestration/CarPlayController;)V']
+assert 'Lcom/shilapi/xcertplay/CarPlayVideoActivity;' in video['show()V']
+assert '->startActivity(' in video['show()V']
+print('PASS retired class references removed; all live bridge calls resolve; native panels and protocol video retained')

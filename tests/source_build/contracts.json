@@ -129,7 +129,7 @@
     "dex": "classes.dex",
     "class": "com/shilapi/xcertplay/DiPlayActivity.smali",
     "method": "render()V",
-    "sha256": "55fe7145d070d3e5fbadef2041b3a5c5139958fc15f0a9e28ac89da80aee2250"
+    "sha256": "d2701be975dd70395f45b67ba8900a86c2dac206f6ded22afdb366bc9386b26b"
   },
   "native-ui-1": {
     "dex": "classes.dex",
@@ -213,7 +213,7 @@
     "dex": "classes.dex",
     "class": "com/shilapi/xcertplay/DiPlayActivity.smali",
     "method": "onRowAction(Lcom/shilapi/xcertplay/ConnectionUi$RowAction;)V",
-    "sha256": "e647a04914f795d66dee8d6cb2afd7a4590251edf9f32b71b357009904d7fc2a"
+    "sha256": "a9e2310e3ec43e7ad86874a28b317a56d355d61150334cd2cae4c4c52b7619b4"
   },
   "speed-controller-close": {
     "dex": "classes.dex",

@@ -76,8 +76,6 @@
         </activity>
         <activity android:configChanges="keyboardHidden|orientation|screenLayout|uiMode|screenSize|smallestScreenSize|density" android:exported="false" android:name="com.shilapi.xcertplay.CarPlayVideoActivity" android:theme="@style/Theme.Xcertplay"/>
         <activity android:configChanges="keyboardHidden|orientation|screenLayout|uiMode|screenSize|smallestScreenSize|density" android:excludeFromRecents="true" android:exported="false" android:name="com.shilapi.xcertplay.SystemPageActivity" android:theme="@android:style/Theme.Translucent.NoTitleBar"/>
-        <receiver android:exported="true" android:name="com.shilapi.xcertplay.media.MicrophoneTestReceiver" android:permission="android.permission.DUMP"/>
-        <receiver android:exported="true" android:name="com.shilapi.xcertplay.airplay.LivenessTestReceiver" android:permission="android.permission.DUMP"/>
         <service android:exported="false" android:name="com.shilapi.xcertplay.network.CarPlayVpnService" android:permission="android.permission.BIND_VPN_SERVICE"/>
     </application>
 </manifest>

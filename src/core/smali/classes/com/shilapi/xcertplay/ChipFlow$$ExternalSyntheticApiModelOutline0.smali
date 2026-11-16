@@ -101,28 +101,6 @@
     return p0
 .end method
 
-.method public static bridge synthetic m(Lcom/shilapi/xcertplay/ChipFlow;)I
-    .locals 0
-
-    .line 0
-    invoke-virtual {p0}, Lcom/shilapi/xcertplay/ChipFlow;->getLayoutDirection()I
-
-    move-result p0
-
-    return p0
-.end method
-
-.method public static bridge synthetic m(Lcom/shilapi/xcertplay/ConnectionStatusRow;)I
-    .locals 0
-
-    .line 0
-    invoke-virtual {p0}, Lcom/shilapi/xcertplay/ConnectionStatusRow;->getMinimumHeight()I
-
-    move-result p0
-
-    return p0
-.end method
-
 .method public static bridge synthetic m(Landroid/media/MediaCodec$BufferInfo;)J
     .locals 2
 

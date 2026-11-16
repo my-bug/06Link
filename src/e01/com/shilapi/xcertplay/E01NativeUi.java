@@ -18,7 +18,6 @@ import java.util.*;
 public final class E01NativeUi extends android.view.ContextThemeWrapper {
     private final Activity host;
     private final E01NativeSettings settings;
-    private android.content.SharedPreferences prefs;
     private String stage="",phone="",snapshot="",stateMessage="";
     private static final int UI_TAG=0x7f7a0615;
     private static E01NativeUi instance(Activity a){View decor=a.getWindow().getDecorView();Object old=decor.getTag(UI_TAG);if(old instanceof E01NativeUi)return (E01NativeUi)old;E01NativeUi ui=new E01NativeUi(a);decor.setTag(UI_TAG,ui);return ui;}
@@ -29,7 +28,7 @@ public final class E01NativeUi extends android.view.ContextThemeWrapper {
     public interface Selection {void selected(int index);}
     public static void select(Activity a,String title,String[] names,Selection action){E01NativeUi ui=instance(a);ui.colors();LinearLayout body=ui.column();for(int i=0;i<names.length;i++){final int index=i;body.addView(ui.button(names[i],false,()->{ui.closeDialog();action.selected(index);ui.refresh();}),ui.lp(-1,48));ui.gap(body,8);}ui.showDialog(title,body,"取消",null,null,null);}
     public static void firstRun(Activity a){instance(a).welcome();}
-    private E01NativeUi(Activity a){super(a,0);host=a;settings=new E01NativeSettings(a);prefs=settings.ui;colors();try{logo=BitmapFactory.decodeResource(getResources(),a.getApplicationInfo().icon);}catch(Exception ignored){} }
+    private E01NativeUi(Activity a){super(a,0);host=a;settings=new E01NativeSettings(a);colors();try{logo=BitmapFactory.decodeResource(getResources(),a.getApplicationInfo().icon);}catch(Exception ignored){} }
     private void readState(){
         try{Object input=E01NativeSettings.call(host,"connectionInput");Object progress=E01NativeSettings.call(input,"getProgress");Object ui=E01NativeSettings.call(E01NativeSettings.singleton("ConnectionUi"),"build",host,input);E01NativeSettings.field(host,"lastUi",ui);
             String phase=E01NativeSettings.call(ui,"getPhase").toString();connection=phase.equals("CONNECTED")?"connected":phase.equals("IDLE")?"idle":phase.equals("STUCK")?"failed":"waiting";
@@ -48,7 +47,6 @@ public final class E01NativeUi extends android.view.ContextThemeWrapper {
     }
     private void safe(Runnable action){try{action.run();}catch(RuntimeException e){message("操作未完成",e.getMessage()==null?"请稍后重试":e.getMessage());}}
     private void setContentView(View v){host.setContentView(v);}
-    private Window getWindow(){return host.getWindow();}
     private void syncPage(){E01NativeSettings.field(host,"page",page.equals("home")?"home":"settings");E01NativeSettings.call(host,"noteWaitingOnHome");}
     private boolean getBool(String k,boolean d){return settings.bool(k,d);}
     private String getValue(String k,String d){return settings.string(k,d);}
@@ -88,7 +86,6 @@ public final class E01NativeUi extends android.view.ContextThemeWrapper {
     private LinearLayout column(){LinearLayout l=new LinearLayout(this);l.setOrientation(1);return l;}
     private LinearLayout row(){LinearLayout l=new LinearLayout(this);l.setOrientation(0);l.setGravity(Gravity.CENTER_VERTICAL);return l;}
     private LinearLayout.LayoutParams lp(int w,int h){return new LinearLayout.LayoutParams(w<0?w:dp(w),h<0?h:dp(h));}
-    private LinearLayout.LayoutParams flex(){return new LinearLayout.LayoutParams(0,-2,1);}
     private TextView text(String s,float size,int color,boolean bold){TextView t=new TextView(this);t.setText(s);t.setTextSize(size);t.setTextColor(color);t.setTypeface(Typeface.create(bold?"sans-serif-medium":"sans-serif",0));t.setIncludeFontPadding(false);t.setLineSpacing(dp(3),1);return t;}
     private TextView label(String s,float size,int color){TextView t=text(s,size,color,false);t.setSingleLine(true);t.setEllipsize(TextUtils.TruncateAt.END);return t;}
     private void gap(LinearLayout p,int h){p.addView(new View(this),lp(1,h));}
