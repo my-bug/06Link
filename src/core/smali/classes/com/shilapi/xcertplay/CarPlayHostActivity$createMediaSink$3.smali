@@ -8,7 +8,7 @@
 
 # annotations
 .annotation system Ldalvik/annotation/EnclosingMethod;
-    value = Lcom/shilapi/xcertplay/CarPlayHostActivity;->createMediaSink(IIIIZ)Lcom/shilapi/xcertplay/media/AndroidMediaSink;
+    value = Lcom/shilapi/xcertplay/CarPlayHostActivity;->createMediaSink(IIIZ)Lcom/shilapi/xcertplay/media/AndroidMediaSink;
 .end annotation
 
 .annotation system Ldalvik/annotation/InnerClass;

@@ -41,6 +41,22 @@ for name in ('HeadUnitCheckActivity','WheelKeysActivity','ImageCropActivity','Ca
     assert name not in manifest
 print('PASS current settings bindings and host settings routing; retired activities unregistered')
 
+# The connection screen uses reflection; DEX member checks cannot see these names.
+# Validate its bindings against the actual host, including the null-reset array.
+panel=(java_root/'E01ConnectionPanel.java').read_text()
+host_text=(base/'CarPlayHostActivity.smali').read_text()
+host_fields=set(re.findall(r'^\.field [^\n]*?([^\s:]+):',host_text,re.M))
+panel_fields=set(re.findall(r'(?:E01NativeSettings\.)?field\((?:a|host),"([^"]+)"',panel))
+for reset in re.findall(r'for\(String key:new String\[\]\{([^}]+)\}\)field\(a,key,null\)',panel):
+    panel_fields.update(re.findall(r'"([^"]+)"',reset))
+assert len(panel_fields)>10, 'Connection panel bindings were not inspected'
+assert panel_fields<=host_fields, 'Connection panel references missing host fields: '+str(panel_fields-host_fields)
+panel_calls=set(re.findall(r'E01NativeSettings\.call\((?:a|host),"([^"]+)"',panel))
+host_names={signature.split('(')[0] for signature in host}
+assert panel_calls and panel_calls<=host_names,panel_calls-host_names
+assert 'E01ConnectionPanel;->create(Landroid/app/Activity;)Landroid/view/View;' in host['buildConnectionPanel()Landroid/view/View;']
+print('PASS shared wired/wireless connection panel fields and callbacks resolve to the current host')
+
 # Retired screens must not leave classes or references that can fail DEX verification.
 retired=('HeadUnitCheck','HeadUnitCapabilities','HeadUnitCheckSummary','HeadUnitCheckText',
          'ConnectionStatusRow','ConnectionStatusRowKt','StepSegmentsView','ChipFlow')

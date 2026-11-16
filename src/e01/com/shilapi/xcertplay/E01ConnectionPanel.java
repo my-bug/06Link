@@ -40,7 +40,7 @@ public final class E01ConnectionPanel extends FrameLayout {
         Button required=action("继续",()->E01NativeSettings.call(host,"onSetupAction"));required.setVisibility(GONE);LinearLayout.LayoutParams requiredLp=new LinearLayout.LayoutParams(0,-2,1);requiredLp.rightMargin=dp(10);actions.addView(required,requiredLp);field(a,"setupActionButton",required);
         Button stop=action("停止连接",()->E01NativeSettings.call(host,"onPanelRowAction",E01NativeSettings.value("ConnectionUi$RowAction","CANCEL")));actions.addView(stop,new LinearLayout.LayoutParams(0,-2,1));
         // Old widgets are no longer created. Keep nullable host fields safe for lifecycle updates.
-        for(String key:new String[]{"connectionBody","panelRow","panelExtras","panelExtrasScroll","stageStatusView","spinnerView","waitingHintView","setupNoteView","wifiRecoveryButton","bluetoothRepairButton","backToFreeAutoButton","setupDetailsToggle","setupDetailsView","threeFingerHintView"})field(a,key,null);
+        for(String key:new String[]{"connectionBody","panelExtras","panelExtrasScroll","stageStatusView","spinnerView","waitingHintView","setupNoteView","wifiRecoveryButton","bluetoothRepairButton","backToFreeAutoButton","setupDetailsToggle","setupDetailsView","threeFingerHintView"})field(a,key,null);
         field(a,"setupDetailsOpen",false);
         field(a,"connectionPanel",this);
     }
