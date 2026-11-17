@@ -11,8 +11,20 @@ import java.util.concurrent.*;
 
 /** E01's OEM charge-only policy otherwise removes the phone from the USB bus. */
 public final class E01WiredPort {
-    private static final String NODE = "/sys/class/host_peripheral/charging_mode";
-    private static final String PREF = "06link-wired-port", KEY = "restore_mode";
+    private static final String PREF = "06link-wired-port";
+    private static final class Port {
+        final String name, node, key;
+        long window;
+        int writes;
+        Port(String name, String node, String key) {
+            this.name = name; this.node = node; this.key = key;
+        }
+    }
+    private static final Port[] PORTS = {
+        // Keep the original key so an interrupted session from an older version can recover.
+        new Port("host", "/sys/class/host_peripheral/charging_mode", "restore_mode"),
+        new Port("otg", "/sys/class/otg_peripheral/charging_mode", "restore_mode_otg")
+    };
     private static final Object LOCK = new Object();
     private static final ScheduledExecutorService IO = Executors.newSingleThreadScheduledExecutor();
     // LOCK protects intent/ownership only. Never hold it across files, preferences or logging.
@@ -28,21 +40,21 @@ public final class E01WiredPort {
     private static volatile String status = "idle";
     // Only the single IO worker accesses the periodic task and write budget.
     private static ScheduledFuture<?> tick;
-    private static long window;
-    private static int writes;
+    private static long selectionGeneration = -1;
+    private static Port sessionPort;
 
     private static boolean supported() {
         return Build.VERSION.SDK_INT == 22 && "E01".equals(Build.MODEL) && "BX11QJ".equals(Build.DEVICE);
     }
-    private static String read() throws IOException {
-        try (BufferedReader r = new BufferedReader(new FileReader(NODE))) {
+    private static String read(Port port) throws IOException {
+        try (BufferedReader r = new BufferedReader(new FileReader(port.node))) {
             String s = r.readLine();
             return s == null ? "" : s.trim();
         }
     }
-    private static void write(String s) throws IOException {
-        try (FileWriter w = new FileWriter(NODE)) { w.write(s); }
-        if (!s.equals(read())) throw new IOException("USB mode write not confirmed");
+    private static void write(Port port, String s) throws IOException {
+        try (FileWriter w = new FileWriter(port.node)) { w.write(s); }
+        if (!s.equals(read(port))) throw new IOException("USB mode write not confirmed");
     }
     private static boolean known(String s) { return "dcp".equals(s) || "cdp".equals(s) || "sdp".equals(s); }
 
@@ -63,7 +75,7 @@ public final class E01WiredPort {
     }
     private static void begin(long g) {
         if (contextFor(g, true) == null) return;
-        cancelTick(); window = 0; writes = 0;
+        cancelTick();
         tick = IO.scheduleWithFixedDelay(() -> step(g), 0, 1, TimeUnit.SECONDS);
     }
     private static void cancelTick() {
@@ -81,32 +93,47 @@ public final class E01WiredPort {
     private static void step(long g) {
         Context context = contextFor(g, true);
         if (context == null) return;
+        if (selectionGeneration != g) {
+            String choice = context.getSharedPreferences("06link-native-ui", 0)
+                    .getString("wired_port", "host");
+            if (contextFor(g, true) == null) return;
+            sessionPort = PORTS["otg".equals(choice) ? 1 : 0];
+            sessionPort.window = 0; sessionPort.writes = 0;
+            selectionGeneration = g;
+        }
+        // Snapshot once per wired connection. Settings changes never switch a live port.
+        // Do not read/write the other port or try it when the selected one has no phone.
+        status(g, prepare(context, g, sessionPort) ? "ready" : "failed");
+    }
+
+    private static boolean prepare(Context context, long g, Port port) {
+        if (!new File(port.node).exists()) return false;
         try {
-            String mode = read();
-            if (!known(mode)) { status(g, "failed"); return; }
+            String mode = read(port);
+            if (!known(mode)) return false;
             SharedPreferences p = context.getSharedPreferences(PREF, 0);
-            String old = p.getString(KEY, "");
-            if (contextFor(g, true) == null) return;
-            if (old.isEmpty() && !p.edit().putString(KEY, mode).commit())
+            String old = p.getString(port.key, "");
+            if (contextFor(g, true) == null) return false;
+            if (old.isEmpty() && !p.edit().putString(port.key, mode).commit())
                 throw new IOException("USB restore state not saved");
-            if (contextFor(g, true) == null) return;
+            if (contextFor(g, true) == null) return false;
             // Preserve SDP/CDP. Only undo the OEM switch to charge-only DCP.
-            if (!"dcp".equals(mode)) { status(g, "ready"); return; }
+            if (!"dcp".equals(mode)) return true;
             status(g, "wait");
             long now = SystemClock.elapsedRealtime();
-            if (now - window >= 30000) { window = now; writes = 0; }
-            if (writes >= 3) { status(g, "failed"); return; }
-            if (contextFor(g, true) == null) return;
-            writes++;
-            write("cdp");
-            status(g, "ready");
-            Log.i("06Link-usb", "OEM charge-only mode restored to USB data mode");
+            if (now - port.window >= 30000) { port.window = now; port.writes = 0; }
+            if (port.writes >= 3) return false;
+            if (contextFor(g, true) == null) return false;
+            port.writes++;
+            write(port, "cdp");
+            Log.i("06Link-usb", "USB " + port.name + " charge-only mode restored to data mode");
+            return true;
         } catch (Exception e) {
-            status(g, "failed");
-            if (writes < 3) {
-                writes = 3; window = SystemClock.elapsedRealtime();
-                Log.w("06Link-usb", "USB data mode unavailable: " + e.getClass().getSimpleName());
+            if (port.writes < 3) {
+                port.writes = 3; port.window = SystemClock.elapsedRealtime();
+                Log.w("06Link-usb", "USB " + port.name + " data mode unavailable: " + e.getClass().getSimpleName());
             }
+            return false;
         }
     }
 
@@ -178,19 +205,25 @@ public final class E01WiredPort {
     private static void restore(long g) {
         Context context = contextFor(g, false);
         if (context == null) return;
+        for (Port port : PORTS) {
+            if (contextFor(g, false) == null) return;
+            restore(context, g, port);
+        }
+    }
+    private static void restore(Context context, long g, Port port) {
         try {
             SharedPreferences p = context.getSharedPreferences(PREF, 0);
-            String old = p.getString(KEY, "");
+            String old = p.getString(port.key, "");
             if (!known(old)) return;
-            String now = read();
+            String now = read(port);
             if (!known(now)) throw new IOException("USB mode unavailable during restore");
             if (contextFor(g, false) == null) return;
-            if ("cdp".equals(now) && !old.equals(now)) write(old);
+            if ("cdp".equals(now) && !old.equals(now)) write(port, old);
             // Keep the journal for a new owner or a newer intent; never clear its recovery state.
             if (contextFor(g, false) == null) return;
-            if (!p.edit().remove(KEY).commit()) throw new IOException("USB restore state not cleared");
+            if (!p.edit().remove(port.key).commit()) throw new IOException("USB restore state not cleared");
         } catch (Exception e) {
-            Log.w("06Link-usb", "USB original mode restore pending: " + e.getClass().getSimpleName());
+            Log.w("06Link-usb", "USB " + port.name + " original mode restore pending: " + e.getClass().getSimpleName());
         }
     }
     private E01WiredPort() { }

@@ -113,6 +113,12 @@ def main():
            settings.set("auto_connect",!auto);
            check(settings.bool("auto_start_on_boot",false),"auto connection changed boot toggle");
           }
+          {Page portPage=fresh(false,"有线");E01NativeSettings ps=new E01NativeSettings(portPage);int starts=E01WiredPort.starts;
+           check(ps.string("wired_port","").equals("扶手箱 USB"),"USB default changed");
+           ps.set("wired_port","点烟器旁 USB");check(ps.string("wired_port","").equals("点烟器旁 USB"),"front USB selection not saved");
+           check(portPage.getSharedPreferences("06link-native-ui",0).getString("wired_port","").equals("otg"),"front USB mapping wrong");
+           ps.set("wired_port","扶手箱 USB");check(ps.string("wired_port","").equals("扶手箱 USB"),"host USB selection not saved");
+           check(E01WiredPort.starts==starts,"saving interface started hardware");}
           for(String mode:new String[]{"无线","有线","每次选择"}){Page p=fresh(false,mode);check(!E01NativeSettings.startupEligible(p),"disabled auto started");p.pendingAutoConnect=true;E01NativeSettings.defaultConnection(p);check(p.pendingAutoConnect==null&&!p.autoStartWaiting,"disabled auto retained pending");new E01NativeSettings(p).set("default_connection","无线");check(!DiPlayPreferences.INSTANCE.autoConnect(p),"select mode secretly enabled auto");}
           Page choose=fresh(true,"每次选择");check(!E01NativeSettings.startupEligible(choose),"ask every launch started");choose.pendingAutoConnect=true;E01NativeSettings.defaultConnection(choose);check(choose.pendingAutoConnect==null,"ask every launch not cleared");
           for(String mode:new String[]{"无线","有线"}){Page p=fresh(true,mode);check(E01NativeSettings.startupEligible(p),"startup requires legacy Android bond list");p.pendingAutoConnect=true;E01NativeSettings.defaultConnection(p);check(p.pendingAutoConnect.equals(mode.equals("无线"))&&p.autoStartWaiting,"wrong default");check(E01NativeSettings.startupWireless(p)==mode.equals("无线"),"wrong status transport");check(E01NativeSettings.continueStartup(p),"startup prematurely cancelled");check(!E01NativeSettings.startupEligible(p),"duplicate startup accepted while queued");p.pendingAutoConnect=true;E01NativeSettings.defaultConnection(p);check(p.pendingAutoConnect==null&&p.autoStartWaiting,"duplicate replaced original");p.autoStartWaiting=false;check(!E01NativeSettings.continueStartup(p),"manual start did not supersede queued launch");}

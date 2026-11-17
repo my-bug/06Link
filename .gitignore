@@ -32,6 +32,8 @@
 /docs/*
 !/docs/BUILD.md
 !/docs/PROJECT_STRUCTURE.md
+!/docs/USB_PORTS.md
+!/docs/CHANGELOG.md
 
 # Public tool binaries are obtained from the locked official sources.
 /tooling/*

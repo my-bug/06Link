@@ -59,13 +59,16 @@ public class SystemClock {public static long elapsedRealtime(){return System.nan
     put('android/util/Log.java', '''package android.util;
 public class Log {public static int i(String a,String b){return 0;}public static int w(String a,String b){return 0;}}''')
     node = str(work / 'mode')
+    front = str(work / 'front-mode')
     source = (ROOT / 'src/e01/com/shilapi/xcertplay/E01WiredPort.java').read_text()
-    put('com/shilapi/xcertplay/E01WiredPort.java', source.replace('/sys/class/host_peripheral/charging_mode', node).replace('new FileWriter(NODE)', 'new TestFileWriter(NODE)'))
+    put('com/shilapi/xcertplay/E01WiredPort.java', source.replace('/sys/class/host_peripheral/charging_mode', node).replace('/sys/class/otg_peripheral/charging_mode', front).replace('new FileWriter(port.node)', 'new TestFileWriter(port.node)'))
     put('com/shilapi/xcertplay/TestFileWriter.java', '''package com.shilapi.xcertplay;
 import java.io.*; import java.util.concurrent.*;
 class TestFileWriter extends FileWriter {
  static volatile CountDownLatch entered, release;
- TestFileWriter(String path)throws IOException{super(path);}
+ static final java.util.Map<String,Integer> writes=new java.util.HashMap<>();
+ static synchronized int count(String path){return writes.containsKey(path)?writes.get(path):0;}
+ TestFileWriter(String path)throws IOException{super(path);synchronized(TestFileWriter.class){writes.put(path,count(path)+1);}}
  public void write(String value)throws IOException {
   if("dcp".equals(value)&&entered!=null){entered.countDown();try{if(!release.await(3,TimeUnit.SECONDS))throw new IOException("restore test timeout");}catch(InterruptedException e){throw new IOException(e);}}
   super.write(value);
@@ -75,7 +78,7 @@ class TestFileWriter extends FileWriter {
 import android.content.Context;
 import java.nio.file.*; import java.util.concurrent.*; import java.lang.reflect.*;
 public class PortCheck {
- static Path node=Paths.get("NODE_PATH"); static int checks;
+ static Path node=Paths.get("NODE_PATH"), front=Paths.get("FRONT_PATH"); static int checks;
  static void check(boolean ok,String why){checks++;if(!ok)throw new AssertionError(why);}
  static void mode(String v)throws Exception{Files.write(node,v.getBytes("UTF-8"));}
  static String mode()throws Exception{return new String(Files.readAllBytes(node),"UTF-8");}
@@ -110,6 +113,61 @@ public class PortCheck {
   Thread thread=new Thread(ui,"ui-test");thread.start();
   try{ui.get(400,TimeUnit.MILLISECONDS);}finally{c.p.release.countDown();}
   waitMode("cdp");waitStatus("ready");empty(c);waitMode("dcp");
+ }
+ static void frontMode(String value)throws Exception{Files.write(front,value.getBytes("UTF-8"));}
+ static String frontMode()throws Exception{return new String(Files.readAllBytes(front),"UTF-8");}
+ static void waitFront(String value)throws Exception{
+  long until=System.nanoTime()+TimeUnit.SECONDS.toNanos(3);
+  while(!value.equals(frontMode())&&System.nanoTime()<until)Thread.sleep(10);
+  check(value.equals(frontMode()),"expected front mode "+value+", got "+frontMode());
+ }
+ static void selectedPorts()throws Exception{
+  Context c=new Context();mode("dcp");frontMode("sdp");
+  int untouched=TestFileWriter.count(front.toString());
+  E01WiredPort.start(c);waitMode("cdp");waitStatus("ready");empty(c);waitMode("dcp");
+  check("sdp".equals(frontMode())&&untouched==TestFileWriter.count(front.toString()),"default host touched other port/storage");
+  check(c.p.getString("restore_mode_otg","").isEmpty(),"default host journaled unselected port");
+  // Front port selected, armrest remains available to a USB drive. No repeated CDP writes.
+  c.p.edit().putString("wired_port","otg").commit();mode("sdp");frontMode("dcp");
+  untouched=TestFileWriter.count(node.toString());Object owner=new Object();
+  E01WiredPort.start(c);E01WiredPort.controllerStarted(c,owner);waitOwner(owner);waitFront("cdp");waitStatus("ready");
+  check("dcp".equals(c.p.getString("restore_mode_otg","")),"front original mode missing");
+  check(c.p.getString("restore_mode","").isEmpty(),"front selection journaled host");
+  int frontWrites=TestFileWriter.count(front.toString());Thread.sleep(1100);
+  check(frontWrites==TestFileWriter.count(front.toString()),"ready front port was rewritten");
+  // Selecting another interface during a session only changes the next connection.
+  c.p.edit().putString("wired_port","host").commit();E01WiredPort.start(c);drain();Thread.sleep(1100);
+  check("sdp".equals(mode())&&untouched==TestFileWriter.count(node.toString()),"settings change touched host/storage during session");
+  check("cdp".equals(frontMode()),"settings change stopped current front session");
+  E01WiredPort.stop();drain();check("cdp".equals(frontMode()),"front restored before teardown");
+  E01WiredPort.controllerClosed(owner);drain();waitFront("dcp");
+  check(untouched==TestFileWriter.count(node.toString()),"front cleanup wrote host/storage");
+  check(c.p.getString("restore_mode_otg","").isEmpty(),"front journal not cleared");
+  mode("dcp");frontMode("sdp");frontWrites=TestFileWriter.count(front.toString());
+  E01WiredPort.start(c);waitMode("cdp");empty(c);waitMode("dcp");
+  check(frontWrites==TestFileWriter.count(front.toString()),"next host session touched front/storage");
+  // No automatic fallback to the other port when the selected port is unavailable.
+  c.p.edit().putString("wired_port","otg").commit();frontMode("unknown");mode("dcp");
+  untouched=TestFileWriter.count(node.toString());E01WiredPort.start(c);waitStatus("failed");empty(c);
+  check("dcp".equals(mode())&&untouched==TestFileWriter.count(node.toString()),"invalid selected port switched other port");
+  Files.delete(front);E01WiredPort.start(c);waitStatus("failed");empty(c);
+  check(untouched==TestFileWriter.count(node.toString()),"missing selected port switched other port");
+  // Recover a previously modified front port even if the saved selection is now host.
+  frontMode("cdp");mode("sdp");c.p.edit().putString("wired_port","host").commit();
+  c.p.edit().putString("restore_mode_otg","dcp").commit();E01WiredPort.recover(c);drain();waitFront("dcp");
+  check(untouched==TestFileWriter.count(node.toString()),"front crash recovery wrote host");
+  // The existing teardown barrier also covers a physical write on the front port.
+  c.p.edit().putString("wired_port","otg").commit();frontMode("dcp");
+  E01WiredPort.start(c);waitFront("cdp");waitStatus("ready");
+  TestFileWriter.entered=new CountDownLatch(1);TestFileWriter.release=new CountDownLatch(1);
+  E01WiredPort.stop();check(TestFileWriter.entered.await(2,TimeUnit.SECONDS),"front restore did not enter write");
+  Object next=new Object();E01WiredPort.start(c);E01WiredPort.controllerStarted(c,next);
+  check(!E01WiredPort.controllerReady(next),"discovery overtook front-port restore");
+  TestFileWriter.release.countDown();waitOwner(next);waitFront("cdp");
+  TestFileWriter.entered=null;TestFileWriter.release=null;
+  E01WiredPort.stop();E01WiredPort.controllerClosed(next);drain();waitFront("dcp");
+  check(untouched==TestFileWriter.count(node.toString()),"front teardown race wrote host");
+  Files.delete(front);mode("dcp");
  }
  public static void main(String[] args)throws Exception{try{
   Thread.currentThread().setName("ui-test");
@@ -159,16 +217,17 @@ public class PortCheck {
   mode("unknown");E01WiredPort.start(c);Object unknown=new Object();E01WiredPort.controllerStarted(c,unknown);waitOwner(unknown);waitStatus("failed");E01WiredPort.stop();E01WiredPort.controllerClosed(unknown);drain();
   c.p.edit().putString("restore_mode","dcp").commit();E01WiredPort.recover(c);drain();check("dcp".equals(c.p.getString("restore_mode","")),"unknown node cleared pending journal");
   mode("cdp");E01WiredPort.recover(c);drain();waitMode("dcp");
+  selectedPorts();
   android.os.Build.MODEL="other";E01WiredPort.start(c);drain();check("idle".equals(E01WiredPort.dataModeStatus()),"unsupported model status");check("dcp".equals(mode()),"unsupported model changed mode");
-  System.out.println("PASS "+checks+" real port-controller assertions: blocked I/O, generation, ownership, cancellation, cold recovery, mode status, write budget");
+  System.out.println("PASS "+checks+" real port-controller assertions: blocked I/O, generation, ownership, cancellation, cold recovery, mode status, selected port, untouched other port, session snapshot and recovery");
   System.exit(0);
  }catch(Throwable t){t.printStackTrace();System.exit(1);}}
-}'''.replace('NODE_PATH', node))
+}'''.replace('NODE_PATH', node).replace('FRONT_PATH', front))
     # Fixture setup writes preferences directly; UI assertions apply only to calls made by production code.
     context = work / 'android/content/Context.java'
     context.write_text(context.read_text().replace('if(Thread.currentThread().getName().equals("ui-test"))throw new AssertionError("UI commit");', ''))
     subprocess.run([str(java / 'javac'), '--release', '8', '-Xlint:-options', '-d', str(work / 'classes'), *map(str, work.rglob('*.java'))], check=True)
-    run = subprocess.run([str(java / 'java'), '-cp', str(work / 'classes'), 'com.shilapi.xcertplay.PortCheck'], capture_output=True, text=True, timeout=30)
+    run = subprocess.run([str(java / 'java'), '-cp', str(work / 'classes'), 'com.shilapi.xcertplay.PortCheck'], capture_output=True, text=True, timeout=45)
     print(run.stdout + run.stderr, end='')
     run.check_returncode()
 

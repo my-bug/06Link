@@ -183,6 +183,7 @@ public final class E01NativeUi extends android.view.ContextThemeWrapper {
         if(key.equals("appearance"))return "外观已切换";
         if(key.equals("rotation"))return "屏幕方向已保存";
         if(key.equals("default_connection"))return value.equals("每次选择")?"启动时手动选择连接方式":getBool("auto_connect",false)?"默认方式已保存，下次启动生效":"默认方式已保存，开启启动自动连接后自动连接";
+        if(key.equals("wired_port"))return "接口已保存，下次有线连接生效";
         if(key.equals("current"))return "电流档位已保存，下次有线连接生效";
         return "已选择"+value+"，重新连接后生效";
     }
@@ -191,7 +192,7 @@ public final class E01NativeUi extends android.view.ContextThemeWrapper {
         toggle(g,"启动自动连接","auto_connect",false,"按默认方式连接；每次选择时由你启动");
         section("车机热点","无线连接时自动开启，点击停止后不再重试。");LinearLayout hotspot=group();
         inputHotspot(hotspot);
-        section("有线连接",null);g=group();choice(g,"USB 电流","current","默认",new String[]{"0.5 A","1.5 A","2.4 A"},"选择连接时使用的电流档位");
+        section("有线连接",null);g=group();choice(g,"使用接口","wired_port","扶手箱 USB",new String[]{"扶手箱 USB","点烟器旁 USB"},"仅启用所选接口，下次连接生效");choice(g,"USB 电流","current","默认",new String[]{"0.5 A","1.5 A","2.4 A"},"选择连接时使用的电流档位");
     }
     private void inputHotspot(LinearLayout g){
         EditText ssid=editor(getValue("ssid","06Link"),"热点名称",false),pass=editor(getValue("password","06Link2026"),"热点密码",true);
