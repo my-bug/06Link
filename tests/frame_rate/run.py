@@ -41,6 +41,14 @@ for dex in verified.iterdir():
 host = (verified / 'classes/com/shilapi/xcertplay/CarPlayHostActivity.smali').read_text()
 config = methods(host)['createAirPlayConfig(Lcom/shilapi/xcertplay/CarPlayHostActivity$DisplaySize;)Lcom/shilapi/xcertplay/airplay/AirPlayConfig;']
 assert config.index('->connectionFrameRate') < config.index('E01SmoothVideo;->negotiatedFps')
+# Both initial and final display requests use the saved rate. The retired auto
+# flag must not survive as an object copied by a primitive move (ART rejects it).
+assert '(auto)' not in config
+assert 'move/from16 v16, v2' not in config
+initial = config[:config.index('AirPlayDisplayConfig;-><init>')]
+assert 'iget v7, v0, Lcom/shilapi/xcertplay/CarPlayHostActivity;->fps:I' in initial
+assert 'move/from16 v16, v7' in initial
+assert 'const/16 v16, 0x1e' not in initial and 'if-eqz v2' not in initial
 load = methods((verified / 'classes/com/shilapi/xcertplay/media/DualDisplayVideoLoad.smali').read_text())['mainFps(IZ)I']
 assert 'return p1' in load and 'const/' not in load
 policy_source = (ROOT / 'src/e01/com/shilapi/xcertplay/E01SmoothVideo.java').read_text()

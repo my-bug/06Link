@@ -32,6 +32,7 @@ public final class E01NativeSettings {
     SharedPreferences instrument(){return host.getSharedPreferences(E01InstrumentStyle.PREFERENCES,0);}
     boolean bool(String key,boolean ignored){switch(key){
         case "cluster":return (Boolean)load("ClusterMapEnabled");
+        case "auto_start_on_boot":return (Boolean)load("AutoStartOnBoot");
         case "auto_connect":return (Boolean)call(singleton("DiPlayPreferences"),"autoConnect",host);
         case "location":return (Boolean)load("LocationReportingEnabled");
         case "hevc":return (Boolean)load("HevcEnabled");
@@ -68,6 +69,7 @@ public final class E01NativeSettings {
     }}
     void set(String key,Object v){boolean ok=true;switch(key){
         case "default_connection":ok=ui.edit().putString(key,(String)v).commit();break;
+        case "auto_start_on_boot":save("AutoStartOnBoot",v);break;
         case "auto_connect":call(singleton("DiPlayPreferences"),"saveAutoConnect",host,v);break;
         case "cluster":save("ClusterMapEnabled",v);call(singleton("GenericClusterPlaceholder"),"ensure",host);break;
         case "location":save("LocationReportingEnabled",v);break;

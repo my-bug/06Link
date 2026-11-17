@@ -5422,9 +5422,6 @@
 
     move-result-object v1
 
-    .line 4074
-    sget-object v2, Lcom/shilapi/xcertplay/AirPlayPersistence;->INSTANCE:Lcom/shilapi/xcertplay/AirPlayPersistence;
-
     move-object v3, v0
 
     check-cast v3, Landroid/content/Context;
@@ -5498,21 +5495,11 @@
 
     move-result-object v15
 
-    if-eqz v2, :cond_1
-
-    const/16 v7, 0x1e
-
-    const/16 v16, 0x1e
-
-    goto :goto_1
-
     .line 4086
-    :cond_1
     iget v7, v0, Lcom/shilapi/xcertplay/CarPlayHostActivity;->fps:I
 
     move/from16 v16, v7
 
-    :goto_1
     const/16 v23, 0x7e0
 
     const/16 v24, 0x0
@@ -5556,7 +5543,7 @@
 
     const/16 v13, 0x64
 
-    if-lt v12, v13, :cond_2
+    if-lt v12, v13, :cond_1
 
     new-instance v5, Lcom/shilapi/xcertplay/CarPlayHostActivity$CanvasSupport;
 
@@ -5566,10 +5553,10 @@
 
     invoke-direct {v5, v6, v12, v14}, Lcom/shilapi/xcertplay/CarPlayHostActivity$CanvasSupport;-><init>(ZLjava/lang/String;Ljava/lang/String;)V
 
-    goto :goto_2
+    goto :goto_1
 
-    :cond_2
-    if-ne v11, v7, :cond_3
+    :cond_1
+    if-ne v11, v7, :cond_2
 
     .line 4094
     new-instance v12, Lcom/shilapi/xcertplay/CarPlayHostActivity$CanvasSupport;
@@ -5582,21 +5569,21 @@
 
     move-object v5, v12
 
-    goto :goto_2
+    goto :goto_1
 
     .line 4095
-    :cond_3
+    :cond_2
     invoke-direct {v0, v11}, Lcom/shilapi/xcertplay/CarPlayHostActivity;->largerCanvasSupport(Lcom/shilapi/xcertplay/airplay/AirPlayDisplayConfig;)Lcom/shilapi/xcertplay/CarPlayHostActivity$CanvasSupport;
 
     move-result-object v5
 
     .line 4097
-    :goto_2
+    :goto_1
     invoke-virtual {v5}, Lcom/shilapi/xcertplay/CarPlayHostActivity$CanvasSupport;->getSupported()Z
 
     move-result v12
 
-    if-nez v12, :cond_4
+    if-nez v12, :cond_3
 
     .line 4099
     iput v13, v0, Lcom/shilapi/xcertplay/CarPlayHostActivity;->uiScalePercent:I
@@ -5640,13 +5627,13 @@
 
     move-object v13, v7
 
-    goto :goto_3
+    goto :goto_2
 
-    :cond_4
+    :cond_3
     move-object v13, v11
 
     .line 4108
-    :goto_3
+    :goto_2
     sget-object v12, Lcom/shilapi/xcertplay/airplay/CarPlayUiScale;->INSTANCE:Lcom/shilapi/xcertplay/airplay/CarPlayUiScale;
 
     iget v14, v0, Lcom/shilapi/xcertplay/CarPlayHostActivity;->uiScalePercent:I
@@ -5731,7 +5718,7 @@
 
     const/16 v28, 0x0
 
-    if-eqz v4, :cond_5
+    if-eqz v4, :cond_4
 
     .line 4112
     sget-object v14, Lcom/shilapi/xcertplay/media/DualDisplayVideoLoad;->INSTANCE:Lcom/shilapi/xcertplay/media/DualDisplayVideoLoad;
@@ -5744,13 +5731,13 @@
 
     move-object/from16 v34, v4
 
-    goto :goto_4
+    goto :goto_3
 
-    :cond_5
+    :cond_4
     move-object/from16 v34, v28
 
     .line 4115
-    :goto_4
+    :goto_3
     sget-object v19, Lcom/shilapi/xcertplay/airplay/AirPlaySafeArea;->INSTANCE:Lcom/shilapi/xcertplay/airplay/AirPlaySafeArea;
 
     .line 4116
@@ -5843,8 +5830,6 @@
 
     mul-int/lit8 v15, v10, 0xa
 
-    move/from16 v16, v2
-
     .line 4126
     invoke-virtual {v7}, Lcom/shilapi/xcertplay/airplay/AirPlayDisplayConfig;->getWidthPixels()I
 
@@ -5871,31 +5856,19 @@
 
     move-result v8
 
-    if-eqz v16, :cond_6
-
-    const-string v16, "(auto)"
-
-    goto :goto_5
-
-    :cond_6
-    const-string v16, ""
-
-    :goto_5
     move/from16 v19, v10
 
-    move-object/from16 v10, v16
-
-    if-eqz v6, :cond_7
+    if-eqz v6, :cond_5
 
     .line 4128
     const-string v16, "HEVC"
 
-    goto :goto_6
+    goto :goto_4
 
-    :cond_7
+    :cond_5
     const-string v16, "H.264"
 
-    :goto_6
+    :goto_4
     move/from16 v38, v6
 
     move-object/from16 v6, v16
@@ -5961,8 +5934,6 @@
     invoke-virtual {v1, v0}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
 
     invoke-virtual {v1, v8}, Ljava/lang/StringBuilder;->append(I)Ljava/lang/StringBuilder;
-
-    invoke-virtual {v1, v10}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
 
     const-string v0, " codec="
 
@@ -6149,17 +6120,17 @@
 
     move-result-object v7
 
-    if-eqz v7, :cond_8
+    if-eqz v7, :cond_6
 
     const-string v7, "custom"
 
-    goto :goto_7
+    goto :goto_5
 
-    :cond_8
+    :cond_6
     const-string v7, "default-car"
 
     .line 4143
-    :goto_7
+    :goto_5
     invoke-virtual {v2}, Lcom/shilapi/xcertplay/airplay/AirPlayIcon;->getWidthPixels()I
 
     move-result v8
@@ -6223,13 +6194,13 @@
 
     const-string v6, "airPlayIdentity"
 
-    if-nez v4, :cond_9
+    if-nez v4, :cond_7
 
     invoke-static {v6}, Lkotlin/jvm/internal/Intrinsics;->throwUninitializedPropertyAccessException(Ljava/lang/String;)V
 
     move-object v4, v0
 
-    :cond_9
+    :cond_7
     invoke-virtual {v3, v4}, Lcom/shilapi/xcertplay/DiPlayBootstrap;->deviceId(Lcom/shilapi/xcertplay/airplay/AirPlayIdentity;)Ljava/lang/String;
 
     move-result-object v30
@@ -6241,27 +6212,27 @@
 
     move-result-object v3
 
-    if-nez v3, :cond_b
+    if-nez v3, :cond_9
 
     sget-object v3, Lcom/shilapi/xcertplay/DiPlayBootstrap;->INSTANCE:Lcom/shilapi/xcertplay/DiPlayBootstrap;
 
     iget-object v4, v1, Lcom/shilapi/xcertplay/CarPlayHostActivity;->airPlayIdentity:Lcom/shilapi/xcertplay/airplay/AirPlayIdentity;
 
-    if-nez v4, :cond_a
+    if-nez v4, :cond_8
 
     invoke-static {v6}, Lkotlin/jvm/internal/Intrinsics;->throwUninitializedPropertyAccessException(Ljava/lang/String;)V
 
-    goto :goto_8
+    goto :goto_6
 
-    :cond_a
+    :cond_8
     move-object v0, v4
 
-    :goto_8
+    :goto_6
     invoke-virtual {v3, v0}, Lcom/shilapi/xcertplay/DiPlayBootstrap;->deviceId(Lcom/shilapi/xcertplay/airplay/AirPlayIdentity;)Ljava/lang/String;
 
     move-result-object v3
 
-    :cond_b
+    :cond_9
     move-object/from16 v31, v3
 
     .line 4151

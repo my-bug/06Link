@@ -187,7 +187,7 @@ public final class E01NativeUi extends android.view.ContextThemeWrapper {
         return "已选择"+value+"，重新连接后生效";
     }
     private void connectionSettings(){
-        section("连接偏好",null);LinearLayout g=group();choice(g,"默认连接","default_connection","无线",new String[]{"无线","有线","每次选择"},null);valueRow(g,"连接的手机",null,getValue("phone",""),()->E01OemBluetooth.choosePhone(host));
+        section("连接偏好",null);LinearLayout g=group();toggle(g,"开机自启","auto_start_on_boot",true,"车机启动时打开 06Link");choice(g,"默认连接","default_connection","无线",new String[]{"无线","有线","每次选择"},null);valueRow(g,"连接的手机",null,getValue("phone",""),()->E01OemBluetooth.choosePhone(host));
         toggle(g,"启动自动连接","auto_connect",false,"按默认方式连接；每次选择时由你启动");
         section("车机热点","无线连接时自动开启，点击停止后不再重试。");LinearLayout hotspot=group();
         inputHotspot(hotspot);
