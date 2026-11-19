@@ -237,7 +237,7 @@
     "dex": "classes.dex",
     "class": "com/shilapi/xcertplay/orchestration/CarPlayController.smali",
     "method": "runWireless(I)V",
-    "sha256": "a1ceccac8d67a25f0b501ab65d7536a5ee4882cefaa22497f3a925eaae9fc959"
+    "sha256": "9e3b2f7e05dce1d1fda60133313a61e82fa3b491c96712e3188ca7b818b2ba0f"
   },
   "e01-input-pump": {
     "dex": "classes.dex",
@@ -603,13 +603,13 @@
     "dex": "classes.dex",
     "class": "com/shilapi/xcertplay/orchestration/CarPlayController.smali",
     "method": "maybeCompleteWirelessHandoff$lambda$81(Lcom/shilapi/xcertplay/orchestration/CarPlayController;I)V",
-    "sha256": "2bd517a54f5468e7be8e97d3d34c193c849d1dd9ffb720645ef2ed22d6a75859"
+    "sha256": "66e4f80b83dbfc439f48b67777ba4a855c1578583fd35dc44290089463fd6704"
   },
   "navigation-prompt-end": {
     "dex": "classes.dex",
     "class": "com/shilapi/xcertplay/airplay/AirPlaySession.smali",
     "method": "handleCommand(Lcom/shilapi/xcertplay/airplay/RtspMessage$Request;)Lcom/shilapi/xcertplay/airplay/RtspMessage$Response;",
-    "sha256": "ce17ce6db9e771699a889f7fc4f85a2076fc347cb57cbfaabdbf1b91c9d64829"
+    "sha256": "4642b5e1fb96787c39be125f7ef20daf0523ffe3bbdb4bfb2972cda35f420e68"
   },
   "mtk-no-reorder": {
     "dex": "classes.dex",
@@ -633,7 +633,7 @@
     "dex": "classes.dex",
     "class": "com/shilapi/xcertplay/network/CarPlayVpnService.smali",
     "method": "acceptUntilError(ILjava/net/ServerSocket;)Ljava/io/IOException;",
-    "sha256": "cf13ff57c875e458238f8e0771b3711728a68c96e2ab7279967c5c000fea05d2"
+    "sha256": "bdcda056bd3f2e7a0ff890c31726590a4abb18d0f8a7b54c4a4e63f0fbd9e843"
   },
   "navigation-voice-session": {
     "dex": "classes.dex",
@@ -645,7 +645,7 @@
     "dex": "classes.dex",
     "class": "com/shilapi/xcertplay/airplay/AirPlaySession.smali",
     "method": "handle(Lcom/shilapi/xcertplay/airplay/RtspMessage$Request;)Lcom/shilapi/xcertplay/airplay/RtspMessage$Response;",
-    "sha256": "cb4c28d6c3ff1f3284b5ae6c21eceddd9f87774c3da4fe79a0434f1850a40850"
+    "sha256": "7de128d8160bd1d129387dcecb0a51301765e9a8a748820563035b5c07a7ff67"
   },
   "navigation-voice-offer": {
     "dex": "classes.dex",

@@ -326,21 +326,26 @@
 
     move-result-object v0
 
+    # getter for: Lcom/shilapi/xcertplay/CarPlayHostActivity;->restartGeneration:I
+    invoke-static {p0}, Lcom/shilapi/xcertplay/CarPlayHostActivity;->access$getRestartGeneration$p(Lcom/shilapi/xcertplay/CarPlayHostActivity;)I
+
+    move-result v1
+
+    if-ne p2, v1, :cond_3
+
+    if-eqz v0, :cond_0
+
+    if-ne v0, p1, :cond_3
+
+    :cond_0
     const/4 v1, 0x0
 
-    if-ne v0, p1, :cond_0
+    if-ne v0, p1, :cond_1
 
     invoke-static {p0, v1}, Lcom/shilapi/xcertplay/CarPlayHostActivity;->access$setActiveAirPlaySession$p(Lcom/shilapi/xcertplay/CarPlayHostActivity;Lcom/shilapi/xcertplay/airplay/AirPlaySession;)V
 
     .line 4400
-    :cond_0
-    # getter for: Lcom/shilapi/xcertplay/CarPlayHostActivity;->restartGeneration:I
-    invoke-static {p0}, Lcom/shilapi/xcertplay/CarPlayHostActivity;->access$getRestartGeneration$p(Lcom/shilapi/xcertplay/CarPlayHostActivity;)I
-
-    move-result p1
-
-    if-ne p2, p1, :cond_1
-
+    :cond_1
     # invokes: Lcom/shilapi/xcertplay/CarPlayHostActivity;->stopFirstFrameWatch()V
     invoke-static {p0}, Lcom/shilapi/xcertplay/CarPlayHostActivity;->access$stopFirstFrameWatch(Lcom/shilapi/xcertplay/CarPlayHostActivity;)V
 
@@ -348,7 +353,6 @@
 
     invoke-virtual {p1, v1}, Lcom/shilapi/xcertplay/ConnectionProgress;->picture(Lcom/shilapi/xcertplay/ConnectionProgress$Picture;)V
 
-    :cond_1
     const/4 p1, 0x0
 
     .line 4401
@@ -430,6 +434,7 @@
 
     invoke-static/range {v0 .. v5}, Lcom/shilapi/xcertplay/CarPlayHostActivity;->reconnectAfterLoss$default(Lcom/shilapi/xcertplay/CarPlayHostActivity;Ljava/lang/String;Lcom/shilapi/xcertplay/orchestration/SetupProblem;Ljava/lang/String;ILjava/lang/Object;)V
 
+    :cond_3
     :goto_0
     return-void
 .end method

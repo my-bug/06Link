@@ -11,7 +11,7 @@ from contracts import assert_contract,method_for
 s=assert_contract('navigation-prompt-end')
 hook='E01AudioScene;->prompt(Ljava/lang/Object;Ljava/lang/String;)V'
 assert s.count(hook)==1
-assert s.index('->access$string(')<s.index(hook)<s.index('const-string v2, "params"')
+assert s.index('->access$string(') < s.index('CarPlayMediaEngine;->access$getSink$p(') < s.index(hook) < s.index('const-string v2, "params"')
 def actual(name):return (build_dir(ROOT)/'merged-classes/com/shilapi/xcertplay'/name).read_text()
 assert '->prompt(Ljava/lang/Object;Ljava/lang/String;)V' in actual('airplay/AirPlaySession.smali')
 assert re.search(r'^\.field[^\n]* audioRenderers:',actual('media/AndroidMediaSink.smali'),re.M)

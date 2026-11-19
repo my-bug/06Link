@@ -14,14 +14,12 @@ final class E01InstrumentFeather {
         Bitmap result=Bitmap.createBitmap(width,height,Bitmap.Config.ARGB_8888);
         int[] row=new int[width];
         for(int y=0;y<height;y++) {
-            float vertical=1-smooth(Math.min(y,height-1-y)/(48*sy));
             for(int x=0;x<width;x++) {
-                float horizontal=1-smooth(Math.min(x,width-1-x)/(128*sx));
-                // One envelope, not two source-over layers: corners never compound darkness.
-                float a=Math.max(horizontal,vertical);a*=a;
-                if(a<=0){row[x]=0;continue;}
+                // One rounded contour replaces the intersecting horizontal/vertical ramps.
+                float d=distance(x/sx,y/sy,(width-1)/sx,(height-1)/sy,28);
+                float a=1-smooth(Math.max(0,-d)/20);a*=a;
                 int alpha=channel(a*255);
-                row[x]=(alpha<<24)|0x141c26;
+                row[x]=alpha==0?0:(alpha<<24)|0x141c26;
             }
             result.setPixels(row,0,width,0,y,width,1);
         }
@@ -29,14 +27,15 @@ final class E01InstrumentFeather {
     }
 
     // Signed distance to one rounded opening: no overlapping corner shadows or GPU holes.
-    private static float distance(float x,float y,float width,float height){
-        float qx=Math.abs(x-width*.5f)-(width*.5f-12);
-        float qy=Math.abs(y-height*.5f)-(height*.5f-12);
+    private static float distance(float x,float y,float width,float height){return distance(x,y,width,height,12);}
+    private static float distance(float x,float y,float width,float height,float radius){
+        float qx=Math.abs(x-width*.5f)-(width*.5f-radius);
+        float qy=Math.abs(y-height*.5f)-(height*.5f-radius);
         float ox=Math.max(qx,0),oy=Math.max(qy,0);
-        return (float)Math.sqrt(ox*ox+oy*oy)+Math.min(Math.max(qx,qy),0)-12;
+        return (float)Math.sqrt(ox*ox+oy*oy)+Math.min(Math.max(qx,qy),0)-radius;
     }
     private static int outside(float d){
-        float fall=1-smooth(Math.max(0,d)/32),shade=.36f*fall*fall;
+        float fall=1-smooth(Math.max(0,d)/20),shade=.18f*fall*fall;
         return 0xff000000|(channel(60*(1-shade))<<16)
             |(channel(70*(1-shade))<<8)|channel(80*(1-shade));
     }
@@ -49,9 +48,9 @@ final class E01InstrumentFeather {
                 if(d>=0){
                     row[x]=outside(d);
                 }else{
-                    // Only a 12px inside rim. The central video is untouched and transparent.
+                    // Only a 6px inside rim. The central video is untouched and transparent.
                     float depth=-d,edge=1-smooth(depth/Math.max(1/sx,1/sy));
-                    float a=Math.max(edge,.16f*(1-smooth(depth/12)));
+                    float a=Math.max(edge,.08f*(1-smooth(depth/6)));
                     if(a<=0){row[x]=0;continue;}
                     int alpha=channel(255*a);
                     row[x]=(alpha<<24)|(outside(0)&0xffffff);
@@ -82,7 +81,7 @@ final class E01InstrumentFeather {
                 if((relief||sport)&&globalX<=1520){row[x]=0;continue;}
                 int bg=behind!=null?behind[x]:relief?outside(distance(globalX-400,globalY-174,1120,420)):background;
                 int br=(bg>>>16)&255,bgGreen=(bg>>>8)&255,bb=bg&255;
-                float fade=smooth(x/(128*sx));
+                float fade=smooth(x/(80*sx));
                 float amount=fade*(1-shade);
                 // Resolve to the actual instrument background before quantization. Keeping a
                 // low-alpha dark cover would introduce another premultiply/unpremultiply step.

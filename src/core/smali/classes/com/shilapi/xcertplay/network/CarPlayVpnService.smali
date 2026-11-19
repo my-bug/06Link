@@ -789,7 +789,7 @@
 
     move-result v0
 
-    if-eqz v0, :cond_3
+    if-eqz v0, :cond_4
 
     .line 337
     invoke-virtual {p2}, Ljava/net/ServerSocket;->accept()Ljava/net/Socket;
@@ -947,6 +947,25 @@
 
     move-result v4
 
+    if-eqz v4, :cond_3
+
+    invoke-virtual {v0}, Lcom/shilapi/xcertplay/network/CarPlayVpnService$AirPlayAttachment;->getListener()Lcom/shilapi/xcertplay/airplay/AirPlaySessionListener;
+
+    move-result-object v5
+
+    instance-of v6, v5, Lcom/shilapi/xcertplay/E01WirelessPeers$Listener;
+
+    if-eqz v6, :cond_3
+
+    check-cast v5, Lcom/shilapi/xcertplay/E01WirelessPeers$Listener;
+
+    invoke-interface {v5}, Lcom/shilapi/xcertplay/E01WirelessPeers$Listener;->peers()Lcom/shilapi/xcertplay/E01WirelessPeers;
+
+    move-result-object v5
+
+    invoke-virtual {v2, v5}, Lcom/shilapi/xcertplay/airplay/AirPlaySession;->setWirelessPeers(Lcom/shilapi/xcertplay/E01WirelessPeers;)V
+
+    :cond_3
     invoke-virtual {v2, p0, v4}, Lcom/shilapi/xcertplay/airplay/AirPlaySession;->configureNavigationVoice(Landroid/content/Context;Z)V
 
     .line 386
@@ -987,15 +1006,15 @@
 
     move-result v0
 
-    if-eqz v0, :cond_3
+    if-eqz v0, :cond_4
 
     iget v0, p0, Lcom/shilapi/xcertplay/network/CarPlayVpnService;->attachGeneration:I
 
-    if-ne p1, v0, :cond_3
+    if-ne p1, v0, :cond_4
 
     return-object p2
 
-    :cond_3
+    :cond_4
     return-object v1
 .end method
 

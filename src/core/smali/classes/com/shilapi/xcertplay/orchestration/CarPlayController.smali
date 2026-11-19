@@ -3259,7 +3259,9 @@
     const/4 v1, 0x2
 
     .line 1776
-    const-string/jumbo v2, "wireless handoff tunnel iAP2 unavailable after first video frame; preserving the active CarPlay session"
+    invoke-direct {p0}, Lcom/shilapi/xcertplay/orchestration/CarPlayController;->maybeCompleteWirelessHandoff()V
+
+    const-string/jumbo v2, "honoring the iPhone Bluetooth handoff request after its first Wi-Fi video frame"
 
     invoke-static {p0, v2, p1, v1, v0}, Lcom/shilapi/xcertplay/orchestration/CarPlayController;->debugLog$default(Lcom/shilapi/xcertplay/orchestration/CarPlayController;Ljava/lang/String;ZILjava/lang/Object;)V
 
@@ -8271,7 +8273,7 @@
 
     move-result v0
 
-    if-eqz v0, :cond_2
+    if-eqz v0, :cond_0
 
     iget-object v0, p0, Lcom/shilapi/xcertplay/orchestration/CarPlayController;->wirelessTunnelReady:Ljava/util/concurrent/atomic/AtomicBoolean;
 
@@ -8279,12 +8281,24 @@
 
     move-result v0
 
-    if-nez v0, :cond_0
+    if-nez v0, :cond_1
 
-    goto :goto_0
-
-    .line 1726
     :cond_0
+    iget-object v0, p0, Lcom/shilapi/xcertplay/orchestration/CarPlayController;->wirelessConnectionProof:Lcom/shilapi/xcertplay/orchestration/WirelessConnectionProof;
+
+    iget-object v1, p0, Lcom/shilapi/xcertplay/orchestration/CarPlayController;->wirelessGeneration:Ljava/util/concurrent/atomic/AtomicInteger;
+
+    invoke-virtual {v1}, Ljava/util/concurrent/atomic/AtomicInteger;->get()I
+
+    move-result v1
+
+    invoke-virtual {v0, v1}, Lcom/shilapi/xcertplay/orchestration/WirelessConnectionProof;->hasRenderedFrame(I)Z
+
+    move-result v0
+
+    if-eqz v0, :cond_3
+
+    :cond_1
     iget-object v0, p0, Lcom/shilapi/xcertplay/orchestration/CarPlayController;->wirelessActiveReported:Ljava/util/concurrent/atomic/AtomicBoolean;
 
     const/4 v1, 0x0
@@ -8295,12 +8309,12 @@
 
     move-result v0
 
-    if-nez v0, :cond_1
+    if-nez v0, :cond_2
 
     goto :goto_0
 
     .line 1727
-    :cond_1
+    :cond_2
     iget-object v0, p0, Lcom/shilapi/xcertplay/orchestration/CarPlayController;->wirelessGeneration:Ljava/util/concurrent/atomic/AtomicInteger;
 
     invoke-virtual {v0}, Ljava/util/concurrent/atomic/AtomicInteger;->get()I
@@ -8327,13 +8341,13 @@
     .line 1744
     invoke-virtual {v1}, Ljava/lang/Thread;->start()V
 
-    :cond_2
+    :cond_3
     :goto_0
     return-void
 .end method
 
 .method private static final maybeCompleteWirelessHandoff$lambda$81(Lcom/shilapi/xcertplay/orchestration/CarPlayController;I)V
-    .locals 3
+    .locals 4
 
     .line 1731
     iget-boolean v0, p0, Lcom/shilapi/xcertplay/orchestration/CarPlayController;->closed:Z
@@ -8359,9 +8373,7 @@
     goto :goto_0
 
     :cond_0
-    invoke-static {p0, p1}, Lcom/shilapi/xcertplay/E01OemBluetooth;->wirelessAudioReady(Ljava/lang/Object;I)V
-
-    const/4 p1, 0x2
+    const/4 v3, 0x2
 
     const/4 v0, 0x0
 
@@ -8370,10 +8382,12 @@
 
     const/4 v2, 0x0
 
-    invoke-static {p0, v1, v2, p1, v0}, Lcom/shilapi/xcertplay/orchestration/CarPlayController;->debugLog$default(Lcom/shilapi/xcertplay/orchestration/CarPlayController;Ljava/lang/String;ZILjava/lang/Object;)V
+    invoke-static {p0, v1, v2, v3, v0}, Lcom/shilapi/xcertplay/orchestration/CarPlayController;->debugLog$default(Lcom/shilapi/xcertplay/orchestration/CarPlayController;Ljava/lang/String;ZILjava/lang/Object;)V
 
     .line 1738
     invoke-direct {p0}, Lcom/shilapi/xcertplay/orchestration/CarPlayController;->closeBluetoothBootstrapTransport()V
+
+    invoke-static {p0, p1}, Lcom/shilapi/xcertplay/E01OemBluetooth;->wirelessAudioReady(Ljava/lang/Object;I)V
 
     .line 1739
     sget-object p1, Lcom/shilapi/xcertplay/orchestration/CarPlayStatus$WirelessActive;->INSTANCE:Lcom/shilapi/xcertplay/orchestration/CarPlayStatus$WirelessActive;
@@ -15320,6 +15334,11 @@
     move-object/from16 v2, v44
 
     .line 1383
+    move/from16 v4, p1
+    invoke-static {v1, v4}, Lcom/shilapi/xcertplay/E01OemBluetooth;->peers(Ljava/lang/Object;I)Lcom/shilapi/xcertplay/E01WirelessPeers;
+    move-result-object v4
+    iput-object v4, v2, Lcom/shilapi/xcertplay/network/CarPlayBonjour;->wirelessPeers:Lcom/shilapi/xcertplay/E01WirelessPeers;
+
     iput-object v2, v1, Lcom/shilapi/xcertplay/orchestration/CarPlayController;->bonjour:Lcom/shilapi/xcertplay/network/CarPlayBonjour;
 
     .line 1384
@@ -15756,6 +15775,11 @@
 
     move-result v2
 
+    if-nez v2, :cond_40
+    iget-object v2, v1, Lcom/shilapi/xcertplay/orchestration/CarPlayController;->wirelessConnectionProof:Lcom/shilapi/xcertplay/orchestration/WirelessConnectionProof;
+    move/from16 v5, p1
+    invoke-virtual {v2, v5}, Lcom/shilapi/xcertplay/orchestration/WirelessConnectionProof;->hasRenderedFrame(I)Z
+    move-result v2
     if-nez v2, :cond_40
 
     .line 1529
@@ -16310,14 +16334,11 @@
 .end method
 
 .method private static final runWireless$lambda$50(Lcom/shilapi/xcertplay/orchestration/CarPlayController;ILcom/shilapi/xcertplay/network/WirelessHotspotManager;)Lkotlin/Unit;
-    .locals 0
-
-    .line 1152
+    .locals 1
     invoke-direct {p0, p1}, Lcom/shilapi/xcertplay/orchestration/CarPlayController;->isStaleWirelessRun(I)Z
-
-    move-result p0
-
-    if-nez p0, :cond_0
+    move-result v0
+    if-nez v0, :cond_0
+    invoke-direct {p0}, Lcom/shilapi/xcertplay/orchestration/CarPlayController;->maybeCompleteWirelessHandoff()V
 
     if-eqz p2, :cond_0
 

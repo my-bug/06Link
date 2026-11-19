@@ -64,13 +64,13 @@ final class E01SportInstrument {
             for(int i=0;i<row.length;i++){
                 int x=l+i;float d=distance((x-map[0])/sx,(y-map[1])/sy,(map[2]-1)/sx,(map[3]-1)/sy);
                 if(d>=0){
-                    int bg=(row[i]>>>24)==0?BACKGROUND:row[i];float fade=1-E01InstrumentFeather.smooth(d/32),shade=.30f*fade*fade;
+                    int bg=(row[i]>>>24)==0?BACKGROUND:row[i];float fade=1-E01InstrumentFeather.smooth(d/20),shade=.18f*fade*fade;
                     row[i]=0xff000000|(E01InstrumentPrecision.channel(((bg>>>16)&255)*(1-shade))<<16)
                         |(E01InstrumentPrecision.channel(((bg>>>8)&255)*(1-shade))<<8)|E01InstrumentPrecision.channel((bg&255)*(1-shade));
                 }else{
                     float depth=-d;
                     if(depth<1.2f){int a=E01InstrumentPrecision.channel(210*(1-depth/1.2f));row[i]=(a<<24)|0xabb2b8;}
-                    else {float a=.14f*(1-E01InstrumentFeather.smooth((depth-1.2f)/9));int alpha=E01InstrumentPrecision.channel(255*a);row[i]=alpha==0?0:(alpha<<24)|0x11151a;}
+                    else {float a=.07f*(1-E01InstrumentFeather.smooth((depth-1.2f)/6));int alpha=E01InstrumentPrecision.channel(255*a);row[i]=alpha==0?0:(alpha<<24)|0x11151a;}
                 }
             }
             bitmap.setPixels(row,0,row.length,l,y,row.length,1);

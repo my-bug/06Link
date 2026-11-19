@@ -1,38 +1,208 @@
 package com.shilapi.xcertplay;
+
+import static com.shilapi.xcertplay.E01WirelessAudioHandoff.Profile.*;
+import java.net.InetAddress;
 import java.util.*;
-public class HandoffTest {
- static int checks;static void ok(boolean value,String why){checks++;if(!value)throw new AssertionError(why);}
- static final class Port implements E01WirelessAudioHandoff.Port {
-  boolean pending,storeFails,clearFails,disableFails,enableFails,ignoreDisable;String state="1",phone="A";int disable,enable;Runnable duringDisable;
-  final List<String> logs=new ArrayList<String>();
-  public boolean pending(){return pending;}
-  public void pending(boolean value)throws Exception{if(storeFails||(!value&&clearFails))throw new Exception("disk");pending=value;}
-  public String renderState(){return state;}
-  public boolean samePhone(String target){return target.equals(phone);}
-  public void enable(boolean value)throws Exception{
-   if(value){enable++;if(enableFails)throw new Exception("enable");state="1";}
-   else{disable++;if(disableFails)throw new Exception("disable");if(!ignoreDisable)state="0";if(duringDisable!=null){Runnable r=duringDisable;duringDisable=null;r.run();}}
-  }
-  public void log(String s){logs.add(s);}
- }
- static void normal(){E01WirelessAudioHandoff.Coordinator c=new E01WirelessAudioHandoff.Coordinator();Port p=new Port();Object o=new Object();c.maintain(p);ok(p.disable==0&&p.enable==0,"idle is inert");c.start(o,1,"A");c.maintain(p);ok(p.disable==1&&p.pending&&p.state.equals("0"),"ready session pauses rendering with restoration journal");for(int i=0;i<100;i++){c.start(o,1,"A");c.maintain(p);}ok(p.disable==1,"duplicate ready/polls never fight source repeatedly");c.stop(o);c.maintain(p);ok(p.enable==1&&!p.pending&&p.state.equals("1"),"stop restores original renderer");c.maintain(p);ok(p.enable==1,"restoration is idempotent");}
- static void cancel(){E01WirelessAudioHandoff.Coordinator c=new E01WirelessAudioHandoff.Coordinator();Port p=new Port();Object o=new Object();c.start(o,1,"A");c.stop(o);c.maintain(p);ok(p.disable==0,"cancel before work does not mutate renderer");c.start(o,2,"A");p.duringDisable=()->c.stop(o);c.maintain(p);ok(p.disable==1&&p.enable==1&&!p.pending,"cancel during Binder call restores in same worker pass");}
- static void target(){E01WirelessAudioHandoff.Coordinator c=new E01WirelessAudioHandoff.Coordinator();Port p=new Port();Object o=new Object();p.phone="B";c.start(o,1,"A");c.maintain(p);ok(p.disable==0,"another phone is never globally muted");p.phone="A";c.maintain(p);ok(p.disable==1,"target becomes available after binding");p.phone="B";c.maintain(p);ok(p.enable==1&&!p.pending,"phone change returns original rendering");c.stop(o);c.maintain(p);ok(p.enable==1,"late stop is harmless");}
- static void predisabled(){E01WirelessAudioHandoff.Coordinator c=new E01WirelessAudioHandoff.Coordinator();Port p=new Port();Object o=new Object();p.state="0";c.start(o,1,"A");c.maintain(p);c.stop(o);c.maintain(p);ok(p.disable==0&&p.enable==0&&!p.pending,"preexisting mute belongs to its original owner");}
- static void manual(){E01WirelessAudioHandoff.Coordinator c=new E01WirelessAudioHandoff.Coordinator();Port p=new Port();Object o=new Object();c.start(o,1,"A");c.maintain(p);p.state="1";c.maintain(p);c.maintain(p);ok(p.disable==1&&!p.pending,"explicit native reopen is respected");c.stop(o);c.maintain(p);ok(p.enable==0,"no duplicate restore after native already reopened");}
- static void recovery(){E01WirelessAudioHandoff.Coordinator c=new E01WirelessAudioHandoff.Coordinator();Port p=new Port();p.pending=true;p.state="0";Object o=new Object();c.start(o,1,"A");c.maintain(p);ok(p.enable==1&&p.disable==0&&!p.pending,"recover previous process before acquiring new session");c.maintain(p);ok(p.disable==1&&p.pending,"new session can then acquire");c.stop(o);c.maintain(p);ok(!p.pending&&p.enable==2,"both restoration obligations completed");}
- static void failures(){E01WirelessAudioHandoff.Coordinator c=new E01WirelessAudioHandoff.Coordinator();Port p=new Port();Object o=new Object();p.storeFails=true;c.start(o,1,"A");c.maintain(p);ok(p.disable==0,"journal failure prevents global mutation");p.storeFails=false;p.disableFails=true;c.maintain(p);ok(!p.pending&&p.state.equals("1"),"failed pause rolls back ownership");p.disableFails=false;c.maintain(p);ok(p.state.equals("0")&&p.pending,"same session retries after service recovery");p.enableFails=true;c.stop(o);c.maintain(p);ok(p.pending,"failed restore keeps journal");p.enableFails=false;c.maintain(p);ok(!p.pending&&p.state.equals("1"),"later pass restores after failure");}
- static void noack(){E01WirelessAudioHandoff.Coordinator c=new E01WirelessAudioHandoff.Coordinator();Port p=new Port();Object o=new Object();p.ignoreDisable=true;c.start(o,1,"A");c.maintain(p);ok(!p.pending&&p.state.equals("1"),"void return without OEM property update is not considered acquired");p.ignoreDisable=false;c.maintain(p);ok(p.pending&&p.state.equals("0"),"retry can acquire when service really executes");}
- static void reconnect(){E01WirelessAudioHandoff.Coordinator c=new E01WirelessAudioHandoff.Coordinator();Port p=new Port();Object old=new Object(),next=new Object();c.start(old,1,"A");c.maintain(p);c.start(next,2,"A");c.stop(old);c.maintain(p);ok(p.enable==1,"new generation restores old ownership first");c.maintain(p);ok(p.disable==2&&p.pending,"new generation acquires after old restore");c.stop(old);c.maintain(p);ok(p.enable==1,"old controller cannot stop new session");c.stop(next);c.maintain(p);ok(p.enable==2&&!p.pending,"new session restores normally");}
- static void clearFailure(){E01WirelessAudioHandoff.Coordinator c=new E01WirelessAudioHandoff.Coordinator();Port p=new Port();Object o=new Object();c.start(o,1,"A");c.maintain(p);c.stop(o);p.clearFails=true;c.maintain(p);ok(p.pending&&p.state.equals("1"),"failed journal clear is retained after successful physical restore");p.clearFails=false;c.maintain(p);ok(!p.pending&&p.enable==1,"journal retry never re-enables an already enabled renderer");}
- public static final class Device {public String getAddress(){return "AA:BB:CC:DD:EE:FF";}}
- public static final class Api {
-  int disable,enable;public java.util.List<Device> getConnectedDevices(){return java.util.Arrays.asList(new Device());}
-  public void audioDisable(){disable++;android.os.SystemProperties.state="0";}public void audioEnable(){enable++;android.os.SystemProperties.state="1";}
- }
- public static final class Connection {private final Object api;Connection(Object value){api=value;}}
- public static final class Lookup {private final Connection a2dpConnection;Lookup(Object api){a2dpConnection=new Connection(api);}}
- static void backend(){android.content.Context ctx=new android.content.Context();Api api=new Api();Lookup lookup=new Lookup(api);Object o=new Object();E01WirelessAudioHandoff.start(o,1,"AA:BB:CC:DD:EE:FF");E01WirelessAudioHandoff.maintain(ctx,lookup);ok(api.disable==1&&android.os.SystemProperties.state.equals("0"),"production backend traverses real lookup field names and A2DP Binder API");E01WirelessAudioHandoff.stop(o);E01WirelessAudioHandoff.maintain(ctx,lookup);ok(api.enable==1&&android.os.SystemProperties.state.equals("1"),"production backend restores through matching API");}
- static void unsupported(){android.os.Build.MODEL="tablet";Api api=new Api();Object o=new Object();E01WirelessAudioHandoff.start(o,1,"AA:BB:CC:DD:EE:FF");E01WirelessAudioHandoff.maintain(new android.content.Context(),new Lookup(api));ok(api.disable==0&&api.enable==0,"other devices untouched");}
- public static void main(String[] args)throws Exception{HandoffTest.class.getDeclaredMethod(args[0]).invoke(null);System.out.println("PASS "+args[0]+" "+checks);}
+import android.content.Context;
+
+public final class HandoffTest {
+    static void check(boolean condition, String message) { if (!condition) throw new AssertionError(message); }
+    static final String A="11:22:33:44:55:66", B="11:22:33:44:55:77";
+    static final Device first=new Device(A), second=new Device(B);
+
+    public static final class Device {
+        private final String address;
+        Device(String value) { address=value; }
+        public String getAddress() { return address; }
+    }
+    public static final class Api {
+        List<Device> devices = new ArrayList<>();
+        int exits, entries, transfers, enables, legacyCommands;
+        boolean sco, delayed, accept=true;
+        Runnable duringDisconnect;
+        public List<Device> getConnectedDevices() { return new ArrayList<>(devices); }
+        public boolean disconnect(Device device) { legacyCommands++; return false; }
+        private boolean issueDisconnect(Device device) {
+            exits++;
+            if(duringDisconnect!=null) { duringDisconnect.run(); duringDisconnect=null; }
+            if(!accept) return false;
+            if(!delayed) devices.remove(device);
+            return true;
+        }
+        public boolean connect(Device device) { legacyCommands++; return false; }
+        private boolean issueConnect(String address) {
+            entries++; Device device=A.equals(address)?first:second;
+            if(!devices.contains(device))devices.add(device); return true;
+        }
+        private String connectedAddress(){return devices.isEmpty()?"00:00:00:00:00:00":devices.get(0).getAddress();}
+        public boolean isA2dpConnected(){return !devices.isEmpty();}
+        public boolean isHfpConnected(){return !devices.isEmpty();}
+        public String getA2dpConnectedAddress(){return connectedAddress();}
+        public String getHfpConnectedAddress(){return connectedAddress();}
+        public int getHfpAudioConnectionState(){return sco?140:110;}
+        public boolean reqA2dpDisconnect(String address){
+            if(address.equals(connectedAddress()))issueDisconnect(devices.get(0));
+            return false; // Exact GOC behavior: the command was sent but the return is false.
+        }
+        public boolean reqHfpDisconnect(String address){
+            if(address.equals(connectedAddress()))issueDisconnect(devices.get(0)); return true;
+        }
+        public boolean reqA2dpConnect(String address){issueConnect(address);return false;}
+        public boolean reqHfpConnect(String address){return issueConnect(address);}
+        public boolean reqHfpAudioTransferToPhone(){transfers++;sco=false;return true;}
+        public boolean isAudioConnected(Device device) { return devices.contains(device) && sco; }
+        public boolean disconnectAudio() { transfers++; sco=false; return true; }
+        public void audioEnable() { enables++; android.os.SystemProperties.state="1"; }
+    }
+    public static final class Adapter {
+        Device[] paired={first,second};
+        public Device[] getBondedDevices() { return paired; }
+    }
+    public static final class Connection {
+        Object api;
+        Connection(Object api) { this.api=api; }
+    }
+    public static final class Lookup {
+        private final Connection a2dpConnection, hfpConnection, adapterConnection;
+        Lookup(Api music, Api call, Adapter adapter) {
+            a2dpConnection=new Connection(music);hfpConnection=new Connection(call);adapterConnection=new Connection(adapter);
+        }
+    }
+
+    private final Context context=new Context();
+    private final Object owner=new Object(), otherOwner=new Object();
+    private final Api music=new Api(), call=new Api();
+    private final Adapter adapter=new Adapter();
+    private final Lookup lookup=new Lookup(music,call,adapter);
+    private long time;
+    HandoffTest(){context.music=music;context.call=call;}
+    void tick(long advance) {
+        time+=advance;
+        android.os.SystemClock.now=time;
+        E01WirelessAudioHandoff.maintain(context,lookup);
+    }
+    void start(boolean full) { E01WirelessAudioHandoff.start(owner,7,A,full); }
+    void stop() { E01WirelessAudioHandoff.stop(owner); }
+    void profiles() { music.devices.add(first); call.devices.add(first); }
+
+    void exclusive() {
+        profiles(); tick(0); check(music.exits+call.exits==0,"waiting for phone");
+        start(true); tick(0); check(music.devices.isEmpty()&&call.devices.isEmpty(),"both music and idle hands-free detached");
+        for(int i=0;i<10;i++){start(true);tick(2000);}
+        check(music.exits==1&&call.exits==1,"stable background session sends no repeated disconnect");
+        music.devices.add(second);call.devices.add(second);tick(1);
+        check(music.devices.isEmpty()&&call.devices.isEmpty(),"reappearing OEM audio from another phone released");
+        stop();tick(1);
+        check(music.devices.equals(Arrays.asList(first))&&call.devices.equals(Arrays.asList(first)),"restore original phone");
+        tick(2000);check(music.entries+call.entries==2,"restore once");
+    }
+    void bootstrap() {
+        profiles(); call.sco=true; start(false);tick(0);
+        check(music.exits==1&&call.exits==0&&call.transfers==1,"media and live SCO released while bootstrap can still carry control");
+        call.sco=true;tick(1001);check(call.transfers==2,"new SCO is released");
+        start(true);start(false);tick(0);check(call.exits==1,"complete handoff cannot be downgraded by a late callback");
+        stop();tick(0);check(music.entries==1&&call.entries==1,"both original profiles restored at actual end");
+    }
+    void nativeReturn() {
+        profiles(); start(true);tick(0);tick(1);
+        music.devices.add(first);call.devices.add(first);tick(1);
+        check(music.exits==2&&call.exits==2,"native reconnect suppressed on both profiles");
+        check(music.enables==0&&call.transfers==0,"no global mixer or forced phone audio transfer after handoff");
+    }
+    void asynchronous() {
+        profiles();music.delayed=true;call.accept=false;start(true);tick(0);tick(1000);tick(1000);
+        check(music.exits==1&&call.exits==1,"no storm while OEM call is pending or refused");
+        music.devices.clear();call.accept=true;tick(1100);
+        check(call.devices.isEmpty()&&music.exits==1,"refused profile retried independently");
+    }
+    void priorState() {
+        call.devices.add(first);start(true);tick(0);stop();tick(100);
+        check(music.entries==0&&call.entries==1,"previously disconnected profile not explicitly enabled");
+    }
+    void selection() {
+        profiles();start(true);tick(0);context.getSharedPreferences("oem-bt-test",0).edit().putString("phone",B).commit();
+        stop();tick(0);check(music.entries+call.entries==0,"explicit choice of B never reconnects A");
+        E01WirelessAudioHandoff.reconnectSelected(context,lookup,B,true);
+        check(call.devices.equals(Arrays.asList(second)),"selected paired phone can bootstrap again");
+    }
+    void noStealing() {
+        profiles();start(true);tick(0);stop();call.devices.add(second);tick(1);
+        check(call.entries+music.entries==0,"ending session does not replace someone already connected");
+        E01WirelessAudioHandoff.reconnectSelected(context,lookup,A,false);
+        check(call.entries==0,"automatic bootstrap cannot replace the other connected phone");
+    }
+    void lateDisconnect() {
+        profiles();music.delayed=true;start(true);tick(0);stop();tick(1);
+        check(music.entries==0,"allow an accepted disconnect to complete at exit");
+        music.devices.clear();tick(2000);
+        check(music.entries==1 && music.devices.contains(first),"restore after delayed disconnect");
+        tick(7000);music.devices.clear();tick(10000);
+        check(music.entries==1,"no ongoing reconnection after exit");
+    }
+    void unpaired() {
+        profiles();start(true);tick(0);stop();adapter.paired=new Device[]{second};tick(1);
+        check(call.entries+music.entries==0,"forgotten phone is not reconnected");
+    }
+    void cancelled() {
+        profiles();start(true);stop();tick(0);check(call.exits+music.exits==0,"cancel before work");
+        start(true);music.duringDisconnect=this::stop;tick(0);tick(1);
+        check(call.exits==0&&music.entries==1,"cancel in flight restores only what was changed");
+    }
+    void generations() {
+        profiles();start(true);tick(0);E01WirelessAudioHandoff.start(otherOwner,8,B,true);
+        E01WirelessAudioHandoff.stop(owner);call.devices.add(second);tick(1);
+        check(call.devices.isEmpty(),"late stop does not release new owner");
+        E01WirelessAudioHandoff.stop(otherOwner);tick(1);
+        check(call.devices.equals(Arrays.asList(second))&&music.devices.isEmpty(),"old phone is not reconnected");
+    }
+    void serviceAndUpgrade() {
+        profiles();android.os.SystemProperties.state="0";
+        context.getSharedPreferences("06link-audio-handoff",0).edit().putBoolean("restore_a2dp",true).commit();
+        context.call=null;start(true);tick(0);
+        check(music.exits==1&&music.enables==1&&call.exits==0,"old renderer setting recovered and music independent of unbound HFP");
+        context.call=call;tick(5001);
+        check(call.exits==1&&music.enables==1,"late binder and one-time upgrade recovery");
+    }
+    void hardwareReadback() {
+        profiles(); music.delayed=true; start(true);tick(0);
+        check(music.exits==1 && music.devices.contains(first),"submitted command is not treated as disconnected");
+        tick(2000);check(music.exits==1,"wait before retry");
+        tick(1001);check(music.exits==2,"still-connected profile retried despite misleading return");
+        music.devices.clear();tick(3001);tick(3001);
+        check(music.exits==2,"confirmed disconnection stops hardware commands");
+        check(music.legacyCommands+call.legacyCommands==0,"never call public no-op audio disconnect/connect");
+    }
+    void serviceRestart() {
+        profiles();start(true);tick(0);
+        context.disconnectBindings();music.devices.add(first);call.devices.add(first);tick(4000);
+        check(music.exits==1 && call.exits==1,"disconnected Binder is not reused");
+        context.reconnectBindings();tick(1);
+        check(music.exits==2 && call.exits==2,"existing binding resumes readback after OEM service restart");
+    }
+    void unsupported() {
+        android.os.Build.MODEL="tablet";profiles();start(true);tick(0);check(call.exits+music.exits==0,"E01-specific OEM services");
+    }
+    void peers() throws Exception {
+        InetAddress a=InetAddress.getByAddress(new byte[]{10,0,0,1}), b=InetAddress.getByAddress(new byte[]{10,0,0,2});
+        E01WirelessPeers gate=new E01WirelessPeers(A,new HashSet<>(Arrays.asList(A,B)));
+        Object primary=new Object(), probe=new Object(), alternate=new Object();
+        check(!gate.allows(alternate,b,B),"known second phone rejected before Bonjour reply");
+        check(!gate.discovered(b,B)&&gate.discovered(a,A),"both discovery paths can exclude second phone");
+        check(gate.allows(primary,a,"unrelated-AirPlay-ID")&&!gate.allows(alternate,b,null),"use peer identity on the right interface");
+        InetAddress third=InetAddress.getByAddress(new byte[]{10,0,0,3});
+        check(!gate.record(probe,third,null),"unknown phone cannot win over a discovered selection");
+        check(gate.record(primary,a,A)&&gate.record(primary,a,A),"repeated RECORD idempotent");
+        check(gate.hasActive()&&!gate.discovered(third,null),"ignore anonymous discovery during playback");
+        check(!gate.ended(probe)&&!gate.record(alternate,b,B),"ending another socket cannot drop active owner");
+        check(gate.allows(probe,a,null),"legitimate auxiliary connection");
+        check(gate.ended(primary)&&gate.record(new Object(),a,A),"owner loss permits genuine reconnect");
+        gate.close();check(!gate.allows(primary,a,A)&&!gate.discovered(a,A),"retired generation ignores late events");
+        E01WirelessPeers fresh=new E01WirelessPeers(A,Collections.<String>emptySet());
+        check(fresh.discovered(a,null)&&fresh.record(primary,a,null),"single phone without discovery TXT");
+    }
+    public static void main(String[] args) throws Exception {
+        HandoffTest test=new HandoffTest();
+        HandoffTest.class.getDeclaredMethod(args[0]).invoke(test);
+        System.out.println("PASS "+args[0]);
+    }
 }

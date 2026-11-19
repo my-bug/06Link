@@ -4,6 +4,7 @@
 
 # interfaces
 .implements Lcom/shilapi/xcertplay/airplay/AirPlaySessionListener;
+.implements Lcom/shilapi/xcertplay/E01WirelessPeers$Listener;
 
 
 # annotations
@@ -241,7 +242,7 @@
 .end method
 
 .method public onSessionActive(Lcom/shilapi/xcertplay/airplay/AirPlaySession;)V
-    .locals 2
+    .locals 3
 
     const-string v0, "session"
 
@@ -273,6 +274,10 @@
     iget v1, p0, Lcom/shilapi/xcertplay/orchestration/CarPlayController$wirelessSessionListener$1;->$generation:I
 
     invoke-virtual {v0, v1, p1}, Lcom/shilapi/xcertplay/orchestration/WirelessConnectionProof;->activate(ILjava/lang/Object;)V
+    iget-object v0, p0, Lcom/shilapi/xcertplay/orchestration/CarPlayController$wirelessSessionListener$1;->this$0:Lcom/shilapi/xcertplay/orchestration/CarPlayController;
+    const/4 v2, 0x0
+    invoke-static {v0, v1, v2}, Lcom/shilapi/xcertplay/E01OemBluetooth;->wirelessAudioActive(Ljava/lang/Object;IZ)V
+
 
     .line 1639
     iget-object v0, p0, Lcom/shilapi/xcertplay/orchestration/CarPlayController$wirelessSessionListener$1;->this$0:Lcom/shilapi/xcertplay/orchestration/CarPlayController;
@@ -310,6 +315,15 @@
 
     .line 1644
     :cond_0
+    invoke-virtual {p1}, Lcom/shilapi/xcertplay/airplay/AirPlaySession;->releaseWirelessPeer()Z
+
+    move-result v0
+
+    if-nez v0, :cond_1
+
+    return-void
+
+    :cond_1
     iget-object v0, p0, Lcom/shilapi/xcertplay/orchestration/CarPlayController$wirelessSessionListener$1;->this$0:Lcom/shilapi/xcertplay/orchestration/CarPlayController;
 
     # getter for: Lcom/shilapi/xcertplay/orchestration/CarPlayController;->wirelessConnectionProof:Lcom/shilapi/xcertplay/orchestration/WirelessConnectionProof;
@@ -627,7 +641,16 @@
 
     iget v1, p0, Lcom/shilapi/xcertplay/orchestration/CarPlayController$wirelessSessionListener$1;->$generation:I
 
-    invoke-virtual {v0, v1, p1}, Lcom/shilapi/xcertplay/orchestration/WirelessConnectionProof;->rendered(ILjava/lang/Object;)V
+    invoke-virtual {v0, v1, p1}, Lcom/shilapi/xcertplay/orchestration/WirelessConnectionProof;->markFirstRenderedFrame(ILjava/lang/Object;)Z
+
+    move-result v0
+
+    if-eqz v0, :cond_1
+
+    iget-object v0, p0, Lcom/shilapi/xcertplay/orchestration/CarPlayController$wirelessSessionListener$1;->this$0:Lcom/shilapi/xcertplay/orchestration/CarPlayController;
+
+    # invokes: Lcom/shilapi/xcertplay/orchestration/CarPlayController;->maybeCompleteWirelessHandoff()V
+    invoke-static {v0}, Lcom/shilapi/xcertplay/orchestration/CarPlayController;->access$maybeCompleteWirelessHandoff(Lcom/shilapi/xcertplay/orchestration/CarPlayController;)V
 
     :cond_1
     :goto_0
@@ -652,4 +675,13 @@
     invoke-virtual {v0, p1}, Lcom/shilapi/xcertplay/orchestration/CarPlayController$sessionListener$1;->onVideoPlaybackUiRequested(Lcom/shilapi/xcertplay/airplay/AirPlaySession;)V
 
     return-void
+.end method
+
+.method public peers()Lcom/shilapi/xcertplay/E01WirelessPeers;
+    .locals 2
+    iget-object v0, p0, Lcom/shilapi/xcertplay/orchestration/CarPlayController$wirelessSessionListener$1;->this$0:Lcom/shilapi/xcertplay/orchestration/CarPlayController;
+    iget v1, p0, Lcom/shilapi/xcertplay/orchestration/CarPlayController$wirelessSessionListener$1;->$generation:I
+    invoke-static {v0, v1}, Lcom/shilapi/xcertplay/E01OemBluetooth;->peers(Ljava/lang/Object;I)Lcom/shilapi/xcertplay/E01WirelessPeers;
+    move-result-object v0
+    return-object v0
 .end method

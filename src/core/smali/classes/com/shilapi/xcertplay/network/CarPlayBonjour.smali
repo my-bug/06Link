@@ -330,6 +330,8 @@
 
 .field private final useInterfaceMdns:Z
 
+.field public wirelessPeers:Lcom/shilapi/xcertplay/E01WirelessPeers;
+
 .field private volatile worker:Ljava/lang/Thread;
 
 
@@ -1118,11 +1120,11 @@
 
     const/4 v3, 0x1
 
-    if-gt v3, v2, :cond_5
+    if-gt v3, v2, :cond_6
 
     const/high16 v3, 0x10000
 
-    if-ge v2, v3, :cond_5
+    if-ge v2, v3, :cond_6
 
     .line 484
     invoke-static {v0}, Lcom/shilapi/xcertplay/media/OpusEncoder$$ExternalSyntheticApiModelOutline0;->m(Landroid/net/nsd/NsdServiceInfo;)Ljava/lang/String;
@@ -1197,6 +1199,21 @@
     invoke-direct {v0, v3, p1, v2, v4}, Lcom/shilapi/xcertplay/network/CarPlayBonjourEndpoint;-><init>(Ljava/lang/String;Ljava/lang/String;ILjava/lang/String;)V
 
     .line 496
+    iget-object p1, p0, Lcom/shilapi/xcertplay/network/CarPlayBonjour;->wirelessPeers:Lcom/shilapi/xcertplay/E01WirelessPeers;
+
+    if-eqz p1, :cond_5
+
+    invoke-virtual {v0}, Lcom/shilapi/xcertplay/network/CarPlayBonjourEndpoint;->getBluetoothId()Ljava/lang/String;
+
+    move-result-object v4
+
+    invoke-virtual {p1, v1, v4}, Lcom/shilapi/xcertplay/E01WirelessPeers;->discovered(Ljava/net/InetAddress;Ljava/lang/String;)Z
+
+    move-result p1
+
+    if-eqz p1, :cond_6
+
+    :cond_5
     new-instance p1, Lcom/shilapi/xcertplay/network/CarPlayBonjourEvent$Resolved;
 
     invoke-direct {p1, v0}, Lcom/shilapi/xcertplay/network/CarPlayBonjourEvent$Resolved;-><init>(Lcom/shilapi/xcertplay/network/CarPlayBonjourEndpoint;)V
@@ -1210,13 +1227,13 @@
 
     move-result-object p1
 
-    if-eqz p1, :cond_5
+    if-eqz p1, :cond_6
 
     check-cast p1, Lcom/shilapi/xcertplay/network/CarPlayBonjourEvent;
 
     invoke-direct {p0, p1}, Lcom/shilapi/xcertplay/network/CarPlayBonjour;->emit(Lcom/shilapi/xcertplay/network/CarPlayBonjourEvent;)V
 
-    :cond_5
+    :cond_6
     :goto_0
     return-void
 .end method
@@ -2236,7 +2253,7 @@
     :goto_0
     iget-boolean v0, p0, Lcom/shilapi/xcertplay/network/CarPlayBonjour;->closed:Z
 
-    if-nez v0, :cond_6
+    if-nez v0, :cond_7
 
     .line 448
     iget-object v0, p0, Lcom/shilapi/xcertplay/network/CarPlayBonjour;->interfaceMdns:Ljavax/jmdns/JmDNS;
@@ -2245,7 +2262,7 @@
 
     const-wide/16 v2, 0x1f4
 
-    if-eqz v0, :cond_3
+    if-eqz v0, :cond_4
 
     .line 450
     :goto_1
@@ -2258,7 +2275,7 @@
 
     check-cast v0, Lcom/shilapi/xcertplay/network/CarPlayBonjourEvent$Discovery;
 
-    if-nez v0, :cond_2
+    if-nez v0, :cond_3
 
     .line 451
     iget-object v0, p0, Lcom/shilapi/xcertplay/network/CarPlayBonjour;->interfaceServices:Ljava/util/concurrent/LinkedBlockingQueue;
@@ -2291,6 +2308,21 @@
     check-cast v0, Ljava/net/InetAddress;
 
     .line 454
+    iget-object v3, p0, Lcom/shilapi/xcertplay/network/CarPlayBonjour;->wirelessPeers:Lcom/shilapi/xcertplay/E01WirelessPeers;
+
+    if-eqz v3, :cond_2
+
+    invoke-virtual {v2}, Lcom/shilapi/xcertplay/network/CarPlayBonjourEndpoint;->getBluetoothId()Ljava/lang/String;
+
+    move-result-object v4
+
+    invoke-virtual {v3, v0, v4}, Lcom/shilapi/xcertplay/E01WirelessPeers;->discovered(Ljava/net/InetAddress;Ljava/lang/String;)Z
+
+    move-result v3
+
+    if-eqz v3, :cond_0
+
+    :cond_2
     new-instance v3, Lcom/shilapi/xcertplay/network/CarPlayBonjourEvent$Resolved;
 
     invoke-direct {v3, v2}, Lcom/shilapi/xcertplay/network/CarPlayBonjourEvent$Resolved;-><init>(Lcom/shilapi/xcertplay/network/CarPlayBonjourEndpoint;)V
@@ -2313,7 +2345,7 @@
     goto :goto_0
 
     .line 450
-    :cond_2
+    :cond_3
     check-cast v0, Lcom/shilapi/xcertplay/network/CarPlayBonjourEvent;
 
     invoke-direct {p0, v0}, Lcom/shilapi/xcertplay/network/CarPlayBonjour;->emit(Lcom/shilapi/xcertplay/network/CarPlayBonjourEvent;)V
@@ -2340,7 +2372,7 @@
     goto :goto_0
 
     .line 464
-    :cond_3
+    :cond_4
     :try_start_1
     iget-object v0, p0, Lcom/shilapi/xcertplay/network/CarPlayBonjour;->services:Ljava/util/concurrent/LinkedBlockingQueue;
 
@@ -2356,20 +2388,20 @@
     :try_end_1
     .catch Ljava/lang/InterruptedException; {:try_start_1 .. :try_end_1} :catch_2
 
-    if-nez v0, :cond_4
+    if-nez v0, :cond_5
 
     goto :goto_0
 
     .line 468
-    :cond_4
+    :cond_5
     iget-boolean v2, p0, Lcom/shilapi/xcertplay/network/CarPlayBonjour;->closed:Z
 
-    if-eqz v2, :cond_5
+    if-eqz v2, :cond_6
 
     goto :goto_2
 
     .line 470
-    :cond_5
+    :cond_6
     :try_start_2
     invoke-direct {p0, v0}, Lcom/shilapi/xcertplay/network/CarPlayBonjour;->handleService(Landroid/net/nsd/NsdServiceInfo;)V
     :try_end_2
@@ -2392,10 +2424,10 @@
 
     invoke-static {v1, v2, v0}, Landroid/util/Log;->w(Ljava/lang/String;Ljava/lang/String;Ljava/lang/Throwable;)I
 
-    goto :goto_0
+    goto/16 :goto_0
 
     :catch_2
-    :cond_6
+    :cond_7
     :goto_2
     return-void
 .end method

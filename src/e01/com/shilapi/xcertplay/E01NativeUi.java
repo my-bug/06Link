@@ -132,7 +132,7 @@ public final class E01NativeUi extends android.view.ContextThemeWrapper {
         }
     }
     private boolean isDetail(){return Arrays.asList("components","display-more","audio-routes","licenses").contains(page);}
-    private String title(){switch(page){case"connection":return"连接";case"cluster":return"仪表盘";case"display":return"显示";case"audio":return"声音与按键";case"vehicle":return"车辆与兼容";case"about":return"关于 06Link";case"components":return"原车蓝牙组件";case"display-more":return"更多显示设置";case"audio-routes":return"原车声道";case"licenses":return"开源说明";}return"设置";}
+    private String title(){switch(page){case"connection":return"连接";case"cluster":return"仪表盘";case"display":return"显示";case"audio":return"声音与按键";case"vehicle":return"车辆与兼容";case"about":return"关于 06Link";case"components":return"原车蓝牙组件";case"display-more":return"更多显示设置";case"audio-routes":return"原车声道";case"licenses":return"许可与声明";}return"设置";}
     private void sidebar(LinearLayout shell){
         LinearLayout rail=column();rail.setBackgroundColor(side);rail.setPadding(dp(10),dp(6),dp(10),dp(6));shell.addView(rail,lp(narrow?158:190,-1));
         LinearLayout brand=row();brand.addView(logo(30));horizontalGap(brand,8);brand.addView(text("06Link",18,ink,true));brand.setContentDescription("06Link 标识");rail.addView(brand,lp(-1,48));gap(rail,6);
@@ -250,7 +250,34 @@ public final class E01NativeUi extends android.view.ContextThemeWrapper {
         words.addView(text("为领克 06 E01 车机深度定制。",13,muted,false));gap(words,10);
         words.addView(text("本软件免费提供。如果你为此付费购买，那你被骗了。",13,ink,false));
         brand.addView(words,new LinearLayout.LayoutParams(0,-2,1));content.addView(brand);
-        LinearLayout g=group();valueRow(g,"版本",null,version(),null);valueRow(g,"开源说明",null,"",()->navigate("licenses"));
+        LinearLayout g=group();
+        valueRow(g,"版本",null,version(),null);
+        valueRow(g,"06Link 开源地址","https://github.com/my-bug/06Link","打开",()->openProject("06Link","https://github.com/my-bug/06Link"));
+        section("项目来源与鸣谢","感谢以下开源项目及其贡献者。");
+        g=group();
+        for(String[] project:new String[][]{
+            {"DiPlay · 基础项目","提供 CarPlay 连接、音视频与仪表副屏的实现基础。","https://github.com/shihabal3amri/DiPlay"},
+            {"xcertplay · 协议实现","DiPlay 的上游项目，继承其 CarPlay 接收协议并参考核心修复。","https://github.com/shilapi/xcertplay"},
+            {"DiAuto · 早期界面来源","DiPlay 早期界面的设计来源。","https://github.com/shihabal3amri/DiAuto"},
+            {"DiPlay-Preface · 蓝牙适配参考","原车蓝牙兼容流程的研究参考。","https://github.com/huangwits/DiPlay-Preface"},
+            {"Conscrypt · 加密支持","为旧版 Android 提供加密实现。","https://github.com/google/conscrypt"}
+        })valueRow(g,project[0],project[1],"查看",()->openProject(project[0],project[2]));
+        section("许可与声明",null);
+        g=group();
+        valueRow(g,"完整许可文本","保留项目许可证和第三方声明原文","查看",()->navigate("licenses"));
+    }
+    private void openProject(String name,String url){
+        try{host.startActivity(new Intent(Intent.ACTION_VIEW,android.net.Uri.parse(url)));}
+        catch(ActivityNotFoundException e){
+            LinearLayout body=column();
+            body.addView(text("当前设备没有浏览器，可复制链接后查看。",14,ink,false));gap(body,12);
+            TextView link=text(url,13,accent,false);link.setTextIsSelectable(true);body.addView(link);
+            showDialog(name,body,"关闭",null,"复制链接",()->{
+                android.content.ClipboardManager clipboard=(android.content.ClipboardManager)getSystemService(Context.CLIPBOARD_SERVICE);
+                clipboard.setPrimaryClip(ClipData.newPlainText(name,url));
+                Toast.makeText(host,"链接已复制",Toast.LENGTH_SHORT).show();
+            });
+        }
     }
     private void clusterDisplay(){java.util.List<?> candidates=(java.util.List<?>)E01NativeSettings.call(E01NativeSettings.singleton("GenericClusterDisplay"),"candidates",host);if(candidates.isEmpty()){message("投屏屏幕","当前没有可用的副屏，请在车机连接仪表后选择。");return;}LinearLayout body=column();for(Object d:candidates){String label=String.valueOf(E01NativeSettings.call(E01NativeSettings.singleton("GenericClusterDisplay"),"label",d));body.addView(button(label,false,()->{E01NativeSettings.call(E01NativeSettings.singleton("GenericClusterDisplay"),"saveChoice",host,d);settings.save("ClusterMapEnabled",true);E01NativeSettings.call(E01NativeSettings.singleton("GenericClusterPlaceholder"),"ensure",host);closeDialog();notice="屏幕已保存，重连生效";refresh();}),lp(-1,48));gap(body,8);}showDialog("投屏屏幕",body,"取消",null,null,null);}
     private void zoom(){LinearLayout body=column();E01MapZoom.add(host,body);styleExisting(body);showDialog("地图视野",body,"关闭",null,null,null);}
@@ -346,7 +373,7 @@ public final class E01NativeUi extends android.view.ContextThemeWrapper {
             }
         }
     }
-    private void licenses(){section("开源与许可",null);LinearLayout g=group();for(String[] item:new String[][]{{"项目许可","06link/LICENSE"},{"第三方声明","conscrypt-NOTICE.txt"}})valueRow(g,item[0],null,"查看",()->{try{java.io.InputStream in=getAssets().open(item[1]);java.io.ByteArrayOutputStream out=new java.io.ByteArrayOutputStream();byte[] b=new byte[4096];int n;while((n=in.read(b))>0&&out.size()<200000)out.write(b,0,n);in.close();message(item[0],out.toString("UTF-8"));}catch(Exception e){message("读取失败",e.getMessage());}});}
+    private void licenses(){section("完整许可文本","以下保留许可原文；项目来源和中文用途说明见“关于”页。");LinearLayout g=group();for(String[] item:new String[][]{{"项目许可证（原文）","06link/LICENSE"},{"Conscrypt 第三方许可（原文）","conscrypt-NOTICE.txt"}})valueRow(g,item[0],null,"查看",()->{try{java.io.InputStream in=getAssets().open(item[1]);java.io.ByteArrayOutputStream out=new java.io.ByteArrayOutputStream();byte[] b=new byte[4096];int n;while((n=in.read(b))>0&&out.size()<200000)out.write(b,0,n);in.close();message(item[0],out.toString("UTF-8"));}catch(Exception e){message("读取失败",e.getMessage());}});}
     private void welcome(){if(host.isFinishing())return;if(openDialog!=null&&openDialog.isShowing())return;LinearLayout body=column();body.addView(text("导航与音乐，现在都在你身边。",15,ink,false));gap(body,16);body.addView(text("使用无线热点或 USB 数据线连接 iPhone。首次使用时，根据系统提示授予所需权限。",14,ink,false));gap(body,12);body.addView(text("请在停车时设置与操作。",12,muted,false));Runnable acknowledged=()->{E01NativeSettings.call(E01NativeSettings.singleton("FirstRunNotice"),"acknowledge",host);E01NativeSettings.call(host.getClass(),"showFirstRunNotice$lambda$27",host);};showDialog("欢迎使用 06Link",body,"先看看",acknowledged,"开始设置",()->{acknowledged.run();selectPage("connection");});openDialog.setCancelable(false);E01NativeSettings.field(host,"firstRunNoticeDialog",openDialog);}
     private void systemSettings(){host.startActivity(new Intent(android.provider.Settings.ACTION_SETTINGS));}
     private void message(String title,String message){LinearLayout body=column();body.addView(text(message,14,ink,false));showDialog(title,body,null,null,"知道了",null);}

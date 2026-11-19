@@ -3,6 +3,10 @@ package com.shilapi.xcertplay;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Context;
+import android.content.BroadcastReceiver;
+import android.content.Intent;
+import android.content.IntentFilter;
+import android.content.SharedPreferences;
 import android.os.Handler;
 import android.os.Build;
 import android.os.Looper;
@@ -30,18 +34,45 @@ public final class E01OemBluetooth {
     private static volatile List<EcarxConnectedDevice> devices = Collections.emptyList();
     private static volatile String address, localMac, status = "正在读取原车蓝牙状态";
     private static volatile boolean operation;
+    private static volatile String explicitlyChosen;
     private static volatile boolean migrationStarted, migrationReady;
     private static volatile String actionStatus="";
     private static volatile WeakReference<Activity> pendingConnect = new WeakReference<Activity>(null);
     private static volatile long pendingToken=-1;
     private static Thread poller, hotspotWorker;
+    private static final Object pollSignal = new Object();
+    private static boolean pollRequested;
+
+    private static void wakePoller() {
+        synchronized (pollSignal) {
+            pollRequested = true;
+            pollSignal.notifyAll();
+        }
+    }
+    private static void waitForChange() throws InterruptedException {
+        synchronized (pollSignal) {
+            if (!pollRequested) pollSignal.wait(2000);
+            pollRequested = false;
+        }
+    }
     private static boolean hotspotAttempted;
     private static WeakReference<Activity> foreground = new WeakReference<Activity>(null);
     private static final Map<Object, Target> targets = new WeakHashMap<Object, Target>();
     private static final class Target {
         final int generation; final String phone, mac;
+        final E01WirelessPeers peers;
+        final String name;
+        boolean remembered, handoffComplete;
         E01PreparedConnection<GocSppTransport> pending;
-        Target(int g, String p, String m) { generation=g; phone=p; mac=m; }
+        Target(int g, String p, String m) {
+            generation=g; phone=p; mac=m;
+            name = connectedName(p);
+            SharedPreferences prefs = app.getSharedPreferences("oem-bt-test", 0);
+            Set<String> known = new HashSet<>(prefs.getStringSet("carplay-phones", Collections.<String>emptySet()));
+            for (EcarxConnectedDevice device : devices) known.add(device.getAddress());
+            peers = new E01WirelessPeers(p, known);
+        }
+        void close() { peers.close(); if (pending != null) pending.cancel(); }
     }
     private E01OemBluetooth() { }
 
@@ -54,17 +85,31 @@ public final class E01OemBluetooth {
             if (poller != null) return;
             lookup = new EcarxConnectedIphoneLookup(app);
             lookup.ensureBound();
+            if (supported()) {
+                IntentFilter changes = new IntentFilter("ecarx.bluetooth.a2dp.profile.action.CONNECTION_STATE_CHANGED");
+                changes.addAction("ecarx.bluetooth.headset.profile.action.CONNECTION_STATE_CHANGED");
+                changes.addAction("ecarx.bluetooth.headset.profile.action.AUDIO_STATE_CHANGED");
+                try {
+                    app.registerReceiver(new BroadcastReceiver() {
+                        @Override public void onReceive(Context context, Intent intent) { wakePoller(); }
+                    }, changes);
+                } catch (SecurityException denied) {
+                    note("原车蓝牙状态广播不可用，继续定时读取");
+                }
+            }
             poller = new Thread(() -> {
                 for (;;) {
                     if(supported()){E01BtPersistent.refresh();E01ComponentLog.observe(app);}
+                    E01WirelessAudioHandoff.maintain(app, lookup);
                     maybeMigrate();
                     try {
                         List<EcarxConnectedDevice> fresh = lookup.connectedDevices(1200L);
                         devices = new ArrayList<EcarxConnectedDevice>(fresh);
-                        String saved = app.getSharedPreferences("oem-bt-test", 0).getString("phone", "");
+                        SharedPreferences prefs = app.getSharedPreferences("oem-bt-test", 0);
+                        String saved = prefs.getString("phone", prefs.getString("last-carplay", ""));
                         String chosen = null;
                         for (EcarxConnectedDevice d : fresh) if (validMac(d.getAddress()) && d.getAddress().equalsIgnoreCase(saved)) chosen = d.getAddress();
-                        if (chosen == null && fresh.size() == 1 && validMac(fresh.get(0).getAddress())) chosen = fresh.get(0).getAddress();
+                        if (chosen == null && saved.isEmpty() && fresh.size() == 1 && validMac(fresh.get(0).getAddress())) chosen = fresh.get(0).getAddress();
                         address = chosen;
                         if(chosen!=null&&!chosen.equals(app.getSharedPreferences("oem-bt-test",0).getString("last-connected","")))
                             app.getSharedPreferences("oem-bt-test",0).edit().putString("last-connected",chosen).apply();
@@ -72,11 +117,10 @@ public final class E01OemBluetooth {
                         localMac = readLocalMac();
                         maybeStartHotspot();
                         maybeResumeConnect();
-                        status = fresh.isEmpty() ? "请在原车蓝牙中连接 iPhone" : chosen == null ? "有多个设备，请选择 iPhone" : "原车蓝牙已连接";
+                        status = fresh.isEmpty() ? "请在原车蓝牙中连接 iPhone" : chosen == null ? (saved.isEmpty() ? "有多个设备，请选择 iPhone" : "正在等待所选的 iPhone") : "原车蓝牙已连接";
                     } catch (Throwable e) { address = null; status = "原厂蓝牙查询失败：" + cause(e).getClass().getSimpleName(); }
-                    E01WirelessAudioHandoff.maintain(app,lookup);
                     E01AudioScene.maintain();
-                    try { Thread.sleep(2000L); } catch (InterruptedException e) { return; }
+                    try { waitForChange(); } catch (InterruptedException e) { return; }
                 }
             }, "06Link-oem-bt-state");
             poller.setDaemon(true); poller.start();
@@ -159,7 +203,7 @@ public final class E01OemBluetooth {
             hotspotWorker.setDaemon(true);hotspotWorker.start();
         }
     }
-    private static boolean validMac(String s) { return s != null && s.matches("(?i)([0-9a-f]{2}:){5}[0-9a-f]{2}") && !s.equals("00:00:00:00:00:00") && !s.equals("02:00:00:00:00:00"); }
+    static boolean validMac(String s) { return s != null && s.matches("(?i)([0-9a-f]{2}:){5}[0-9a-f]{2}") && !s.equals("00:00:00:00:00:00") && !s.equals("02:00:00:00:00:00"); }
     private static String readLocalMac() {
         try {
             Field field = lookup.getClass().getDeclaredField("adapterConnection"); field.setAccessible(true);
@@ -212,6 +256,18 @@ public final class E01OemBluetooth {
         if(!E01BtPersistent.installed()){Toast.makeText(a,E01BtPersistent.description(),Toast.LENGTH_LONG).show();return false;}
         if(!enabled(a)||!phoneReady(a)){
             pendingConnect=new WeakReference<Activity>(a);pendingToken=E01HotspotControl.token();
+            if (enabled(a) && address == null) {
+                SharedPreferences prefs = a.getSharedPreferences("oem-bt-test", 0);
+                String selected = prefs.getString("phone", prefs.getString("last-carplay", ""));
+                if (validMac(selected)) {
+                    final long token = pendingToken;
+                    OPERATIONS.execute(() -> {
+                        if (pendingToken != token || !E01HotspotControl.valid(token)
+                                || !selected.equalsIgnoreCase(prefs.getString("phone", prefs.getString("last-carplay", "")))) return;
+                        E01WirelessAudioHandoff.reconnectSelected(app, lookup, selected, selected.equalsIgnoreCase(explicitlyChosen));
+                    });
+                }
+            }
             Toast.makeText(a,operation?"正在准备原车蓝牙，就绪后自动连接":"请在原车蓝牙连接 iPhone，就绪后自动连接",Toast.LENGTH_LONG).show();return false;
         }
         return true;
@@ -245,7 +301,7 @@ public final class E01OemBluetooth {
         if (stale(controller, generation)) throw new IOException("原车蓝牙连接已取消");
         String phone=address;
         if (phone == null) throw new IOException("请用 iPhone 连接原车蓝牙；多个设备时先在蓝牙设置选择 iPhone");
-        synchronized(targets){if(stale(controller,generation))throw new IOException("原车蓝牙连接已取消");Target previous=targets.put(controller,new Target(generation,phone,localMac));if(previous!=null&&previous.pending!=null)previous.pending.cancel();}
+        synchronized(targets){if(stale(controller,generation))throw new IOException("原车蓝牙连接已取消");Target previous=targets.put(controller,new Target(generation,phone,localMac));if(previous!=null)previous.close();}
         note("bootstrap prepared; identity="+(localMac==null?"stable-device-id":"factory-address"));
     }
     /** Called once after target confirmation, before AP/network preparation. */
@@ -263,17 +319,51 @@ public final class E01OemBluetooth {
         if(stale(controller,generation)){cancelPreparedGeneration(controller,generation);throw new IOException("原车蓝牙连接已取消");}
     }
     private static void cancelPreparedGeneration(Object controller,int generation) {
-        synchronized(targets){Target target=targets.get(controller);if(target!=null&&target.generation==generation){targets.remove(controller);if(target.pending!=null)target.pending.cancel();}}
+        synchronized(targets){Target target=targets.get(controller);if(target!=null&&target.generation==generation){targets.remove(controller);target.close();}}
     }
-    public static void wirelessAudioReady(Object controller,int generation) {
-        synchronized(targets){
-            Target target=targets.get(controller);
-            if(target!=null&&target.generation==generation)E01WirelessAudioHandoff.start(controller,generation,target.phone);
+    public static E01WirelessPeers peers(Object controller, int generation) {
+        synchronized (targets) {
+            Target target = targets.get(controller);
+            return target != null && target.generation == generation ? target.peers : null;
         }
     }
-    public static void cancelPrepared(Object controller) {
+    public static void wirelessAudioReady(Object controller, int generation) {
+        wirelessAudioActive(controller, generation, true);
+    }
+    public static void wirelessAudioActive(Object controller, int generation, boolean handoffComplete) {
+        synchronized (targets) {
+            Target target = targets.get(controller);
+            if (target == null || target.generation != generation) return;
+            target.handoffComplete |= handoffComplete;
+            if (!target.peers.hasActive()) return;
+            if (!target.remembered) {
+                if (target.phone.equalsIgnoreCase(explicitlyChosen)) explicitlyChosen = null;
+                SharedPreferences prefs = app.getSharedPreferences("oem-bt-test", 0);
+                Set<String> known = new HashSet<>(prefs.getStringSet("carplay-phones", Collections.<String>emptySet()));
+                known.add(target.phone);
+                prefs.edit().putStringSet("carplay-phones", known).putString("last-carplay", target.phone)
+                        .putString("name-" + target.phone, target.name).apply();
+                target.remembered = true;
+            }
+            E01WirelessAudioHandoff.start(controller, generation, target.phone, target.handoffComplete);
+        }
+        wakePoller();
+    }
+    public static void wiredAudioReady(Object controller, String phone) {
+        E01WirelessAudioHandoff.start(controller, -1, validMac(phone) ? phone : address, true);
+        wakePoller();
+    }
+    public static void audioEnded(Object controller) {
         E01WirelessAudioHandoff.stop(controller);
-        synchronized(targets){Target target=targets.remove(controller);if(target!=null&&target.pending!=null)target.pending.cancel();}
+        wakePoller();
+    }
+    public static void cancelPrepared(Object controller) {
+        synchronized (targets) {
+            E01WirelessAudioHandoff.stop(controller);
+            Target target = targets.remove(controller);
+            if (target != null) target.close();
+        }
+        wakePoller();
     }
     public static BlockingDuplexByteStream open(Context c, Object controller, int generation) throws Exception {
         prepare(c, controller, generation);
@@ -320,15 +410,34 @@ public final class E01OemBluetooth {
             MAIN.post(() -> {if(!a.isFinishing())detail.setText(message);});
         });
     }
-    public static String selectedPhoneName(Context c){String chosen=c.getSharedPreferences("oem-bt-test",0).getString("phone",address);for(EcarxConnectedDevice d:devices)if(chosen!=null&&chosen.equals(d.getAddress()))return d.getName()==null?"已连接的 iPhone":d.getName();return "选择已连接的 iPhone";}
+    private static String connectedName(String phone) {
+        for (EcarxConnectedDevice device : devices)
+            if (phone.equalsIgnoreCase(device.getAddress()) && device.getName() != null) return device.getName();
+        return app.getSharedPreferences("oem-bt-test", 0).getString("name-" + phone, "iPhone");
+    }
+    public static String selectedPhoneName(Context c) {
+        SharedPreferences prefs = c.getSharedPreferences("oem-bt-test", 0);
+        String selected = prefs.getString("phone", prefs.getString("last-carplay", address));
+        return selected == null || app == null ? "选择 iPhone" : connectedName(selected);
+    }
     public static void choosePhone(Activity a) {
-        final List<EcarxConnectedDevice> list = new ArrayList<EcarxConnectedDevice>(devices);
-        if (list.isEmpty()) { Toast.makeText(a, "请先在原车蓝牙中连接 iPhone", Toast.LENGTH_LONG).show(); return; }
-        String[] names = new String[list.size()];
-        for (int i = 0; i < names.length; i++) { String name = list.get(i).getName(); names[i] = name == null || name.isEmpty() ? "已连接设备 " + (i + 1) : name; }
-        E01NativeUi.select(a,"选择 CarPlay 手机",names,n -> {
-            String selected = list.get(n).getAddress();
-            a.getSharedPreferences("oem-bt-test", 0).edit().putString("phone", selected).apply(); address = selected;
+        SharedPreferences prefs = a.getSharedPreferences("oem-bt-test", 0);
+        final Map<String, String> choices = new LinkedHashMap<>();
+        for (EcarxConnectedDevice device : devices)
+            if (validMac(device.getAddress())) choices.put(device.getAddress(), connectedName(device.getAddress()));
+        for (String phone : prefs.getStringSet("carplay-phones", Collections.<String>emptySet()))
+            if (validMac(phone) && !choices.containsKey(phone)) choices.put(phone, connectedName(phone));
+        if (choices.isEmpty()) { Toast.makeText(a, "请先在原车蓝牙中连接 iPhone", Toast.LENGTH_LONG).show(); return; }
+        final List<String> phones = new ArrayList<>(choices.keySet());
+        E01NativeUi.select(a, "选择 CarPlay 手机", choices.values().toArray(new String[0]), n -> {
+            String selected = phones.get(n);
+            explicitlyChosen = selected;
+            prefs.edit().putString("phone", selected).apply();
+            address = null;
+            for (EcarxConnectedDevice device : devices)
+                if (selected.equalsIgnoreCase(device.getAddress())) address = selected;
+            wakePoller();
+            Toast.makeText(a, "下次无线连接使用 " + choices.get(selected), Toast.LENGTH_SHORT).show();
         });
     }
     public static void settings(Activity a, LinearLayout parent) {

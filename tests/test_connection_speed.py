@@ -58,7 +58,8 @@ assert write.count('->send([B)V')==1 and 'copyOfRange'not in write and '0x100'no
 checks.append('wireless order and complete wired control write retained')
 s=(R/'src/e01/com/shilapi/xcertplay/E01OemBluetooth.java').read_text()
 assert 'pending.take(() -> stale(controller,generation))'in s and 'if (stale(controller, generation)) { stream.close();'in s
-assert 'previous.pending.cancel()'in s and 'targets.remove(controller)'in s
+assert 'previous.close()' in s and 'targets.remove(controller)' in s
+assert 'peers.close()' in s and 'pending.cancel()' in s
 assert 'cancelPreparedGeneration(controller,generation)' in s and 'target.generation==generation' in s and 't.generation!=generation' in s
 checks.append('old generation, cancelled preparation and post-handoff stale stream cleaned up')
 ui=(R/'src/e01/com/shilapi/xcertplay/E01NativeUi.java').read_text();prefs=(R/'src/e01/com/shilapi/xcertplay/E01NativeSettings.java').read_text()

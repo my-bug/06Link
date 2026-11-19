@@ -734,7 +734,28 @@
 
     invoke-static {v0, p1}, Lcom/shilapi/xcertplay/orchestration/CarPlayController;->access$setActiveSession$p(Lcom/shilapi/xcertplay/orchestration/CarPlayController;Lcom/shilapi/xcertplay/airplay/AirPlaySession;)V
 
+    # getter for: Lcom/shilapi/xcertplay/orchestration/CarPlayController;->phase:Lcom/shilapi/xcertplay/orchestration/CarPlayController$Phase;
+    invoke-static {v0}, Lcom/shilapi/xcertplay/orchestration/CarPlayController;->access$getPhase$p(Lcom/shilapi/xcertplay/orchestration/CarPlayController;)Lcom/shilapi/xcertplay/orchestration/CarPlayController$Phase;
+
+    move-result-object v1
+
+    sget-object v2, Lcom/shilapi/xcertplay/orchestration/CarPlayController$Phase;->DATAPATHS:Lcom/shilapi/xcertplay/orchestration/CarPlayController$Phase;
+
+    if-eq v1, v2, :cond_1
+
+    sget-object v2, Lcom/shilapi/xcertplay/orchestration/CarPlayController$Phase;->CONTROL:Lcom/shilapi/xcertplay/orchestration/CarPlayController$Phase;
+
+    if-ne v1, v2, :cond_2
+
+    :cond_1
+    invoke-virtual {p1}, Lcom/shilapi/xcertplay/airplay/AirPlaySession;->getDeviceBtMac$shared_release()Ljava/lang/String;
+
+    move-result-object v1
+
+    invoke-static {v0, v1}, Lcom/shilapi/xcertplay/E01OemBluetooth;->wiredAudioReady(Ljava/lang/Object;Ljava/lang/String;)V
+
     .line 415
+    :cond_2
     iget-object v0, p0, Lcom/shilapi/xcertplay/orchestration/CarPlayController$sessionListener$1;->this$0:Lcom/shilapi/xcertplay/orchestration/CarPlayController;
 
     .line 416
@@ -742,12 +763,12 @@
 
     move-result-object v1
 
-    if-nez v1, :cond_1
+    if-nez v1, :cond_3
 
     const-string/jumbo v1, "unknown"
 
     .line 417
-    :cond_1
+    :cond_3
     invoke-virtual {p1}, Lcom/shilapi/xcertplay/airplay/AirPlaySession;->getHost()Ljava/lang/String;
 
     move-result-object v2
@@ -787,11 +808,11 @@
 
     move-result-object v0
 
-    if-eqz v0, :cond_2
+    if-eqz v0, :cond_4
 
     invoke-interface {v0, p1}, Lcom/shilapi/xcertplay/airplay/AirPlaySessionListener;->onSessionActive(Lcom/shilapi/xcertplay/airplay/AirPlaySession;)V
 
-    :cond_2
+    :cond_4
     return-void
 .end method
 
@@ -818,6 +839,8 @@
     iget-object v0, p0, Lcom/shilapi/xcertplay/orchestration/CarPlayController$sessionListener$1;->this$0:Lcom/shilapi/xcertplay/orchestration/CarPlayController;
 
     invoke-static {v0, v1}, Lcom/shilapi/xcertplay/orchestration/CarPlayController;->access$setActiveSession$p(Lcom/shilapi/xcertplay/orchestration/CarPlayController;Lcom/shilapi/xcertplay/airplay/AirPlaySession;)V
+
+    invoke-static {v0}, Lcom/shilapi/xcertplay/E01OemBluetooth;->audioEnded(Ljava/lang/Object;)V
 
     .line 425
     sget-object v0, Lcom/shilapi/xcertplay/hud/BydNavigationOutputs;->INSTANCE:Lcom/shilapi/xcertplay/hud/BydNavigationOutputs;

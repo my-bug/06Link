@@ -23,8 +23,11 @@ public final class RendererProbe {
     if(x<400||x>=1520||y<174||y>=594)ok((pixel(on,x,y)>>>24)==255,"no map can leak into side/header/footer regions");
    }
    int edge=pixel(on,402,360)>>>24,shadow=pixel(on,500,360)>>>24,center=pixel(on,960,360)>>>24;
-   ok(edge>(!design.equals("night")?20:245)&&(!design.equals("night")?shadow==0:shadow>0&&shadow<20)&&center==0,"central map retains soft side shadow rather than hard clipping");
-   ok(!design.equals("night")?((pixel(on,960,178)>>>24)<50&&(pixel(on,960,210)>>>24)==0):((pixel(on,960,178)>>>24)>230&&(pixel(on,960,210)>>>24)>0&&(pixel(on,960,210)>>>24)<20&&(pixel(on,960,590)>>>24)>230),"top and bottom map shadow retained");
+   ok((design.equals("night")?edge>220:edge>0&&edge<30)&&shadow==0&&center==0,"narrow edge shadow leaves live map interior clear: "+design+" "+edge+","+shadow+","+center);
+   if(design.equals("night")){
+    ok((pixel(on,403,177)>>>24)==255,"graphite masks square video corners");
+    ok((pixel(on,960,178)>>>24)>170&&(pixel(on,960,200)>>>24)==0,"graphite retains only a narrow top shadow");
+   }else ok((pixel(on,960,178)>>>24)<50&&(pixel(on,960,210)>>>24)==0,"framed styles have a light narrow rim");
    ok(on.texts.size()==1&&on.texts.get(0).text.equals("06LINK"),"runtime overlay never fabricates vehicle values or TBT");
    ok(on.texts.get(0).x==64&&on.texts.get(0).y==61,"logo moved right/down into safe inset");
    for(int y=0;y<720;y+=13)for(int x=0;x<1920;x+=13)ok(pixel(on,x,y)==pixel(off,x,y),"music toggle leaves the live map backdrop unchanged");

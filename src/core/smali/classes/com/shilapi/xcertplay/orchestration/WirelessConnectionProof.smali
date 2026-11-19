@@ -444,11 +444,11 @@
     throw p1
 .end method
 
-.method public final declared-synchronized rendered(ILjava/lang/Object;)V
+.method public final declared-synchronized markFirstRenderedFrame(ILjava/lang/Object;)Z
     .locals 1
     .annotation system Ldalvik/annotation/Signature;
         value = {
-            "(ITS;)V"
+            "(ITS;)Z"
         }
     .end annotation
 
@@ -471,6 +471,8 @@
     goto :goto_0
 
     :cond_0
+    iget-boolean v0, p0, Lcom/shilapi/xcertplay/orchestration/WirelessConnectionProof;->rendered:Z
+    if-nez v0, :cond_1
     const/4 p1, 0x1
 
     .line 32
@@ -484,14 +486,15 @@
     .line 34
     monitor-exit p0
 
-    return-void
+    return p1
 
     .line 31
     :cond_1
     :goto_0
     monitor-exit p0
 
-    return-void
+    const/4 p1, 0x0
+    return p1
 
     :catchall_0
     move-exception p1
@@ -502,4 +505,17 @@
     .catchall {:try_start_1 .. :try_end_1} :catchall_0
 
     throw p1
+.end method
+
+.method public final rendered(ILjava/lang/Object;)V
+    .locals 0
+    .annotation system Ldalvik/annotation/Signature;
+        value = {
+            "(ITS;)V"
+        }
+    .end annotation
+
+    invoke-virtual {p0, p1, p2}, Lcom/shilapi/xcertplay/orchestration/WirelessConnectionProof;->markFirstRenderedFrame(ILjava/lang/Object;)Z
+
+    return-void
 .end method

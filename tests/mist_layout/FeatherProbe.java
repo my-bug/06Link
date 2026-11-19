@@ -13,9 +13,18 @@ public final class FeatherProbe {
             for(int x=0;x<w;x++){ok(alpha(map,x,0)==255,"top seals map boundary");ok(alpha(map,x,h-1)==255,"bottom seals boundary");}
             for(int y=0;y<h;y++){ok(alpha(map,0,y)==255,"left seals boundary");ok(alpha(map,w-1,y)==255,"right seals boundary");}
             for(int y=h/3;y<2*h/3;y+=5)for(int x=w/3;x<2*w/3;x+=5)ok(alpha(map,x,y)==0,"navigation center is entirely clear");
-            int side=alpha(map,Math.round(64*scale),h/2),corner=alpha(map,Math.round(64*scale),Math.round(24*scale));
-            ok(Math.abs(side-corner)<=2,"two 25% feather regions do not compound at corner");
-            ok(side>=62&&side<=65,"halfway feather has only quarter opacity");
+            ok(alpha(map,Math.round(20*scale),h/2)==0,"shadow ends before map interior");
+            ok(alpha(map,Math.round(3*scale),Math.round(3*scale))==255,"rounded corner fully hides square video corner");
+            ok(alpha(map,Math.round(8*scale),Math.round(8*scale))>alpha(map,Math.round(8*scale),h/2),"corner follows rounded contour instead of rectangular max ramps");
+            int previous=255;
+            for(int x=0;x<Math.round(24*scale);x++){
+                int value=alpha(map,x,h/2);ok(value<=previous,"straight shadow fades monotonically without bands of added noise");previous=value;
+            }
+            for(int y=0;y<h;y+=7)for(int x=0;x<w;x+=7){
+                ok(alpha(map,x,y)==alpha(map,w-1-x,y),"rounded shadow is horizontally symmetric");
+                ok(alpha(map,x,y)==alpha(map,x,h-1-y),"rounded shadow is vertically symmetric");
+            }
+
         }
         Bitmap cover=Bitmap.createBitmap(370,380,Bitmap.Config.ARGB_8888);
         int[] row=new int[370];java.util.Arrays.fill(row,0xffb0b0b0);

@@ -388,6 +388,8 @@
 
 .field private volatile videoPlaybackEnabled:Z
 
+.field private wirelessPeers:Lcom/shilapi/xcertplay/E01WirelessPeers;
+
 
 # direct methods
 .method public static synthetic $r8$lambda$5Jp1b6pJGy1lCuwv1pRMsbq16NA(Lcom/shilapi/xcertplay/airplay/AirPlaySession;Ljava/lang/String;)Lkotlin/Unit;
@@ -922,6 +924,43 @@
 
     :cond_1
     return-void
+.end method
+
+.method private allowedWirelessPeer(Ljava/lang/String;)Z
+    .locals 2
+
+    iget-object v0, p0, Lcom/shilapi/xcertplay/airplay/AirPlaySession;->wirelessPeers:Lcom/shilapi/xcertplay/E01WirelessPeers;
+
+    if-eqz v0, :cond_0
+
+    iget-object v1, p0, Lcom/shilapi/xcertplay/airplay/AirPlaySession;->peerAddress:Ljava/net/InetAddress;
+
+    invoke-virtual {v0, p0, v1, p1}, Lcom/shilapi/xcertplay/E01WirelessPeers;->allows(Ljava/lang/Object;Ljava/net/InetAddress;Ljava/lang/String;)Z
+
+    move-result v0
+
+    return v0
+
+    :cond_0
+    const/4 v0, 0x1
+
+    return v0
+.end method
+
+.method private static busyResponse()Lcom/shilapi/xcertplay/airplay/RtspMessage$Response;
+    .locals 8
+    new-instance v0, Lcom/shilapi/xcertplay/airplay/RtspMessage$Response;
+    const/4 v1, 0x0
+    const/16 v2, 0x1c5
+    invoke-static {v2}, Ljava/lang/Integer;->valueOf(I)Ljava/lang/Integer;
+    move-result-object v2
+    const-string v3, "Not Enough Bandwidth"
+    const/4 v4, 0x0
+    const/4 v5, 0x0
+    const/16 v6, 0x19
+    const/4 v7, 0x0
+    invoke-direct/range {v0 .. v7}, Lcom/shilapi/xcertplay/airplay/RtspMessage$Response;-><init>(Ljava/lang/String;Ljava/lang/Integer;Ljava/lang/String;Ljava/util/Map;[BILkotlin/jvm/internal/DefaultConstructorMarker;)V
+    return-object v0
 .end method
 
 .method private final debugLog(Ljava/lang/String;Z)V
@@ -1711,6 +1750,27 @@
 
     .line 469
     :cond_15
+    iget-object v1, v0, Lcom/shilapi/xcertplay/airplay/AirPlaySession;->wirelessPeers:Lcom/shilapi/xcertplay/E01WirelessPeers;
+
+    if-eqz v1, :cond_16
+
+    iget-object v2, v0, Lcom/shilapi/xcertplay/airplay/AirPlaySession;->peerAddress:Ljava/net/InetAddress;
+
+    iget-object v3, v0, Lcom/shilapi/xcertplay/airplay/AirPlaySession;->deviceBtMac:Ljava/lang/String;
+
+    invoke-virtual {v1, v0, v2, v3}, Lcom/shilapi/xcertplay/E01WirelessPeers;->record(Ljava/lang/Object;Ljava/net/InetAddress;Ljava/lang/String;)Z
+
+    move-result v1
+
+    if-nez v1, :cond_16
+
+    invoke-static {}, Lcom/shilapi/xcertplay/airplay/AirPlaySession;->busyResponse()Lcom/shilapi/xcertplay/airplay/RtspMessage$Response;
+
+    move-result-object v1
+
+    return-object v1
+
+    :cond_16
     iget-object v1, v0, Lcom/shilapi/xcertplay/airplay/AirPlaySession;->listener:Lcom/shilapi/xcertplay/airplay/AirPlaySessionListener;
 
     invoke-interface {v1, v0}, Lcom/shilapi/xcertplay/airplay/AirPlaySessionListener;->onSessionActive(Lcom/shilapi/xcertplay/airplay/AirPlaySession;)V
@@ -1785,11 +1845,40 @@
 
     move-result-object v1
 
+    iget-object v2, p0, Lcom/shilapi/xcertplay/airplay/AirPlaySession;->deviceBtMac:Ljava/lang/String;
+
+    invoke-direct {p0, v2}, Lcom/shilapi/xcertplay/airplay/AirPlaySession;->allowedWirelessPeer(Ljava/lang/String;)Z
+
+    move-result v2
+
+    if-nez v2, :cond_1
+
+    invoke-static {}, Lcom/shilapi/xcertplay/airplay/AirPlaySession;->busyResponse()Lcom/shilapi/xcertplay/airplay/RtspMessage$Response;
+
+    move-result-object v2
+
+    return-object v2
+
+    :cond_1
     iget-object v2, p0, Lcom/shilapi/xcertplay/airplay/AirPlaySession;->media:Lcom/shilapi/xcertplay/airplay/AirPlayMediaHandler;
+
+    instance-of v2, v2, Lcom/shilapi/xcertplay/airplay/CarPlayMediaEngine;
+
+    if-eqz v2, :cond_2
+
+    iget-object v2, p0, Lcom/shilapi/xcertplay/airplay/AirPlaySession;->media:Lcom/shilapi/xcertplay/airplay/AirPlayMediaHandler;
+
+    check-cast v2, Lcom/shilapi/xcertplay/airplay/CarPlayMediaEngine;
+
+    # getter for: Lcom/shilapi/xcertplay/airplay/CarPlayMediaEngine;->sink:Lcom/shilapi/xcertplay/airplay/MediaSink;
+    invoke-static {v2}, Lcom/shilapi/xcertplay/airplay/CarPlayMediaEngine;->access$getSink$p(Lcom/shilapi/xcertplay/airplay/CarPlayMediaEngine;)Lcom/shilapi/xcertplay/airplay/MediaSink;
+
+    move-result-object v2
 
     invoke-static {v2, v1}, Lcom/shilapi/xcertplay/E01AudioScene;->prompt(Ljava/lang/Object;Ljava/lang/String;)V
 
     .line 663
+    :cond_2
     const-string v2, "params"
 
     invoke-interface {v0, v2}, Ljava/util/Map;->get(Ljava/lang/Object;)Ljava/lang/Object;
@@ -1801,14 +1890,14 @@
 
     move-result-object v0
 
-    if-nez v0, :cond_1
+    if-nez v0, :cond_3
 
     invoke-static {}, Lkotlin/collections/MapsKt;->emptyMap()Ljava/util/Map;
 
     move-result-object v0
 
     .line 664
-    :cond_1
+    :cond_3
     invoke-interface {v0}, Ljava/util/Map;->keySet()Ljava/util/Set;
 
     move-result-object v2
@@ -1852,7 +1941,7 @@
 
     move-result v2
 
-    if-eqz v2, :cond_2
+    if-eqz v2, :cond_4
 
     invoke-direct {p0, v0}, Lcom/shilapi/xcertplay/airplay/AirPlaySession;->modesSummary(Ljava/util/Map;)Ljava/lang/String;
 
@@ -1873,7 +1962,7 @@
     invoke-static {p0, v2, v3, v4, v5}, Lcom/shilapi/xcertplay/airplay/AirPlaySession;->debugLog$default(Lcom/shilapi/xcertplay/airplay/AirPlaySession;Ljava/lang/String;ZILjava/lang/Object;)V
 
     .line 666
-    :cond_2
+    :cond_4
     invoke-virtual {p1}, Lcom/shilapi/xcertplay/airplay/RtspMessage$Request;->getHeaders()Ljava/util/Map;
 
     move-result-object p1
@@ -1886,7 +1975,7 @@
 
     check-cast p1, Ljava/lang/String;
 
-    if-eqz p1, :cond_3
+    if-eqz p1, :cond_5
 
     invoke-static {p1}, Lkotlin/text/StringsKt;->toLongOrNull(Ljava/lang/String;)Ljava/lang/Long;
 
@@ -1894,7 +1983,7 @@
 
     goto :goto_1
 
-    :cond_3
+    :cond_5
     move-object p1, v5
 
     .line 667
@@ -1907,21 +1996,21 @@
 
     instance-of v3, v2, [B
 
-    if-eqz v3, :cond_4
+    if-eqz v3, :cond_6
 
     check-cast v2, [B
 
     goto :goto_2
 
-    :cond_4
+    :cond_6
     move-object v2, v5
 
     :goto_2
     const/16 v3, 0xc8
 
-    if-eqz p1, :cond_7
+    if-eqz p1, :cond_9
 
-    if-eqz v2, :cond_7
+    if-eqz v2, :cond_9
 
     .line 669
     :try_start_1
@@ -1968,17 +2057,17 @@
 
     move-result v1
 
-    if-eqz v1, :cond_5
+    if-eqz v1, :cond_7
 
     goto :goto_4
 
-    :cond_5
+    :cond_7
     move-object v5, v0
 
     :goto_4
     check-cast v5, Ljava/util/Map;
 
-    if-eqz v5, :cond_6
+    if-eqz v5, :cond_8
 
     .line 670
     iget-object v0, p0, Lcom/shilapi/xcertplay/airplay/AirPlaySession;->listener:Lcom/shilapi/xcertplay/airplay/AirPlaySessionListener;
@@ -1990,7 +2079,7 @@
     invoke-interface {v0, p0, v1, v2, v5}, Lcom/shilapi/xcertplay/airplay/AirPlaySessionListener;->onRemoteControlMessage(Lcom/shilapi/xcertplay/airplay/AirPlaySession;JLjava/util/Map;)V
 
     .line 671
-    :cond_6
+    :cond_8
     new-instance v6, Lcom/shilapi/xcertplay/airplay/RtspMessage$Response;
 
     invoke-static {v3}, Ljava/lang/Integer;->valueOf(I)Ljava/lang/Integer;
@@ -2014,14 +2103,14 @@
     return-object v6
 
     .line 673
-    :cond_7
+    :cond_9
     const-string p1, "requestUI"
 
     invoke-static {v1, p1}, Lkotlin/jvm/internal/Intrinsics;->areEqual(Ljava/lang/Object;Ljava/lang/Object;)Z
 
     move-result v2
 
-    if-eqz v2, :cond_8
+    if-eqz v2, :cond_a
 
     const-string/jumbo v2, "url"
 
@@ -2040,7 +2129,7 @@
 
     move-result v2
 
-    if-eqz v2, :cond_8
+    if-eqz v2, :cond_a
 
     .line 674
     iget-object p1, p0, Lcom/shilapi/xcertplay/airplay/AirPlaySession;->listener:Lcom/shilapi/xcertplay/airplay/AirPlaySessionListener;
@@ -2050,12 +2139,12 @@
     goto :goto_5
 
     .line 675
-    :cond_8
+    :cond_a
     invoke-static {v1, p1}, Lkotlin/jvm/internal/Intrinsics;->areEqual(Ljava/lang/Object;Ljava/lang/Object;)Z
 
     move-result p1
 
-    if-eqz p1, :cond_9
+    if-eqz p1, :cond_b
 
     .line 676
     iget-object p1, p0, Lcom/shilapi/xcertplay/airplay/AirPlaySession;->listener:Lcom/shilapi/xcertplay/airplay/AirPlaySessionListener;
@@ -2063,7 +2152,7 @@
     invoke-interface {p1, p0}, Lcom/shilapi/xcertplay/airplay/AirPlaySessionListener;->onHostUiRequested(Lcom/shilapi/xcertplay/airplay/AirPlaySession;)V
 
     .line 678
-    :cond_9
+    :cond_b
     :goto_5
     iget-object p1, p0, Lcom/shilapi/xcertplay/airplay/AirPlaySession;->listener:Lcom/shilapi/xcertplay/airplay/AirPlaySessionListener;
 
@@ -2145,6 +2234,30 @@
 
     .line 566
     :cond_0
+    const-string v2, "deviceID"
+
+    invoke-interface {v0, v2}, Ljava/util/Map;->get(Ljava/lang/Object;)Ljava/lang/Object;
+
+    move-result-object v2
+
+    # invokes: Lcom/shilapi/xcertplay/airplay/AirPlaySessionKt;->string(Ljava/lang/Object;)Ljava/lang/String;
+    invoke-static {v2}, Lcom/shilapi/xcertplay/airplay/AirPlaySessionKt;->access$string(Ljava/lang/Object;)Ljava/lang/String;
+
+    move-result-object v2
+
+    invoke-direct {v1, v2}, Lcom/shilapi/xcertplay/airplay/AirPlaySession;->allowedWirelessPeer(Ljava/lang/String;)Z
+
+    move-result v2
+
+    if-nez v2, :cond_1
+
+    invoke-static {}, Lcom/shilapi/xcertplay/airplay/AirPlaySession;->busyResponse()Lcom/shilapi/xcertplay/airplay/RtspMessage$Response;
+
+    move-result-object v2
+
+    return-object v2
+
+    :cond_1
     invoke-interface {v0}, Ljava/util/Map;->keySet()Ljava/util/Set;
 
     move-result-object v2
@@ -2184,13 +2297,13 @@
 
     instance-of v7, v6, Ljava/util/List;
 
-    if-eqz v7, :cond_1
+    if-eqz v7, :cond_2
 
     check-cast v6, Ljava/util/List;
 
     goto :goto_0
 
-    :cond_1
+    :cond_2
     move-object v6, v5
 
     .line 568
@@ -2201,7 +2314,7 @@
 
     const/4 v9, 0x1
 
-    if-eqz v6, :cond_2
+    if-eqz v6, :cond_3
 
     .line 569
     invoke-direct {v1, v6}, Lcom/shilapi/xcertplay/airplay/AirPlaySession;->handleStreams(Ljava/util/List;)Ljava/util/List;
@@ -2288,7 +2401,7 @@
     return-object v9
 
     .line 576
-    :cond_2
+    :cond_3
     const-string v2, "name"
 
     invoke-interface {v0, v2}, Ljava/util/Map;->get(Ljava/lang/Object;)Ljava/lang/Object;
@@ -2388,12 +2501,12 @@
 
     move-result v10
 
-    if-lez v10, :cond_3
+    if-lez v10, :cond_4
 
     iput-object v12, v1, Lcom/shilapi/xcertplay/airplay/AirPlaySession;->deviceBtMac:Ljava/lang/String;
 
     .line 584
-    :cond_3
+    :cond_4
     move-object v10, v11
 
     check-cast v10, Ljava/lang/CharSequence;
@@ -2402,24 +2515,11 @@
 
     move-result v10
 
-    if-lez v10, :cond_4
-
-    goto :goto_1
-
-    :cond_4
-    invoke-interface {v6}, Ljava/lang/CharSequence;->length()I
-
-    move-result v6
-
-    if-lez v6, :cond_5
+    if-lez v10, :cond_5
 
     goto :goto_1
 
     :cond_5
-    move-object v6, v13
-
-    check-cast v6, Ljava/lang/CharSequence;
-
     invoke-interface {v6}, Ljava/lang/CharSequence;->length()I
 
     move-result v6
@@ -2429,7 +2529,7 @@
     goto :goto_1
 
     :cond_6
-    move-object v6, v14
+    move-object v6, v13
 
     check-cast v6, Ljava/lang/CharSequence;
 
@@ -2438,6 +2538,19 @@
     move-result v6
 
     if-lez v6, :cond_7
+
+    goto :goto_1
+
+    :cond_7
+    move-object v6, v14
+
+    check-cast v6, Ljava/lang/CharSequence;
+
+    invoke-interface {v6}, Ljava/lang/CharSequence;->length()I
+
+    move-result v6
+
+    if-lez v6, :cond_8
 
     .line 585
     :goto_1
@@ -2454,7 +2567,7 @@
     invoke-interface {v6, v1, v10}, Lcom/shilapi/xcertplay/airplay/AirPlaySessionListener;->onDeviceInfo(Lcom/shilapi/xcertplay/airplay/AirPlaySession;Lcom/shilapi/xcertplay/airplay/AirPlayDeviceInfo;)V
 
     .line 591
-    :cond_7
+    :cond_8
     const-string/jumbo v2, "timingPort"
 
     invoke-interface {v0, v2}, Ljava/util/Map;->get(Ljava/lang/Object;)Ljava/lang/Object;
@@ -2466,7 +2579,7 @@
 
     move-result-object v6
 
-    if-eqz v6, :cond_8
+    if-eqz v6, :cond_9
 
     invoke-virtual {v6}, Ljava/lang/Long;->longValue()J
 
@@ -2476,7 +2589,7 @@
 
     goto :goto_2
 
-    :cond_8
+    :cond_9
     const/4 v6, 0x0
 
     .line 593
@@ -2485,48 +2598,48 @@
 
     instance-of v11, v10, Ljava/net/Inet6Address;
 
-    if-eqz v11, :cond_9
+    if-eqz v11, :cond_a
 
     check-cast v10, Ljava/net/Inet6Address;
 
     goto :goto_3
 
-    :cond_9
+    :cond_a
     move-object v10, v5
 
     :goto_3
     const-string v11, "none"
 
-    if-eqz v10, :cond_a
+    if-eqz v10, :cond_b
 
     invoke-virtual {v10}, Ljava/net/Inet6Address;->getScopedInterface()Ljava/net/NetworkInterface;
 
     move-result-object v10
 
-    if-eqz v10, :cond_a
+    if-eqz v10, :cond_b
 
     invoke-virtual {v10}, Ljava/net/NetworkInterface;->getName()Ljava/lang/String;
 
     move-result-object v10
 
-    if-nez v10, :cond_b
+    if-nez v10, :cond_c
 
-    :cond_a
+    :cond_b
     move-object v10, v11
 
     .line 594
-    :cond_b
+    :cond_c
     iget-object v12, v1, Lcom/shilapi/xcertplay/airplay/AirPlaySession;->peerAddress:Ljava/net/InetAddress;
 
     instance-of v12, v12, Ljava/net/Inet6Address;
 
-    if-eqz v12, :cond_c
+    if-eqz v12, :cond_d
 
     const-string v12, "IPv6"
 
     goto :goto_4
 
-    :cond_c
+    :cond_d
     const-string v12, "IPv4"
 
     :goto_4
@@ -2538,17 +2651,17 @@
 
     instance-of v15, v14, Ljava/util/List;
 
-    if-eqz v15, :cond_d
+    if-eqz v15, :cond_e
 
     check-cast v14, Ljava/util/List;
 
     goto :goto_5
 
-    :cond_d
+    :cond_e
     move-object v14, v5
 
     :goto_5
-    if-eqz v14, :cond_f
+    if-eqz v14, :cond_10
 
     move-object v15, v14
 
@@ -2578,14 +2691,14 @@
 
     move-result-object v14
 
-    if-nez v14, :cond_e
+    if-nez v14, :cond_f
 
     goto :goto_6
 
-    :cond_e
+    :cond_f
     move-object v11, v14
 
-    :cond_f
+    :cond_10
     :goto_6
     new-instance v14, Ljava/lang/StringBuilder;
 
@@ -2674,7 +2787,7 @@
 
     move-result v4
 
-    if-nez v4, :cond_10
+    if-nez v4, :cond_11
 
     invoke-interface {v0, v3}, Ljava/util/Map;->get(Ljava/lang/Object;)Ljava/lang/Object;
 
@@ -2690,10 +2803,10 @@
 
     move-result v3
 
-    if-eqz v3, :cond_11
+    if-eqz v3, :cond_12
 
     .line 600
-    :cond_10
+    :cond_11
     move-object v3, v2
 
     check-cast v3, Ljava/util/Map;
@@ -2711,7 +2824,7 @@
     invoke-interface {v3, v6, v4}, Ljava/util/Map;->put(Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;
 
     .line 602
-    :cond_11
+    :cond_12
     iget-object v3, v1, Lcom/shilapi/xcertplay/airplay/AirPlaySession;->config:Lcom/shilapi/xcertplay/airplay/AirPlayConfig;
 
     invoke-interface {v0, v13}, Ljava/util/Map;->get(Ljava/lang/Object;)Ljava/lang/Object;
@@ -2720,13 +2833,13 @@
 
     instance-of v4, v0, Ljava/util/List;
 
-    if-eqz v4, :cond_12
+    if-eqz v4, :cond_13
 
     move-object v5, v0
 
     check-cast v5, Ljava/util/List;
 
-    :cond_12
+    :cond_13
     invoke-static {v3, v5}, Lcom/shilapi/xcertplay/airplay/AirPlaySessionKt;->setupEnabledFeatures(Lcom/shilapi/xcertplay/airplay/AirPlayConfig;Ljava/util/List;)Ljava/util/List;
 
     move-result-object v0
@@ -7058,6 +7171,25 @@
     return-void
 .end method
 
+.method public final releaseWirelessPeer()Z
+    .locals 1
+
+    iget-object v0, p0, Lcom/shilapi/xcertplay/airplay/AirPlaySession;->wirelessPeers:Lcom/shilapi/xcertplay/E01WirelessPeers;
+
+    if-eqz v0, :cond_0
+
+    invoke-virtual {v0, p0}, Lcom/shilapi/xcertplay/E01WirelessPeers;->ended(Ljava/lang/Object;)Z
+
+    move-result v0
+
+    return v0
+
+    :cond_0
+    const/4 v0, 0x1
+
+    return v0
+.end method
+
 .method public final requestUi(Ljava/lang/String;)V
     .locals 5
 
@@ -8274,6 +8406,12 @@
 
     :cond_0
     return v1
+.end method
+
+.method public final setWirelessPeers(Lcom/shilapi/xcertplay/E01WirelessPeers;)V
+    .locals 0
+    iput-object p1, p0, Lcom/shilapi/xcertplay/airplay/AirPlaySession;->wirelessPeers:Lcom/shilapi/xcertplay/E01WirelessPeers;
+    return-void
 .end method
 
 .method public final siriButton(Z)V
