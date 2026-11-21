@@ -97,6 +97,45 @@ python3 tests/test_rebuild.py
 
 离线测试用于检查代码行为，涉及车机硬件的功能还需实车验证。
 
+### 视频等待与统计的独立回归
+
+已有 JDK 17 与固定版本 Smali 工具缓存时，可以单独运行以下检查，无需生成 APK，也不操作车机或模拟器：
+
+```sh
+python3 tests/direct_oes/run_checks.py
+python3 tests/ingress_evidence/run_tests.py
+python3 tests/frame_timing/run.py
+python3 tests/video_stats/run.py
+python3 scripts/test_log_queue.py
+```
+
+这些检查覆盖直出队列的等待、唤醒和退出，收帧统计、固定内存分布统计以及异步日志。`video_stats` 在临时目录汇编并反汇编统计类，再检查输出指令的并发与异常路径；不能替代 Android 运行时及实车验证。
+
+### 视频间隔日志
+
+`06link.log` 中的 `VIDEO timing` 与 `[接收摘要] video timing` 使用完整统计窗口，保留窗口早期的长间隔。主屏启动阶段每十秒汇总一次、共三次，此后每分钟汇总；接收流每分钟汇总。沿用有界异步日志，不逐帧写盘。
+
+- `run` 标识连接，`configured` 是配置的连接方式；`screen=110/111` 分别标识主屏与仪表流。主屏记录额外包含 `codec` 实例和 `route` 输出路径。
+- `histUs=n/p95u/p99u/max/gt50/gt100` 依次表示样本数、P95 与 P99 的分桶上界、最大值，以及严格超过 50 毫秒和 100 毫秒的次数；耗时单位为微秒。原有 `recent*P90Ms` 仍只覆盖最近 120 个样本。
+- `arrival` 是完整视频包的观测间隔，包含上一次解析与回调工作，不能单独当成网络耗时；`sender` 是有效的发送时间戳增量，`senderAtGapMs` 对应最大接收间隔处的增量。
+- `decodeGap` 是解码输出间隔，`releaseGap` 是向显示端提交完成的间隔；`queueAge`、`inputWait`、`residence` 分别反映应用排队、输入等待，以及送入解码流程到释放输出的耗时。
+
+这些记录不等于面板实际显示时间，不能据此宣称实际显示的 1% low。静态画面或发送端暂停也可能出现长间隔，需结合发送时间戳、输出路径及连续动画场景判断。验证时分别记录有线、无线在 60 帧、中控 60Hz 和竞速仪表投屏开启时的表现。
+
+### 设置切页响应
+
+连接设置先读取已保存的热点信息，系统热点查询在后台执行。后台结果仅更新仍有效且没有编辑或保存变化的输入框，不修改连接凭证，也不重建整页。
+
+独立离线回归入口为 `python3 tests/hotspot_snapshot/run.py` 和 `python3 tests/settings_timing/run.py`，检查慢服务、编辑保护、页面生命周期、计时分段与源码调用位置，不生成 APK。
+
+三指打开设置会产生有界的 `UI timing settings` 摘要，最多每 30 秒采样一次。`eventAgeMs` 是触发菜单的触摸事件到处理时的延迟；`gestureToOpenMs`、`openToRequestMs`、`requestToBuildMs`、`buildMs`、`buildToPreDrawMs` 分别覆盖菜单处理、启动请求、目标页面进入构建、构建和首次预绘制前的阶段。`startUptimeMs` 用于同次运行内对照时间，缺失的阶段为 `-1`。
+
+`end=pre_draw` 表示收到预绘制回调，不代表面板已经显示。查询慢服务、返回设置前的排队和渲染端等待应分别判断；出现数秒停顿时结合 `main-stall.log` 的界面线程堆栈核对。
+
+### 开机自启回归
+
+`python3 tests/boot_startup/run.py` 在模拟 Android 和服务边界下执行当前开机接收器，检查开启与关闭、已有会话、未确认首次提示、蓝牙尚未准备好、日志存储失败和系统拒绝启动等路径，并核对 Manifest 与主 DEX 归属。该检查不打包、不连接设备，不能代替车机完整重启验证。
+
 ## 正常 Git 更新
 
 源码、构建配置、测试、工具锁和必要文档随功能修改一起提交。`.gitignore` 排除私有材料、构建输出和本地资料。

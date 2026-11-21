@@ -32,7 +32,9 @@ final java.util.Map<String,SharedPreferences> stores=new java.util.HashMap<>();p
 'com/shilapi/xcertplay/E01OemBluetooth.java':'package com.shilapi.xcertplay; class E01OemBluetooth{static boolean validMac(String s){return s!=null && s.matches("(?i)([0-9a-f]{2}:){5}[0-9a-f]{2}");}}',
 'com/shilapi/xcertplay/E01LogPolicy.java':'package com.shilapi.xcertplay;public class E01LogPolicy{public static void session(java.io.File f,String s){}}'}
 CASES = ['exclusive','bootstrap','nativeReturn','asynchronous','priorState','selection','noStealing','lateDisconnect','unpaired',
-         'cancelled','generations','serviceAndUpgrade','unsupported','peers','hardwareReadback','serviceRestart']
+         'cancelled','generations','serviceAndUpgrade','unsupported','peers','hardwareReadback','serviceRestart',
+         'nativeReadiness','partialReadiness','reconnectAfterEnd','reconnectLateService','reconnectBackoff',
+         'reconnectDuringRestore','reconnectCancelled']
 with tempfile.TemporaryDirectory(prefix='06link-handoff-') as folder:
  d=Path(folder)
  for name,text in STUBS.items():

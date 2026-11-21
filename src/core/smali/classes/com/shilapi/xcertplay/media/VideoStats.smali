@@ -247,406 +247,436 @@
     return-void
 .end method
 
-
-# virtual methods
-.method public final declared-synchronized logIfDue()Ljava/lang/String;
-    .locals 20
-
-    move-object/from16 v1, p0
-
-    const-string/jumbo v0, "video stats"
+.method private final takeWindow()[J
+    .locals 9
 
     monitor-enter p0
 
-    .line 44
     :try_start_0
-    iget-object v2, v1, Lcom/shilapi/xcertplay/media/VideoStats;->nanoTime:Lkotlin/jvm/functions/Function0;
+    iget-object v0, p0, Lcom/shilapi/xcertplay/media/VideoStats;->nanoTime:Lkotlin/jvm/functions/Function0;
 
-    invoke-interface {v2}, Lkotlin/jvm/functions/Function0;->invoke()Ljava/lang/Object;
-
-    move-result-object v2
-
-    check-cast v2, Ljava/lang/Number;
-
-    invoke-virtual {v2}, Ljava/lang/Number;->longValue()J
-
-    move-result-wide v2
-
-    .line 45
-    iget-wide v4, v1, Lcom/shilapi/xcertplay/media/VideoStats;->windowStartNs:J
-    :try_end_0
-    .catchall {:try_start_0 .. :try_end_0} :catchall_1
-
-    sub-long v4, v2, v4
-
-    const-wide v6, 0x12a05f200L
-
-    const/4 v8, 0x0
-
-    cmp-long v9, v4, v6
-
-    if-gez v9, :cond_0
-
-    .line 46
-    monitor-exit p0
-
-    return-object v8
-
-    :cond_0
-    long-to-double v4, v4
-
-    const-wide v6, 0x41cdcd6500000000L    # 1.0E9
-
-    .line 47
-    invoke-static {v4, v5}, Ljava/lang/Double;->isNaN(D)Z
-
-    div-double/2addr v4, v6
-
-    .line 48
-    :try_start_1
-    iget v6, v1, Lcom/shilapi/xcertplay/media/VideoStats;->received:I
-
-    if-nez v6, :cond_1
-
-    iget v6, v1, Lcom/shilapi/xcertplay/media/VideoStats;->touchSamples:I
-
-    if-nez v6, :cond_1
-
-    iput-wide v2, v1, Lcom/shilapi/xcertplay/media/VideoStats;->windowStartNs:J
-    :try_end_1
-    .catchall {:try_start_1 .. :try_end_1} :catchall_1
-
-    monitor-exit p0
-
-    return-object v8
-
-    .line 49
-    :cond_1
-    :try_start_2
-    iget v6, v1, Lcom/shilapi/xcertplay/media/VideoStats;->touchSamples:I
-
-    const v7, 0xf4240
-
-    if-nez v6, :cond_2
-
-    const-wide/16 v8, -0x1
-
-    goto :goto_0
-
-    :cond_2
-    iget-wide v8, v1, Lcom/shilapi/xcertplay/media/VideoStats;->touchLatencySumNs:J
-
-    int-to-long v10, v6
-
-    div-long/2addr v8, v10
-
-    int-to-long v10, v7
-
-    div-long/2addr v8, v10
-
-    .line 50
-    :goto_0
-    iget-object v6, v1, Lcom/shilapi/xcertplay/media/VideoStats;->label:Ljava/lang/String;
-
-    new-instance v10, Ljava/lang/StringBuilder;
-
-    invoke-direct {v10, v0}, Ljava/lang/StringBuilder;-><init>(Ljava/lang/String;)V
-
-    invoke-virtual {v10, v6}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
-
-    const-string v0, " rx=%.1ffps shown=%.1ffps maxGap=%dms kbps=%d recoveries=%d touch2frame avg=%dms max=%dms n=%d touchSendMax=%dms"
-
-    invoke-virtual {v10, v0}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
-
-    invoke-virtual {v10}, Ljava/lang/StringBuilder;->toString()Ljava/lang/String;
+    invoke-interface {v0}, Lkotlin/jvm/functions/Function0;->invoke()Ljava/lang/Object;
 
     move-result-object v0
 
-    .line 52
-    iget v6, v1, Lcom/shilapi/xcertplay/media/VideoStats;->received:I
-    :try_end_2
-    .catchall {:try_start_2 .. :try_end_2} :catchall_1
+    check-cast v0, Ljava/lang/Number;
 
-    int-to-double v10, v6
+    invoke-virtual {v0}, Ljava/lang/Number;->longValue()J
 
-    invoke-static {v10, v11}, Ljava/lang/Double;->isNaN(D)Z
+    move-result-wide v0
 
-    div-double/2addr v10, v4
+    iget-wide v2, p0, Lcom/shilapi/xcertplay/media/VideoStats;->windowStartNs:J
 
-    :try_start_3
-    invoke-static {v10, v11}, Ljava/lang/Double;->valueOf(D)Ljava/lang/Double;
+    sub-long v2, v0, v2
 
-    move-result-object v6
+    const-wide v4, 0x12a05f200L
 
-    iget v10, v1, Lcom/shilapi/xcertplay/media/VideoStats;->rendered:I
-    :try_end_3
-    .catchall {:try_start_3 .. :try_end_3} :catchall_1
+    cmp-long v6, v2, v4
 
-    int-to-double v10, v10
+    if-ltz v6, :cond_1
 
-    invoke-static {v10, v11}, Ljava/lang/Double;->isNaN(D)Z
+    iget v6, p0, Lcom/shilapi/xcertplay/media/VideoStats;->received:I
 
-    div-double/2addr v10, v4
+    if-nez v6, :cond_0
 
-    :try_start_4
-    invoke-static {v10, v11}, Ljava/lang/Double;->valueOf(D)Ljava/lang/Double;
+    iget v6, p0, Lcom/shilapi/xcertplay/media/VideoStats;->touchSamples:I
 
-    move-result-object v10
+    if-nez v6, :cond_0
 
-    iget-wide v11, v1, Lcom/shilapi/xcertplay/media/VideoStats;->maxArrivalGapNs:J
+    iput-wide v0, p0, Lcom/shilapi/xcertplay/media/VideoStats;->windowStartNs:J
 
-    int-to-long v13, v7
+    goto :goto_0
 
-    div-long/2addr v11, v13
+    :cond_0
+    const/16 v6, 0xa
 
-    invoke-static {v11, v12}, Ljava/lang/Long;->valueOf(J)Ljava/lang/Long;
+    new-array v6, v6, [J
 
-    move-result-object v7
+    const/4 v7, 0x0
 
-    .line 53
-    iget-wide v11, v1, Lcom/shilapi/xcertplay/media/VideoStats;->bytes:J
+    aput-wide v2, v6, v7
 
-    const/16 v15, 0x8
+    const/16 v7, 0x1
 
-    move-wide/from16 v16, v4
+    iget v2, p0, Lcom/shilapi/xcertplay/media/VideoStats;->received:I
 
-    int-to-long v4, v15
+    int-to-long v2, v2
 
-    mul-long v11, v11, v4
+    aput-wide v2, v6, v7
 
-    const/16 v4, 0x3e8
+    const/16 v7, 0x2
 
-    int-to-long v4, v4
+    iget v2, p0, Lcom/shilapi/xcertplay/media/VideoStats;->rendered:I
 
-    div-long/2addr v11, v4
-    :try_end_4
-    .catchall {:try_start_4 .. :try_end_4} :catchall_1
+    int-to-long v2, v2
 
-    long-to-double v4, v11
+    aput-wide v2, v6, v7
 
-    invoke-static {v4, v5}, Ljava/lang/Double;->isNaN(D)Z
+    const/16 v7, 0x3
 
-    div-double v4, v4, v16
+    iget-wide v2, p0, Lcom/shilapi/xcertplay/media/VideoStats;->maxArrivalGapNs:J
 
-    double-to-long v4, v4
+    aput-wide v2, v6, v7
 
-    :try_start_5
-    invoke-static {v4, v5}, Ljava/lang/Long;->valueOf(J)Ljava/lang/Long;
+    const/16 v7, 0x4
 
-    move-result-object v4
+    iget-wide v2, p0, Lcom/shilapi/xcertplay/media/VideoStats;->bytes:J
 
-    iget v5, v1, Lcom/shilapi/xcertplay/media/VideoStats;->recoveries:I
+    aput-wide v2, v6, v7
+
+    const/16 v7, 0x5
+
+    iget v2, p0, Lcom/shilapi/xcertplay/media/VideoStats;->recoveries:I
+
+    int-to-long v2, v2
+
+    aput-wide v2, v6, v7
+
+    const/16 v7, 0x6
+
+    iget-wide v2, p0, Lcom/shilapi/xcertplay/media/VideoStats;->touchLatencySumNs:J
+
+    aput-wide v2, v6, v7
+
+    const/16 v7, 0x7
+
+    iget-wide v2, p0, Lcom/shilapi/xcertplay/media/VideoStats;->maxTouchLatencyNs:J
+
+    aput-wide v2, v6, v7
+
+    const/16 v7, 0x8
+
+    iget v2, p0, Lcom/shilapi/xcertplay/media/VideoStats;->touchSamples:I
+
+    int-to-long v2, v2
+
+    aput-wide v2, v6, v7
+
+    sget-object v8, Lcom/shilapi/xcertplay/media/TouchLatencyProbe;->INSTANCE:Lcom/shilapi/xcertplay/media/TouchLatencyProbe;
+
+    invoke-virtual {v8}, Lcom/shilapi/xcertplay/media/TouchLatencyProbe;->getMaxSendNs()J
+
+    move-result-wide v2
+
+    const/16 v7, 0x9
+
+    aput-wide v2, v6, v7
+
+    iput-wide v0, p0, Lcom/shilapi/xcertplay/media/VideoStats;->windowStartNs:J
+
+    const/4 v7, 0x0
+
+    const-wide/16 v2, 0x0
+
+    iput v7, p0, Lcom/shilapi/xcertplay/media/VideoStats;->received:I
+
+    iput v7, p0, Lcom/shilapi/xcertplay/media/VideoStats;->rendered:I
+
+    iput-wide v2, p0, Lcom/shilapi/xcertplay/media/VideoStats;->maxArrivalGapNs:J
+
+    iput-wide v2, p0, Lcom/shilapi/xcertplay/media/VideoStats;->bytes:J
+
+    iput v7, p0, Lcom/shilapi/xcertplay/media/VideoStats;->recoveries:I
+
+    iput-wide v2, p0, Lcom/shilapi/xcertplay/media/VideoStats;->touchLatencySumNs:J
+
+    iput-wide v2, p0, Lcom/shilapi/xcertplay/media/VideoStats;->maxTouchLatencyNs:J
+
+    iput v7, p0, Lcom/shilapi/xcertplay/media/VideoStats;->touchSamples:I
+
+    invoke-virtual {v8, v2, v3}, Lcom/shilapi/xcertplay/media/TouchLatencyProbe;->setMaxSendNs(J)V
+    :try_end_0
+    .catchall {:try_start_0 .. :try_end_0} :catchall_0
+
+    monitor-exit p0
+
+    return-object v6
+
+    :cond_1
+    :goto_0
+    monitor-exit p0
+
+    const/4 v0, 0x0
+
+    return-object v0
+
+    :catchall_0
+    move-exception v0
+
+    monitor-exit p0
+
+    throw v0
+.end method
+
+
+# virtual methods
+.method public final logIfDue()Ljava/lang/String;
+    .locals 16
+
+    move-object/from16 v15, p0
+
+    invoke-direct {v15}, Lcom/shilapi/xcertplay/media/VideoStats;->takeWindow()[J
+
+    move-result-object v0
+
+    if-nez v0, :cond_0
+
+    const/4 v0, 0x0
+
+    return-object v0
+
+    :cond_0
+    const/4 v4, 0x0
+
+    aget-wide v1, v0, v4
+
+    long-to-double v1, v1
+
+    const-wide v5, 0x41cdcd6500000000L    # 1.0E9
+
+    div-double/2addr v1, v5
+
+    const/16 v4, 0x9
+
+    new-array v3, v4, [Ljava/lang/Object;
+
+    const/16 v4, 0x1
+
+    aget-wide v5, v0, v4
+
+    long-to-double v5, v5
+
+    div-double/2addr v5, v1
+
+    invoke-static {v5, v6}, Ljava/lang/Double;->valueOf(D)Ljava/lang/Double;
+
+    move-result-object v5
+
+    const/16 v4, 0x0
+
+    aput-object v5, v3, v4
+
+    const/16 v4, 0x2
+
+    aget-wide v5, v0, v4
+
+    long-to-double v5, v5
+
+    div-double/2addr v5, v1
+
+    invoke-static {v5, v6}, Ljava/lang/Double;->valueOf(D)Ljava/lang/Double;
+
+    move-result-object v5
+
+    const/16 v4, 0x1
+
+    aput-object v5, v3, v4
+
+    const/16 v4, 0x3
+
+    aget-wide v5, v0, v4
+
+    const-wide/32 v7, 0xf4240
+
+    div-long/2addr v5, v7
+
+    invoke-static {v5, v6}, Ljava/lang/Long;->valueOf(J)Ljava/lang/Long;
+
+    move-result-object v5
+
+    const/16 v4, 0x2
+
+    aput-object v5, v3, v4
+
+    const/16 v4, 0x4
+
+    aget-wide v5, v0, v4
+
+    const-wide/16 v7, 0x8
+
+    mul-long/2addr v5, v7
+
+    const-wide/16 v7, 0x3e8
+
+    div-long/2addr v5, v7
+
+    long-to-double v5, v5
+
+    div-double/2addr v5, v1
+
+    double-to-long v5, v5
+
+    invoke-static {v5, v6}, Ljava/lang/Long;->valueOf(J)Ljava/lang/Long;
+
+    move-result-object v5
+
+    const/16 v4, 0x3
+
+    aput-object v5, v3, v4
+
+    const/16 v4, 0x5
+
+    aget-wide v5, v0, v4
+
+    long-to-int v5, v5
 
     invoke-static {v5}, Ljava/lang/Integer;->valueOf(I)Ljava/lang/Integer;
 
     move-result-object v5
 
-    .line 54
-    invoke-static {v8, v9}, Ljava/lang/Long;->valueOf(J)Ljava/lang/Long;
+    const/16 v4, 0x4
 
-    move-result-object v8
+    aput-object v5, v3, v4
 
-    iget-wide v11, v1, Lcom/shilapi/xcertplay/media/VideoStats;->maxTouchLatencyNs:J
+    const/16 v4, 0x6
 
-    div-long/2addr v11, v13
+    aget-wide v5, v0, v4
 
-    invoke-static {v11, v12}, Ljava/lang/Long;->valueOf(J)Ljava/lang/Long;
+    const/16 v4, 0x8
 
-    move-result-object v9
+    aget-wide v7, v0, v4
 
-    iget v11, v1, Lcom/shilapi/xcertplay/media/VideoStats;->touchSamples:I
+    const-wide/16 v9, 0x0
 
-    invoke-static {v11}, Ljava/lang/Integer;->valueOf(I)Ljava/lang/Integer;
+    cmp-long v4, v7, v9
 
-    move-result-object v11
+    if-nez v4, :cond_1
 
-    sget-object v12, Lcom/shilapi/xcertplay/media/TouchLatencyProbe;->INSTANCE:Lcom/shilapi/xcertplay/media/TouchLatencyProbe;
+    const-wide/16 v5, -0x1
 
-    invoke-virtual {v12}, Lcom/shilapi/xcertplay/media/TouchLatencyProbe;->getMaxSendNs()J
+    goto :goto_0
 
-    move-result-wide v18
+    :cond_1
+    div-long/2addr v5, v7
 
-    div-long v18, v18, v13
+    const-wide/32 v7, 0xf4240
 
-    invoke-static/range {v18 .. v19}, Ljava/lang/Long;->valueOf(J)Ljava/lang/Long;
+    div-long/2addr v5, v7
 
-    move-result-object v12
+    :goto_0
+    invoke-static {v5, v6}, Ljava/lang/Long;->valueOf(J)Ljava/lang/Long;
 
-    const/16 v13, 0x9
+    move-result-object v5
 
-    new-array v14, v13, [Ljava/lang/Object;
+    const/16 v4, 0x5
 
-    const/16 v18, 0x8
+    aput-object v5, v3, v4
 
-    const/4 v15, 0x0
+    const/16 v4, 0x7
 
-    aput-object v6, v14, v15
+    aget-wide v5, v0, v4
 
-    const/4 v6, 0x1
+    const-wide/32 v7, 0xf4240
 
-    aput-object v10, v14, v6
+    div-long/2addr v5, v7
 
-    const/4 v6, 0x2
+    invoke-static {v5, v6}, Ljava/lang/Long;->valueOf(J)Ljava/lang/Long;
 
-    aput-object v7, v14, v6
+    move-result-object v5
 
-    const/4 v6, 0x3
+    const/16 v4, 0x6
 
-    aput-object v4, v14, v6
+    aput-object v5, v3, v4
 
-    const/4 v4, 0x4
+    const/16 v4, 0x8
 
-    aput-object v5, v14, v4
+    aget-wide v5, v0, v4
 
-    const/4 v4, 0x5
+    long-to-int v5, v5
 
-    aput-object v8, v14, v4
+    invoke-static {v5}, Ljava/lang/Integer;->valueOf(I)Ljava/lang/Integer;
 
-    const/4 v4, 0x6
+    move-result-object v5
 
-    aput-object v9, v14, v4
+    const/16 v4, 0x7
 
-    const/4 v4, 0x7
+    aput-object v5, v3, v4
 
-    aput-object v11, v14, v4
+    const/16 v4, 0x9
 
-    aput-object v12, v14, v18
+    aget-wide v5, v0, v4
 
-    .line 51
-    invoke-static {v14, v13}, Ljava/util/Arrays;->copyOf([Ljava/lang/Object;I)[Ljava/lang/Object;
+    const-wide/32 v7, 0xf4240
+
+    div-long/2addr v5, v7
+
+    invoke-static {v5, v6}, Ljava/lang/Long;->valueOf(J)Ljava/lang/Long;
+
+    move-result-object v5
+
+    const/16 v4, 0x8
+
+    aput-object v5, v3, v4
+
+    new-instance v9, Ljava/lang/StringBuilder;
+
+    const-string v4, "video stats"
+
+    invoke-direct {v9, v4}, Ljava/lang/StringBuilder;-><init>(Ljava/lang/String;)V
+
+    iget-object v4, v15, Lcom/shilapi/xcertplay/media/VideoStats;->label:Ljava/lang/String;
+
+    invoke-virtual {v9, v4}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    const-string v4, " rx=%.1ffps shown=%.1ffps maxGap=%dms kbps=%d recoveries=%d touch2frame avg=%dms max=%dms n=%d touchSendMax=%dms"
+
+    invoke-virtual {v9, v4}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    invoke-virtual {v9}, Ljava/lang/StringBuilder;->toString()Ljava/lang/String;
 
     move-result-object v4
 
-    invoke-static {v0, v4}, Ljava/lang/String;->format(Ljava/lang/String;[Ljava/lang/Object;)Ljava/lang/String;
+    invoke-static {v4, v3}, Ljava/lang/String;->format(Ljava/lang/String;[Ljava/lang/Object;)Ljava/lang/String;
 
-    move-result-object v4
+    move-result-object v3
 
-    const-string v0, "format(...)"
+    const-string v4, "DiPlay-VideoStats"
 
-    invoke-static {v4, v0}, Lkotlin/jvm/internal/Intrinsics;->checkNotNullExpressionValue(Ljava/lang/Object;Ljava/lang/String;)V
+    invoke-static {v4, v3}, Landroid/util/Log;->i(Ljava/lang/String;Ljava/lang/String;)I
 
-    .line 56
-    sget-object v0, Lcom/shilapi/xcertplay/media/TouchLatencyProbe;->INSTANCE:Lcom/shilapi/xcertplay/media/TouchLatencyProbe;
+    iget-object v4, v15, Lcom/shilapi/xcertplay/media/VideoStats;->onWindow:Lkotlin/jvm/functions/Function1;
 
-    const-wide/16 v5, 0x0
+    if-eqz v4, :cond_2
 
-    invoke-virtual {v0, v5, v6}, Lcom/shilapi/xcertplay/media/TouchLatencyProbe;->setMaxSendNs(J)V
+    :try_start_0
+    new-instance v5, Lcom/shilapi/xcertplay/media/VideoWindow;
 
-    .line 57
-    const-string v0, "DiPlay-VideoStats"
+    const/4 v10, 0x1
 
-    invoke-static {v0, v4}, Landroid/util/Log;->i(Ljava/lang/String;Ljava/lang/String;)I
+    aget-wide v6, v0, v10
 
-    .line 58
-    iget-object v0, v1, Lcom/shilapi/xcertplay/media/VideoStats;->onWindow:Lkotlin/jvm/functions/Function1;
-    :try_end_5
-    .catchall {:try_start_5 .. :try_end_5} :catchall_1
+    long-to-double v6, v6
 
-    if-eqz v0, :cond_3
+    div-double/2addr v6, v1
 
-    .line 59
-    :try_start_6
-    sget-object v7, Lkotlin/Result;->Companion:Lkotlin/Result$Companion;
+    const/4 v10, 0x2
 
-    move-object v7, v1
+    aget-wide v8, v0, v10
 
-    check-cast v7, Lcom/shilapi/xcertplay/media/VideoStats;
+    long-to-double v8, v8
 
-    new-instance v8, Lcom/shilapi/xcertplay/media/VideoWindow;
+    div-double/2addr v8, v1
 
-    iget v7, v1, Lcom/shilapi/xcertplay/media/VideoStats;->received:I
-    :try_end_6
-    .catchall {:try_start_6 .. :try_end_6} :catchall_0
+    const/4 v10, 0x5
 
-    int-to-double v9, v7
+    aget-wide v10, v0, v10
 
-    invoke-static {v9, v10}, Ljava/lang/Double;->isNaN(D)Z
+    long-to-int v10, v10
 
-    div-double v9, v9, v16
+    invoke-direct/range {v5 .. v10}, Lcom/shilapi/xcertplay/media/VideoWindow;-><init>(DDI)V
 
-    :try_start_7
-    iget v7, v1, Lcom/shilapi/xcertplay/media/VideoStats;->rendered:I
-    :try_end_7
-    .catchall {:try_start_7 .. :try_end_7} :catchall_0
+    invoke-interface {v4, v5}, Lkotlin/jvm/functions/Function1;->invoke(Ljava/lang/Object;)Ljava/lang/Object;
+    :try_end_0
+    .catchall {:try_start_0 .. :try_end_0} :catchall_0
 
-    int-to-double v11, v7
-
-    invoke-static {v11, v12}, Ljava/lang/Double;->isNaN(D)Z
-
-    div-double v11, v11, v16
-
-    :try_start_8
-    iget v13, v1, Lcom/shilapi/xcertplay/media/VideoStats;->recoveries:I
-
-    invoke-direct/range {v8 .. v13}, Lcom/shilapi/xcertplay/media/VideoWindow;-><init>(DDI)V
-
-    invoke-interface {v0, v8}, Lkotlin/jvm/functions/Function1;->invoke(Ljava/lang/Object;)Ljava/lang/Object;
-
-    sget-object v0, Lkotlin/Unit;->INSTANCE:Lkotlin/Unit;
-
-    invoke-static {v0}, Lkotlin/Result;->constructor-impl(Ljava/lang/Object;)Ljava/lang/Object;
-
-    move-result-object v0
-    :try_end_8
-    .catchall {:try_start_8 .. :try_end_8} :catchall_0
-
-    goto :goto_1
+    :cond_2
+    :goto_1
+    return-object v3
 
     :catchall_0
-    move-exception v0
+    move-exception v4
 
-    :try_start_9
-    sget-object v7, Lkotlin/Result;->Companion:Lkotlin/Result$Companion;
-
-    invoke-static {v0}, Lkotlin/ResultKt;->createFailure(Ljava/lang/Throwable;)Ljava/lang/Object;
-
-    move-result-object v0
-
-    invoke-static {v0}, Lkotlin/Result;->constructor-impl(Ljava/lang/Object;)Ljava/lang/Object;
-
-    move-result-object v0
-
-    :goto_1
-    invoke-static {v0}, Lkotlin/Result;->box-impl(Ljava/lang/Object;)Lkotlin/Result;
-
-    .line 61
-    :cond_3
-    iput-wide v2, v1, Lcom/shilapi/xcertplay/media/VideoStats;->windowStartNs:J
-
-    .line 62
-    iput v15, v1, Lcom/shilapi/xcertplay/media/VideoStats;->received:I
-
-    iput v15, v1, Lcom/shilapi/xcertplay/media/VideoStats;->rendered:I
-
-    iput v15, v1, Lcom/shilapi/xcertplay/media/VideoStats;->recoveries:I
-
-    iput-wide v5, v1, Lcom/shilapi/xcertplay/media/VideoStats;->bytes:J
-
-    iput-wide v5, v1, Lcom/shilapi/xcertplay/media/VideoStats;->maxArrivalGapNs:J
-
-    .line 63
-    iput v15, v1, Lcom/shilapi/xcertplay/media/VideoStats;->touchSamples:I
-
-    iput-wide v5, v1, Lcom/shilapi/xcertplay/media/VideoStats;->touchLatencySumNs:J
-
-    iput-wide v5, v1, Lcom/shilapi/xcertplay/media/VideoStats;->maxTouchLatencyNs:J
-    :try_end_9
-    .catchall {:try_start_9 .. :try_end_9} :catchall_1
-
-    .line 64
-    monitor-exit p0
-
-    return-object v4
-
-    :catchall_1
-    move-exception v0
-
-    :try_start_a
-    monitor-exit p0
-    :try_end_a
-    .catchall {:try_start_a .. :try_end_a} :catchall_1
-
-    throw v0
+    goto :goto_1
 .end method
 
 .method public final declared-synchronized onReceived(I)V

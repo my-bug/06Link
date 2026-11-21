@@ -99,8 +99,22 @@ public final class DirectLateCheck {
    ok(r.state.directLateSkipped==3&&r.state.directLateBatches==1&&r.state.directLateBatchMax==3,"direct late counters reflect one bounded three-frame merge");
    ok(r.state.directLateAgeMaxNs>=150000000L,"late-age metric records receive-to-discard age");
    E01LogPolicy.messages.clear();r.state.reportAt=0;r.state.reports=0;
-   for(int n=1;n<=20;n++)E01SmoothVideo.report(r.state,n*10000000000L);
-   ok(E01LogPolicy.messages.size()==5,"three startup summaries then minute summaries at 90 and 150 seconds, no per-frame records");
+   int samples=0,cadence=0,stages=0;
+   for(int n=1;n<=20;n++){
+    int start=E01LogPolicy.messages.size();E01SmoothVideo.report(r.state,n*10000000000L);
+    boolean due=n==1||n==2||n==3||n==9||n==15;int sample=0,gap=0,stage=0;
+    for(String line:E01LogPolicy.messages.subList(start,E01LogPolicy.messages.size())){
+     if(line.startsWith("VIDEO sample "))sample++;
+     else if(line.startsWith("VIDEO timing ")&&line.contains(" decodeGap=")&&line.contains(" releaseGap="))gap++;
+     else if(line.startsWith("VIDEO timing ")&&line.contains(" queueAge=")&&line.contains(" inputWait=")&&line.contains(" residence="))stage++;
+     else throw new AssertionError("unexpected direct summary: "+line);
+    }
+    ok(sample==(due?1:0),"direct sample only at 10/20/30/90/150 seconds: "+n*10);
+    ok(gap==(due?1:0)&&stage==(due?1:0),"direct timing has the same bounded cadence: "+n*10);
+    samples+=sample;cadence+=gap;stages+=stage;
+   }
+   ok(samples==5,"three startup samples then minute samples at 90 and 150 seconds");
+   ok(cadence==samples&&stages==samples,"one gap and one stage summary for each direct sample");
    String summary=E01LogPolicy.messages.get(0);
    ok(summary.contains("directLateSkipped=3")&&summary.contains("directLateBatches=1")&&summary.contains("directLateBatchMax=3")&&summary.contains("directLateAgeMaxMs="),"summary includes exact direct-coalescing diagnostics");
    ok(summary.length()<=512,"representative summary fits existing per-line log budget");

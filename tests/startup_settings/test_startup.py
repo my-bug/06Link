@@ -2,7 +2,7 @@
 """Offline startup/default-mode state checks; no APK build, ADB, or device changes.
 
 Requires the selected build variant's compiled and deps directories for unrelated
-production dependencies. Compiles the four CURRENT repository Java sources into
+production dependencies. Compiles the CURRENT repository Java sources into
 a TemporaryDirectory, then runs them with stub Android/BT/USB boundary classes.
 The real OEM posted readiness callback is exercised after simulated readiness;
 this does not verify E01 Bluetooth hardware or a real hotspot.
@@ -56,7 +56,7 @@ def main():
         T=O/'tests';T.mkdir()
         production=O/'production';production.mkdir()
         source_dir=ROOT/'src/e01/com/shilapi/xcertplay'
-        sources=[source_dir/name for name in ['E01NativeSettings.java','E01OemBluetooth.java','E01HotspotControl.java','E01WiredUi.java']]
+        sources=[source_dir/name for name in ['E01NativeSettings.java','E01OemBluetooth.java','E01HotspotControl.java','E01WiredUi.java','E01WirelessAudioHandoff.java']]
         cp=os.pathsep.join(map(str,[sdk,build_dir(ROOT)/'compiled',build_dir(ROOT)/'deps']))
         compiled=subprocess.run([str(J/'javac'),'-source','8','-target','8','-cp',cp,'-d',str(production)]+list(map(str,sources)),capture_output=True,text=True)
         if compiled.returncode:print(compiled.stdout,compiled.stderr)
@@ -77,6 +77,7 @@ def main():
         write('android/os/Looper.java','''package android.os; public class Looper {static final Looper MAIN=new Looper();public static Looper getMainLooper(){return MAIN;}public static Looper myLooper(){return MAIN;} }''')
         write('android/os/Handler.java','''package android.os; public class Handler {public Handler(Looper l){}public boolean post(Runnable r){r.run();return true;} }''')
         write('android/os/Build.java','''package android.os; public class Build {public static String MODEL="E01",DEVICE="BX11QJ";public static class VERSION {public static int SDK_INT=22;} }''')
+        write('android/os/SystemClock.java','package android.os; public class SystemClock {public static long now;public static long elapsedRealtime(){return now;}}')
         write('android/widget/Toast.java','''package android.widget; public class Toast {public static final int LENGTH_LONG=1;public static Toast makeText(android.content.Context c,CharSequence t,int n){return new Toast();}public void show(){} }''')
         write('android/net/wifi/WifiManager.java','''package android.net.wifi; public class WifiManager {public int changes;public boolean setWifiEnabled(boolean e){changes++;return true;}public boolean setWifiApEnabled(WifiConfiguration c,boolean e){changes++;return true;} }''')
         write('com/shilapi/xcertplay/E01BuildVariant.java','package com.shilapi.xcertplay; public class E01BuildVariant { public static boolean isPreview(android.content.Context c) { return false; } }')
@@ -86,7 +87,11 @@ def main():
         write('com/shilapi/xcertplay/CarPlayBackgroundSession.java','''package com.shilapi.xcertplay; public class CarPlayBackgroundSession {public static final CarPlayBackgroundSession INSTANCE=new CarPlayBackgroundSession();public boolean session;public boolean hasSession(){return session;} }''')
         write('com/shilapi/xcertplay/E01WiredPort.java','''package com.shilapi.xcertplay; public class E01WiredPort {public static int starts,stops;public static void start(android.content.Context c){starts++;}public static void stop(){stops++;} }''')
         write('com/shilapi/xcertplay/E01StartupHotspot.java','''package com.shilapi.xcertplay; public class E01StartupHotspot {public static void cancel(){E01OemBluetooth.cancelHotspot();}public static void connect(android.content.Context c){E01OemBluetooth.explicitConnect(c);} }''')
-        write('com/shilapi/xcertplay/E01BtPersistent.java','''package com.shilapi.xcertplay; public class E01BtPersistent {public static boolean installed=true;public static boolean installed(){return installed;}public static String description(){return "not ready";} }''')
+        write('com/shilapi/xcertplay/E01BtPersistent.java','''package com.shilapi.xcertplay; public class E01BtPersistent {public static boolean installed=true,ready=true;public static boolean installed(){return installed;}public static boolean ready(){return ready;}public static String description(){return "not ready";} }''')
+        write('com/shilapi/xcertplay/E01WirelessAudioHandoff.java','''package com.shilapi.xcertplay; public class E01WirelessAudioHandoff {
+         public static int attempts;public static String phone;public static java.util.concurrent.Callable<Boolean> current;
+         public static void reconnectSelected(android.content.Context c,Object lookup,String p,boolean chosen,java.util.concurrent.Callable<Boolean> valid){attempts++;phone=p;current=valid;}
+        }''')
         write('com/shilapi/xcertplay/ConnectionProgress.java','''package com.shilapi.xcertplay; public class ConnectionProgress {public static final ConnectionProgress INSTANCE=new ConnectionProgress();public static class State {public String phase="IDLE";public String getPhase(){return phase;}}public State state=new State();public State getState(){return state;} }''')
         write('com/shilapi/xcertplay/StartupTest.java',r'''
         package com.shilapi.xcertplay;
@@ -100,6 +105,42 @@ def main():
          static Page fresh(boolean auto,String mode)throws Exception{E01HotspotControl.resume();E01OemBluetooth.cancelHotspot();set("poller",new Thread());set("migrationReady",false);set("operation",false);set("address",null);HostLaunch.INSTANCE.connecting=false;CarPlayBackgroundSession.INSTANCE.session=false;ConnectionProgress.INSTANCE.state.phase="IDLE";Page p=new Page();p.getSharedPreferences("diplay",0).edit().putBoolean("auto_connect",auto).apply();p.getSharedPreferences("06link-native-ui",0).edit().putString("default_connection",mode).apply();return p;}
          static void callback(Page p,long token)throws Exception{Method m=E01OemBluetooth.class.getDeclaredMethod(System.getProperty("06link.readiness.callback"),Activity.class,long.class);m.setAccessible(true);m.invoke(null,p,token);}
          static void queue(Page p)throws Exception{check(!E01OemBluetooth.canConnect(p),"cold poll should queue without assuming missing installation");check(E01OemBluetooth.hasPendingConnect(p),"missing pending request");}
+         static void retry(long time)throws Exception{android.os.SystemClock.now=time;Method m=E01OemBluetooth.class.getDeclaredMethod("maybeReconnectPhone");m.setAccessible(true);m.invoke(null);}
+         static void reconnectChecks()throws Exception{
+          String phone="11:22:33:44:55:66",other="11:22:33:44:55:77";
+          android.os.SystemClock.now=0;E01WirelessAudioHandoff.attempts=0;
+          Page p=fresh(false,"无线");p.getSharedPreferences("oem-bt-test",0).edit().putString("last-carplay",phone).apply();queue(p);
+          retry(0);check(E01WirelessAudioHandoff.attempts==0,"cold service should wait");
+          set("migrationReady",true);E01BtPersistent.ready=false;retry(2000);
+          check(E01WirelessAudioHandoff.attempts==0,"unavailable native service should wait");
+          E01BtPersistent.ready=true;retry(4000);retry(6000);
+          check(E01WirelessAudioHandoff.attempts==2&&phone.equals(E01WirelessAudioHandoff.phone),"pending request must retry after service readiness using previous phone");
+          java.util.concurrent.Callable<Boolean> first=E01WirelessAudioHandoff.current;
+          check(first.call(),"live pending retry rejected");
+          p.getSharedPreferences("oem-bt-test",0).edit().putString("phone",other).apply();
+          check(!first.call(),"old selection remains valid after phone change");retry(8000);
+          check(E01WirelessAudioHandoff.attempts==3&&other.equals(E01WirelessAudioHandoff.phone),"new selection not used by next retry");
+          check(!E01OemBluetooth.canConnect(p),"pending query unexpectedly started");retry(15001);
+          check(E01WirelessAudioHandoff.attempts==3&&!E01WirelessAudioHandoff.current.call(),"expired request kept issuing Bluetooth commands");
+          check(E01OemBluetooth.hasPendingConnect(p),"expiry should still accept a manually connected phone");
+          set("address",phone);E01OemBluetooth.explicitConnect(p);
+          check(!E01OemBluetooth.phoneReady(p),"explicit reconnect trusted previous session's address");
+          check(!E01OemBluetooth.canConnect(p),"new tap must await refreshed connection state");retry(16000);
+          check(E01WirelessAudioHandoff.attempts==4&&E01WirelessAudioHandoff.current.call(),"new tap failed to start a new bounded retry");
+          E01NativeSettings.cancelStartup(p);retry(17000);
+          check(E01WirelessAudioHandoff.attempts==4&&!E01WirelessAudioHandoff.current.call(),"stop left Bluetooth retry alive");
+          for(String cancel:new String[]{"wired","destroyed","finishing","success"}){
+           android.os.SystemClock.now=0;p=fresh(false,"无线");p.getSharedPreferences("oem-bt-test",0).edit().putString("phone",phone).apply();queue(p);set("migrationReady",true);retry(1);
+           int attempts=E01WirelessAudioHandoff.attempts;
+           if(cancel.equals("wired"))E01HotspotControl.connectWired();
+           else if(cancel.equals("destroyed"))p.destroyed=true;
+           else if(cancel.equals("finishing"))p.finishing=true;
+           else {set("address",phone);callback(p,E01HotspotControl.token());}
+           retry(2000);check(attempts==E01WirelessAudioHandoff.attempts&&!E01WirelessAudioHandoff.current.call(),"late retry escaped "+cancel);
+          }
+          android.os.SystemClock.now=0;p=fresh(false,"无线");queue(p);set("migrationReady",true);int attempts=E01WirelessAudioHandoff.attempts;retry(1);
+          check(attempts==E01WirelessAudioHandoff.attempts,"missing phone selected an arbitrary paired device");
+         }
          public static void main(String[] ignored)throws Exception{
           for(boolean auto:new boolean[]{false,true}){
            Page boot=fresh(auto,"每次选择");E01NativeSettings settings=new E01NativeSettings(boot);
@@ -142,7 +183,8 @@ def main():
           Page other=new Page();other.getSharedPreferences("06link-native-ui",0).edit().putString("default_connection","每次选择").apply();E01NativeSettings.prepareStartup(other);check(E01HotspotControl.valid(token)&&E01OemBluetooth.hasPendingConnect(p),"another idle activity cancelled explicit wireless wait");
           p=fresh(false,"有线");p.autoStartWaiting=true;token=E01HotspotControl.token();E01NativeSettings.prepareStartup(p);check(E01HotspotControl.valid(token),"default selection cancelled already queued startup");
           p=fresh(false,"无线");set("migrationReady",true);E01BtPersistent.installed=false;check(!E01OemBluetooth.canConnect(p),"missing component permitted connection");check(!E01OemBluetooth.hasPendingConnect(p),"missing component mistaken for pending phone");E01BtPersistent.installed=true;
-          System.out.println("PASS "+n+" assertions: actual startup helpers, OEM readiness dispatch and transport/stop gates");
+          reconnectChecks();
+          System.out.println("PASS "+n+" assertions: actual startup helpers, OEM readiness dispatch, bounded reconnect and transport/stop gates");
          }
         }''')
         classes=T/'classes';classes.mkdir(exist_ok=True);cp=os.pathsep.join(map(str,[production,build_dir(R)/'compiled',build_dir(R)/'deps',sdk]));p=subprocess.run([str(J/'javac'),'-cp',cp,'-d',str(classes)]+[str(p) for p in T.rglob('*.java')],capture_output=True,text=True);print(p.stdout,p.stderr);p.check_returncode()

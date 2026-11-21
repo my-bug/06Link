@@ -20,8 +20,9 @@ public final class E01VideoEvidence {
         catch (ReflectiveOperationException | RuntimeException unavailable) { }
         identity = "run=" + Long.toHexString(started) + " configured=" + transport;
         SharedPreferences v = owner.getSharedPreferences("06link-video", 0);
-        write(owner, "config maxFPS=" + maxFps + " selected=" + E01FrameRatePolicy.selectedFps(owner)
-            + " smooth=" + v.getBoolean("smooth", false) + " mtk=" + v.getBoolean("mtk", true));
+        write(owner, "config " + identity + " maxFPS=" + maxFps + " selected=" + E01FrameRatePolicy.selectedFps(owner)
+            + " smooth=" + v.getBoolean("smooth", false) + " mtk=" + v.getBoolean("mtk", true)
+            + " display60Requested=" + v.getBoolean("display60", true));
     }
     /** Routine frame samples are disabled in release builds; decoder behavior is unchanged. */
     public static void window(Context c, Object value) { }
@@ -75,6 +76,7 @@ public final class E01VideoEvidence {
     public static void decision(Context c, String text) { write(c, "decision=" + text); }
     static String identity() { return identity; }
     static void sample(Context c, String source, String text) { write(c, "sample " + source + " " + text); }
+    static void timing(Context c, String source, String text) { write(c, "timing " + source + " " + text); }
     static void ingress(String text) {
         Context c=application;if(c==null)return;
         try { File dir=c.getExternalFilesDir(null);if(dir==null)dir=c.getFilesDir();

@@ -859,6 +859,8 @@
 
     invoke-direct {v3, v0, p1, p2}, Lcom/shilapi/xcertplay/airplay/ScreenStream;-><init>([BLkotlin/jvm/functions/Function1;Ljava/net/InetAddress;)V
 
+    invoke-virtual {v3, v2}, Lcom/shilapi/xcertplay/airplay/ScreenStream;->setE01DiagnosticScreenType(I)V
+
     const/16 p1, 0x6f
 
     if-ne v2, p1, :cond_1

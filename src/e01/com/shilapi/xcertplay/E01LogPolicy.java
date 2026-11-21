@@ -188,9 +188,9 @@ public final class E01LogPolicy {
         if(text==null)return false;
         String b=body(text),s=b.toLowerCase(Locale.US);
         if(failure(s)||s.startsWith("video recovery=")||s.startsWith("video decision="))return true;
-        return sampleKey(s)!=null || s.startsWith("video sample ") || b.startsWith("[接收摘要] video ")
-            || s.startsWith("audio rx priority=") || b.startsWith("[音频场景]") || b.startsWith("[导航音量]")
-            || b.startsWith("[音源交接]") || b.startsWith("[导航语音]")
+        return sampleKey(s)!=null || s.startsWith("video sample ") || s.startsWith("video timing ") || b.startsWith("[接收摘要] video ")
+            || s.startsWith("ui timing settings ") || s.startsWith("audio rx priority=") || b.startsWith("[音频场景]") || b.startsWith("[导航音量]")
+            || b.startsWith("[音源交接]") || b.startsWith("[导航语音]") || b.startsWith("[开机自启]")
             || s.startsWith("audio: ready audiotype=") || s.contains("connected") || s.contains("disconnect")
             || s.contains("session active") || s.contains("session ended")
             || s.contains("session started") || s.contains("session closed")

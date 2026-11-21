@@ -20,7 +20,6 @@
 .end annotation
 
 
-
 # static fields
 .field public static final APPEARANCE_CHECK_MILLIS:J = 0x7530L
     .annotation runtime Ljava/lang/Deprecated;
@@ -332,8 +331,6 @@
 
 .field private iconStatusView:Landroid/widget/TextView;
 
-
-
 .field private inFront:Z
 
 .field private languagePreferenceAtCreate:Ljava/lang/String;
@@ -461,7 +458,6 @@
 
 .field private panelStepsScrolled:Z
 
-
 .field private panelWifiPasswordShown:Z
 
 .field private pendingDisplaySize:Lcom/shilapi/xcertplay/CarPlayHostActivity$DisplaySize;
@@ -492,11 +488,9 @@
 
 .field private safeAreaDrawOutside:Z
 
-
 .field private sessionForceH264:Z
 
 .field private sessionLog:Lcom/shilapi/xcertplay/SessionLogFile;
-
 
 .field private setupActionButton:Landroid/widget/Button;
 
@@ -617,7 +611,6 @@
     return-void
 .end method
 
-
 .method public static synthetic $r8$lambda$0Hw08TJ_PMAbQ4vIv7o6IscgyxE(Lcom/shilapi/xcertplay/CarPlayHostActivity;IZ)Lkotlin/Unit;
     .locals 0
 
@@ -644,8 +637,6 @@
     return-void
 .end method
 
-
-
 .method public static synthetic $r8$lambda$11qA3s9OD21iaQuLBADmmrGMJU0(Lcom/shilapi/xcertplay/CarPlayHostActivity;)V
     .locals 0
 
@@ -653,8 +644,6 @@
 
     return-void
 .end method
-
-
 
 .method public static synthetic $r8$lambda$1zlmvn995LCJu7ClWxaoug1awO4()Lkotlin/Unit;
     .locals 1
@@ -708,7 +697,6 @@
     return-void
 .end method
 
-
 .method public static synthetic $r8$lambda$53lHq-vMcz5mpMCToj-TVfEn5NI(Lcom/shilapi/xcertplay/CarPlayHostActivity;Lkotlin/jvm/functions/Function0;)V
     .locals 0
 
@@ -753,8 +741,6 @@
     return-object p0
 .end method
 
-
-
 .method public static synthetic $r8$lambda$8zJbIxUhx-G3ET6yP1Y3rJZh5AI(Lcom/shilapi/xcertplay/orchestration/CarPlayController;Lcom/shilapi/xcertplay/media/AndroidMediaSink;Lcom/shilapi/xcertplay/CarPlayHostActivity;ILcom/shilapi/xcertplay/CarPlayHostActivity$DisplaySize;)V
     .locals 0
 
@@ -773,7 +759,6 @@
     return-object p0
 .end method
 
-
 .method public static synthetic $r8$lambda$Ah-5kvuhXsbTOsQy5BjX6G6onVU(Lcom/shilapi/xcertplay/CarPlayHostActivity;IIZ)Lkotlin/Unit;
     .locals 0
 
@@ -784,7 +769,6 @@
     return-object p0
 .end method
 
-
 .method public static synthetic $r8$lambda$BVAGpdax6vHcho-FJgXKRL0RjoM(Lcom/shilapi/xcertplay/CarPlayHostActivity;Landroid/view/Surface;)V
     .locals 0
 
@@ -792,7 +776,6 @@
 
     return-void
 .end method
-
 
 .method public static synthetic $r8$lambda$BVp2BD3kWSul4Z2XteldD58IeFs(Lcom/shilapi/xcertplay/CarPlayHostActivity;Ljava/lang/String;[B)Lkotlin/Unit;
     .locals 0
@@ -836,8 +819,6 @@
     return-void
 .end method
 
-
-
 .method public static synthetic $r8$lambda$FXx47Voa8obMHL8waGbVnp-d5D8(Lcom/shilapi/xcertplay/CarPlayHostActivity;)V
     .locals 0
 
@@ -845,7 +826,6 @@
 
     return-void
 .end method
-
 
 .method public static synthetic $r8$lambda$Gt7QTrjvBA-xt8So9atXKx5yCIM(Lcom/shilapi/xcertplay/CarPlayHostActivity;Lkotlin/jvm/functions/Function0;)V
     .locals 0
@@ -862,9 +842,6 @@
 
     return-void
 .end method
-
-
-
 
 .method public static synthetic $r8$lambda$JnUrHF0RjX-x69q6h4LcEUHqzM4(Lcom/shilapi/xcertplay/CarPlayHostActivity;)V
     .locals 0
@@ -910,9 +887,6 @@
     return-void
 .end method
 
-
-
-
 .method public static synthetic $r8$lambda$NCj_n-iesX9EmexHjdzqCE63y0k(Lcom/shilapi/xcertplay/CarPlayHostActivity;Lkotlin/jvm/functions/Function2;ZLjava/util/Map;)Lkotlin/Unit;
     .locals 0
 
@@ -922,8 +896,6 @@
 
     return-object p0
 .end method
-
-
 
 .method public static synthetic $r8$lambda$O6s_chHvcDYPB-N2ZPQDq-pDkCI(Lcom/shilapi/xcertplay/CarPlayHostActivity;Lkotlin/jvm/internal/Ref$ObjectRef;Landroid/view/Surface;)V
     .locals 0
@@ -943,7 +915,6 @@
     return-object p0
 .end method
 
-
 .method public static synthetic $r8$lambda$QEvnAhcarHnM0_nGhUwqxuqgmpY(Lcom/shilapi/xcertplay/CarPlayHostActivity;)Lkotlin/Unit;
     .locals 0
 
@@ -953,7 +924,6 @@
 
     return-object p0
 .end method
-
 
 .method public static synthetic $r8$lambda$S-U6mrSmUe8UWIc_RQDgIXDfPDQ(Lcom/shilapi/xcertplay/CarPlayHostActivity;Ljava/lang/String;Landroid/content/Intent;)V
     .locals 0
@@ -983,7 +953,6 @@
     return p0
 .end method
 
-
 .method public static synthetic $r8$lambda$UAX_vVL5wgfCR6HR9Xvl01wPyek(Lcom/shilapi/xcertplay/CarPlayHostActivity;)Lkotlin/Unit;
     .locals 0
 
@@ -993,9 +962,6 @@
 
     return-object p0
 .end method
-
-
-
 
 .method public static synthetic $r8$lambda$VOK5wCkic8AeFeohmrU7e5rP4kg(Lcom/shilapi/xcertplay/CarPlayHostActivity;IZI)V
     .locals 0
@@ -1015,7 +981,6 @@
     return-object p0
 .end method
 
-
 .method public static synthetic $r8$lambda$W3mZ0dAwp6-SthobJXcEo2PQqEk(Lcom/shilapi/xcertplay/CarPlayHostActivity;)V
     .locals 0
 
@@ -1023,15 +988,6 @@
 
     return-void
 .end method
-
-
-
-
-
-
-
-
-
 
 .method public static synthetic $r8$lambda$_caR4FB_PKTAKdSCIT3aO2vPm-M(Lcom/shilapi/xcertplay/CarPlayHostActivity;Lkotlin/jvm/internal/Ref$ObjectRef;Landroid/view/Surface;)Lkotlin/Unit;
     .locals 0
@@ -1042,8 +998,6 @@
 
     return-object p0
 .end method
-
-
 
 .method public static synthetic $r8$lambda$aJC70aYJJtW8_D3nxF_TLEY_ORA(Lcom/shilapi/xcertplay/orchestration/CarPlayController;Lcom/shilapi/xcertplay/media/AndroidMediaSink;Lcom/shilapi/xcertplay/CarPlayHostActivity;ZLkotlin/jvm/functions/Function0;)V
     .locals 0
@@ -1071,7 +1025,6 @@
     return-object p0
 .end method
 
-
 .method public static synthetic $r8$lambda$dnrBVi_Jx_OuFg4bmGHpLOXpvDA(Lcom/shilapi/xcertplay/CarPlayHostActivity;Landroid/view/Surface;)Lkotlin/Unit;
     .locals 0
 
@@ -1081,7 +1034,6 @@
 
     return-object p0
 .end method
-
 
 .method public static synthetic $r8$lambda$fcfOuSDqsSmw8Nzv5079_RjnYtM(Lcom/shilapi/xcertplay/CarPlayHostActivity;ILcom/shilapi/xcertplay/CarPlayHostActivity$DisplaySize;)V
     .locals 0
@@ -1107,7 +1059,6 @@
     return-void
 .end method
 
-
 .method public static synthetic $r8$lambda$h1_Z5sGcUfBuRnsqCDWTpybIodM(Lkotlin/jvm/functions/Function0;)V
     .locals 0
 
@@ -1118,11 +1069,13 @@
 
 .method public static synthetic $r8$lambda$hEIDtUfazsCsqmI7ZDve20Rf-p4(Lcom/shilapi/xcertplay/media/VideoLoadGuard;Lcom/shilapi/xcertplay/CarPlayHostActivity;ILandroid/content/Context;Lcom/shilapi/xcertplay/media/VideoWindow;)Lkotlin/Unit;
     .locals 0
+
     invoke-static {p0, p1, p2, p3, p4}, Lcom/shilapi/xcertplay/CarPlayHostActivity;->createMediaSink$lambda$356(Lcom/shilapi/xcertplay/media/VideoLoadGuard;Lcom/shilapi/xcertplay/CarPlayHostActivity;ILandroid/content/Context;Lcom/shilapi/xcertplay/media/VideoWindow;)Lkotlin/Unit;
+
     move-result-object p0
+
     return-object p0
 .end method
-
 
 .method public static synthetic $r8$lambda$i-PNGtS8y_yE6jnNrBZ3sOiEUWI(Lcom/shilapi/xcertplay/CarPlayHostActivity;)V
     .locals 0
@@ -1142,8 +1095,6 @@
     return-object p0
 .end method
 
-
-
 .method public static synthetic $r8$lambda$jeg3tStW2701bQoTXHjE_5tZahE(Lcom/shilapi/xcertplay/CarPlayHostActivity;ZLjava/util/Map;)Lkotlin/Unit;
     .locals 0
 
@@ -1162,11 +1113,6 @@
     return-void
 .end method
 
-
-
-
-
-
 .method public static synthetic $r8$lambda$nkMviS5yogfZzF44TAXJChABzKU(Lcom/shilapi/xcertplay/CarPlayHostActivity;Lkotlin/jvm/functions/Function0;)Lkotlin/Unit;
     .locals 0
 
@@ -1177,7 +1123,6 @@
     return-object p0
 .end method
 
-
 .method public static synthetic $r8$lambda$pzH4u4K8PiJzlmUdLuDe4bEtSg8(Lcom/shilapi/xcertplay/CarPlayHostActivity;Landroid/content/Intent;)V
     .locals 0
 
@@ -1185,9 +1130,6 @@
 
     return-void
 .end method
-
-
-
 
 .method public static synthetic $r8$lambda$sH7zPdAsugKszfnq1HK9jgDA5IA(Lcom/shilapi/xcertplay/CarPlayHostActivity;)Lkotlin/Unit;
     .locals 0
@@ -1198,7 +1140,6 @@
 
     return-object p0
 .end method
-
 
 .method public static synthetic $r8$lambda$trZPIx3yRnnydukfvFYIoXSjSgs(Lcom/shilapi/xcertplay/CarPlayHostActivity;)Lkotlin/Unit;
     .locals 0
@@ -1218,7 +1159,6 @@
     return-void
 .end method
 
-
 .method public static synthetic $r8$lambda$umIG0SJybEuMaQKCcXTvSoCrZok(Lcom/shilapi/xcertplay/CarPlayHostActivity;Ljava/util/Map;)V
     .locals 0
 
@@ -1226,7 +1166,6 @@
 
     return-void
 .end method
-
 
 .method public static synthetic $r8$lambda$vQ7q7wjn2kY6ctRr7WN2nGStr7k(Lcom/shilapi/xcertplay/CarPlayHostActivity;Lkotlin/jvm/internal/Ref$ObjectRef;Landroid/view/Surface;)V
     .locals 0
@@ -1246,7 +1185,6 @@
     return-object p0
 .end method
 
-
 .method public static synthetic $r8$lambda$x4lPhfETqw68GAVgr6oiNu95-44(Lcom/shilapi/xcertplay/CarPlayHostActivity;)V
     .locals 0
 
@@ -1254,7 +1192,6 @@
 
     return-void
 .end method
-
 
 .method public static synthetic $r8$lambda$znSMa-_ZR5MtpdsM1jZ6Xs1Z6pM(Lcom/shilapi/xcertplay/CarPlayHostActivity;)V
     .locals 0
@@ -1497,7 +1434,6 @@
     invoke-static {v0, v1}, Lkotlin/jvm/internal/Intrinsics;->checkNotNullExpressionValue(Ljava/lang/Object;Ljava/lang/String;)V
 
     iput-object v0, p0, Lcom/shilapi/xcertplay/CarPlayHostActivity;->locationPermission:Landroidx/activity/result/ActivityResultLauncher;
-
 
     .line 363
     new-instance v0, Lcom/shilapi/xcertplay/ClusterActivityState$Snapshot;
@@ -1875,8 +1811,6 @@
     return-void
 .end method
 
-
-
 .method public static final synthetic access$clearProblem(Lcom/shilapi/xcertplay/CarPlayHostActivity;)V
     .locals 0
 
@@ -1885,8 +1819,6 @@
 
     return-void
 .end method
-
-
 
 .method public static final synthetic access$getActiveAirPlaySession$p(Lcom/shilapi/xcertplay/CarPlayHostActivity;)Lcom/shilapi/xcertplay/airplay/AirPlaySession;
     .locals 0
@@ -1978,13 +1910,6 @@
     return p0
 .end method
 
-
-
-
-
-
-
-
 .method public static final synthetic access$getMainHandler$p(Lcom/shilapi/xcertplay/CarPlayHostActivity;)Landroid/os/Handler;
     .locals 0
 
@@ -1993,9 +1918,6 @@
 
     return-object p0
 .end method
-
-
-
 
 .method public static final synthetic access$getPageVisible$p(Lcom/shilapi/xcertplay/CarPlayHostActivity;)Z
     .locals 0
@@ -2014,8 +1936,6 @@
 
     return p0
 .end method
-
-
 
 .method public static final synthetic access$getSetupProblem$p(Lcom/shilapi/xcertplay/CarPlayHostActivity;)Lcom/shilapi/xcertplay/orchestration/SetupProblem;
     .locals 0
@@ -2199,7 +2119,6 @@
     return-void
 .end method
 
-
 .method public static final synthetic access$setFirstFrameWatch$p(Lcom/shilapi/xcertplay/CarPlayHostActivity;Lcom/shilapi/xcertplay/orchestration/FirstFrameWatch$State;)V
     .locals 0
 
@@ -2271,7 +2190,6 @@
 
     return-void
 .end method
-
 
 .method private final adaptVideoLoad(ILcom/shilapi/xcertplay/media/VideoLoadGuard$Adaptation;)V
     .locals 11
@@ -2451,32 +2369,59 @@
 
 .method private final adaptVideoLoadForSession(Ljava/lang/String;)V
     .locals 3
+
     invoke-static {p0}, Lcom/shilapi/xcertplay/E01VideoVisibility;->allowSessionAdaptation(Landroid/app/Activity;)Z
+
     move-result v0
+
     if-eqz v0, :cond_0
+
     iget-object v0, p0, Lcom/shilapi/xcertplay/CarPlayHostActivity;->shuttingDown:Ljava/util/concurrent/atomic/AtomicBoolean;
+
     invoke-virtual {v0}, Ljava/util/concurrent/atomic/AtomicBoolean;->get()Z
+
     move-result v0
+
     if-nez v0, :cond_0
+
     invoke-direct {p0}, Lcom/shilapi/xcertplay/CarPlayHostActivity;->effectiveHevc()Z
+
     move-result v0
+
     if-eqz v0, :cond_0
+
     const/4 v0, 0x1
+
     iput-boolean v0, p0, Lcom/shilapi/xcertplay/CarPlayHostActivity;->sessionForceH264:Z
+
     new-instance v0, Ljava/lang/StringBuilder;
+
     invoke-direct {v0}, Ljava/lang/StringBuilder;-><init>()V
+
     invoke-virtual {v0, p1}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
     const-string v1, "; retrying H.264 at the selected frame rate"
+
     invoke-virtual {v0, v1}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
     invoke-virtual {v0}, Ljava/lang/StringBuilder;->toString()Ljava/lang/String;
+
     move-result-object p1
+
     invoke-direct {p0, p1}, Lcom/shilapi/xcertplay/CarPlayHostActivity;->appendLog(Ljava/lang/String;)V
+
     sget-object v0, Lcom/shilapi/xcertplay/ConnectionProgress;->INSTANCE:Lcom/shilapi/xcertplay/ConnectionProgress;
+
     sget v1, Lcom/shilapi/xcertplay/host/R$string;->pic_codec_reconnecting:I
+
     invoke-virtual {p0, v1}, Lcom/shilapi/xcertplay/CarPlayHostActivity;->getString(I)Ljava/lang/String;
+
     move-result-object v1
+
     invoke-virtual {v0, v1}, Lcom/shilapi/xcertplay/ConnectionProgress;->handled(Ljava/lang/String;)V
+
     invoke-direct {p0, p1}, Lcom/shilapi/xcertplay/CarPlayHostActivity;->restartCarPlay(Ljava/lang/String;)V
+
     :cond_0
     return-void
 .end method
@@ -2763,7 +2708,6 @@
 
     return-object p0
 .end method
-
 
 .method private final appendFileLog(Ljava/lang/String;)V
     .locals 3
@@ -4208,7 +4152,6 @@
     return-object v0
 .end method
 
-
 .method private static final backLongPress$lambda$411(Lcom/shilapi/xcertplay/CarPlayHostActivity;)V
     .locals 1
 
@@ -4387,9 +4330,6 @@
     return-void
 .end method
 
-
-
-
 .method private final buildCarPlayHint()Landroid/view/View;
     .locals 6
 
@@ -4498,15 +4438,6 @@
 
     return-object v0
 .end method
-
-
-
-
-
-
-
-
-
 
 .method private final buildContentView()Landroid/view/View;
     .locals 8
@@ -4678,24 +4609,6 @@
 
     return p0
 .end method
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 .method private final buildLinkStalledOverlay()Landroid/view/View;
     .locals 9
@@ -4877,43 +4790,6 @@
     return-object v2
 .end method
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 .method private final carPlayOnScreen()Z
     .locals 2
 
@@ -5063,8 +4939,6 @@
 
     return-void
 .end method
-
-
 
 .method private final clusterDisplayConfig()Lcom/shilapi/xcertplay/airplay/AirPlayDisplayConfig;
     .locals 11
@@ -5393,24 +5267,39 @@
 
 .method private final connectionFrameRate(II)I
     .locals 3
+
     invoke-static {p0}, Lcom/shilapi/xcertplay/E01FrameRatePolicy;->selectedFps(Landroid/content/Context;)I
+
     move-result v0
+
     new-instance v1, Ljava/lang/StringBuilder;
+
     const-string v2, "Frame rate selected="
+
     invoke-direct {v1, v2}, Ljava/lang/StringBuilder;-><init>(Ljava/lang/String;)V
+
     invoke-virtual {v1, v0}, Ljava/lang/StringBuilder;->append(I)Ljava/lang/StringBuilder;
+
     const-string v2, " canvas="
+
     invoke-virtual {v1, v2}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
     invoke-virtual {v1, p1}, Ljava/lang/StringBuilder;->append(I)Ljava/lang/StringBuilder;
+
     const-string v2, "x"
+
     invoke-virtual {v1, v2}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
     invoke-virtual {v1, p2}, Ljava/lang/StringBuilder;->append(I)Ljava/lang/StringBuilder;
+
     invoke-virtual {v1}, Ljava/lang/StringBuilder;->toString()Ljava/lang/String;
+
     move-result-object v1
+
     invoke-direct {p0, v1}, Lcom/shilapi/xcertplay/CarPlayHostActivity;->appendLog(Ljava/lang/String;)V
+
     return v0
 .end method
-
 
 .method private final createAirPlayConfig(Lcom/shilapi/xcertplay/CarPlayHostActivity$DisplaySize;)Lcom/shilapi/xcertplay/airplay/AirPlayConfig;
     .locals 48
@@ -5425,7 +5314,6 @@
     move-object v3, v0
 
     check-cast v3, Landroid/content/Context;
-
 
     .line 4076
     sget-object v4, Lcom/shilapi/xcertplay/AirPlayPersistence;->INSTANCE:Lcom/shilapi/xcertplay/AirPlayPersistence;
@@ -6351,13 +6239,21 @@
     move-object/from16 v3, p0
 
     iget-object v6, v3, Lcom/shilapi/xcertplay/CarPlayHostActivity;->sessionLog:Lcom/shilapi/xcertplay/SessionLogFile;
+
     invoke-virtual {v3}, Lcom/shilapi/xcertplay/CarPlayHostActivity;->getApplicationContext()Landroid/content/Context;
+
     move-result-object v5
+
     const/4 v1, 0x0
+
     move/from16 v0, p4
+
     if-eqz v0, :cond_0
+
     new-instance v1, Lcom/shilapi/xcertplay/media/VideoLoadGuard;
+
     invoke-direct {v1, v0}, Lcom/shilapi/xcertplay/media/VideoLoadGuard;-><init>(Z)V
+
     :cond_0
     new-instance v8, Lcom/shilapi/xcertplay/media/AndroidMediaSink;
 
@@ -6493,20 +6389,34 @@
 
 .method private static final createMediaSink$lambda$356(Lcom/shilapi/xcertplay/media/VideoLoadGuard;Lcom/shilapi/xcertplay/CarPlayHostActivity;ILandroid/content/Context;Lcom/shilapi/xcertplay/media/VideoWindow;)Lkotlin/Unit;
     .locals 2
+
     invoke-static {p1, p0}, Lcom/shilapi/xcertplay/E01VideoVisibility;->acceptWindow(Landroid/app/Activity;Ljava/lang/Object;)Z
+
     move-result v0
+
     if-eqz v0, :cond_0
+
     invoke-static {p3, p4}, Lcom/shilapi/xcertplay/E01VideoEvidence;->window(Landroid/content/Context;Ljava/lang/Object;)V
+
     if-eqz p0, :cond_0
+
     invoke-virtual {p0, p4}, Lcom/shilapi/xcertplay/media/VideoLoadGuard;->onWindow(Lcom/shilapi/xcertplay/media/VideoWindow;)Lcom/shilapi/xcertplay/media/VideoLoadGuard$Adaptation;
+
     move-result-object p0
+
     if-eqz p0, :cond_0
+
     invoke-static {p1, p0}, Lcom/shilapi/xcertplay/E01VideoVisibility;->recordDecision(Landroid/app/Activity;Ljava/lang/Object;)V
+
     new-instance v0, Lcom/shilapi/xcertplay/CarPlayHostActivity$$ExternalSyntheticLambda38;
+
     invoke-direct {v0, p1, p2, p0}, Lcom/shilapi/xcertplay/CarPlayHostActivity$$ExternalSyntheticLambda38;-><init>(Lcom/shilapi/xcertplay/CarPlayHostActivity;ILcom/shilapi/xcertplay/media/VideoLoadGuard$Adaptation;)V
+
     invoke-virtual {p1, v0}, Lcom/shilapi/xcertplay/CarPlayHostActivity;->runOnUiThread(Ljava/lang/Runnable;)V
+
     :cond_0
     sget-object v0, Lkotlin/Unit;->INSTANCE:Lkotlin/Unit;
+
     return-object v0
 .end method
 
@@ -7150,10 +7060,6 @@
     invoke-static {p2, v0}, Lkotlin/jvm/internal/Intrinsics;->checkNotNullParameter(Ljava/lang/Object;Ljava/lang/String;)V
 
     .line 4461
-
-
-
-
     iget v0, p0, Lcom/shilapi/xcertplay/CarPlayHostActivity;->restartGeneration:I
 
     if-ne p1, v0, :cond_14
@@ -10390,7 +10296,6 @@
     return-void
 .end method
 
-
 .method private static final expireOldLogLines$lambda$12(Lcom/shilapi/xcertplay/CarPlayHostActivity;)V
     .locals 2
 
@@ -10403,8 +10308,6 @@
 
     return-void
 .end method
-
-
 
 .method private final firstPictureFailure(Lcom/shilapi/xcertplay/orchestration/FirstFrameWatch$State;)Ljava/lang/String;
     .locals 8
@@ -12708,8 +12611,6 @@
     return-void
 .end method
 
-
-
 .method private final initializeSessionLog()V
     .locals 6
 
@@ -14240,10 +14141,6 @@
     if-nez v1, :cond_9
 
     .line 4778
-
-
-
-
     .line 4779
     iget-boolean v1, p0, Lcom/shilapi/xcertplay/CarPlayHostActivity;->handshakeResetInProgress:Z
 
@@ -14282,8 +14179,6 @@
 
     return-void
 .end method
-
-
 
 .method private final mfiTargetLabel(Lcom/shilapi/xcertplay/orchestration/MfiTarget;)Ljava/lang/String;
     .locals 2
@@ -14393,10 +14288,6 @@
     iget-boolean v0, p0, Lcom/shilapi/xcertplay/CarPlayHostActivity;->wirelessEnabled:Z
 
     if-nez v0, :cond_3
-
-
-
-
 
     iget-wide v0, p0, Lcom/shilapi/xcertplay/CarPlayHostActivity;->waitingForIphoneSince:J
 
@@ -16356,7 +16247,18 @@
 
     move-result-object v2
 
+    invoke-virtual {v2}, Lcom/shilapi/xcertplay/CarPlayGestures$Decision;->getAction()Lcom/shilapi/xcertplay/CarPlayGestures$Action;
+
+    move-result-object v3
+
+    sget-object v6, Lcom/shilapi/xcertplay/CarPlayGestures$Action;->OPEN_MENU:Lcom/shilapi/xcertplay/CarPlayGestures$Action;
+
+    if-ne v3, v6, :cond_8
+
+    invoke-static {p0, v4, v5}, Lcom/shilapi/xcertplay/E01SettingsTiming;->gesture(Landroid/app/Activity;J)V
+
     .line 5415
+    :cond_8
     sget-object v3, Lcom/shilapi/xcertplay/media/CarPlayTouchMapper;->INSTANCE:Lcom/shilapi/xcertplay/media/CarPlayTouchMapper;
 
     invoke-virtual {p1}, Landroid/view/View;->getWidth()I
@@ -16382,14 +16284,14 @@
     .line 5418
     sget-object v3, Lcom/shilapi/xcertplay/CarPlayGestures$Phase;->MOVE:Lcom/shilapi/xcertplay/CarPlayGestures$Phase;
 
-    if-eq v0, v3, :cond_b
+    if-eq v0, v3, :cond_c
 
     .line 5419
     sget v0, Landroid/os/Build$VERSION;->SDK_INT:I
 
     const/16 v3, 0x13
 
-    if-lt v0, v3, :cond_8
+    if-lt v0, v3, :cond_9
 
     invoke-virtual {p2}, Landroid/view/MotionEvent;->getActionMasked()I
 
@@ -16401,7 +16303,7 @@
 
     goto :goto_2
 
-    :cond_8
+    :cond_9
     invoke-virtual {p2}, Landroid/view/MotionEvent;->getActionMasked()I
 
     move-result v0
@@ -16424,7 +16326,7 @@
 
     move-result-object v2
 
-    if-eqz v2, :cond_9
+    if-eqz v2, :cond_a
 
     new-instance v4, Ljava/lang/StringBuilder;
 
@@ -16442,12 +16344,12 @@
 
     move-result-object v2
 
-    if-nez v2, :cond_a
-
-    :cond_9
-    const-string v2, ""
+    if-nez v2, :cond_b
 
     :cond_a
+    const-string v2, ""
+
+    :cond_b
     new-instance v4, Ljava/lang/StringBuilder;
 
     const-string/jumbo v5, "touch action="
@@ -16485,7 +16387,7 @@
 
     invoke-static {p2, p1}, Landroid/util/Log;->i(Ljava/lang/String;Ljava/lang/String;)I
 
-    :cond_b
+    :cond_c
     return v1
 .end method
 
@@ -16893,7 +16795,6 @@
 
     return-void
 .end method
-
 
 .method private final onMicrophoneAnswer(Z)V
     .locals 1
@@ -17677,10 +17578,6 @@
 
     if-eqz v0, :cond_0
 
-
-
-
-
     iget-object v0, p0, Lcom/shilapi/xcertplay/CarPlayHostActivity;->shuttingDown:Ljava/util/concurrent/atomic/AtomicBoolean;
 
     invoke-virtual {v0}, Ljava/util/concurrent/atomic/AtomicBoolean;->get()Z
@@ -17704,9 +17601,10 @@
     return-object p0
 .end method
 
-
 .method private final openSettingsMenu()V
     .locals 2
+
+    invoke-static {p0}, Lcom/shilapi/xcertplay/E01SettingsTiming;->opening(Landroid/app/Activity;)V
 
     .line 5242
     const-string/jumbo v0, "settings"
@@ -17861,7 +17759,6 @@
     return-void
 .end method
 
-
 .method private final quickSwitchWifiDirect()V
     .locals 0
 
@@ -17919,10 +17816,6 @@
     move-result v0
 
     if-nez v0, :cond_13
-
-
-
-
 
     iget-boolean v0, p0, Lcom/shilapi/xcertplay/CarPlayHostActivity;->handshakeResetInProgress:Z
 
@@ -18268,10 +18161,6 @@
     if-nez v0, :cond_1
 
     .line 4895
-
-
-
-
     .line 4896
     iget-boolean v0, p0, Lcom/shilapi/xcertplay/CarPlayHostActivity;->handshakeResetInProgress:Z
 
@@ -18700,12 +18589,6 @@
     :cond_2
     return-void
 .end method
-
-
-
-
-
-
 
 .method private final renderPanelRow()V
     .locals 1
@@ -20152,7 +20035,6 @@
     return-object v0
 .end method
 
-
 .method private final resolvePhysicalSize(Lcom/shilapi/xcertplay/CarPlayHostActivity$DisplaySize;)Lcom/shilapi/xcertplay/airplay/AirPlayPhysicalSizeMm;
     .locals 7
 
@@ -20498,10 +20380,6 @@
 
     if-nez v0, :cond_3
 
-
-
-
-
     iget-boolean v0, p0, Lcom/shilapi/xcertplay/CarPlayHostActivity;->handshakeResetInProgress:Z
 
     if-eqz v0, :cond_1
@@ -20734,7 +20612,6 @@
     :cond_2
     return-void
 .end method
-
 
 .method private final resumeAfterHotspot(Ljava/lang/String;)V
     .locals 2
@@ -21011,8 +20888,6 @@
 
     return-object v0
 .end method
-
-
 
 .method private final scheduleDisplaySize(II)V
     .locals 4
@@ -21643,15 +21518,6 @@
     return-void
 .end method
 
-
-
-
-
-
-
-
-
-
 .method private final showDiPlayHome(Ljava/lang/String;Z)V
     .locals 2
 
@@ -21728,6 +21594,8 @@
     move-result-object p1
 
     .line 5237
+    invoke-static {p0}, Lcom/shilapi/xcertplay/E01SettingsTiming;->requested(Landroid/app/Activity;)V
+
     invoke-virtual {p0, p1}, Lcom/shilapi/xcertplay/CarPlayHostActivity;->startActivity(Landroid/content/Intent;)V
 
     .line 5239
@@ -22388,10 +22256,6 @@
     move-result v0
 
     if-nez v0, :cond_f
-
-
-
-
 
     iget-boolean v0, v1, Lcom/shilapi/xcertplay/CarPlayHostActivity;->handshakeResetInProgress:Z
 
@@ -25737,10 +25601,6 @@
     return-void
 .end method
 
-
-
-
-
 .method private static final vpnConsent$lambda$5(Lcom/shilapi/xcertplay/CarPlayHostActivity;Landroidx/activity/result/ActivityResult;)V
     .locals 1
 
@@ -25997,10 +25857,6 @@
 
     if-ne v0, v1, :cond_0
 
-
-
-
-
     invoke-direct {p0, p1}, Lcom/shilapi/xcertplay/CarPlayHostActivity;->onBackKey(Landroid/view/KeyEvent;)Z
 
     move-result p1
@@ -26033,10 +25889,6 @@
     move-result v0
 
     if-ne v0, v3, :cond_1
-
-
-
-
 
     .line 1105
     invoke-virtual {p1}, Landroid/view/KeyEvent;->getKeyCode()I
@@ -26087,10 +25939,6 @@
     move-result v0
 
     if-ne v0, v3, :cond_3
-
-
-
-
 
     .line 1113
     invoke-virtual {p1}, Landroid/view/KeyEvent;->getKeyCode()I
@@ -26275,10 +26123,6 @@
 
     .line 1131
     :cond_a
-
-
-
-
     invoke-direct {p0}, Lcom/shilapi/xcertplay/CarPlayHostActivity;->carPlayOwnsArrowKeys()Z
 
     move-result v0
@@ -27126,6 +26970,8 @@
 .method protected onDestroy()V
     .locals 4
 
+    invoke-static {p0}, Lcom/shilapi/xcertplay/E01SettingsTiming;->destroyed(Landroid/app/Activity;)V
+
     invoke-static {p0}, Lcom/shilapi/xcertplay/E01VideoVisibility;->destroyed(Landroid/app/Activity;)V
 
     .line 1221
@@ -27428,7 +27274,6 @@
 
     .line 795
     :cond_2
-
     iput-boolean v1, p0, Lcom/shilapi/xcertplay/CarPlayHostActivity;->wiredRetryStopped:Z
 
     .line 796
@@ -27555,10 +27400,6 @@
 
     .line 819
     :cond_1
-
-
-
-
     iget-boolean v1, p0, Lcom/shilapi/xcertplay/CarPlayHostActivity;->awaitingVpnConsent:Z
 
     if-nez v1, :cond_4
@@ -27639,10 +27480,6 @@
     if-eqz v5, :cond_5
 
     if-nez v1, :cond_5
-
-
-
-
 
     .line 833
     invoke-direct {p0}, Lcom/shilapi/xcertplay/CarPlayHostActivity;->requestLocationPermission()V
@@ -28034,7 +27871,6 @@
     :cond_1
     return-void
 .end method
-
 
 .method public final stopForPerson$common_release(Ljava/lang/String;)V
     .locals 7

@@ -85,8 +85,19 @@ public final class RecoveryCheck {
   String detail=E01VideoEvidence.failureSummary(codecError);ok(detail.contains("diagnostic=android.media.MediaCodec.error_neg_1010"),"vendor error code retained");
   Throwable chain=failure;for(int i=0;i<20;i++)chain=new IllegalStateException("private",chain);
   ok(E01VideoEvidence.failureSummary(chain).length()<=480,"bounded causes and length");
-  E01LogPolicy.messages.clear();state.reportAt=System.nanoTime()-11000000000L;E01SmoothVideo.report(state,System.nanoTime());
-  ok(E01LogPolicy.messages.size()==1&&E01LogPolicy.messages.get(0).startsWith("VIDEO sample ")&&E01LogPolicy.messages.get(0).contains("submittedFps=")&&E01LogPolicy.messages.get(0).contains("decodedFps=")&&E01LogPolicy.messages.get(0).contains("releasedFps=")&&E01LogPolicy.messages.get(0).contains("recentQueueP90Ms="),"one compact rate summary");
+  E01LogPolicy.messages.clear();state.reportAt=1000000000L;state.reports=0;E01SmoothVideo.report(state,12000000000L);
+  int samples=0,cadence=0,stages=0;String summary=null;
+  for(String line:E01LogPolicy.messages){
+   if(line.startsWith("VIDEO sample ")){samples++;summary=line;}
+   else if(line.startsWith("VIDEO timing ")&&line.contains(" decodeGap=")&&line.contains(" releaseGap="))cadence++;
+   else if(line.startsWith("VIDEO timing ")&&line.contains(" queueAge=")&&line.contains(" inputWait=")&&line.contains(" residence="))stages++;
+   else throw new AssertionError("unexpected recovery summary: "+line);
+   ok(line.contains(" n=1 ")&&line.contains(" spanMs=11000 "),"recovery summaries share the first completed window");
+  }
+  ok(samples==1&&summary.contains("submittedFps=")&&summary.contains("decodedFps=")&&summary.contains("releasedFps=")&&summary.contains("recentQueueP90Ms="),"one compact legacy rate summary");
+  ok(cadence==1&&stages==1,"bounded gap and stage timing accompany the recovered window");
+  int lines=E01LogPolicy.messages.size();E01SmoothVideo.report(state,12000000000L);E01SmoothVideo.report(state,21999999999L);
+  ok(E01LogPolicy.messages.size()==lines,"repeat and early recovery reports emit neither sample nor timing");
   System.out.println("PASS "+checks+" recovery/timestamp/queue/logging checks (fake Android APIs, not physical FPS)");
  }
 }

@@ -18,7 +18,7 @@ public final class HandoffTest {
     public static final class Api {
         List<Device> devices = new ArrayList<>();
         int exits, entries, transfers, enables, legacyCommands;
-        boolean sco, delayed, accept=true;
+        boolean sco, delayed, delayedConnect, accept=true;
         Runnable duringDisconnect;
         public List<Device> getConnectedDevices() { return new ArrayList<>(devices); }
         public boolean disconnect(Device device) { legacyCommands++; return false; }
@@ -32,7 +32,7 @@ public final class HandoffTest {
         public boolean connect(Device device) { legacyCommands++; return false; }
         private boolean issueConnect(String address) {
             entries++; Device device=A.equals(address)?first:second;
-            if(!devices.contains(device))devices.add(device); return true;
+            if(!delayedConnect&&!devices.contains(device))devices.add(device); return true;
         }
         private String connectedAddress(){return devices.isEmpty()?"00:00:00:00:00:00":devices.get(0).getAddress();}
         public boolean isA2dpConnected(){return !devices.isEmpty();}
@@ -122,13 +122,13 @@ public final class HandoffTest {
     void selection() {
         profiles();start(true);tick(0);context.getSharedPreferences("oem-bt-test",0).edit().putString("phone",B).commit();
         stop();tick(0);check(music.entries+call.entries==0,"explicit choice of B never reconnects A");
-        E01WirelessAudioHandoff.reconnectSelected(context,lookup,B,true);
+        E01WirelessAudioHandoff.reconnectSelected(context,lookup,B,true,() -> true);
         check(call.devices.equals(Arrays.asList(second)),"selected paired phone can bootstrap again");
     }
     void noStealing() {
         profiles();start(true);tick(0);stop();call.devices.add(second);tick(1);
         check(call.entries+music.entries==0,"ending session does not replace someone already connected");
-        E01WirelessAudioHandoff.reconnectSelected(context,lookup,A,false);
+        E01WirelessAudioHandoff.reconnectSelected(context,lookup,A,false,() -> true);
         check(call.entries==0,"automatic bootstrap cannot replace the other connected phone");
     }
     void lateDisconnect() {
@@ -181,6 +181,67 @@ public final class HandoffTest {
     }
     void unsupported() {
         android.os.Build.MODEL="tablet";profiles();start(true);tick(0);check(call.exits+music.exits==0,"E01-specific OEM services");
+    }
+    void nativeReadiness() throws Exception {
+        Api staleMusic=new Api(), staleCall=new Api();
+        Lookup stale=new Lookup(staleMusic,staleCall,adapter);
+        profiles();
+        check(E01WirelessAudioHandoff.connectedPhones(context,stale).equals(Arrays.asList(A)),
+                "hardware reconnection remains visible while public profiles are empty");
+        music.devices.clear();call.devices.clear();staleMusic.devices.add(first);staleCall.devices.add(first);
+        check(E01WirelessAudioHandoff.connectedPhones(context,stale).isEmpty(),
+                "public cache cannot report a disconnected phone as ready");
+        music.devices.add(new Device("aa:bb:cc:dd:ee:ff"));call.devices.add(new Device("AA:BB:CC:DD:EE:FF"));
+        check(E01WirelessAudioHandoff.connectedPhones(context,stale).size()==1,
+                "one phone on two profiles is not mistaken for multiple phones");
+    }
+    void partialReadiness() throws Exception {
+        context.music=null;call.devices.add(first);
+        check(E01WirelessAudioHandoff.connectedPhones(context,lookup).equals(Arrays.asList(A)),
+                "a delayed music Binder does not hide an established HFP connection");
+    }
+    void reconnectAfterEnd() {
+        start(true);tick(0);
+        E01WirelessAudioHandoff.reconnectSelected(context,lookup,A,false,() -> true);
+        check(call.entries+music.entries==0,"pending wireless does not re-enable audio during CarPlay");
+        stop();tick(1);
+        E01WirelessAudioHandoff.reconnectSelected(context,lookup,A,false,() -> true);
+        check(call.entries==1&&call.devices.contains(first),"pending request retries after old session releases audio");
+        start(true);tick(1);
+        check(call.devices.isEmpty()&&call.exits==1,"next CarPlay session still disconnects restored Bluetooth audio");
+    }
+    void reconnectLateService() {
+        context.call=null;
+        E01WirelessAudioHandoff.reconnectSelected(context,lookup,A,false,() -> true);
+        check(call.entries==0,"missing service must not be counted as successful reconnect");
+        context.call=call;tick(5001);
+        E01WirelessAudioHandoff.reconnectSelected(context,lookup,A,false,() -> true);
+        check(call.entries==1,"next poll can reconnect after the service becomes ready");
+    }
+    void reconnectBackoff() {
+        call.delayedConnect=true;
+        for(int i=0;i<3;i++){
+            E01WirelessAudioHandoff.reconnectSelected(context,lookup,A,false,() -> true);tick(1000);
+        }
+        check(call.entries==1,"repeated polls do not flood an in-flight HFP connect");
+        E01WirelessAudioHandoff.reconnectSelected(context,lookup,A,false,() -> true);
+        check(call.entries==2,"failed reconnect can retry after backoff");
+        call.devices.add(first);tick(3001);
+        E01WirelessAudioHandoff.reconnectSelected(context,lookup,A,false,() -> true);
+        check(call.entries==2&&music.entries==0,"already connected phone is not disconnected/reconnected again");
+    }
+    void reconnectDuringRestore() {
+        profiles();start(true);tick(0);music.delayedConnect=true;call.delayedConnect=true;stop();tick(1);
+        E01WirelessAudioHandoff.reconnectSelected(context,lookup,A,false,() -> true);
+        check(call.entries==1,"pending retry shares the exit restoration backoff");
+    }
+    void reconnectCancelled() {
+        final int[] checks={0};
+        E01WirelessAudioHandoff.reconnectSelected(context,lookup,A,false,() -> ++checks[0]==1);
+        check(checks[0]==2&&call.entries==0,"cancelled or changed selection is rechecked before hardware command");
+        adapter.paired=new Device[]{second};
+        E01WirelessAudioHandoff.reconnectSelected(context,lookup,A,true,() -> true);
+        check(call.entries==0,"explicit retry cannot reconnect a forgotten phone");
     }
     void peers() throws Exception {
         InetAddress a=InetAddress.getByAddress(new byte[]{10,0,0,1}), b=InetAddress.getByAddress(new byte[]{10,0,0,2});

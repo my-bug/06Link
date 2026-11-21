@@ -32,6 +32,9 @@ public class LogPolicyTest {
   E01LogPolicy.append(session,"VIDEO 12345 window=1 rx=30 decodedReleased=30 recoveries=0");
   E01LogPolicy.append(session,"Smooth video negotiatedMax=30 sourceMedianStepUs=33333 output=SurfaceView");
   check(!session.exists(),"direct periodic sample bypass is suppressed");
+  E01LogPolicy.session(session,"[开机自启] 开机完成；开机自启已开启，准备打开首页");
+  E01LogPolicy.session(session,"[开机自启] 首页已创建");
+  check(read(session).contains("准备打开首页")&&read(session).contains("首页已创建"),"boot request and actual home creation retained");
   E01LogPolicy.session(session,"[音频场景] 申请 声道=10 焦点=3 结果=1");
   check(read(session).contains("[音频场景] 申请 声道=10"),"audio scene lifecycle retained");
   long audioBytes=session.length();

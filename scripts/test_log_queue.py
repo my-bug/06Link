@@ -56,6 +56,12 @@ public class QueueProbe {
   E01LogPolicy.queueSession(file,"CarPlay connected AFTER_CLEAR");drained();ok(read(file).contains("AFTER_CLEAR"),"writer stays usable after clear");
   E01LogPolicy.queueSession(file,"00:43:50.561 audio stats audioType=media codec=LPCM sampleRate=48000 estimatedQueuedFrames=16654 writeErrors=0 lastWriteError=none rebuffers=4");drained();
   saved=read(file);ok(saved.contains("queuedFrames=16654")&&saved.contains("rebuffers=4"),"compact statistics survive enqueue and actual write filtering");
+  String timing="VIDEO timing run=tail configured=wired screen=110 route=direct-hwc histUs=n/p95u/p99u/max/gt50/gt100 releaseGap=3600/20000/40000/255000/3/1";
+  E01LogPolicy.queueSession(file,timing);
+  E01LogPolicy.queueSession(file,"[接收摘要] video timing run=tail configured=wired reader=77 screen=111 arrivalGap=1200/66667/100000/255000/2/1");
+  drained();saved=read(file);ok(saved.contains(timing)&&saved.contains("screen=111 arrivalGap=1200/66667/100000/255000/2/1"),"bounded timing summaries survive real queue and disk filters intact");
+  String settingsTiming="UI timing settings id=1 eventAgeMs=4 gestureToOpenMs=1 openToRequestMs=2 requestToBuildMs=180 buildMs=10 buildToPreDrawMs=16 totalMs=209 end=pre_draw";
+  E01LogPolicy.queueSession(file,settingsTiming);drained();ok(read(file).contains(settingsTiming),"settings transition summary survives real queue and disk filters intact");
   E01LogPolicy.clear(c);
   synchronized(E01LogPolicy.class){
    for(int i=0;i<2000;i++)E01LogPolicy.queueSession(file,"CarPlay connected stress="+i);

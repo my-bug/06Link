@@ -18,10 +18,11 @@ import java.util.*;
 public final class E01NativeUi extends android.view.ContextThemeWrapper {
     private final Activity host;
     private final E01NativeSettings settings;
+    private E01HotspotSnapshot.Target hotspotTarget;
     private String stage="",phone="",snapshot="",stateMessage="";
     private static final int UI_TAG=0x7f7a0615;
     private static E01NativeUi instance(Activity a){View decor=a.getWindow().getDecorView();Object old=decor.getTag(UI_TAG);if(old instanceof E01NativeUi)return (E01NativeUi)old;E01NativeUi ui=new E01NativeUi(a);decor.setTag(UI_TAG,ui);return ui;}
-    public static void show(Activity a){E01NativeUi ui=instance(a);String h=String.valueOf(E01NativeSettings.field(a,"page"));if(h.equals("home"))ui.page="home";else if(ui.page.equals("home"))ui.page="connection";ui.logPageActive=false;if(ui.logLoader!=null)ui.logLoader.cancel();ui.readState();ui.render();}
+    public static void show(Activity a){String h=String.valueOf(E01NativeSettings.field(a,"page"));long timing=E01SettingsTiming.buildStarted(a,"settings".equals(h));boolean complete=false;try{E01NativeUi ui=instance(a);if(h.equals("home"))ui.page="home";else if(ui.page.equals("home"))ui.page="connection";ui.logPageActive=false;if(ui.logLoader!=null)ui.logLoader.cancel();ui.readState();ui.render();complete=true;}finally{E01SettingsTiming.buildFinished(a,timing,complete);}}
     public static void update(Activity a){Object old=a.getWindow().getDecorView().getTag(UI_TAG);if(old instanceof E01NativeUi){E01NativeUi ui=(E01NativeUi)old;String previous=ui.snapshot;ui.readState();if(ui.page.equals("home")&&!previous.equals(ui.snapshot))ui.render();}}
     public static void goBack(Activity a){instance(a).back();}
     public static void confirm(Activity a,String title,String message,String positive,Runnable action){E01NativeUi ui=instance(a);ui.colors();LinearLayout body=ui.column();body.addView(ui.text(message,14,ui.ink,false));ui.showDialog(title,body,"取消",null,positive,action);}
@@ -103,6 +104,7 @@ public final class E01NativeUi extends android.view.ContextThemeWrapper {
     private void selectPage(String destination){history.clear();page=destination;notice="";syncPage();render();}
     private void refresh(){int y=contentScroll==null?0:contentScroll.getScrollY();render();if(contentScroll!=null)contentScroll.post(()->contentScroll.scrollTo(0,y));}
     private void render(){
+        hotspotTarget=null;
         if(!"logs".equals(page)){
             if(logPageActive&&logLoader!=null)logLoader.cancel();
             logPageActive=false;logSnapshot=null;logLoading=false;logClearing=false;logLoadError=null;
@@ -199,6 +201,22 @@ public final class E01NativeUi extends android.view.ContextThemeWrapper {
         field(g,"名称",ssid);LinearLayout passwordRow=field(g,"密码",pass);LinearLayout eye=iconButton("eye","",()->{boolean showing=pass.getTransformationMethod()==null;pass.setTransformationMethod(showing?PasswordTransformationMethod.getInstance():null);pass.setSelection(pass.getText().length());});eye.setContentDescription("显示或隐藏密码");passwordRow.addView(eye,lp(44,48));
         LinearLayout area=column();area.setPadding(dp(14),0,dp(14),dp(12));g.addView(area);TextView error=text("",12,danger,false);error.setVisibility(View.GONE);area.addView(error);gap(area,4);
         LinearLayout buttons=row();area.addView(buttons);TextView save=button("保存热点",true,()->{String a=ssid.getText().toString().trim(),b=pass.getText().toString();String issue="";try{if(a.isEmpty()||a.getBytes("UTF-8").length>32)issue="名称需为 1–32 字节";}catch(Exception ignored){}if(b.length()<8||b.length()>63||!b.matches("[ -~]+"))issue="密码需为 8–63 位字母、数字或符号";if(!issue.isEmpty()){error.setText(issue);error.setVisibility(View.VISIBLE);return;}if(!E01HotspotSettings.save(host,a,b)){error.setText("保存失败，请重试");error.setVisibility(View.VISIBLE);return;}((InputMethodManager)getSystemService(INPUT_METHOD_SERVICE)).hideSoftInputFromWindow(pass.getWindowToken(),0);notice="热点信息已保存，下次连接生效";refresh();});buttons.addView(save,new LinearLayout.LayoutParams(0,dp(48),1));horizontalGap(buttons,10);buttons.addView(button("系统热点设置",false,()->E01NativeSettings.call(host,"openCarWifiSettings")),new LinearLayout.LayoutParams(0,dp(48),1));
+        refreshHotspot(ssid,pass);
+    }
+    private void refreshHotspot(final EditText ssid,final EditText pass){
+        if(E01HotspotSettings.customName(host)!=null)return;
+        final View pageRoot=root;
+        final String savedSsid=getValue("ssid","06Link"),savedPass=getValue("password","");
+        final String passwordOverride=host.getSharedPreferences("free_auto_hotspot_name",0).getString("password",null);
+        hotspotTarget=new E01HotspotSnapshot.Target(){
+            public boolean current(){return hotspotTarget==this&&root==pageRoot&&"connection".equals(page)&&!host.isFinishing()&&!host.isDestroyed();}
+            public boolean savedStateUnchanged(){return E01HotspotSettings.customName(host)==null&&savedSsid.equals(getValue("ssid","06Link"))&&savedPass.equals(getValue("password",""));}
+            public void update(E01HotspotSnapshot.Values value){ssid.setText(value.ssid);pass.setText(passwordOverride==null?value.password:passwordOverride);}
+        };
+        final E01HotspotSnapshot.Binding binding=new E01HotspotSnapshot.Binding(hotspotTarget);
+        TextWatcher edits=new TextWatcher(){public void beforeTextChanged(CharSequence s,int start,int count,int after){}public void onTextChanged(CharSequence s,int start,int before,int count){binding.edited();}public void afterTextChanged(Editable value){}};
+        ssid.addTextChangedListener(edits);pass.addTextChangedListener(edits);
+        E01HotspotSnapshot.request(host,binding);
     }
     private EditText editor(String value,String hint,boolean password){EditText e=new EditText(this);e.setText(value);e.setHint(hint);e.setTextSize(15);e.setTextColor(ink);e.setHintTextColor(muted);e.setSingleLine(true);e.setPadding(dp(10),0,dp(10),0);e.setBackground(shape(control,7,false));e.setSelectAllOnFocus(true);e.setImeOptions(0x10000000|6);e.setContentDescription(hint);if(password){e.setInputType(129);e.setTypeface(Typeface.create("sans-serif",0));e.setTransformationMethod(PasswordTransformationMethod.getInstance());}else e.setInputType(1);return e;}
     private LinearLayout field(LinearLayout g,String title,EditText input){LinearLayout r=row();r.setPadding(dp(14),dp(10),dp(14),0);r.addView(label(title,14,ink),lp(52,48));r.addView(input,new LinearLayout.LayoutParams(0,dp(44),1));g.addView(r);return r;}

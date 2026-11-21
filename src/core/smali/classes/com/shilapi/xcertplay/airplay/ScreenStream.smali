@@ -113,6 +113,8 @@
 # instance fields
 .field private final closed:Ljava/util/concurrent/atomic/AtomicBoolean;
 
+.field private e01DiagnosticScreenType:I
+
 .field private final firstFrameLogged:Ljava/util/concurrent/atomic/AtomicBoolean;
 
 .field private final frameCounter:Ljava/util/concurrent/atomic/AtomicLong;
@@ -656,7 +658,9 @@
 
     .line 76
     :try_start_0
-    invoke-static {p1}, Lcom/shilapi/xcertplay/E01VideoIngress;->wrap(Ljava/net/Socket;)Ljava/io/InputStream;
+    iget v2, p0, Lcom/shilapi/xcertplay/airplay/ScreenStream;->e01DiagnosticScreenType:I
+
+    invoke-static {p1, v2}, Lcom/shilapi/xcertplay/E01VideoIngress;->wrap(Ljava/net/Socket;I)Ljava/io/InputStream;
 
     move-result-object v0
 
@@ -982,4 +986,12 @@
     move-result p1
 
     return p1
+.end method
+
+.method public final setE01DiagnosticScreenType(I)V
+    .locals 0
+
+    iput p1, p0, Lcom/shilapi/xcertplay/airplay/ScreenStream;->e01DiagnosticScreenType:I
+
+    return-void
 .end method

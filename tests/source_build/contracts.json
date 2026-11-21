@@ -285,7 +285,7 @@
     "dex": "classes.dex",
     "class": "com/shilapi/xcertplay/CarPlayHostActivity.smali",
     "method": "showDiPlayHome(Ljava/lang/String;Z)V",
-    "sha256": "8c717058684411e2c47d0683bcded9dc8c5289a81fec207b2cca8993069d8bbe"
+    "sha256": "da3721ff695768116b65632d14892bb3006012709f02dc57489547f7e98e7698"
   },
   "video-visibility-pause": {
     "dex": "classes.dex",
@@ -297,7 +297,7 @@
     "dex": "classes.dex",
     "class": "com/shilapi/xcertplay/CarPlayHostActivity.smali",
     "method": "onDestroy()V",
-    "sha256": "79eba71d9d2134dc2b1c78756f5c1b53c9ed901b732b80c0b2adca7e0364c6b9"
+    "sha256": "aaec72adcbf9fae58ffec728ba50110b1d8a6d7440cc88f51a177a91e9f56973"
   },
   "video-visibility-resume": {
     "dex": "classes.dex",
@@ -327,7 +327,7 @@
     "dex": "classes.dex",
     "class": "com/shilapi/xcertplay/airplay/ScreenStream.smali",
     "method": "run(Ljava/net/Socket;)V",
-    "sha256": "8c7965fbee82ae9e56ad5ff3694c3109ed0115f164185cd30c189c540448d42b"
+    "sha256": "ae88215bb55adea8569b413cbcd39aa80e2fc1f335ac1618d29a0238ac20912e"
   },
   "gps-diagnostic-provider-attached": {
     "dex": "classes.dex",
@@ -615,7 +615,7 @@
     "dex": "classes.dex",
     "class": "com/shilapi/xcertplay/E01SmoothVideo.smali",
     "method": "configure(Landroid/media/MediaCodec;Landroid/media/MediaFormat;Landroid/view/Surface;Z)V",
-    "sha256": "2a683a36e15ccf5f9d82f1fb73d39b3bbf5d414e7b286bf412d35ef41f2e163a"
+    "sha256": "aaa5a6c0afc930c58206dd26692e79953e35f49c51007dfd1328b05853e99581"
   },
   "fps-connection": {
     "dex": "classes.dex",

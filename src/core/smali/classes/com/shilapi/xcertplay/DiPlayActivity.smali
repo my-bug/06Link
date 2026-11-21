@@ -10718,6 +10718,8 @@
     :cond_d
     invoke-direct {p0}, Lcom/shilapi/xcertplay/DiPlayActivity;->render()V
 
+    invoke-static {p0}, Lcom/shilapi/xcertplay/BootReceiver;->homeCreated(Landroid/app/Activity;)V
+
     .line 397
     invoke-direct {p0}, Lcom/shilapi/xcertplay/DiPlayActivity;->firstRunNoticePending()Z
 

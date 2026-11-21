@@ -88,6 +88,59 @@ public final class IngressCheck {
   e.packet(0,0,10,b+121000000000L);e.reportIfDue(b+180000000000L);
   ok(e.takeSummary().contains("senderAtGapMs=-1"),"missing sender timestamps remain unknown at a large arrival gap");
  }
+ static void frameDistributions()throws Exception{
+  long b=1000000000L;E01IngressEvidence e=new E01IngressEvidence(97,b,b,110);
+  long arrival=b+1000000000L,pts=b;e.packet(0,pts,8,arrival);
+  for(int n=1;n<=100;n++){
+   arrival+=(n<=94?16000000L:n<=98?60000000L:130000000L);pts+=33000000L;
+   e.packet(1,0,8,arrival-1);e.packet(0,pts,8,arrival);
+  }
+  e.reportIfDue(b+60000000000L);
+  E01IngressEvidence.Summary snap=(E01IngressEvidence.Summary)object(e,"summary");
+  ok(snap.arrivalTiming.count==100&&snap.arrivalTiming.p95UpperUs==66667&&snap.arrivalTiming.p99UpperUs==130000,"arrival histogram counts all frame intervals and reports bounded percentile estimates");
+  ok(snap.arrivalTiming.over50==6&&snap.arrivalTiming.over100==2,"arrival histogram threshold counts match whole-window frame events");
+  ok(snap.senderTiming.count==100&&snap.senderTiming.p95UpperUs==33000&&snap.senderTiming.p99UpperUs==33000,"sender distribution uses positive source deltas independently");
+  final java.util.concurrent.atomic.AtomicReference<String> formatted=new java.util.concurrent.atomic.AtomicReference<String>();
+  synchronized(e){Thread t=new Thread(()->formatted.set(snap.timing()));t.start();t.join(2000);ok(!t.isAlive(),"timing summary formats outside ingress lock");}
+  String plain=e.takeSummary(),timing=e.takeTimingSummary();
+  ok(timing.equals(formatted.get())&&timing.contains("histUs=n/p95u/p99u/max/gt50/gt100 arrival=100/66667/130000/130000/6/2"),"separate timing line states bucket-upper schema and immutable complete-window snapshot");
+  ok(plain.endsWith("screen=110")&&timing.contains("reader=97 screen=110"),"real negotiated screen identity accompanies both summaries");
+  ok(timing.contains("arrivalMaxMs=130 senderAtGapMs=33"),"arrival peak retains the source step of that same frame event");
+  ok(e.takeTimingSummary()==null,"timing summary consumed once, never per frame");
+  e.reportIfDue(b+120000000000L);e.takeSummary();timing=e.takeTimingSummary();
+  ok(timing.contains("arrival=0/0/0/0/0/0 sender=0/0/0/0/0/0"),"empty window resets distributions instead of reusing stale percentiles");
+  e.packet(0,0,8,b+121000000000L);e.packet(0,100,8,b+121016000000L);e.packet(0,100,8,b+121032000000L);e.packet(0,99,8,b+121048000000L);
+  e.reportIfDue(b+180000000000L);e.takeSummary();timing=e.takeTimingSummary();
+  ok(timing.contains("arrival=4/")&&timing.contains("sender=0/0/0/0/0/0"),"missing/repeated/reverse PTS never manufacture source distribution samples");
+  ok(timing.contains("senderAtGapMs=-1"),"missing source timestamp at cross-window peak stays unknown");
+  ok(snap.arrivalTiming.count==100&&snap.arrivalTiming.maxUs==130000,"old histogram snapshot is immutable after later resets");
+  E01IngressEvidence secondary=new E01IngressEvidence(98,b,b,111);long now=b+1000000000L;secondary.packet(0,now,8,now);
+  for(int n=1;n<=1200;n++){now+=50000000L;secondary.packet(0,now,8,now);}
+  secondary.reportIfDue(now);plain=secondary.takeSummary();timing=secondary.takeTimingSummary();
+  ok(plain.endsWith("screen=111")&&timing.contains("arrival=1200/50000/50000/50000/0/0"),"20fps secondary cadence is identified and exactly 50ms does not count as greater-than-50");
+  for(int screen:new int[]{0,-1,112}){
+   E01IngressEvidence unknown=new E01IngressEvidence(99,b,b,screen);unknown.reportIfDue(b+60000000000L);
+   ok(unknown.takeSummary().endsWith("screen=unknown")&&unknown.takeTimingSummary().contains("screen=unknown"),"unknown screen is never guessed from frame rate "+screen);
+  }
+  E01IngressEvidence hours=new E01IngressEvidence(100,b,b,110);int distributions=0;
+  for(int n=1;n<=7200;n++){now=b+n*1000000000L;hours.packet(0,now,8,now);hours.reportIfDue(now);hours.takeSummary();if(hours.takeTimingSummary()!=null)distributions++;}
+  ok(distributions==120,"timing produces one line per minute for two hours");
+  // One hour of frame silence still fits the existing 512-character record cap.
+  E01IngressEvidence longGap=new E01IngressEvidence(Integer.MAX_VALUE,b,b,110);longGap.packet(0,b,1,b);longGap.packet(0,b+3600000000000L,1,b+3600000000000L);longGap.reportIfDue(b+3600000000000L);
+  for(String s:new String[]{plain,timing,longGap.takeSummary(),longGap.takeTimingSummary()})ok(("2026-11-20 00:00:00 [接收摘要] video "+s).length()<=512,"separate bounded diagnostics retain last field under line cap");
+ }
+ static void socketScreenIdentity()throws Exception{
+  for(int screen:new int[]{110,111,0}){
+   final java.util.concurrent.atomic.AtomicBoolean sourceClosed=new java.util.concurrent.atomic.AtomicBoolean();
+   Socket socket=new Socket(){public InputStream getInputStream(){return new ByteArrayInputStream(new byte[]{7,8}){public void close(){sourceClosed.set(true);}};}};
+   InputStream input=screen==0?E01VideoIngress.wrap(socket):E01VideoIngress.wrap(socket,screen);
+   ok(input==E01VideoIngress.wrap(socket,111),"repeat wrap retains original stream identity "+screen);
+   E01VideoIngress.Ahead a=(E01VideoIngress.Ahead)input;long now=System.nanoTime();
+   set(a.evidence,"summaryWindow",now-60000000001L);a.evidence.reportIfDue(now);
+   ok(a.evidence.takeSummary().endsWith("screen="+(screen==0?"unknown":screen)),"socket wrapper binds negotiated screen without guessing "+screen);
+   E01VideoIngress.close(socket);ok(sourceClosed.get()&&a.terminated(2000),"diagnostic screen metadata preserves source cancellation "+screen);
+  }
+ }
  static void byteEquality()throws Exception{
   byte[] expected=new byte[131173];new Random(912).nextBytes(expected);
   for(int capacity:new int[]{1,7,32768}){
@@ -114,5 +167,16 @@ public final class IngressCheck {
   android.util.Log.forbiddenRing=logs;android.util.Log.forbiddenStats=logs.evidence;E01VideoIngress.message(logs,0,100,50);ok(android.util.Log.lines.size()==1&&android.util.Log.lines.get(0).startsWith("06Link-Ingress ingress"),"only consumer message hook logs, outside both locks");
   E01VideoIngress.message(new ByteArrayInputStream(new byte[0]),0,100,50);ok(android.util.Log.lines.size()==1,"foreign stream ignored");set(logs.evidence,"window",System.nanoTime()-11000000000L);android.util.Log.fail=true;E01VideoIngress.message(logs,0,101,50);ok(true,"logging failure does not interrupt media");android.util.Log.fail=false;logs.close();
  }
- public static void main(String[] args)throws Exception{workerPriority();timing();pairedSummary();byteEquality();waitsAndErrors();closeAndLogs();System.out.println("PASS "+checks+" ingress evidence priority/denial/caller-isolation/timing/quotas/type/byte-order/wrap/EOF/error/wait/close/log-lock checks (fake Android, no vehicle)");}
+ static void minuteEmission()throws Exception{
+  E01VideoIngress.Ahead a=new E01VideoIngress.Ahead(new ByteArrayInputStream(new byte[0]),32,111);
+  android.util.Log.lines.clear();E01VideoEvidence.samples.clear();android.util.Log.forbiddenRing=a;android.util.Log.forbiddenStats=a.evidence;
+  long now=System.nanoTime();set(a.evidence,"summaryWindow",now-61000000000L);
+  E01VideoIngress.message(a,0,100,50);
+  ok(E01VideoEvidence.samples.size()==2,"one due window persists original summary and separate timing record");
+  ok(E01VideoEvidence.samples.get(0).endsWith("screen=111")&&E01VideoEvidence.samples.get(1).startsWith("timing run=1 configured=wireless reader="),"both persistent lines retain session and screen identity");
+  for(int n=0;n<100;n++)E01VideoIngress.message(a,0,101+n,50);
+  ok(E01VideoEvidence.samples.size()==2,"additional frames never trigger per-frame persistent records");
+  a.close();android.util.Log.forbiddenRing=android.util.Log.forbiddenStats=null;
+ }
+ public static void main(String[] args)throws Exception{workerPriority();timing();pairedSummary();frameDistributions();socketScreenIdentity();byteEquality();waitsAndErrors();closeAndLogs();minuteEmission();System.out.println("PASS "+checks+" ingress evidence priority/denial/caller-isolation/timing/distribution/screen/quotas/type/byte-order/wrap/EOF/error/wait/close/log-lock checks (fake Android, no vehicle)");}
 }

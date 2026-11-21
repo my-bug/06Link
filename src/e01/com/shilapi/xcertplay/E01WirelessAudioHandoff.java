@@ -14,6 +14,10 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.List;
 import java.util.Collections;
+import java.util.ArrayList;
+import java.util.TreeSet;
+import java.util.Set;
+import java.util.concurrent.Callable;
 
 /** Gives the E01 projection session exclusive use of the car's phone audio. */
 public final class E01WirelessAudioHandoff {
@@ -44,18 +48,27 @@ public final class E01WirelessAudioHandoff {
             coordinator.maintain(new OemPort(context, lookup), SystemClock.elapsedRealtime());
     }
 
-    static void reconnectSelected(Context context, Object lookup, String phone, boolean explicitSwitch) {
-        if (!supported() || lookup == null || coordinator.desired != null) return;
+    /** Read the same hardware state used by audio handoff; the public profile cache can lag it. */
+    static List<String> connectedPhones(Context context, Object lookup) throws Exception {
+        if (!supported() || context == null || lookup == null) return Collections.emptyList();
+        OemPort port = new OemPort(context, lookup);
+        Set<String> phones = new TreeSet<>(String.CASE_INSENSITIVE_ORDER);
+        Exception unavailable = null;
+        for (Profile profile : Profile.values()) {
+            try {
+                for (Object device : port.connected(profile)) phones.add(port.address(device));
+            } catch (Exception failure) { unavailable = failure; }
+        }
+        if (phones.isEmpty() && unavailable != null) throw unavailable;
+        return new ArrayList<>(phones);
+    }
+
+    static void reconnectSelected(Context context, Object lookup, String phone, boolean explicitSwitch,
+            Callable<Boolean> current) {
+        if (!supported() || context == null || lookup == null) return;
         OemPort port = new OemPort(context, lookup);
         try {
-            Object paired = port.pairedDevice(phone);
-            if (paired == null || coordinator.desired != null) return;
-            for (Profile profile : Profile.values()) {
-                for (Object device : port.connected(profile))
-                    if (phone.equalsIgnoreCase(port.address(device))) return;
-            }
-            if ((explicitSwitch || port.mayReconnect(phone)) && coordinator.desired == null)
-                port.change(Profile.CALL, paired, true);
+            coordinator.reconnectSelected(port, phone, explicitSwitch, SystemClock.elapsedRealtime(), current);
         } catch (Exception failure) {
             port.log("等待已选择的 iPhone " + failure.getClass().getSimpleName());
         }
@@ -69,6 +82,7 @@ public final class E01WirelessAudioHandoff {
         boolean callAudioConnected(Object device) throws Exception;
         boolean releaseCallAudio() throws Exception;
         boolean mayReconnect(String address) throws Exception;
+        Object pairedDevice(String address) throws Exception;
         void log(String text);
     }
 
@@ -103,6 +117,24 @@ public final class E01WirelessAudioHandoff {
         }
         synchronized void stop(Object owner) {
             if (desired != null && desired.owner == owner) desired = null;
+        }
+
+        // Called by the OEM poller, after maintain(). Share its restore backoff so
+        // a new wireless attempt cannot submit a second HFP connect during exit.
+        synchronized void reconnectSelected(Port port, String phone, boolean explicitSwitch,
+                long now, Callable<Boolean> current) throws Exception {
+            if (desired != null || !current.call()) return;
+            Object paired = port.pairedDevice(phone);
+            if (paired == null) return;
+            for (Profile profile : Profile.values())
+                for (Object device : port.connected(profile))
+                    if (phone.equalsIgnoreCase(port.address(device))) return;
+            int i = Profile.CALL.ordinal();
+            if (now < nextAttempt[i]) return;
+            if ((explicitSwitch || port.mayReconnect(phone)) && desired == null && current.call()) {
+                nextAttempt[i] = now + 3000;
+                port.change(Profile.CALL, paired, true);
+            }
         }
 
         void maintain(Port port, long now) {
@@ -307,7 +339,7 @@ public final class E01WirelessAudioHandoff {
                     if (!address.equalsIgnoreCase(address(device))) return false;
             return pairedDevice(address) != null;
         }
-        Object pairedDevice(String address) throws Exception {
+        public Object pairedDevice(String address) throws Exception {
             Object paired = call(api("adapterConnection"), "getBondedDevices");
             for (int i = 0; paired != null && i < Array.getLength(paired); i++)
                 if (address.equalsIgnoreCase(address(Array.get(paired, i)))) return Array.get(paired, i);

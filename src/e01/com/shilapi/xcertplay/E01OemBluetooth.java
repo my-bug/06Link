@@ -39,6 +39,7 @@ public final class E01OemBluetooth {
     private static volatile String actionStatus="";
     private static volatile WeakReference<Activity> pendingConnect = new WeakReference<Activity>(null);
     private static volatile long pendingToken=-1;
+    private static volatile long pendingReconnectUntil;
     private static Thread poller, hotspotWorker;
     private static final Object pollSignal = new Object();
     private static boolean pollRequested;
@@ -102,14 +103,19 @@ public final class E01OemBluetooth {
                     if(supported()){E01BtPersistent.refresh();E01ComponentLog.observe(app);}
                     E01WirelessAudioHandoff.maintain(app, lookup);
                     maybeMigrate();
+                    maybeReconnectPhone();
                     try {
-                        List<EcarxConnectedDevice> fresh = lookup.connectedDevices(1200L);
+                        List<String> connected = E01WirelessAudioHandoff.connectedPhones(app, lookup);
+                        // Public profiles supply names only. Their cached connection list
+                        // must not hide a phone already reconnected by the native service.
+                        List<EcarxConnectedDevice> fresh = Collections.emptyList();
+                        try { fresh = lookup.connectedDevices(1200L); } catch (Exception ignored) { }
                         devices = new ArrayList<EcarxConnectedDevice>(fresh);
                         SharedPreferences prefs = app.getSharedPreferences("oem-bt-test", 0);
                         String saved = prefs.getString("phone", prefs.getString("last-carplay", ""));
                         String chosen = null;
-                        for (EcarxConnectedDevice d : fresh) if (validMac(d.getAddress()) && d.getAddress().equalsIgnoreCase(saved)) chosen = d.getAddress();
-                        if (chosen == null && saved.isEmpty() && fresh.size() == 1 && validMac(fresh.get(0).getAddress())) chosen = fresh.get(0).getAddress();
+                        for (String phone : connected) if (phone.equalsIgnoreCase(saved)) chosen = phone;
+                        if (chosen == null && saved.isEmpty() && connected.size() == 1) chosen = connected.get(0);
                         address = chosen;
                         if(chosen!=null&&!chosen.equals(app.getSharedPreferences("oem-bt-test",0).getString("last-connected","")))
                             app.getSharedPreferences("oem-bt-test",0).edit().putString("last-connected",chosen).apply();
@@ -117,7 +123,7 @@ public final class E01OemBluetooth {
                         localMac = readLocalMac();
                         maybeStartHotspot();
                         maybeResumeConnect();
-                        status = fresh.isEmpty() ? "请在原车蓝牙中连接 iPhone" : chosen == null ? (saved.isEmpty() ? "有多个设备，请选择 iPhone" : "正在等待所选的 iPhone") : "原车蓝牙已连接";
+                        status = connected.isEmpty() ? "请在原车蓝牙中连接 iPhone" : chosen == null ? (saved.isEmpty() ? "有多个设备，请选择 iPhone" : "正在等待所选的 iPhone") : "原车蓝牙已连接";
                     } catch (Throwable e) { address = null; status = "原厂蓝牙查询失败：" + cause(e).getClass().getSimpleName(); }
                     E01AudioScene.maintain();
                     try { waitForChange(); } catch (InterruptedException e) { return; }
@@ -133,7 +139,7 @@ public final class E01OemBluetooth {
         catch (RuntimeException ignored) { }
     }
     public static void cancelHotspot() {
-        pendingConnect=new WeakReference<Activity>(null);pendingToken=-1;
+        pendingConnect=new WeakReference<Activity>(null);pendingToken=-1;pendingReconnectUntil=0;
         synchronized (E01OemBluetooth.class) {
             hotspotAttempted=true;
             if(hotspotWorker!=null)hotspotWorker.interrupt();
@@ -141,8 +147,10 @@ public final class E01OemBluetooth {
     }
     public static void explicitConnect(Context c) {
         E01HotspotControl.resume(); cancelHotspot();
+        address=null; // A previous session's profile cache is not a new readiness check.
         synchronized (E01OemBluetooth.class) { hotspotAttempted=false;if(!migrationReady&&!operation)migrationStarted=false; }
         arm(c);
+        wakePoller();
     }
     private static boolean supported() {return Build.VERSION.SDK_INT==22&&"E01".equals(Build.MODEL)&&"BX11QJ".equals(Build.DEVICE);}
     private static void rememberMode(Context c,boolean enable) {
@@ -179,6 +187,26 @@ public final class E01OemBluetooth {
             try{Method m=page.getClass().getDeclaredMethod("connect",Boolean.TYPE,Boolean.TYPE);m.setAccessible(true);m.invoke(page,true,true);}
             catch(Exception e){note("pending connect="+cause(e).getClass().getSimpleName());}
         });
+    }
+    private static void waitForPhone(Activity page) {
+        long token=E01HotspotControl.token();
+        if(pendingConnect.get()!=page||pendingToken!=token)
+            pendingReconnectUntil=SystemClock.elapsedRealtime()+15000L;
+        pendingConnect=new WeakReference<Activity>(page);pendingToken=token;
+        wakePoller();
+    }
+    /** Only the existing state worker reconnects a requested phone, never the UI executor. */
+    private static void maybeReconnectPhone() {
+        final long token=pendingToken;
+        if(!hasPendingConnect()||!migrationReady||operation||!E01BtPersistent.ready()
+                ||SystemClock.elapsedRealtime()>pendingReconnectUntil)return;
+        final SharedPreferences prefs=app.getSharedPreferences("oem-bt-test",0);
+        final String selected=prefs.getString("phone",prefs.getString("last-carplay",""));
+        if(!validMac(selected))return;
+        E01WirelessAudioHandoff.reconnectSelected(app,lookup,selected,selected.equalsIgnoreCase(explicitlyChosen),
+                () -> pendingToken==token&&hasPendingConnect()&&E01HotspotControl.valid(token)
+                        &&SystemClock.elapsedRealtime()<=pendingReconnectUntil
+                        &&selected.equalsIgnoreCase(prefs.getString("phone",prefs.getString("last-carplay",""))));
     }
     private static void maybeStartHotspot() {
         final Context c=app; final long token=E01HotspotControl.token();
@@ -250,25 +278,13 @@ public final class E01OemBluetooth {
         if(!supported()){Toast.makeText(a,"此版本使用 E01 原车蓝牙",Toast.LENGTH_LONG).show();return false;}
         // Initial state is read on the poller, not assumed missing on the first tap.
         if(!migrationReady||operation){
-            pendingConnect=new WeakReference<Activity>(a);pendingToken=E01HotspotControl.token();
+            waitForPhone(a);
             Toast.makeText(a,"正在读取原车蓝牙状态，就绪后自动连接",Toast.LENGTH_LONG).show();return false;
         }
         if(!E01BtPersistent.installed()){Toast.makeText(a,E01BtPersistent.description(),Toast.LENGTH_LONG).show();return false;}
         if(!enabled(a)||!phoneReady(a)){
-            pendingConnect=new WeakReference<Activity>(a);pendingToken=E01HotspotControl.token();
-            if (enabled(a) && address == null) {
-                SharedPreferences prefs = a.getSharedPreferences("oem-bt-test", 0);
-                String selected = prefs.getString("phone", prefs.getString("last-carplay", ""));
-                if (validMac(selected)) {
-                    final long token = pendingToken;
-                    OPERATIONS.execute(() -> {
-                        if (pendingToken != token || !E01HotspotControl.valid(token)
-                                || !selected.equalsIgnoreCase(prefs.getString("phone", prefs.getString("last-carplay", "")))) return;
-                        E01WirelessAudioHandoff.reconnectSelected(app, lookup, selected, selected.equalsIgnoreCase(explicitlyChosen));
-                    });
-                }
-            }
-            Toast.makeText(a,operation?"正在准备原车蓝牙，就绪后自动连接":"请在原车蓝牙连接 iPhone，就绪后自动连接",Toast.LENGTH_LONG).show();return false;
+            waitForPhone(a);
+            Toast.makeText(a,"正在确认原车蓝牙连接，就绪后自动连接",Toast.LENGTH_LONG).show();return false;
         }
         return true;
     }

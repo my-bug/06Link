@@ -76,5 +76,15 @@ with tempfile.TemporaryDirectory(prefix='06link-lane-integration-') as temp:
 session=(ROOT/'src/core/smali/classes/com/shilapi/xcertplay/iap2/session/Iap2Session.smali').read_text()
 send=session.split('.method public final send(Lcom/shilapi/xcertplay/iap2/wire/Iap2Frame;J)V',1)[1].split('.end method',1)[0]
 assert send.index('Iap2CsmChannel;->send(')<send.index('E01LaneCapability;->subscriptionSent(I[B)V')<send.index('->emitFrameTrace(')
-assert 'const/16 v1, 0x5200' in send and 'if-ne v0, v1, :lane_subscription_observed' in send
+# Smali assembly renames labels. Follow the real jump destination instead.
+instructions=[line.strip() for line in send.splitlines() if line.strip() and not line.strip().startswith(('.', '#'))]
+message_id=next(i for i,line in enumerate(instructions) if '->getMessageId()I' in line)
+assert instructions[message_id+1]=='move-result v0'
+assert instructions[message_id+2]=='const/16 v1, 0x5200'
+guard=instructions[message_id+3]
+assert guard.startswith('if-ne v0, v1, :')
+target=instructions.index(guard.split(', ')[2])
+observed=next(i for i,line in enumerate(instructions) if 'E01LaneCapability;->subscriptionSent(I[B)V' in line)
+trace=next(i for i,line in enumerate(instructions) if '->emitFrameTrace(' in line)
+assert message_id+3 < observed < target < trace, 'Other message IDs must skip subscription observation but still be traced'
 print('PASS shared wired/wireless successful-send subscription observation')

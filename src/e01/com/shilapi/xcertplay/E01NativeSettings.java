@@ -52,7 +52,7 @@ public final class E01NativeSettings {
     String string(String key,String ignored){switch(key){
         case "default_connection":return ui.getString(key,"无线");
         case "phone":return E01OemBluetooth.selectedPhoneName(host);
-        case "ssid":String ssid=E01HotspotSettings.customName(host);if(ssid!=null)return ssid;call(singleton("AirPlayPersistence"),"syncManualHotspotFromSystem",host);ssid=String.valueOf(load("ManualHotspotSsid"));return ssid.isEmpty()?String.valueOf(call(singleton("network.FreeAutoHotspotName"),"name",host,"")):ssid;
+        case "ssid":String ssid=E01HotspotSettings.customName(host);if(ssid!=null)return ssid;ssid=String.valueOf(load("ManualHotspotSsid"));return ssid.isEmpty()?"06Link":ssid;
         case "password":String pass=host.getSharedPreferences("free_auto_hotspot_name",0).getString("password",null);return pass!=null?pass:load("ManualHotspotPassphrase").toString();
         case "layout":return E01InstrumentStyle.label(E01InstrumentStyle.selected(host));
         case "text_color":return E01InstrumentTextColor.label(host);

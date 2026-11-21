@@ -7,22 +7,29 @@ public final class E01IngressEvidence {
     private final int consumerTid;
     private final long started, base;
     private final String identity=E01VideoEvidence.identity();
+    private final String screen;
+    private final E01FrameTiming arrivalTiming=new E01FrameTiming(), senderTiming=new E01FrameTiming();
     private long summaryWindow, summaryFrames, summaryBytes, summaryReadMax, summaryArrivalMax, summarySenderMax, summaryEmpty, summaryFull;
     private long summarySenderAtGap=-1, summaryOver50, summaryOver100;
     private int summaryReadBytes;
-    private Summary summary;
+    private Summary summary,timingSummary;
     static final class Summary {
-        final String identity;final int tid,readBytes;final long span,frames,bytes,arrival,sender,read,empty,full,senderAtGap,over50,over100;
+        final String identity,screen;final int tid,readBytes;final long span,frames,bytes,arrival,sender,read,empty,full,senderAtGap,over50,over100;
+        final E01FrameTiming.Snapshot arrivalTiming,senderTiming;
         Summary(E01IngressEvidence e,long now){
-            identity=e.identity;tid=e.consumerTid;span=now-e.summaryWindow;frames=e.summaryFrames;bytes=e.summaryBytes;
+            identity=e.identity;screen=e.screen;tid=e.consumerTid;span=now-e.summaryWindow;frames=e.summaryFrames;bytes=e.summaryBytes;
             arrival=e.summaryArrivalMax;sender=e.summarySenderMax;read=e.summaryReadMax;empty=e.summaryEmpty;full=e.summaryFull;
             senderAtGap=e.summarySenderAtGap;over50=e.summaryOver50;over100=e.summaryOver100;readBytes=e.summaryReadBytes;
+            arrivalTiming=e.arrivalTiming.snapshotAndReset();senderTiming=e.senderTiming.snapshotAndReset();
         }
         String format(){return identity+" reader="+tid+" spanMs="+millis(span)+" frames="+frames
             +" fps="+String.format(java.util.Locale.US,"%.1f",frames*1e9/span)
             +" bytes="+bytes+" arrivalMaxMs="+millis(arrival)+" senderStepMaxMs="+millis(sender)
             +" readMaxMs="+millis(read)+" emptyMs="+millis(empty)+" fullMs="+millis(full)
-            +" senderAtGapMs="+millis(senderAtGap)+" gapsOver50="+over50+" gapsOver100="+over100+" readMaxBytes="+readBytes;}
+            +" senderAtGapMs="+millis(senderAtGap)+" gapsOver50="+over50+" gapsOver100="+over100+" readMaxBytes="+readBytes+" screen="+screen;}
+        String timing(){return "timing "+identity+" reader="+tid+" screen="+screen+" spanMs="+millis(span)
+            +" histUs=n/p95u/p99u/max/gt50/gt100 "+arrivalTiming.format("arrival")+" "+senderTiming.format("sender")
+            +" arrivalMaxMs="+millis(arrival)+" senderAtGapMs="+millis(senderAtGap);}
     }
     private long window, lastSuccess, lastFrame, lastSender;
     private int reports;
@@ -35,8 +42,10 @@ public final class E01IngressEvidence {
         long[] values(){return new long[]{count,total,max,from,to};}
         void reset(){count=total=max=from=to=0;}
     }
-    public E01IngressEvidence(){this(android.os.Process.myTid(),System.nanoTime(),BASE_NS);}
-    E01IngressEvidence(int tid,long now,long epoch){consumerTid=tid;started=window=summaryWindow=now;base=epoch;}
+    public E01IngressEvidence(){this(0);}
+    E01IngressEvidence(int screenType){this(android.os.Process.myTid(),System.nanoTime(),BASE_NS,screenType);}
+    E01IngressEvidence(int tid,long now,long epoch){this(tid,now,epoch,0);}
+    E01IngressEvidence(int tid,long now,long epoch,int screenType){consumerTid=tid;started=window=summaryWindow=now;base=epoch;screen=screenType==110||screenType==111?Integer.toString(screenType):"unknown";}
     private boolean collecting(long now){return now>=started;}
     public synchronized void sourceRead(long begin,long end,int count){
         if(!collecting(end))return;
@@ -58,10 +67,13 @@ public final class E01IngressEvidence {
         if(lastFrame>0){long gap=now-lastFrame;if(gap>frameGap.max)senderStepAtGap=step;frameGap.add(lastFrame,now);}
         summaryFrames++;
         if(lastFrame>0){long gap=now-lastFrame;
+            // Complete-frame observations include the previous parser/listener work;
+            // this is an arrival interval, not a network-only latency measurement.
+            arrivalTiming.add(gap);
             if(gap>summaryArrivalMax){summaryArrivalMax=gap;summarySenderAtGap=step;}
             if(gap>50000000L)summaryOver50++;if(gap>100000000L)summaryOver100++;
         }
-        if(step>0)summarySenderMax=Math.max(summarySenderMax,step);
+        if(step>0){summarySenderMax=Math.max(summarySenderMax,step);senderTiming.add(step);}
         lastFrame=now;lastSender=sender>0?sender:0;
     }
     /** Must be called outside the byte ring monitor; worker threads never call this. */
@@ -70,7 +82,7 @@ public final class E01IngressEvidence {
         synchronized(this){
             if(!collecting(now))return null;
             if(now-summaryWindow>=60000000000L){
-                summary=new Summary(this,now);
+                summary=new Summary(this,now);timingSummary=summary;
                 summaryWindow=now;summaryFrames=summaryBytes=summaryReadMax=summaryArrivalMax=summarySenderMax=summaryEmpty=summaryFull=0;
                 summarySenderAtGap=-1;summaryOver50=summaryOver100=0;summaryReadBytes=0;
             }
@@ -95,6 +107,11 @@ public final class E01IngressEvidence {
     String takeSummary(){
         final Summary value;synchronized(this){value=summary;summary=null;}
         return value==null?null:value.format();
+    }
+    /** Separate bounded line keeps the existing summary within the log line cap. */
+    String takeTimingSummary(){
+        final Summary value;synchronized(this){value=timingSummary;timingSummary=null;}
+        return value==null?null:value.timing();
     }
     private String waits(long[] v){return v[0]+"/"+millis(v[1])+"/"+range(v);}
     private String range(long[] v){return millis(v[2])+"@"+(v[3]==0?"-":relative(v[3])+".."+relative(v[4]));}

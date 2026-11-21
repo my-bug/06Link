@@ -9,7 +9,11 @@ public final class E01VideoIngress {
     private static final ConcurrentHashMap<Socket, Ahead> ACTIVE = new ConcurrentHashMap<Socket, Ahead>();
     private E01VideoIngress() { }
     public static InputStream wrap(Socket socket) throws IOException {
-        Ahead stream = new Ahead(socket.getInputStream(), 32 * 1024);
+        return wrap(socket, 0);
+    }
+    /** Screen type comes from negotiated stream setup; zero means unknown. */
+    public static InputStream wrap(Socket socket, int screenType) throws IOException {
+        Ahead stream = new Ahead(socket.getInputStream(), 32 * 1024, screenType);
         Ahead previous = ACTIVE.putIfAbsent(socket, stream);
         if (previous != null) return previous;
         try { stream.start(); return stream; }
@@ -26,6 +30,8 @@ public final class E01VideoIngress {
             if(line!=null)android.util.Log.i("06Link-Ingress",line);
             String summary=ahead.evidence.takeSummary();
             if(summary!=null)E01VideoEvidence.ingress(summary);
+            String timing=ahead.evidence.takeTimingSummary();
+            if(timing!=null)E01VideoEvidence.ingress(timing);
         } catch(RuntimeException ignored) { /* Diagnostics must not interrupt media. */ }
     }
     public static void close(Closeable object) {
@@ -39,13 +45,17 @@ public final class E01VideoIngress {
         private final InputStream source;
         private final byte[] ring;
         private final Thread worker;
-        final E01IngressEvidence evidence=new E01IngressEvidence();
+        final E01IngressEvidence evidence;
         private int head, tail, count;
         private boolean closed, eof;
         private IOException failure;
         Ahead(InputStream source, int capacity) {
+            this(source, capacity, 0);
+        }
+        Ahead(InputStream source, int capacity, int screenType) {
             if (source == null || capacity <= 0) throw new IllegalArgumentException();
             this.source = source;
+            evidence = new E01IngressEvidence(screenType);
             ring = new byte[capacity];
             worker = new Thread(new Runnable() { public void run() { pump(); } }, "06Link-video-read");
             worker.setDaemon(true);

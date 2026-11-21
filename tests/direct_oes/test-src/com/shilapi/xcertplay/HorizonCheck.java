@@ -38,8 +38,25 @@ public class HorizonCheck{
   try{E01SmoothVideo.dequeueInput(codec);throw new AssertionError("codec exception swallowed");}catch(RuntimeException e){ok(e==failure,"error propagation");}codec.inputFailure=null;
   E01SmoothVideo.forget(codec);E01SmoothVideo.dequeueInput(codec);ok(codec.inputTimeout==10000L,"stale state removed");
   E01LogPolicy.messages.clear();s.reportAt=0;s.reports=0;s.reportOutput=s.outputCount;s.reportSubmitted=s.submitted;
-  for(int i=1;i<=100;i++){s.submitted+=600;s.outputCount+=590;E01SmoothVideo.report(s,i*10000000000L);}
-  ok(E01LogPolicy.messages.size()==19,"three startup then one-minute summary count");ok(E01LogPolicy.messages.get(0).contains("submittedFps=60.0"),"submit rate");ok(E01LogPolicy.messages.get(0).contains("releasedFps=59.0"),"release rate");
+  int windows=0,sampleCount=0,cadenceCount=0,stageCount=0;
+  for(int i=1;i<=100;i++){
+   int start=E01LogPolicy.messages.size();s.submitted+=600;s.outputCount+=590;E01SmoothVideo.report(s,i*10000000000L);
+   boolean due=i<=3||(i>3&&(i-3)%6==0);if(due)windows++;
+   int sample=0,cadence=0,stages=0;
+   for(String line:E01LogPolicy.messages.subList(start,E01LogPolicy.messages.size())){
+    if(line.startsWith("VIDEO sample "))sample++;
+    else if(line.startsWith("VIDEO timing ")&&line.contains(" decodeGap=")&&line.contains(" releaseGap="))cadence++;
+    else if(line.startsWith("VIDEO timing ")&&line.contains(" queueAge=")&&line.contains(" inputWait=")&&line.contains(" residence="))stages++;
+    else throw new AssertionError("unexpected summary: "+line);
+    ok(line.contains(" n="+windows+" ")&&line.contains(" spanMs="+(i<=3?10000:60000)+" "),"summary keeps the due window identity and span");
+   }
+   ok(sample==(due?1:0),"legacy sample cadence at second "+i*10);
+   ok(cadence==(due?1:0)&&stages==(due?1:0),"both timing records only accompany due windows at second "+i*10);
+   sampleCount+=sample;cadenceCount+=cadence;stageCount+=stages;
+  }
+  ok(sampleCount==19,"three startup then one-minute sample count");
+  ok(cadenceCount==windows&&stageCount==windows,"one cadence and one stage record per reporting window");
+  ok(E01LogPolicy.messages.get(0).contains("submittedFps=60.0"),"submit rate");ok(E01LogPolicy.messages.get(0).contains("releasedFps=59.0"),"release rate");
   System.out.println("PASS "+checks+" horizon/routing/actual release/summary checks; fake codec, not physical FPS");
  }
 }
