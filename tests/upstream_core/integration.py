@@ -28,14 +28,16 @@ assert '->REENUMERATION:' in s and '->closed:Z' in s and '->hasPermission(' in s
 assert 'WiredConfigurationPolicy;->fallback(' in s and 'CarPlay configuration request transferred ' in s
 assert 'WiredConfigurationPolicy;->started(' in code('wired-start-memory')
 assert '->rememberWiredStart(' in code('wired-start-progress')
-assert 'WiredStartRecovery;->sessionActive()V' in code('wired-start-active')
+s = code('wired-start-active')
+assert s.index('WiredStartRecovery;->sessionActive()V') < s.index('WiredWarmReattach;->remember(') < s.index('->takeStartupSummary()') < s.index('->debugLog(')
 s = code('wired-start-incoming')
+assert s.index('->recv(J)[B') < s.index('if-nez') < s.index('->sendIdleStartupAdvertisement()V') < s.index('->parseIpv6View(')
 assert s.index('->observeIpv6([BII)V') < s.index('FileOutputStream;->write(')
 assert 'WiredStartRecovery;->cancel()V' in code('wired-start-close')
 s = code('speed-controller-close')
 assert s.index('->closed:Z') < s.index('->cancelWiredStartup()V')
 s = code('wired-out-status')
-assert s.index('->writeTimeout(I)I') < s.index('->bulkWriteAll(') < s.index('->acceptedWrite()V')
+assert s.index('->writeTimeout(I)I') < s.index('->bulkWriteAll(') < s.index('->acceptedWrite(Z)V')
 # Existing hardware-specific ownership and audio routing still use their reviewed implementations.
 for name in ('wired-tun-close', 'wired-configuration-retry', 'wired-shutdown-order',
              'e01-audio-0', 'e01-audio-1', 'audio-scene-navigation', 'audio-scene-pcm',

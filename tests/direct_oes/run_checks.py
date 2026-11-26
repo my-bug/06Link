@@ -18,7 +18,7 @@ assert branch and branch[1]==branch['label']
 assert software.index(branch[2]+'\n') < software.index('->poll(J)')
 assert body.index('->getNeedsKeyFrame()Z') < body.index('->inputWaitMillis(') < body.index('->poll(J)')
 assert '->interrupt()V' in core.read_text().split('.method public close()V',1)[1].split('.end method',1)[0]
-PRODUCTION=['E01FrameRatePolicy','E01FrameTiming','E01SmoothVideo','E01VideoOutput','E01VideoEvidence','E01MtkRuntime','E01BacklogRecovery','E01PacingClock','E01MtkTuning','E01GlOutput','E01DirectOutputClock','E01DirectInFlight']
+PRODUCTION=['E01SurfaceFrameRate','E01FrameRatePolicy','E01FrameTiming','E01SmoothVideo','E01VideoOutput','E01VideoEvidence','E01MtkRuntime','E01BacklogRecovery','E01PacingClock','E01MtkTuning','E01GlOutput','E01DirectOutputClock','E01DirectInFlight']
 with tempfile.TemporaryDirectory() as temporary:
  work=Path(temporary);sources=work/'src';shutil.copytree(HERE/'test-src',sources)
  for name in PRODUCTION:
@@ -29,7 +29,7 @@ with tempfile.TemporaryDirectory() as temporary:
  classes=work/'classes'
  subprocess.run([str(JAVA/'javac'),'--release','8','-Xlint:-options','-d',str(classes),*map(str,sources.rglob('*.java'))],check=True)
  results=[]
- for name in (args.checks.split(',') if args.checks else ['IntegrationCheck','HorizonCheck','ConcurrencyCheck','RecoveryCheck','GlCheck','GlIntegrationCheck','GlBindingCheck','GlEventCheck','DirectClockCheck','DirectInFlightCheck','DirectCapCheck','DirectWaitCheck','DirectLateCheck','DirectLifecycleCheck','LongEvidenceCheck','VideoIdleCheck','TimingEvidenceCheck']):
+ for name in (args.checks.split(',') if args.checks else ['IntegrationCheck','HorizonCheck','ConcurrencyCheck','RecoveryCheck','GlCheck','GlIntegrationCheck','GlBindingCheck','GlEventCheck','DirectClockCheck','DirectInFlightCheck','DirectCapCheck','DirectWaitCheck','DirectLateCheck','DirectLifecycleCheck','LongEvidenceCheck','VideoIdleCheck','TimingEvidenceCheck','ModernSurfaceCheck']):
   result=subprocess.run([str(JAVA/'java'),'-cp',str(classes),'com.shilapi.xcertplay.'+name],capture_output=True,text=True,timeout=45)
   print(result.stdout,end='',flush=True);print(result.stderr,end='',flush=True);result.check_returncode();results.append(result.stdout)
  (HERE/('results-'+args.checks.replace(',', '-')+'.txt' if args.checks else 'results.txt')).write_text(''.join(results))

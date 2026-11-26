@@ -19,17 +19,62 @@ public final class E01SmoothVideo {
  Output(Context c,int f,boolean s){this(c,f,s,null);}Output(Context c,int f,boolean s,E01GlOutput g){this(c,f,s,g,null,false);}
  Output(Context c,int f,boolean s,E01GlOutput g,Binding b,boolean n){context=c.getApplicationContext();owner=new java.lang.ref.WeakReference<Activity>(c instanceof Activity?(Activity)c:null);fps=f;smooth=s;gl=g;binding=new java.lang.ref.WeakReference<Binding>(b);nativeCandidate=n;}
  Output(Output o,int f){context=o.context;owner=o.owner;fps=f;smooth=o.smooth;gl=o.gl;binding=o.binding;nativeCandidate=o.nativeCandidate;}}
- static final class Entry{final long local,queued,received;boolean ignore;
- Entry(long l,long q){this(l,q,0);}Entry(long l,long q,long r){local=l;queued=q;received=r;}}
+ static final class Entry{final long local,queued,received;final Stamp stamp;long decodedAt,nextInputAt,longestPollNs,pollMisses;boolean ignore;
+ Entry(long l,long q){this(l,q,0);}Entry(long l,long q,long r){this(l,q,r,null);}
+ Entry(long l,long q,long r,Stamp stamp){local=l;queued=q;received=r;this.stamp=stamp;}}
+ // Keep the same two pictures at every stage. Only metadata survives release.
+ static final class SlowPair {
+  private Entry previous, first, second;
+  private long previousEnd, longestGap;
+  void released(Entry frame, long end) {
+   if(previous!=null && frame!=null && previous.stamp!=null && frame.stamp!=null
+      && previous.decodedAt>0 && frame.decodedAt>=previous.decodedAt){
+    long senderGap=frame.stamp.sender-previous.stamp.sender;
+    long outputGap=end-previousEnd;
+    if(senderGap>0 && senderGap<=50000000L && outputGap>50000000L && outputGap>longestGap
+       && frame.stamp.arrival>=previous.stamp.arrival && frame.queued>=previous.queued){
+     first=previous; second=frame; longestGap=outputGap;
+    }
+   }
+   previous=frame;
+   previousEnd=end;
+  }
+  PairSample take() {
+   if(second==null)return null;
+   PairSample sample=new PairSample(first,second,longestGap);
+   first=null; second=null; longestGap=0;
+   return sample;
+  }
+ }
+ static final class PairSample {
+  final Entry first,second;
+  final long releaseGap;
+  PairSample(Entry first,Entry second,long releaseGap){
+   this.first=first;this.second=second;this.releaseGap=releaseGap;
+  }
+  String format(){
+   return "pairUs sender="+(second.stamp.sender-first.stamp.sender)/1000
+       +" arrival="+(second.stamp.arrival-first.stamp.arrival)/1000
+       +" input="+(second.queued-first.queued)/1000
+       +" decoded="+(second.decodedAt-first.decodedAt)/1000
+       +" released="+releaseGap/1000
+       +" nextInput="+(second.nextInputAt>0?(second.nextInputAt-second.queued)/1000:-1)
+       +" afterNext="+(second.nextInputAt>0?(second.decodedAt-second.nextInputAt)/1000:-1)
+       +" longestPoll="+second.longestPollNs/1000+" pollMisses="+second.pollMisses;
+  }
+ }
  static final class State{final Output output;final E01PacingClock clock;final LinkedHashMap<Long,Entry> entries=new LinkedHashMap<Long,Entry>();long lastSender,lastQueued,lastPts;int samples;int pendingSignal=Integer.MIN_VALUE;
  final String evidenceIdentity=E01VideoEvidence.identity();
  final String codecIdentity=Long.toHexString(System.nanoTime());
  final E01FrameTiming decodeGaps=new E01FrameTiming(),releaseGaps=new E01FrameTiming(),queueAges=new E01FrameTiming(),inputWaits=new E01FrameTiming(),residences=new E01FrameTiming();
+ final SlowPair slowPair=new SlowPair();
+ Entry lastPrepared;
+ long longestPollNs,pollMisses;
  long lastDecodeNs,lastReleaseNs,reportCapWaitNs;
  final MediaCodec.BufferInfo scratch=new MediaCodec.BufferInfo(),heldInfo=new MediaCodec.BufferInfo();int heldIndex=-1;
  long inputStart,inputWaitMax,releaseMax,dequeueMax,residenceMax,queueAgeMax,submitted,outputCount,skipped,missing,decoded,immediateTargets;
  final long[] recentWait=new long[120],recentRelease=new long[120],recentResidence=new long[120],recentQueueAge=new long[120];int waitSlot,releaseSlot,residenceSlot,queueAgeSlot;
- boolean boundedRender,directCap4;volatile boolean retired;Surface surface;E01DirectOutputClock.Lease directClock;
+ boolean boundedRender,modernOutput,directCap4;volatile boolean retired;Surface surface;E01DirectOutputClock.Lease directClock;
  final E01DirectInFlight inFlight=new E01DirectInFlight(4);java.lang.ref.WeakReference<Object> inputOwner;
  long capPolls,capWaitNs,capBlockedSince;int capMax;
  long directLateSkipped,directLateAgeMaxNs,directLateBatches;int directLateBatchMax;
@@ -37,7 +82,7 @@ public final class E01SmoothVideo {
  long cappedTargets,maxAheadNs,reportAt=System.nanoTime(),reportSubmitted,reportOutput,reportSkipped,reportDecoded;int reports;
  final long[] steps=new long[30];boolean logged;State(Output o){output=o;clock=new E01PacingClock(o.fps);}}
  public static boolean smooth(Context c){return c.getSharedPreferences(PREF,0).getBoolean("smooth",false);}
- public static void negotiatedFps(Activity a,int value){NEGOTIATED.put(a,value>=60?60:30);Binding b=binding(a);if(b!=null)b.refreshRoute(false);}
+ public static void negotiatedFps(Activity a,int value){NEGOTIATED.put(a,value>=60?60:30);Binding b=binding(a);if(b!=null)b.refreshRoute(false);E01SurfaceFrameRate.refresh(a);}
  static Binding binding(Activity a){java.lang.ref.WeakReference<Binding> ref=BINDINGS.get(a);return ref==null?null:ref.get();}
  static int selectedFps(Activity a){Integer negotiated=NEGOTIATED.get(a);return negotiated==null?fps(a):negotiated;}
  static boolean wantsDirect(Activity a){return glDevice()&&selectedFps(a)>=60&&E01DisplayClock.enabled(a)&&!Boolean.TRUE.equals(GL_FALLBACK.get(a));}
@@ -169,16 +214,16 @@ public final class E01SmoothVideo {
    +" directCap4="+s.directCap4+" capPending="+s.inFlight.pending()+" capPendingMax="+s.capMax+" capWaitMs="+s.capWaitNs/1000000;}
  }catch(Exception ignored){return " stageEvidence=unavailable";}}
  private static long p90(long[] values,int count){int n=Math.min(count,values.length);if(n<=0)return 0;long[] copy=Arrays.copyOf(values,n);Arrays.sort(copy);return copy[(n-1)*90/100];}
- public static boolean dedicated(MediaCodec codec){State s=STATES.get(codec);return s!=null&&s.boundedRender;}
- static void retire(State old){if(old==null)return;synchronized(old){old.retired=true;old.inFlight.reset();old.notifyAll();}
+ public static boolean dedicated(MediaCodec codec){State s=STATES.get(codec);return s!=null&&(s.boundedRender||s.modernOutput);}
+ static void retire(State old){if(old==null)return;E01SurfaceFrameRate.stopped(old);synchronized(old){old.retired=true;old.inFlight.reset();old.notifyAll();}
   E01DirectOutputClock.release(old.directClock);if(old.output.gl!=null)old.output.gl.releaseCodec();}
  public static void forget(MediaCodec codec){retire(STATES.remove(codec));}
  /** Stop display ownership immediately; native codec cleanup may finish later. */
- public static void stopping(MediaCodec codec){State s=STATES.get(codec);if(s==null||!s.directCap4)return;
+ public static void stopping(MediaCodec codec){State s=STATES.get(codec);E01SurfaceFrameRate.stopped(s);if(s==null||!s.directCap4)return;
   synchronized(s){s.retired=true;s.inFlight.reset();s.notifyAll();}E01DirectOutputClock.release(s.directClock);
  }
  /** Invoked before failed configure is released; GL receives a fresh native window. */
- public static void configureFailed(MediaCodec codec){State s=STATES.get(codec);if(s==null||!s.directCap4)return;
+ public static void configureFailed(MediaCodec codec){State s=STATES.get(codec);E01SurfaceFrameRate.stopped(s);if(s==null||!s.directCap4)return;
   synchronized(s){if(s.retired)return;s.retired=true;s.inFlight.reset();s.notifyAll();}
   E01DirectOutputClock.release(s.directClock);Output registered=OUTPUTS.get(s.surface);if(registered!=null)registered.retired=true;
   Binding b=s.output.binding.get();if(b!=null)b.refreshRoute(true);
@@ -194,7 +239,13 @@ public final class E01SmoothVideo {
   // Non-smooth TextureView main output is configured separately by its own surface owner.
   if(output==null){if(OWNED_INPUTS.containsKey(surface)||RETIRED_INPUTS.containsKey(surface))throw new IllegalStateException("Output surface retired");return;}
   if(output.retired)throw new IllegalStateException("Output surface retired");
-  if(output.smooth){Activity owner=output.owner.get();int selected=owner==null?output.fps:selectedFps(owner);
+  Activity owner=output.owner.get();
+  int selected=owner==null?output.fps:selectedFps(owner);
+  // Pair the realtime configuration with the negotiated picture rate. Plain retry
+  // formats omit priority and keep the decoder's original unspecified rate.
+  if(format.containsKey("priority")&&format.getInteger("priority")==0)
+   format.setInteger("frame-rate",selected);
+  if(output.smooth){
    if(output.nativeCandidate&&selected<60){output.retired=true;Binding b=output.binding.get();if(b!=null)b.refreshRoute(false);throw new IllegalStateException("Waiting for 30fps GL surface");}
    if(output.gl!=null){output.gl.retainCodec();try{output.gl.setFormat(format.getInteger("width"),format.getInteger("height"),selected);}catch(RuntimeException e){output.gl.releaseCodec();throw e;}}
    State fresh=new State(new Output(output,selected));fresh.surface=surface;
@@ -205,9 +256,12 @@ public final class E01SmoothVideo {
   }
   boolean mtk=output.context.getSharedPreferences(PREF,0).getBoolean("mtk",true);
   State renderState=STATES.get(codec);
-  if(renderState!=null){renderState.boundedRender=renderState.directCap4||output.gl!=null||boundedDevice(codec.getName(),mtk);
+  if(renderState!=null){renderState.modernOutput=android.os.Build.VERSION.SDK_INT>=30&&output.smooth&&output.gl==null&&!output.nativeCandidate;
+   renderState.boundedRender=renderState.directCap4||output.gl!=null||boundedDevice(codec.getName(),mtk);
+   if(renderState.modernOutput)E01SurfaceFrameRate.started(renderState,output.owner.get(),surface);
    if(renderState.directCap4)E01VideoEvidence.decision(output.context,"render pipeline=direct-hwc cap=4 capWait=signal/20ms inputPoll=2ms outputThread=dedicated outputWait=10ms timestamps=immediate maxFPS="+renderState.output.fps);
    else if(output.gl!=null)E01VideoEvidence.decision(output.context,"render pipeline=gl-oes inputPoll=2ms outputThread=dedicated outputWait=10ms timestamps=immediate maxFPS="+renderState.output.fps);
+   else if(renderState.modernOutput)E01VideoEvidence.decision(output.context,"render pipeline=modern-surface outputThread=dedicated outputWait=10ms timestamps=paced maxFPS="+renderState.output.fps);
    else if(renderState.boundedRender)E01VideoEvidence.decision(output.context,"render horizon=17ms inputPoll=2ms outputThread=dedicated outputWait=10ms timestamps=explicit E01 MTK SurfaceView maxFPS="+renderState.output.fps);
   }
   if(tuned&&mtk){String name=codec.getName();if(E01MtkTuning.requested(name,mtk,tuned)){
@@ -218,6 +272,7 @@ public final class E01SmoothVideo {
  public static long presentation(Object decoder,byte[] bytes){
   long now=System.nanoTime();Stamp stamp=STAMPS.remove(bytes);
   try{Field f=decoderField;if(f==null){f=field(decoder,"decoder");decoderField=f;}MediaCodec codec=(MediaCodec)f.get(decoder);State state=STATES.get(codec);if(state==null)return now/1000;
+   final long pts;final boolean reportSource;
    synchronized(state){state.submitted++;if(stamp==null)state.missing++;
    if(state.directCap4&&(state.inputOwner==null||state.inputOwner.get()!=decoder))state.inputOwner=new java.lang.ref.WeakReference<Object>(decoder);
    long received=0;
@@ -228,12 +283,27 @@ public final class E01SmoothVideo {
     if(step>0&&step<=120000000L&&state.samples<30)state.steps[state.samples++]=step;
    }
    if(stamp!=null)state.lastSender=stamp.sender;state.lastQueued=now;
-   long pts=Math.max(state.lastPts+1,(local>0?local:now)/1000);state.lastPts=pts;
-   state.entries.put(pts,new Entry(local,now,received));while(state.entries.size()>256)state.entries.remove(state.entries.keySet().iterator().next());
+   pts=Math.max(state.lastPts+1,(local>0?local:now)/1000);state.lastPts=pts;
+   Entry prepared=new Entry(local,now,received,stamp);
+   if(state.lastPrepared!=null&&state.lastPrepared.decodedAt==0)state.lastPrepared.nextInputAt=now;
+   state.lastPrepared=prepared;
+   state.entries.put(pts,prepared);while(state.entries.size()>256)state.entries.remove(state.entries.keySet().iterator().next());
    if(state.directCap4){state.inFlight.queued(pts,bytes);state.capMax=Math.max(state.capMax,state.inFlight.pending());}
-   if(state.samples==30&&!state.logged){state.logged=true;long[] sorted=state.steps.clone();Arrays.sort(sorted);String text="Smooth video negotiatedMax="+state.output.fps+" sourceMedianStepUs="+sorted[15]/1000+" output="+(state.output.gl==null?"SurfaceView":"GL-OES");android.util.Log.i("06Link-video",text);try{java.io.File d=state.output.context.getExternalFilesDir(null);if(d==null)d=state.output.context.getFilesDir();E01LogPolicy.append(new java.io.File(d,"06link.log"),text);}catch(RuntimeException ignored){}}
-   return pts;}
+   reportSource=state.samples==state.steps.length&&!state.logged;
+   if(reportSource)state.logged=true;
+   }
+   if(reportSource)logSourceRate(state);
+   return pts;
   }catch(Exception e){return now/1000;}
+ }
+ // The first thirty steps are immutable once collected. Keep the one-time Logcat
+ // summary outside the monitor shared with output; it is intentionally not persisted.
+ private static void logSourceRate(State state){
+  long[] sorted=state.steps.clone();
+  Arrays.sort(sorted);
+  try{android.util.Log.i("06Link-video","Smooth video negotiatedMax="+state.output.fps
+    +" sourceMedianStepUs="+sorted[sorted.length/2]/1000+" output="+(state.output.gl==null?"SurfaceView":"GL-OES"));}
+  catch(RuntimeException ignored){}
  }
  /** Coalesce only decoded, late outputs when a strictly newer decoded output is ready.
   * Never discard compressed frames, the last available image, EOS, or format changes. */
@@ -275,8 +345,19 @@ public final class E01SmoothVideo {
   synchronized(s){if(s.heldIndex>=0){int index=s.heldIndex;s.heldIndex=-1;info.set(s.heldInfo.offset,s.heldInfo.size,s.heldInfo.presentationTimeUs,s.heldInfo.flags);return index;}}
   long start=System.nanoTime();int index=c.dequeueOutputBuffer(info,timeout);
   long end=System.nanoTime();
-  synchronized(s){s.dequeueMax=Math.max(s.dequeueMax,end-start);if(index>=0){s.decoded++;
-   if((info.flags&6)==0){if(s.lastDecodeNs>0)s.decodeGaps.add(end-s.lastDecodeNs);s.lastDecodeNs=end;}
+  synchronized(s){s.dequeueMax=Math.max(s.dequeueMax,end-start);
+   s.longestPollNs=Math.max(s.longestPollNs,end-start);
+   if(index==-1)s.pollMisses++;
+   if(index>=0){s.decoded++;
+   if((info.flags&6)==0){
+    Entry entry=s.entries.get(info.presentationTimeUs);if(entry!=null){entry.decodedAt=end;
+     // Input and output return on independent threads. Only a next input actually
+     // prepared before this native output returned can explain its waiting time.
+     if(entry.nextInputAt>end)entry.nextInputAt=0;
+     entry.longestPollNs=s.longestPollNs;entry.pollMisses=s.pollMisses;
+    }
+    s.longestPollNs=s.pollMisses=0;
+    if(s.lastDecodeNs>0)s.decodeGaps.add(end-s.lastDecodeNs);s.lastDecodeNs=end;}
    if(s.directCap4&&s.inFlight.decoded(info.presentationTimeUs,info.flags)){s.capBlockedSince=0;s.notifyAll();}}}return index;
  }
  static boolean late(State s,MediaCodec.BufferInfo info,long now){Entry e=s.entries.get(info.presentationTimeUs);
@@ -296,8 +377,9 @@ public final class E01SmoothVideo {
  public static void release(MediaCodec codec,int index,boolean render,MediaCodec.BufferInfo info){
   State state=STATES.get(codec);if(state==null){codec.releaseOutputBuffer(index,render);return;}
   long now=System.nanoTime(),target=0;
+  final Entry entry;
   synchronized(state){
-   Entry entry=state.entries.remove(info.presentationTimeUs);
+   entry=state.entries.remove(info.presentationTimeUs);
    measureResidence(state,entry,now);
    if(render&&state.output.gl==null&&!state.directCap4&&entry!=null&&entry.local>0){if(!entry.ignore)state.clock.sample(now-entry.local);target=entry.local+state.clock.delay();}
    target=limitTarget(state,target,now);
@@ -318,7 +400,7 @@ public final class E01SmoothVideo {
   else codec.releaseOutputBuffer(index,render);
   long end=System.nanoTime();
   synchronized(state){measureRelease(state,end-start);if(render){state.outputCount++;
-   if((info.flags&6)==0){if(state.lastReleaseNs>0)state.releaseGaps.add(end-state.lastReleaseNs);state.lastReleaseNs=end;}}}
+   if((info.flags&6)==0){state.slowPair.released(entry,end);if(state.lastReleaseNs>0)state.releaseGaps.add(end-state.lastReleaseNs);state.lastReleaseNs=end;}}}
   report(state,end);
  }
  // SurfaceView keeps codec buffers until the scheduled presentation is consumed.
@@ -357,11 +439,12 @@ public final class E01SmoothVideo {
  }
  /** Whole reporting-window histograms; release is submission completion, never panel presentation. */
  static final class TimingReport {
-  final String header;final E01FrameTiming.Snapshot decoded,released,queue,input,residence;
+  final String header;final PairSample slowPair;final E01FrameTiming.Snapshot decoded,released,queue,input,residence;
   final long capWaitMs;
   TimingReport(State s,long now){
-   String route=s.directCap4?"direct-hwc":s.output.gl!=null?"gl-oes":s.boundedRender?"bounded-surface":"surface";
+   String route=s.directCap4?"direct-hwc":s.output.gl!=null?"gl-oes":s.boundedRender?"bounded-surface":s.modernOutput?"modern-surface":"surface";
    header="screen=110 codec="+s.codecIdentity+" route="+route+" n="+(s.reports+1)+" spanMs="+(now-s.reportAt)/1000000+" histUs=n/p95u/p99u/max/gt50/gt100";
+   slowPair=s.slowPair.take();
    decoded=s.decodeGaps.snapshotAndReset();released=s.releaseGaps.snapshotAndReset();
    queue=s.queueAges.snapshotAndReset();input=s.inputWaits.snapshotAndReset();residence=s.residences.snapshotAndReset();
    capWaitMs=(s.capWaitNs-s.reportCapWaitNs)/1000000;s.reportCapWaitNs=s.capWaitNs;
@@ -379,5 +462,7 @@ public final class E01SmoothVideo {
   E01VideoEvidence.sample(s.output.context,s.evidenceIdentity,snapshot.format());
   E01VideoEvidence.timing(s.output.context,s.evidenceIdentity,timing.cadence());
   E01VideoEvidence.timing(s.output.context,s.evidenceIdentity,timing.stages());
+  if(timing.slowPair!=null)E01VideoEvidence.timing(s.output.context,s.evidenceIdentity,
+      "screen=110 codec="+s.codecIdentity+" n="+snapshot.number+" "+timing.slowPair.format());
  }
 }

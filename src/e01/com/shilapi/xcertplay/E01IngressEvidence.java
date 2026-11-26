@@ -11,7 +11,7 @@ public final class E01IngressEvidence {
     private final E01FrameTiming arrivalTiming=new E01FrameTiming(), senderTiming=new E01FrameTiming();
     private long summaryWindow, summaryFrames, summaryBytes, summaryReadMax, summaryArrivalMax, summarySenderMax, summaryEmpty, summaryFull;
     private long summarySenderAtGap=-1, summaryOver50, summaryOver100;
-    private int summaryReadBytes;
+    private int summaryReadBytes, summaryReports;
     private Summary summary,timingSummary;
     static final class Summary {
         final String identity,screen;final int tid,readBytes;final long span,frames,bytes,arrival,sender,read,empty,full,senderAtGap,over50,over100;
@@ -81,8 +81,11 @@ public final class E01IngressEvidence {
         final long[] values,r,g,e,f,v;final int sample;
         synchronized(this){
             if(!collecting(now))return null;
-            if(now-summaryWindow>=60000000000L){
-                summary=new Summary(this,now);timingSummary=summary;
+            // Match the decoder's three startup windows before reducing persistent IO.
+            // A delayed observation produces one real elapsed window, never catch-up samples.
+            long summaryInterval=summaryReports<3?WINDOW_NS:60000000000L;
+            if(now-summaryWindow>=summaryInterval){
+                summary=new Summary(this,now);timingSummary=summary;summaryReports++;
                 summaryWindow=now;summaryFrames=summaryBytes=summaryReadMax=summaryArrivalMax=summarySenderMax=summaryEmpty=summaryFull=0;
                 summarySenderAtGap=-1;summaryOver50=summaryOver100=0;summaryReadBytes=0;
             }

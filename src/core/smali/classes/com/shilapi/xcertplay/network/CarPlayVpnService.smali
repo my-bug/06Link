@@ -2484,6 +2484,8 @@
     iput-object v0, p0, Lcom/shilapi/xcertplay/network/CarPlayVpnService;->tun:Landroid/os/ParcelFileDescriptor;
 
     .line 115
+    invoke-virtual {p1, v3, v1}, Lcom/shilapi/xcertplay/transport/NcmUsbBridge;->configureStartupAdvertisement(Ljava/net/InetAddress;[B)V
+
     new-instance v2, Lcom/shilapi/xcertplay/network/Ipv6NcmBridge;
 
     new-instance v9, Lcom/shilapi/xcertplay/network/CarPlayVpnService$$ExternalSyntheticLambda4;

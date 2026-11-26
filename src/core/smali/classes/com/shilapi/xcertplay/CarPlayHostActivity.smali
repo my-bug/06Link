@@ -16649,6 +16649,8 @@
 
     invoke-static {v0}, Lcom/shilapi/xcertplay/E01UsbPresence;->changed(Z)V
 
+    invoke-static {v0}, Lcom/shilapi/xcertplay/transport/WiredWarmReattach;->remember(Landroid/hardware/usb/UsbDevice;)V
+
     .line 5110
     iget-object v0, p0, Lcom/shilapi/xcertplay/CarPlayHostActivity;->usbPresence:Lcom/shilapi/xcertplay/orchestration/UsbPresenceTracker;
 

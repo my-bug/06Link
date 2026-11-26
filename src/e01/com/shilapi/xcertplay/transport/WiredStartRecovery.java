@@ -8,15 +8,74 @@ public final class WiredStartRecovery {
     interface Clock { long now(); }
     private final Clock clock;
     private volatile boolean opened, active, cancelled;
-    private boolean armed, repeated, rearmed, held, sawSyn;
+    private volatile boolean armed;
+    private boolean repeated, rearmed, held, sawSyn;
     private long openedAt, firstSentAt, deadline, lastSynAt;
     private int port;
+    private boolean openedByAdvertisement, summaryReported;
+    private int advertisementAttempts;
+    private long lastAdvertisementAt;
+
+    // A quiet NCM link may produce no ordinary outbound packet after StartSession.
+    // Use the idle bridge reader to try one local-address announcement at a time.
+    public boolean awaitingStartupWrite() {
+        return armed && !opened && !active && !cancelled;
+    }
+
+    public synchronized boolean takeAdvertisementAttempt() {
+        if (!armed || opened || active || cancelled || sawSyn || advertisementAttempts >= 3) return false;
+        long now = clock.now();
+        if (now - deadline >= 0 || now - firstSentAt < 1_000_000_000L) return false;
+        if (advertisementAttempts > 0 && now - lastAdvertisementAt < advertisementAttempts * 4_000_000_000L) return false;
+        advertisementAttempts++;
+        lastAdvertisementAt = now;
+        return true;
+    }
+
+    /** RFC 4861 unsolicited NA for the address just assigned to this USB tunnel.
+     * EthernetIpv6Codec adds the target MAC option and computes the ICMPv6 checksum.
+     */
+    public static byte[] localAdvertisement(java.net.InetAddress local, byte[] mac) {
+        if (!(local instanceof java.net.Inet6Address) || !local.isLinkLocalAddress()
+                || mac == null || mac.length != 6 || (mac[0] & 1) != 0) return null;
+        int bits = 0;
+        for (byte octet : mac) bits |= octet;
+        if (bits == 0) return null;
+        byte[] address = local.getAddress();
+        byte[] ipv6 = new byte[64];
+        ipv6[0] = 0x60;
+        ipv6[5] = 24;
+        ipv6[6] = 58;             // ICMPv6
+        ipv6[7] = (byte) 255;
+        System.arraycopy(address, 0, ipv6, 8, 16);
+        ipv6[24] = (byte) 0xff;   // ff02::1, all nodes on this link
+        ipv6[25] = 2;
+        ipv6[39] = 1;
+        ipv6[40] = (byte) 136;    // Unsolicited, non-router, no override
+        System.arraycopy(address, 0, ipv6, 48, 16);
+        return ipv6;
+    }
     public WiredStartRecovery() { this(new Clock(){public long now(){return System.nanoTime();}}); }
     WiredStartRecovery(Clock clock) { this.clock=clock; }
     public int writeTimeout(int requested) { return opened ? requested : Math.min(requested,20); }
-    public void acceptedWrite() {
-        if(opened || cancelled)return;
-        synchronized(this){if(!opened && !cancelled){openedAt=clock.now();opened=true;}}
+    public void acceptedWrite(boolean advertisement) {
+        if (opened || cancelled) return;
+        synchronized (this) {
+            if (opened || cancelled) return;
+            openedAt = clock.now();
+            openedByAdvertisement = advertisement;
+            opened = true;
+        }
+    }
+
+    /** At most one summary on session activation. A negative delta means USB opened before the invitation. */
+    public synchronized String takeStartupSummary() {
+        if (!active || !armed || cancelled || summaryReported) return null;
+        summaryReported = true;
+        String source = !opened ? "none" : (openedByAdvertisement ? "probe" : "traffic");
+        String delay = opened ? Long.toString((openedAt - firstSentAt) / 1_000_000L) : "unknown";
+        return "wired start: probes=" + advertisementAttempts + " firstWrite=" + source
+            + " firstWriteAfterInviteMs=" + delay + " inviteToActiveMs=" + (clock.now() - firstSentAt) / 1_000_000L;
     }
     public synchronized void preparePort(int value) { port=value; }
     public synchronized void startSent() {

@@ -38,6 +38,7 @@ public final class E01VideoVisibility {
     public static synchronized void resumed(Activity a) {
         State s = state(a); if (!s.foreground) { s.foreground = true; changed(s); }
         E01DirectOutputClock.refresh(a);
+        E01SurfaceFrameRate.refresh(a);
     }
     public static synchronized void paused(Activity a) {
         State s = state(a); if (s.foreground) { s.foreground = false; changed(s); }
@@ -45,18 +46,24 @@ public final class E01VideoVisibility {
             Activity owner = it.next().getValue().owner.get(); if (owner == null || owner == a) it.remove();
         }
         E01DirectOutputClock.refresh(a);
+        E01SurfaceFrameRate.refresh(a);
     }
     public static synchronized void surfaceReady(Activity a, Surface surface) {
         State s = state(a); if (s.surface != surface) { s.surface = surface; changed(s); }
         E01DirectOutputClock.refresh(a);
+        E01SurfaceFrameRate.refresh(a);
     }
     public static synchronized void surfaceLost(Activity a, Surface surface) {
         State s = STATES.get(a);
         // A retiring old Surface must not invalidate a replacement Surface.
         if (s != null && s.surface == surface) { s.surface = null; changed(s); }
         E01DirectOutputClock.refresh(a);
+        E01SurfaceFrameRate.refresh(a);
     }
     public static synchronized void destroyed(Activity a) { paused(a); STATES.remove(a); }
+    static synchronized Surface currentSurface(Activity a) {
+        State s = STATES.get(a); return s == null ? null : s.surface;
+    }
     private static boolean active(Activity a, State s) {
         return s != null && s.foreground && s.surface != null && s.surface.isValid()
             && !a.isFinishing() && !a.isDestroyed();

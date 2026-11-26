@@ -206,6 +206,8 @@
 
 .field private final startup:Lcom/shilapi/xcertplay/transport/WiredStartRecovery;
 
+.field private startupAdvertisement:[B
+
 .field private final stateLock:Ljava/lang/Object;
 
 .field private final statusEndpoint:Landroid/hardware/usb/UsbEndpoint;
@@ -1656,6 +1658,35 @@
     goto :goto_5
 .end method
 
+.method public final configureStartupAdvertisement(Ljava/net/InetAddress;[B)V
+    .locals 3
+
+    invoke-static {p1, p2}, Lcom/shilapi/xcertplay/transport/WiredStartRecovery;->localAdvertisement(Ljava/net/InetAddress;[B)[B
+
+    move-result-object v0
+
+    if-eqz v0, :cond_0
+
+    sget-object v1, Lcom/shilapi/xcertplay/transport/EthernetIpv6Codec;->INSTANCE:Lcom/shilapi/xcertplay/transport/EthernetIpv6Codec;
+
+    invoke-virtual {v1, v0, p2}, Lcom/shilapi/xcertplay/transport/EthernetIpv6Codec;->addNeighborAdvertisementTargetMac([B[B)[B
+
+    move-result-object v0
+
+    invoke-virtual {v1, v0}, Lcom/shilapi/xcertplay/transport/EthernetIpv6Codec;->multicastDestinationMac([B)[B
+
+    move-result-object v2
+
+    invoke-virtual {v1, p2, v2, v0}, Lcom/shilapi/xcertplay/transport/EthernetIpv6Codec;->build([B[B[B)[B
+
+    move-result-object v0
+
+    :cond_0
+    iput-object v0, p0, Lcom/shilapi/xcertplay/transport/NcmUsbBridge;->startupAdvertisement:[B
+
+    return-void
+.end method
+
 .method public final getHostMac()[B
     .locals 2
 
@@ -1849,7 +1880,9 @@
 .end method
 
 .method public final send([BI)V
-    .locals 6
+    .locals 7
+
+    move-object v6, p1
 
     const-string v0, "NCM write transferred "
 
@@ -1866,7 +1899,7 @@
     :try_start_0
     invoke-direct {p0}, Lcom/shilapi/xcertplay/transport/NcmUsbBridge;->checkOpen()V
 
-    if-lez p2, :cond_3
+    if-lez p2, :cond_4
 
     .line 72
     iget-object v2, p0, Lcom/shilapi/xcertplay/transport/NcmUsbBridge;->stateLock:Ljava/lang/Object;
@@ -1925,7 +1958,7 @@
     .line 82
     iget-boolean p1, p0, Lcom/shilapi/xcertplay/transport/NcmUsbBridge;->loggedWriteTimeout:Z
 
-    if-nez p1, :cond_1
+    if-nez p1, :cond_2
 
     const/4 p1, 0x1
 
@@ -1941,22 +1974,34 @@
 
     invoke-static {p1, p2}, Landroid/util/Log;->i(Ljava/lang/String;Ljava/lang/String;)I
 
-    goto :goto_0
+    goto :goto_1
 
     .line 88
     :cond_0
     array-length v2, p1
 
-    if-ne p2, v2, :cond_2
+    if-ne p2, v2, :cond_3
 
     iget-object v2, p0, Lcom/shilapi/xcertplay/transport/NcmUsbBridge;->startup:Lcom/shilapi/xcertplay/transport/WiredStartRecovery;
 
-    invoke-virtual {v2}, Lcom/shilapi/xcertplay/transport/WiredStartRecovery;->acceptedWrite()V
+    iget-object v3, p0, Lcom/shilapi/xcertplay/transport/NcmUsbBridge;->startupAdvertisement:[B
+
+    if-ne v6, v3, :cond_1
+
+    const/4 v6, 0x1
+
+    goto :goto_0
+
+    :cond_1
+    const/4 v6, 0x0
+
+    :goto_0
+    invoke-virtual {v2, v6}, Lcom/shilapi/xcertplay/transport/WiredStartRecovery;->acceptedWrite(Z)V
 
     .line 93
     iget-boolean p1, p0, Lcom/shilapi/xcertplay/transport/NcmUsbBridge;->loggedWriteTimeout:Z
 
-    if-eqz p1, :cond_1
+    if-eqz p1, :cond_2
 
     const/4 p1, 0x0
 
@@ -1971,8 +2016,8 @@
     invoke-static {p1, p2}, Landroid/util/Log;->i(Ljava/lang/String;Ljava/lang/String;)I
 
     .line 97
-    :cond_1
-    :goto_0
+    :cond_2
+    :goto_1
     sget-object p1, Lkotlin/Unit;->INSTANCE:Lkotlin/Unit;
     :try_end_2
     .catchall {:try_start_2 .. :try_end_2} :catchall_1
@@ -1983,7 +2028,7 @@
     return-void
 
     .line 89
-    :cond_2
+    :cond_3
     :try_start_3
     new-instance v2, Lcom/shilapi/xcertplay/transport/IphoneUsbException$DeviceUnavailable;
 
@@ -2028,7 +2073,7 @@
     throw p1
 
     .line 71
-    :cond_3
+    :cond_4
     const-string/jumbo p1, "timeoutMillis must be positive"
 
     new-instance p2, Ljava/lang/IllegalArgumentException;
@@ -2050,4 +2095,50 @@
     monitor-exit v1
 
     throw p1
+.end method
+
+.method public final sendIdleStartupAdvertisement()V
+    .locals 4
+
+    iget-object v0, p0, Lcom/shilapi/xcertplay/transport/NcmUsbBridge;->startupAdvertisement:[B
+
+    if-eqz v0, :cond_1
+
+    iget-object v2, p0, Lcom/shilapi/xcertplay/transport/NcmUsbBridge;->startup:Lcom/shilapi/xcertplay/transport/WiredStartRecovery;
+
+    invoke-virtual {v2}, Lcom/shilapi/xcertplay/transport/WiredStartRecovery;->awaitingStartupWrite()Z
+
+    move-result v3
+
+    if-eqz v3, :cond_1
+
+    iget-object v1, p0, Lcom/shilapi/xcertplay/transport/NcmUsbBridge;->writeLock:Ljava/lang/Object;
+
+    monitor-enter v1
+
+    :try_start_0
+    invoke-virtual {v2}, Lcom/shilapi/xcertplay/transport/WiredStartRecovery;->takeAdvertisementAttempt()Z
+
+    move-result v2
+
+    if-eqz v2, :cond_0
+
+    const/16 v3, 0x14
+
+    invoke-virtual {p0, v0, v3}, Lcom/shilapi/xcertplay/transport/NcmUsbBridge;->send([BI)V
+
+    :cond_0
+    monitor-exit v1
+    :try_end_0
+    .catchall {:try_start_0 .. :try_end_0} :catchall_0
+
+    :cond_1
+    return-void
+
+    :catchall_0
+    move-exception v2
+
+    monitor-exit v1
+
+    throw v2
 .end method

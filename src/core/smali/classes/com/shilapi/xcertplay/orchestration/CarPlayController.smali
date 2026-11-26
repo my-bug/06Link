@@ -578,6 +578,8 @@
 
 .field private permissionCloseable:Ljava/io/Closeable;
 
+.field private permissionDeviceName:Ljava/lang/String;
+
 .field private final permissionGrant:Ljava/util/concurrent/atomic/AtomicBoolean;
 
 .field private permissionPollGeneration:I
@@ -4126,6 +4128,10 @@
 .method private final beginReenumeration(Landroid/hardware/usb/UsbDevice;)V
     .locals 3
 
+    const/4 v0, 0x0
+
+    iput-object v0, p0, Lcom/shilapi/xcertplay/orchestration/CarPlayController;->permissionDeviceName:Ljava/lang/String;
+
     .line 2150
     sget-object v0, Lcom/shilapi/xcertplay/orchestration/CarPlayController$Phase;->REENUMERATION:Lcom/shilapi/xcertplay/orchestration/CarPlayController$Phase;
 
@@ -4162,11 +4168,21 @@
 .end method
 
 .method private static final beginReenumeration$lambda$103(Lcom/shilapi/xcertplay/orchestration/CarPlayController;Lcom/shilapi/xcertplay/transport/IphoneUsbHost$TransitionResult;)Lkotlin/Unit;
-    .locals 1
+    .locals 2
 
     const-string/jumbo v0, "transition"
 
     invoke-static {p1, v0}, Lkotlin/jvm/internal/Intrinsics;->checkNotNullParameter(Ljava/lang/Object;Ljava/lang/String;)V
+
+    iget-boolean v0, p0, Lcom/shilapi/xcertplay/orchestration/CarPlayController;->closed:Z
+
+    if-nez v0, :cond_1
+
+    iget-object v0, p0, Lcom/shilapi/xcertplay/orchestration/CarPlayController;->phase:Lcom/shilapi/xcertplay/orchestration/CarPlayController$Phase;
+
+    sget-object v1, Lcom/shilapi/xcertplay/orchestration/CarPlayController$Phase;->REENUMERATION:Lcom/shilapi/xcertplay/orchestration/CarPlayController$Phase;
+
+    if-ne v0, v1, :cond_1
 
     .line 2155
     sget-object v0, Lcom/shilapi/xcertplay/transport/IphoneUsbHost$TransitionResult$ReenumerationRequested;->INSTANCE:Lcom/shilapi/xcertplay/transport/IphoneUsbHost$TransitionResult$ReenumerationRequested;
@@ -8251,13 +8267,27 @@
 .end method
 
 .method private final markWiredSessionActive()V
-    .locals 1
+    .locals 2
 
     iget-object v0, p0, Lcom/shilapi/xcertplay/orchestration/CarPlayController;->wiredRecovery:Lcom/shilapi/xcertplay/transport/WiredStartRecovery;
 
     if-eqz v0, :cond_0
 
     invoke-virtual {v0}, Lcom/shilapi/xcertplay/transport/WiredStartRecovery;->sessionActive()V
+
+    iget-object v1, p0, Lcom/shilapi/xcertplay/orchestration/CarPlayController;->wiredDevice:Landroid/hardware/usb/UsbDevice;
+
+    invoke-static {v1}, Lcom/shilapi/xcertplay/transport/WiredWarmReattach;->remember(Landroid/hardware/usb/UsbDevice;)V
+
+    invoke-virtual {v0}, Lcom/shilapi/xcertplay/transport/WiredStartRecovery;->takeStartupSummary()Ljava/lang/String;
+
+    move-result-object v0
+
+    if-eqz v0, :cond_0
+
+    const/4 v1, 0x0
+
+    invoke-direct {p0, v0, v1}, Lcom/shilapi/xcertplay/orchestration/CarPlayController;->debugLog(Ljava/lang/String;Z)V
 
     :cond_0
     return-void
@@ -8919,6 +8949,16 @@
 .method private final onIphoneAttached(Landroid/hardware/usb/UsbDevice;)V
     .locals 2
 
+    iget-boolean v0, p0, Lcom/shilapi/xcertplay/orchestration/CarPlayController;->closed:Z
+
+    if-nez v0, :cond_1
+
+    invoke-static {p0}, Lcom/shilapi/xcertplay/E01WiredPort;->controllerReady(Ljava/lang/Object;)Z
+
+    move-result v0
+
+    if-eqz v0, :cond_1
+
     .line 2193
     iget-object v0, p0, Lcom/shilapi/xcertplay/orchestration/CarPlayController;->phase:Lcom/shilapi/xcertplay/orchestration/CarPlayController$Phase;
 
@@ -8942,6 +8982,18 @@
 
     .line 2195
     :cond_0
+    invoke-virtual {p1}, Landroid/hardware/usb/UsbDevice;->getDeviceName()Ljava/lang/String;
+
+    move-result-object v0
+
+    iget-object v1, p0, Lcom/shilapi/xcertplay/orchestration/CarPlayController;->permissionDeviceName:Ljava/lang/String;
+
+    invoke-static {v0, v1}, Lkotlin/jvm/internal/Intrinsics;->areEqual(Ljava/lang/Object;Ljava/lang/Object;)Z
+
+    move-result v1
+
+    if-nez v1, :cond_1
+
     iget-object v0, p0, Lcom/shilapi/xcertplay/orchestration/CarPlayController;->reenumerationWatchGeneration:Ljava/util/concurrent/atomic/AtomicInteger;
 
     invoke-virtual {v0}, Ljava/util/concurrent/atomic/AtomicInteger;->incrementAndGet()I
@@ -8954,6 +9006,7 @@
     .line 2197
     invoke-direct {p0, p1}, Lcom/shilapi/xcertplay/orchestration/CarPlayController;->requestIphonePermission(Landroid/hardware/usb/UsbDevice;)V
 
+    :cond_1
     return-void
 .end method
 
@@ -12233,6 +12286,27 @@
 .method private final requestIphonePermission(Landroid/hardware/usb/UsbDevice;)V
     .locals 4
 
+    monitor-enter p0
+
+    :try_start_0
+    iget-boolean v0, p0, Lcom/shilapi/xcertplay/orchestration/CarPlayController;->closed:Z
+
+    if-nez v0, :cond_0
+
+    invoke-virtual {p1}, Landroid/hardware/usb/UsbDevice;->getDeviceName()Ljava/lang/String;
+
+    move-result-object v0
+
+    iget-object v1, p0, Lcom/shilapi/xcertplay/orchestration/CarPlayController;->permissionDeviceName:Ljava/lang/String;
+
+    invoke-static {v0, v1}, Lkotlin/jvm/internal/Intrinsics;->areEqual(Ljava/lang/Object;Ljava/lang/Object;)Z
+
+    move-result v1
+
+    if-nez v1, :cond_0
+
+    iput-object v0, p0, Lcom/shilapi/xcertplay/orchestration/CarPlayController;->permissionDeviceName:Ljava/lang/String;
+
     .line 2026
     invoke-static {}, Ljava/lang/System;->nanoTime()J
 
@@ -12251,7 +12325,20 @@
 
     invoke-virtual {v2, v3}, Landroid/os/Handler;->post(Ljava/lang/Runnable;)Z
 
+    :try_end_0
+    .catchall {:try_start_0 .. :try_end_0} :catchall_0
+
+    :cond_0
+    monitor-exit p0
+
     return-void
+
+    :catchall_0
+    move-exception v0
+
+    monitor-exit p0
+
+    throw v0
 .end method
 
 .method private static final requestIphonePermission$lambda$98(Lcom/shilapi/xcertplay/orchestration/CarPlayController;Landroid/hardware/usb/UsbDevice;J)V
@@ -20298,7 +20385,7 @@
 .end method
 
 .method private final watchReenumeration()V
-    .locals 5
+    .locals 7
 
     .line 2172
     iget-object v0, p0, Lcom/shilapi/xcertplay/orchestration/CarPlayController;->reenumerationWatchGeneration:Ljava/util/concurrent/atomic/AtomicInteger;
@@ -20317,6 +20404,16 @@
     const-wide/16 v3, 0x2710
 
     invoke-virtual {v1, v2, v3, v4}, Landroid/os/Handler;->postDelayed(Ljava/lang/Runnable;J)Z
+
+    move v5, v0
+    move-object v0, v1
+    iget-object v1, p0, Lcom/shilapi/xcertplay/orchestration/CarPlayController;->executor:Ljava/util/concurrent/ExecutorService;
+    iget-object v2, p0, Lcom/shilapi/xcertplay/orchestration/CarPlayController;->usbManager:Landroid/hardware/usb/UsbManager;
+    iget-object v3, p0, Lcom/shilapi/xcertplay/orchestration/CarPlayController;->wiredDevice:Landroid/hardware/usb/UsbDevice;
+    iget-object v4, p0, Lcom/shilapi/xcertplay/orchestration/CarPlayController;->reenumerationWatchGeneration:Ljava/util/concurrent/atomic/AtomicInteger;
+    new-instance v6, Lcom/shilapi/xcertplay/orchestration/CarPlayController$start$4;
+    invoke-direct {v6, p0}, Lcom/shilapi/xcertplay/orchestration/CarPlayController$start$4;-><init>(Ljava/lang/Object;)V
+    invoke-static/range {v0 .. v6}, Lcom/shilapi/xcertplay/transport/WiredWarmReattach;->probe(Landroid/os/Handler;Ljava/util/concurrent/Executor;Landroid/hardware/usb/UsbManager;Landroid/hardware/usb/UsbDevice;Ljava/util/concurrent/atomic/AtomicInteger;ILkotlin/jvm/functions/Function1;)V
 
     return-void
 .end method
@@ -20357,6 +20454,9 @@
 
     .line 2180
     :cond_1
+    iget-object p1, p0, Lcom/shilapi/xcertplay/orchestration/CarPlayController;->reenumerationWatchGeneration:Ljava/util/concurrent/atomic/AtomicInteger;
+    invoke-virtual {p1}, Ljava/util/concurrent/atomic/AtomicInteger;->incrementAndGet()I
+
     :try_start_0
     sget-object p1, Lkotlin/Result;->Companion:Lkotlin/Result$Companion;
 
@@ -22867,7 +22967,36 @@
 
     invoke-static {v0, p0}, Lcom/shilapi/xcertplay/E01WiredPort;->controllerStarted(Landroid/content/Context;Ljava/lang/Object;)V
 
+    iget-object v0, p0, Lcom/shilapi/xcertplay/orchestration/CarPlayController;->attachCloseable:Ljava/io/Closeable;
+
+    if-nez v0, :cond_2
+
+    :try_start_attach
+    iget-object v0, p0, Lcom/shilapi/xcertplay/orchestration/CarPlayController;->iphoneHost:Lcom/shilapi/xcertplay/transport/IphoneUsbHost;
+
+    new-instance v1, Lcom/shilapi/xcertplay/orchestration/CarPlayController$start$4;
+
+    invoke-direct {v1, p0}, Lcom/shilapi/xcertplay/orchestration/CarPlayController$start$4;-><init>(Ljava/lang/Object;)V
+
+    invoke-virtual {v0, v1}, Lcom/shilapi/xcertplay/transport/IphoneUsbHost;->registerAttachReceiver(Lkotlin/jvm/functions/Function1;)Ljava/io/Closeable;
+
+    move-result-object v0
+
+    iput-object v0, p0, Lcom/shilapi/xcertplay/orchestration/CarPlayController;->attachCloseable:Ljava/io/Closeable;
+    :try_end_attach
+    .catch Ljava/lang/Exception; {:try_start_attach .. :try_end_attach} :catch_0
+
+    goto :goto_0
+
+    :catch_0
+    move-exception v0
+
+    const-string v1, "wired USB attach listener unavailable; retaining discovery fallback"
+
+    invoke-direct {p0, v1, v0}, Lcom/shilapi/xcertplay/orchestration/CarPlayController;->debugLog(Ljava/lang/String;Ljava/lang/Throwable;)V
+
     :cond_2
+    :goto_0
     sget-object v0, Lkotlin/Unit;->INSTANCE:Lkotlin/Unit;
     :try_end_1
     .catchall {:try_start_1 .. :try_end_1} :catchall_0

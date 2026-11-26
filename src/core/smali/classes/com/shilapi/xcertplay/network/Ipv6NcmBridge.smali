@@ -429,6 +429,8 @@
 
     if-nez v1, :cond_0
 
+    iget-object v1, p0, Lcom/shilapi/xcertplay/network/Ipv6NcmBridge;->ncm:Lcom/shilapi/xcertplay/transport/NcmUsbBridge;
+    invoke-virtual {v1}, Lcom/shilapi/xcertplay/transport/NcmUsbBridge;->sendIdleStartupAdvertisement()V
     goto :goto_0
 
     .line 69

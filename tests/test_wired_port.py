@@ -61,7 +61,13 @@ public class Log {public static int i(String a,String b){return 0;}public static
     node = str(work / 'mode')
     front = str(work / 'front-mode')
     source = (ROOT / 'src/e01/com/shilapi/xcertplay/E01WiredPort.java').read_text()
-    put('com/shilapi/xcertplay/E01WiredPort.java', source.replace('/sys/class/host_peripheral/charging_mode', node).replace('/sys/class/otg_peripheral/charging_mode', front).replace('new FileWriter(port.node)', 'new TestFileWriter(port.node)'))
+    put('com/shilapi/xcertplay/E01WiredPort.java', source.replace('/sys/class/host_peripheral/charging_mode', node).replace('/sys/class/otg_peripheral/charging_mode', front).replace('new FileWriter(port.node)', 'new TestFileWriter(port.node)').replace('new FileReader(port.node)', 'new TestFileReader(port.node)'))
+    put('com/shilapi/xcertplay/TestFileReader.java', '''package com.shilapi.xcertplay;
+import java.io.*;
+class TestFileReader extends FileReader {
+ static int reads;
+ TestFileReader(String path)throws IOException{super(path);reads++;}
+}''')
     put('com/shilapi/xcertplay/TestFileWriter.java', '''package com.shilapi.xcertplay;
 import java.io.*; import java.util.concurrent.*;
 class TestFileWriter extends FileWriter {
@@ -120,6 +126,48 @@ public class PortCheck {
   long until=System.nanoTime()+TimeUnit.SECONDS.toNanos(3);
   while(!value.equals(frontMode())&&System.nanoTime()<until)Thread.sleep(10);
   check(value.equals(frontMode()),"expected front mode "+value+", got "+frontMode());
+ }
+ static void nativePort()throws Exception{
+  Context c=new Context();c.p.edit().putString("wired_port","native").commit();mode("dcp");frontMode("dcp");
+  int reads=TestFileReader.reads,hostWrites=TestFileWriter.count(node.toString()),frontWrites=TestFileWriter.count(front.toString());
+  Object owner=new Object();E01WiredPort.start(c);E01WiredPort.controllerStarted(c,owner);waitOwner(owner);waitStatus("idle");
+  Field tick=E01WiredPort.class.getDeclaredField("tick");tick.setAccessible(true);
+  check(tick.get(null)==null,"native USB kept OEM polling alive");
+  check(c.p.getString("restore_mode","").isEmpty()&&c.p.getString("restore_mode_otg","").isEmpty(),"native USB created OEM restore state");
+  check(TestFileReader.reads==reads&&TestFileWriter.count(node.toString())==hostWrites&&TestFileWriter.count(front.toString())==frontWrites,"native USB accessed OEM ports");
+  // Saving another choice must not change the running native connection.
+  c.p.edit().putString("wired_port","host").commit();E01WiredPort.start(c);drain();
+  check(E01WiredPort.controllerReady(owner)&&"idle".equals(E01WiredPort.dataModeStatus()),"saving port changed native session");
+  E01WiredPort.stop();E01WiredPort.controllerClosed(owner);drain();
+  check(TestFileReader.reads==reads&&TestFileWriter.count(node.toString())==hostWrites&&TestFileWriter.count(front.toString())==frontWrites,"native USB cleanup accessed OEM ports");
+  // Next connection uses host again; changing to native takes effect only after teardown.
+  Object hostOwner=new Object();E01WiredPort.start(c);E01WiredPort.controllerStarted(c,hostOwner);waitOwner(hostOwner);waitMode("cdp");
+  c.p.edit().putString("wired_port","native").commit();E01WiredPort.start(c);mode("dcp");waitMode("cdp");
+  E01WiredPort.stop();E01WiredPort.controllerClosed(hostOwner);drain();waitMode("dcp");
+  // Native discovery still waits for an already-entered OEM restore from the previous session.
+  c.p.edit().putString("wired_port","host").commit();E01WiredPort.start(c);waitMode("cdp");waitStatus("ready");
+  TestFileWriter.entered=new CountDownLatch(1);TestFileWriter.release=new CountDownLatch(1);
+  E01WiredPort.stop();check(TestFileWriter.entered.await(2,TimeUnit.SECONDS),"restore did not start before native switch");
+  c.p.edit().putString("wired_port","native").commit();Object next=new Object();E01WiredPort.start(c);E01WiredPort.controllerStarted(c,next);
+  check(!E01WiredPort.controllerReady(next),"native discovery overtook pending OEM restore");
+  TestFileWriter.release.countDown();waitOwner(next);waitStatus("idle");waitMode("dcp");
+  TestFileWriter.entered=null;TestFileWriter.release=null;
+  E01WiredPort.stop();E01WiredPort.controllerClosed(next);drain();
+  // Native mode works without either OEM node, on E01 as well as ordinary Android tablets.
+  Files.delete(node);Files.delete(front);
+  reads=TestFileReader.reads;hostWrites=TestFileWriter.count(node.toString());frontWrites=TestFileWriter.count(front.toString());
+  Object noNodes=new Object();E01WiredPort.start(c);E01WiredPort.controllerStarted(c,noNodes);waitOwner(noNodes);waitStatus("idle");
+  E01WiredPort.stop();E01WiredPort.controllerClosed(noNodes);drain();
+  android.os.Build.MODEL="Tablet";android.os.Build.DEVICE="tablet";
+  for(int sdk:new int[]{22,34}){
+   android.os.Build.VERSION.SDK_INT=sdk;Object tablet=new Object();
+   E01WiredPort.recover(c);E01WiredPort.start(c);E01WiredPort.controllerStarted(c,tablet);
+   check(E01WiredPort.controllerReady(tablet),"tablet USB discovery blocked on OEM preparation");waitStatus("idle");
+   E01WiredPort.stop();E01WiredPort.controllerClosed(tablet);drain();
+  }
+  check(TestFileReader.reads==reads&&TestFileWriter.count(node.toString())==hostWrites&&TestFileWriter.count(front.toString())==frontWrites,"native mode attempted OEM node access");
+  check(!Files.exists(node)&&!Files.exists(front),"native mode created OEM nodes");
+  android.os.Build.MODEL="E01";android.os.Build.DEVICE="BX11QJ";android.os.Build.VERSION.SDK_INT=22;mode("dcp");
  }
  static void selectedPorts()throws Exception{
   Context c=new Context();mode("dcp");frontMode("sdp");
@@ -217,6 +265,7 @@ public class PortCheck {
   mode("unknown");E01WiredPort.start(c);Object unknown=new Object();E01WiredPort.controllerStarted(c,unknown);waitOwner(unknown);waitStatus("failed");E01WiredPort.stop();E01WiredPort.controllerClosed(unknown);drain();
   c.p.edit().putString("restore_mode","dcp").commit();E01WiredPort.recover(c);drain();check("dcp".equals(c.p.getString("restore_mode","")),"unknown node cleared pending journal");
   mode("cdp");E01WiredPort.recover(c);drain();waitMode("dcp");
+  nativePort();
   selectedPorts();
   android.os.Build.MODEL="other";E01WiredPort.start(c);drain();check("idle".equals(E01WiredPort.dataModeStatus()),"unsupported model status");check("dcp".equals(mode()),"unsupported model changed mode");
   System.out.println("PASS "+checks+" real port-controller assertions: blocked I/O, generation, ownership, cancellation, cold recovery, mode status, selected port, untouched other port, session snapshot and recovery");

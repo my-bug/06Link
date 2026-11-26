@@ -11,7 +11,41 @@ public final class RecoveryCheck {
  static void ok(boolean value,String message){checks++;if(!value)throw new AssertionError(message);}
  static class Owner{MediaCodec decoder;Surface outputSurface;long e01ReceivedNs;Owner(MediaCodec c,Surface s){decoder=c;outputSurface=s;}}
  static void entry(E01SmoothVideo.State s,long pts,long age){long now=System.nanoTime();s.entries.put(pts,new E01SmoothVideo.Entry(now-age,now-age));}
+ static void checkQueueLimits(){
+  Collection<Object> empty=new AbstractCollection<Object>(){
+   public int size(){return 0;}
+   public Iterator<Object> iterator(){throw new AssertionError("empty queue should not allocate an iterator");}
+  };
+  ok(!E01BacklogRecovery.exceedsQueueLimits(empty,8,1,8),"empty + exact byte limit");
+  ok(E01BacklogRecovery.exceedsQueueLimits(empty,0,0,0),"zero frame limit still requests resync");
+  ok(E01BacklogRecovery.exceedsQueueLimits(empty,0,1,-1),"negative byte limit still requests resync");
+
+  Object config=new Object();
+  VideoJob.Frame frame=new VideoJob.Frame(1,new byte[4]);
+  List<Object> mixed=Arrays.asList(config,frame,new VideoJob.Resync(),frame,config);
+  ok(!E01BacklogRecovery.exceedsQueueLimits(mixed,2,3,10),"exact limits with config/resync present");
+  ok(E01BacklogRecovery.exceedsQueueLimits(mixed,3,3,10),"byte overflow across controls");
+  ok(E01BacklogRecovery.exceedsQueueLimits(mixed,0,2,10),"frame overflow across controls");
+
+  // Reuse one frame to take the pending byte total past Integer.MAX_VALUE.
+  List<VideoJob.Frame> huge=Collections.nCopies(2048,new VideoJob.Frame(2,new byte[1024*1024]));
+  ok(E01BacklogRecovery.exceedsQueueLimits(huge,0,2049,Integer.MAX_VALUE),"pending byte sum stays wide");
+ }
+ static void checkFreshFrameRecovery(){
+  E01BacklogRecovery recovery=new E01BacklogRecovery();
+  long now=System.nanoTime();
+  ok(!recovery.observe(now-1000000000L,now-1400000000L,2,now-1200000000L),"prime growing backlog");
+  ok(!recovery.needsSnapshot(new VideoJob.Frame(System.nanoTime())),"fresh frame needs no queue inspection");
+  ok(!recovery.observe(now,now-400000000L,8,now-100000000L),"fresh frame clears prior growth history");
+  ok(!recovery.needsSnapshot(new VideoJob.Frame(System.nanoTime()+1000000000L)),"future timestamp resets history");
+  VideoJob.Frame stale=new VideoJob.Frame(now-2000000000L);
+  ok(recovery.needsSnapshot(stale),"stale frame inspects the queued chain");
+  ok(recovery.check(E01BacklogRecovery.snapshot(new Object(),Collections.singletonList(new VideoJob.Frame(now))),stale),
+      "old frame with newer work still recovers");
+ }
  public static void main(String[] args){
+  checkQueueLimits();
+  checkFreshFrameRecovery();
   android.os.Build.MODEL="E01";android.os.Build.DEVICE="BX11QJ";
   Activity context=new Activity();Surface surface=new Surface();
   for(int fps:new int[]{30,60}){

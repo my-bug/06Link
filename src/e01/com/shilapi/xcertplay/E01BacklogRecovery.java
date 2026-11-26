@@ -1,11 +1,13 @@
 package com.shilapi.xcertplay;
 
 import com.shilapi.xcertplay.media.VideoJob;
+import java.util.Collection;
 import java.util.Iterator;
 
 /** Java adaptation of DiPlay VideoBacklogRecovery at 615b32ce (GPL-3.0). */
 public final class E01BacklogRecovery {
     public static final long NONE = Long.MIN_VALUE;
+    private static final long FRESH_FRAME_NS = 150000000L;
     private long start = NONE, initialSpan, last = NONE;
     private int initialFrames;
     public void reset() { start = last = NONE; initialSpan = 0; initialFrames = 0; }
@@ -16,7 +18,7 @@ public final class E01BacklogRecovery {
         }
         last = now;
         long age = now - received, span = newest - received;
-        if (age <= 150000000L || span <= 50000000L) { reset(); return false; }
+        if (age <= FRESH_FRAME_NS || span <= 50000000L) { reset(); return false; }
         if (age >= 1500000000L && span >= 100000000L) { reset(); return true; }
         if (age <= 250000000L || span < 100000000L) return false;
         if (start == NONE) { start = now; initialSpan = span; initialFrames = pending; return false; }
@@ -27,6 +29,22 @@ public final class E01BacklogRecovery {
     public static final class Snapshot {
         public final int pending; public final long newest;
         Snapshot(int n, long newest) { pending = n; this.newest = newest; }
+    }
+    /** Called under the offer lock. Poll may remove work while we inspect pending jobs. */
+    public static boolean exceedsQueueLimits(Collection<?> jobs, int incomingBytes, int maxFrames, int maxBytes) {
+        if (maxFrames <= 0 || incomingBytes > maxBytes) return true;
+        if (jobs.isEmpty()) return false;
+
+        int frames = 0;
+        long bytes = incomingBytes;
+        for (Object job : jobs) {
+            if (job instanceof VideoJob.Frame) {
+                frames++;
+                bytes += ((VideoJob.Frame) job).getNalus().length;
+                if (frames >= maxFrames || bytes > maxBytes) return true;
+            }
+        }
+        return false;
     }
     public static Snapshot snapshot(Object lock, Iterable<?> jobs) {
         synchronized (lock) {
@@ -48,6 +66,14 @@ public final class E01BacklogRecovery {
                 else return;
             }
         }
+    }
+    /** A fresh frame cannot trigger recovery regardless of queue depth or span. */
+    public boolean needsSnapshot(VideoJob.Frame frame) {
+        long received = frame.getReceivedNs();
+        long now = System.nanoTime();
+        if (received <= now && now - received > FRESH_FRAME_NS) return true;
+        reset();
+        return false;
     }
     public boolean check(Snapshot backlog, VideoJob.Frame frame) {
         return observe(System.nanoTime(), frame.getReceivedNs(), backlog.pending, backlog.newest);

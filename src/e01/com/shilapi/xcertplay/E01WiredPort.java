@@ -97,9 +97,16 @@ public final class E01WiredPort {
             String choice = context.getSharedPreferences("06link-native-ui", 0)
                     .getString("wired_port", "host");
             if (contextFor(g, true) == null) return;
-            sessionPort = PORTS["otg".equals(choice) ? 1 : 0];
-            sessionPort.window = 0; sessionPort.writes = 0;
+            sessionPort = "native".equals(choice) ? null : PORTS["otg".equals(choice) ? 1 : 0];
+            if (sessionPort != null) { sessionPort.window = 0; sessionPort.writes = 0; }
             selectionGeneration = g;
+        }
+        // Native USB uses Android's existing discovery/permission path without OEM port I/O.
+        // Keep the ownership barrier so any prior OEM restore finishes before discovery.
+        if (sessionPort == null) {
+            cancelTick();
+            status(g, "idle");
+            return;
         }
         // Snapshot once per wired connection. Settings changes never switch a live port.
         // Do not read/write the other port or try it when the selected one has no phone.

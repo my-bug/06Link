@@ -45,7 +45,11 @@ public class QueueProbe {
   ok(saved.contains("ACCEPTED_BEFORE_CLOSE"),"accepted event not lost when source closes");
   E01LogPolicy.clear(c);
   synchronized(E01LogPolicy.class){
-   for(int i=0;i<10000;i++)E01LogPolicy.queueSession(file,"VIDEO raw frame="+i);
+   for(int i=0;i<10000;i++){
+    E01LogPolicy.queueSession(file,"VIDEO raw frame="+i);
+    E01LogPolicy.queueSession(file,"wired iap2 rx=0x4300 carplay-availability payload="+i);
+    E01LogPolicy.queueSession(file,"Video: decoder=c2.qti.avc.decoder mime=video/avc size=1920x1080 csd="+i);
+   }
    synchronized(lock){ok(queue.isEmpty()&&!(Boolean)field("draining").get(null),"packet noise rejected before queue or worker startup");}
    Thread producer=new Thread(()->{for(int i=0;i<3000;i++)E01LogPolicy.queueSession(file,"CarPlay connected overload="+i);});
    producer.start();producer.join(2000);ok(!producer.isAlive(),"full queue never executes storage on caller");
@@ -60,6 +64,15 @@ public class QueueProbe {
   E01LogPolicy.queueSession(file,timing);
   E01LogPolicy.queueSession(file,"[接收摘要] video timing run=tail configured=wired reader=77 screen=111 arrivalGap=1200/66667/100000/255000/2/1");
   drained();saved=read(file);ok(saved.contains(timing)&&saved.contains("screen=111 arrivalGap=1200/66667/100000/255000/2/1"),"bounded timing summaries survive real queue and disk filters intact");
+  String[] startup={"STEP usb/reenum: waiting for the CarPlay USB configuration",
+   "wired iap2 identification accepted", "wired iap2 power/subscriptions sent",
+   "wired iap2 rx=0x4300 carplay-availability", "wired iap2 tx=0x4301 carplay-start-session",
+   "Video: decoder=c2.qti.avc.decoder mime=video/avc size=1920x1080",
+   "[接收摘要] video run=short configured=wired reader=7 spanMs=10000 frames=550 fps=55.0 screen=110",
+   "[接收摘要] video timing run=short configured=wired reader=7 screen=110 spanMs=10000 histUs=n/p95u/p99u/max/gt50/gt100 arrival=549/33333/50000/60000/1/0"};
+  for(String event:startup)E01LogPolicy.queueSession(file,event);
+  drained();saved=read(file);int prior=-1;
+  for(String event:startup){int at=saved.indexOf(event);ok(at>prior,"startup phase/configuration/short frame evidence survives queue and disk filtering in order");prior=at;}
   String settingsTiming="UI timing settings id=1 eventAgeMs=4 gestureToOpenMs=1 openToRequestMs=2 requestToBuildMs=180 buildMs=10 buildToPreDrawMs=16 totalMs=209 end=pre_draw";
   E01LogPolicy.queueSession(file,settingsTiming);drained();ok(read(file).contains(settingsTiming),"settings transition summary survives real queue and disk filters intact");
   E01LogPolicy.clear(c);

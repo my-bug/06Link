@@ -224,160 +224,46 @@
 
     invoke-static {p1, v0}, Lkotlin/jvm/internal/Intrinsics;->checkNotNullParameter(Ljava/lang/Object;Ljava/lang/String;)V
 
-    .line 34
-    instance-of v0, p1, Lcom/shilapi/xcertplay/media/VideoJob$Frame;
-
-    if-eqz v0, :cond_5
-
-    .line 35
     iget-object v0, p0, Lcom/shilapi/xcertplay/media/VideoDecodeQueue;->jobs:Ljava/util/concurrent/LinkedBlockingQueue;
 
-    check-cast v0, Ljava/lang/Iterable;
+    instance-of v1, p1, Lcom/shilapi/xcertplay/media/VideoJob$Frame;
 
-    .line 78
-    new-instance v1, Ljava/util/ArrayList;
+    if-eqz v1, :cond_0
 
-    invoke-direct {v1}, Ljava/util/ArrayList;-><init>()V
+    move-object v1, p1
 
-    check-cast v1, Ljava/util/Collection;
+    check-cast v1, Lcom/shilapi/xcertplay/media/VideoJob$Frame;
 
-    .line 87
-    invoke-interface {v0}, Ljava/lang/Iterable;->iterator()Ljava/util/Iterator;
+    invoke-virtual {v1}, Lcom/shilapi/xcertplay/media/VideoJob$Frame;->getNalus()[B
 
-    move-result-object v0
+    move-result-object v1
 
-    :cond_0
-    :goto_0
-    invoke-interface {v0}, Ljava/util/Iterator;->hasNext()Z
-
-    move-result v2
-
-    if-eqz v2, :cond_1
-
-    invoke-interface {v0}, Ljava/util/Iterator;->next()Ljava/lang/Object;
-
-    move-result-object v2
-
-    instance-of v3, v2, Lcom/shilapi/xcertplay/media/VideoJob$Frame;
-
-    if-eqz v3, :cond_0
-
-    invoke-interface {v1, v2}, Ljava/util/Collection;->add(Ljava/lang/Object;)Z
-
-    goto :goto_0
-
-    .line 88
-    :cond_1
-    check-cast v1, Ljava/util/List;
-
-    .line 36
-    invoke-interface {v1}, Ljava/util/List;->size()I
-
-    move-result v0
+    array-length v1, v1
 
     iget v2, p0, Lcom/shilapi/xcertplay/media/VideoDecodeQueue;->maxFrames:I
 
-    if-ge v0, v2, :cond_3
+    iget v3, p0, Lcom/shilapi/xcertplay/media/VideoDecodeQueue;->maxBytes:I
 
-    check-cast v1, Ljava/lang/Iterable;
+    invoke-static {v0, v1, v2, v3}, Lcom/shilapi/xcertplay/E01BacklogRecovery;->exceedsQueueLimits(Ljava/util/Collection;III)Z
 
-    invoke-interface {v1}, Ljava/lang/Iterable;->iterator()Ljava/util/Iterator;
+    move-result v4
 
-    move-result-object v0
+    if-eqz v4, :cond_0
 
-    const-wide/16 v1, 0x0
-
-    :goto_1
-    invoke-interface {v0}, Ljava/util/Iterator;->hasNext()Z
-
-    move-result v3
-
-    if-eqz v3, :cond_2
-
-    invoke-interface {v0}, Ljava/util/Iterator;->next()Ljava/lang/Object;
-
-    move-result-object v3
-
-    check-cast v3, Lcom/shilapi/xcertplay/media/VideoJob$Frame;
-
-    invoke-virtual {v3}, Lcom/shilapi/xcertplay/media/VideoJob$Frame;->getNalus()[B
-
-    move-result-object v3
-
-    array-length v3, v3
-
-    int-to-long v3, v3
-
-    add-long/2addr v1, v3
-
-    goto :goto_1
-
-    :cond_2
-    move-object v0, p1
-
-    check-cast v0, Lcom/shilapi/xcertplay/media/VideoJob$Frame;
-
-    invoke-virtual {v0}, Lcom/shilapi/xcertplay/media/VideoJob$Frame;->getNalus()[B
-
-    move-result-object v0
-
-    array-length v0, v0
-
-    int-to-long v3, v0
-
-    add-long/2addr v1, v3
-
-    iget v0, p0, Lcom/shilapi/xcertplay/media/VideoDecodeQueue;->maxBytes:I
-
-    int-to-long v3, v0
-
-    cmp-long v0, v1, v3
-
-    if-lez v0, :cond_4
-
-    .line 37
-    :cond_3
     invoke-virtual {p0}, Lcom/shilapi/xcertplay/media/VideoDecodeQueue;->discardFrames()V
 
-    .line 38
-    iget-object v0, p0, Lcom/shilapi/xcertplay/media/VideoDecodeQueue;->jobs:Ljava/util/concurrent/LinkedBlockingQueue;
+    sget-object v4, Lcom/shilapi/xcertplay/media/VideoJob$Resync;->INSTANCE:Lcom/shilapi/xcertplay/media/VideoJob$Resync;
 
-    sget-object v1, Lcom/shilapi/xcertplay/media/VideoJob$Resync;->INSTANCE:Lcom/shilapi/xcertplay/media/VideoJob$Resync;
+    invoke-virtual {v0, v4}, Ljava/util/concurrent/LinkedBlockingQueue;->offer(Ljava/lang/Object;)Z
 
-    invoke-virtual {v0, v1}, Ljava/util/concurrent/LinkedBlockingQueue;->offer(Ljava/lang/Object;)Z
+    if-gt v1, v3, :cond_1
 
-    .line 41
-    :cond_4
-    move-object v0, p1
-
-    check-cast v0, Lcom/shilapi/xcertplay/media/VideoJob$Frame;
-
-    invoke-virtual {v0}, Lcom/shilapi/xcertplay/media/VideoJob$Frame;->getNalus()[B
-
-    move-result-object v0
-
-    array-length v0, v0
-
-    iget v1, p0, Lcom/shilapi/xcertplay/media/VideoDecodeQueue;->maxBytes:I
+    :cond_0
+    invoke-virtual {v0, p1}, Ljava/util/concurrent/LinkedBlockingQueue;->offer(Ljava/lang/Object;)Z
     :try_end_0
     .catchall {:try_start_0 .. :try_end_0} :catchall_0
 
-    if-le v0, v1, :cond_5
-
-    monitor-exit p0
-
-    return-void
-
-    .line 43
-    :cond_5
-    :try_start_1
-    iget-object v0, p0, Lcom/shilapi/xcertplay/media/VideoDecodeQueue;->jobs:Ljava/util/concurrent/LinkedBlockingQueue;
-
-    invoke-virtual {v0, p1}, Ljava/util/concurrent/LinkedBlockingQueue;->offer(Ljava/lang/Object;)Z
-    :try_end_1
-    .catchall {:try_start_1 .. :try_end_1} :catchall_0
-
-    .line 44
+    :cond_1
     monitor-exit p0
 
     return-void
@@ -385,18 +271,9 @@
     :catchall_0
     move-exception p1
 
-    :try_start_2
     monitor-exit p0
-    :try_end_2
-    .catchall {:try_start_2 .. :try_end_2} :catchall_0
 
-    goto :goto_3
-
-    :goto_2
     throw p1
-
-    :goto_3
-    goto :goto_2
 .end method
 
 .method public final poll(J)Lcom/shilapi/xcertplay/media/VideoJob;

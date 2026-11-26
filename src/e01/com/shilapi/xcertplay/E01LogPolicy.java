@@ -184,11 +184,45 @@ public final class E01LogPolicy {
         }catch(RuntimeException ignored){}
     }
 
+    // Match the actual configuration reports, not arbitrary decoder/frame traces.
+    // VideoDecoder.report reaches the session through CarPlayMediaEngine's "Video: " prefix.
+    private static final java.util.regex.Pattern DECODER_CONFIGURATION = java.util.regex.Pattern.compile(
+        "(?:video: decoder=|video decoder configured name=)[a-z0-9_.-]+(?: \\(software\\))?(?: mime=video/[a-z0-9_.-]+)? size=[0-9]+x[0-9]+");
+    private static boolean connectionMilestone(String s) {
+        switch(s){
+            case "wired iap2 identification accepted":
+            case "wired iap2 power/subscriptions sent":
+            case "wired iap2 rx=0x4300 carplay-availability":
+            case "wired iap2 tx=0x4301 carplay-start-session":
+            case "wired vpn service bound; attaching ncm transport":
+            case "wired vpn/ncm transport attach result=started":
+            case "wired vpn/ncm transport attach result=already-started":
+            case "wired ncm/vpn airplay transport attached":
+            case "wired iap2 control starting":return true;
+            default:break;
+        }
+        if(!s.startsWith("step ")||s.indexOf('\n')>=0||s.indexOf('\r')>=0)return false;
+        int colon=s.indexOf(": ",5);if(colon<0)return false;
+        // Only controller state descriptions are admitted, never generic iAP2/USB dumps.
+        switch(s.substring(5,colon)){
+            case "mfi/start":case "mfi/wait":case "mfi/permission":case "mfi/ready":
+            case "wifi/ap":case "wifi/ap-ready":case "wifi/join":case "wifi/switch":
+            case "bt/select":case "bt/rfcomm":case "bt/reconnect":case "iap2/wireless":
+            case "handoff/complete":case "usb/discover":case "usb/wait":case "usb/permission":
+            case "usb/reenum":case "usb/config":case "usb/data":case "lockdown/pair":
+            case "lockdown/trust":case "lockdown/unlock":case "lockdown/carkit":
+            case "network/attach":case "iap2/wired":case "control/end":return true;
+            default:return false;
+        }
+    }
+
     private static boolean eligible(String text) {
         if(text==null)return false;
         String b=body(text),s=b.toLowerCase(Locale.US);
         if(failure(s)||s.startsWith("video recovery=")||s.startsWith("video decision="))return true;
-        return sampleKey(s)!=null || s.startsWith("video sample ") || s.startsWith("video timing ") || b.startsWith("[接收摘要] video ")
+        return connectionMilestone(s)
+            || ((s.startsWith("video: decoder=")||s.startsWith("video decoder configured name="))&&DECODER_CONFIGURATION.matcher(s).matches())
+            || sampleKey(s)!=null || s.startsWith("video sample ") || s.startsWith("video timing ") || b.startsWith("[接收摘要] video ")
             || s.startsWith("ui timing settings ") || s.startsWith("audio rx priority=") || b.startsWith("[音频场景]") || b.startsWith("[导航音量]")
             || b.startsWith("[音源交接]") || b.startsWith("[导航语音]") || b.startsWith("[开机自启]")
             || s.startsWith("audio: ready audiotype=") || s.contains("connected") || s.contains("disconnect")

@@ -713,6 +713,8 @@
     goto :goto_1
 
     :cond_1
+    invoke-static {v9}, Lcom/shilapi/xcertplay/E01SmoothVideo;->packet([B)V
+
     add-int/lit16 v2, v2, 0x80
 
     const/4 v5, 0x6
@@ -740,8 +742,6 @@
     move-result-wide v4
 
     invoke-static {v0, v3, v4, v5, v2}, Lcom/shilapi/xcertplay/E01VideoIngress;->message(Ljava/io/InputStream;IJI)V
-
-    invoke-static {v9}, Lcom/shilapi/xcertplay/E01SmoothVideo;->packet([B)V
 
     invoke-direct {p0, v9, v10}, Lcom/shilapi/xcertplay/airplay/ScreenStream;->onMessage([B[B)V
 

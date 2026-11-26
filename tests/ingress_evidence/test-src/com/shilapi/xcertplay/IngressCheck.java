@@ -48,24 +48,57 @@ public final class IngressCheck {
   ok(s.contains("empty=1/999/999@22..1021")&&s.contains("full=1/30/30@2000..2030"),"empty/full waits separate total count maximum event bounds");
   ok(s.contains("packets=4 frames=2 configs=1 other=1 bodyMax=200"),"only type zero increments frames");
   ok(s.contains("frameGap=1000@3000..4000")&&s.contains("senderStepAtGapMs=16 senderStepMaxMs=16"),"arrival gap paired with the same source timestamp delta");
-  ok(e.reportIfDue(base+10000000001L)==null,"same window cannot report twice");
+  String first=e.takeSummary();ok(first.contains("spanMs=10000 frames=2 fps=0.2 bytes=300"),"startup summary uses the real first ten-second window");
+  ok(e.takeTimingSummary().contains("spanMs=10000"),"startup distribution uses the same captured window");
+  ok(e.reportIfDue(base+10000000001L)==null&&e.takeSummary()==null&&e.takeTimingSummary()==null,"same window cannot report twice");
   e.sourceRead(base+11000000000L,base+11001000000L,-2);e.sourceRead(base+11002000000L,base+11003000000L,-1);
   e.packet(0,0,0,base+12000000000L);e.packet(0,5000000000L,1,base+13000000000L);e.packet(0,5000000000L,1,base+14000000000L);e.packet(0,4000000000L,1,base+15000000000L);
   s=e.reportIfDue(base+20000000000L);ok(s.contains("readCalls=2 bytes=0 readErrors=1"),"read failure and EOF do not create data");
   ok(s.contains("missingPts=1 nonIncreasingPts=2"),"missing repeated and reverse PTS counted without fabricating source cadence");
-  for(int n=3;n<=9;n++)ok(e.reportIfDue(base+n*10000000000L)!=null,"bounded report "+n);
-  String first=e.takeSummary();ok(first.contains("run=1 configured=wireless reader=77 spanMs=60000 frames=6")&&first.contains("bytes=300"),"minute summary includes all startup windows, identity and real counts");
+  ok(e.takeSummary().contains("spanMs=10000 frames=4")&&e.takeTimingSummary()!=null,"second startup summary does not reuse first-window counters");
+  for(int n=3;n<=9;n++){
+   ok(e.reportIfDue(base+n*10000000000L)!=null,"bounded report "+n);
+   String window=e.takeSummary(),distribution=e.takeTimingSummary();
+   if(n==3||n==9)ok(window.contains("spanMs="+(n==3?10000:60000)+" frames=0")&&distribution!=null,"third startup then independent one-minute summary "+n);
+   else ok(window==null&&distribution==null,"detailed logcat window does not force persistent IO "+n);
+  }
   ok(e.takeSummary()==null,"summary consumed once");
   e.sourceRead(base+90000000001L,base+91000000000L,999);e.packet(0,90000000000L,999,base+91000000000L);
   ok(e.reportIfDue(base+100000000000L)==null,"later detailed reports wait a minute");
   ok(e.reportIfDue(base+120000000000L)==null,"persistent summary independent of verbose report window");
-  String minute=e.takeSummary();ok(minute.contains("spanMs=60000 frames=1")&&minute.contains("bytes=999"),"records data after first ninety seconds");
+  ok(e.takeSummary()==null&&e.takeTimingSummary()==null,"no early persistent report between minute boundaries");
   ok(e.reportIfDue(base+150000000000L)!=null,"detailed report survives long session at minute cadence");
+  String minute=e.takeSummary();ok(minute.contains("spanMs=60000 frames=1")&&minute.contains("bytes=999"),"records data after first ninety seconds");
   E01IngressEvidence expiry=new E01IngressEvidence(1,base,base);expiry.packet(0,1,10,base+91000000000L);ok(expiry.reportIfDue(base+91000000000L)!=null&&expiry.takeSummary().contains("spanMs=91000 frames=1"),"late first packet retains real elapsed window");
   E01IngressEvidence hours=new E01IngressEvidence(2,base,base);int summaries=0;
-  for(int n=1;n<=7200;n++){long now=base+n*1000000000L;hours.sourceRead(now-1000000L,now,10);hours.packet(0,now,10,now);hours.reportIfDue(now);String item=hours.takeSummary();if(item!=null){summaries++;ok(item.contains("frames=60")&&item.contains("bytes=600"),"two-hour window keeps accurate nonoverlapping counters");}}
-  ok(summaries==120,"two hours produces 120 summaries, never per packet");
+  for(int n=1;n<=7200;n++){long now=base+n*1000000000L;hours.sourceRead(now-1000000L,now,10);hours.packet(0,now,10,now);hours.reportIfDue(now);String item=hours.takeSummary();if(item!=null){summaries++;int frames=summaries<=3?10:60;ok(item.contains("frames="+frames+" ")&&item.contains("bytes="+(frames*10)+" "),"two-hour window keeps accurate nonoverlapping counters");}}
+  ok(summaries==122,"two hours produces three startup and 119 minute summaries, never per packet");
   E01IngressEvidence peer=new E01IngressEvidence(88,base+500000000L,base);ok(peer.reportIfDue(base+10500000000L).contains("winMs=500..10500"),"different sockets use same event epoch");
+ }
+ static void startupWindows(){
+  long base=1000000000L,ten=10000000000L;
+  E01IngressEvidence main=new E01IngressEvidence(101,base,base,110);
+  E01IngressEvidence secondary=new E01IngressEvidence(102,base+5000000000L,base,111);
+  for(int n=1;n<=3;n++){
+   long end=base+n*ten;
+   main.packet(0,end,12,end-1);main.sourceRead(end-2,end-1,12);
+   main.reportIfDue(end-1);ok(main.takeSummary()==null&&main.takeTimingSummary()==null,"no persistent window before exact boundary "+n);
+   main.reportIfDue(end);String text=main.takeSummary(),distribution=main.takeTimingSummary();
+   ok(text.contains("spanMs=10000 frames=1 fps=0.1 bytes=12")&&text.endsWith("screen=110"),"exact startup boundary preserves real counts and FPS "+n);
+   ok(distribution.contains("screen=110 spanMs=10000")&&distribution.contains("arrival="+(n==1?0:1)+"/"),"startup histogram resets but preserves cross-window interval "+n);
+   main.reportIfDue(end+1);ok(main.takeSummary()==null&&main.takeTimingSummary()==null,"no catch-up or duplicate startup emission "+n);
+   secondary.packet(0,end,7,end);secondary.reportIfDue(end);
+   if(n==1)ok(secondary.takeSummary()==null&&secondary.takeTimingSummary()==null,"secondary stream does not inherit main startup clock");
+   else ok(secondary.takeSummary().endsWith("screen=111")&&secondary.takeTimingSummary().contains("screen=111"),"secondary stream owns its counters and histogram "+n);
+  }
+  for(int n=4;n<=8;n++){main.reportIfDue(base+n*ten);ok(main.takeSummary()==null&&main.takeTimingSummary()==null,"startup completes without persistent ten-second logging "+n);}
+  main.packet(0,base+90000000000L,9,base+90000000000L-1);
+  main.reportIfDue(base+90000000000L-1);ok(main.takeSummary()==null&&main.takeTimingSummary()==null,"steady-state exact minute boundary remains exclusive");
+  main.reportIfDue(base+90000000000L);ok(main.takeSummary().contains("spanMs=60000 frames=1")&&main.takeTimingSummary().contains("spanMs=60000"),"steady-state paired summaries begin after a complete minute");
+  E01IngressEvidence late=new E01IngressEvidence(103,base,base,110);
+  late.packet(0,base,1,base+91000000000L);late.reportIfDue(base+91000000000L);
+  ok(late.takeSummary().contains("spanMs=91000 frames=1 fps=0.0")&&late.takeTimingSummary().contains("spanMs=91000"),"late startup keeps actual elapsed rather than manufacturing a ten-second FPS");
+  late.reportIfDue(base+91000000001L);ok(late.takeSummary()==null&&late.takeTimingSummary()==null,"late startup emits one snapshot without catch-up bursts");
  }
  static void pairedSummary()throws Exception{
   long b=1000000000L;E01IngressEvidence e=new E01IngressEvidence(91,b,b);
@@ -124,7 +157,7 @@ public final class IngressCheck {
   }
   E01IngressEvidence hours=new E01IngressEvidence(100,b,b,110);int distributions=0;
   for(int n=1;n<=7200;n++){now=b+n*1000000000L;hours.packet(0,now,8,now);hours.reportIfDue(now);hours.takeSummary();if(hours.takeTimingSummary()!=null)distributions++;}
-  ok(distributions==120,"timing produces one line per minute for two hours");
+  ok(distributions==122,"timing produces three startup lines then one per minute for two hours");
   // One hour of frame silence still fits the existing 512-character record cap.
   E01IngressEvidence longGap=new E01IngressEvidence(Integer.MAX_VALUE,b,b,110);longGap.packet(0,b,1,b);longGap.packet(0,b+3600000000000L,1,b+3600000000000L);longGap.reportIfDue(b+3600000000000L);
   for(String s:new String[]{plain,timing,longGap.takeSummary(),longGap.takeTimingSummary()})ok(("2026-11-20 00:00:00 [接收摘要] video "+s).length()<=512,"separate bounded diagnostics retain last field under line cap");
@@ -178,5 +211,5 @@ public final class IngressCheck {
   ok(E01VideoEvidence.samples.size()==2,"additional frames never trigger per-frame persistent records");
   a.close();android.util.Log.forbiddenRing=android.util.Log.forbiddenStats=null;
  }
- public static void main(String[] args)throws Exception{workerPriority();timing();pairedSummary();frameDistributions();socketScreenIdentity();byteEquality();waitsAndErrors();closeAndLogs();minuteEmission();System.out.println("PASS "+checks+" ingress evidence priority/denial/caller-isolation/timing/distribution/screen/quotas/type/byte-order/wrap/EOF/error/wait/close/log-lock checks (fake Android, no vehicle)");}
+ public static void main(String[] args)throws Exception{workerPriority();timing();startupWindows();pairedSummary();frameDistributions();socketScreenIdentity();byteEquality();waitsAndErrors();closeAndLogs();minuteEmission();System.out.println("PASS "+checks+" ingress evidence priority/denial/caller-isolation/timing/distribution/screen/quotas/type/byte-order/wrap/EOF/error/wait/close/log-lock checks (fake Android, no vehicle)");}
 }

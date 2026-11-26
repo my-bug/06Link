@@ -158,6 +158,9 @@ def main():
            check(ps.string("wired_port","").equals("扶手箱 USB"),"USB default changed");
            ps.set("wired_port","点烟器旁 USB");check(ps.string("wired_port","").equals("点烟器旁 USB"),"front USB selection not saved");
            check(portPage.getSharedPreferences("06link-native-ui",0).getString("wired_port","").equals("otg"),"front USB mapping wrong");
+           ps.set("wired_port","原生 USB");check(ps.string("wired_port","").equals("原生 USB"),"native USB selection not saved");
+           check(portPage.getSharedPreferences("06link-native-ui",0).getString("wired_port","").equals("native"),"native USB mapping wrong");
+           check(new E01NativeSettings(portPage).string("wired_port","").equals("原生 USB"),"native USB selection lost on reopen");
            ps.set("wired_port","扶手箱 USB");check(ps.string("wired_port","").equals("扶手箱 USB"),"host USB selection not saved");
            check(E01WiredPort.starts==starts,"saving interface started hardware");}
           for(String mode:new String[]{"无线","有线","每次选择"}){Page p=fresh(false,mode);check(!E01NativeSettings.startupEligible(p),"disabled auto started");p.pendingAutoConnect=true;E01NativeSettings.defaultConnection(p);check(p.pendingAutoConnect==null&&!p.autoStartWaiting,"disabled auto retained pending");new E01NativeSettings(p).set("default_connection","无线");check(!DiPlayPreferences.INSTANCE.autoConnect(p),"select mode secretly enabled auto");}

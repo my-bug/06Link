@@ -51,7 +51,7 @@
     "dex": "classes.dex",
     "class": "com/shilapi/xcertplay/transport/NcmUsbBridge.smali",
     "method": "send([BI)V",
-    "sha256": "06261afa011e05eedf8879df29f67db9f1955596f9a6102d4971e2ad9ecf6269"
+    "sha256": "ace8f1e5026ca1d5d735bf795f68b50c131309d96779ea3995d4acebc2d3fc7b"
   },
   "wired-tun-close": {
     "dex": "classes.dex",
@@ -261,7 +261,7 @@
     "dex": "classes.dex",
     "class": "com/shilapi/xcertplay/media/VideoDecoder.smali",
     "method": "run()V",
-    "sha256": "91d24c3c3a43bf5b91cd0712ec1f8039b975dd981fb729767b1b18928087b27b"
+    "sha256": "49fd59313983e0c26b188c7a1732a3be00ed03bac9fea9cfa77db1a8f1ea5462"
   },
   "e01-gl-input-cancel": {
     "dex": "classes.dex",
@@ -279,7 +279,7 @@
     "dex": "classes.dex",
     "class": "com/shilapi/xcertplay/media/VideoDecoder.smali",
     "method": "run()V",
-    "sha256": "91d24c3c3a43bf5b91cd0712ec1f8039b975dd981fb729767b1b18928087b27b"
+    "sha256": "49fd59313983e0c26b188c7a1732a3be00ed03bac9fea9cfa77db1a8f1ea5462"
   },
   "video-visibility-home": {
     "dex": "classes.dex",
@@ -327,7 +327,7 @@
     "dex": "classes.dex",
     "class": "com/shilapi/xcertplay/airplay/ScreenStream.smali",
     "method": "run(Ljava/net/Socket;)V",
-    "sha256": "ae88215bb55adea8569b413cbcd39aa80e2fc1f335ac1618d29a0238ac20912e"
+    "sha256": "7d04a134d60f520e6437e8673f37bcf80b48555fa14b17c8e4e0557d8b9af9c2"
   },
   "gps-diagnostic-provider-attached": {
     "dex": "classes.dex",
@@ -615,7 +615,7 @@
     "dex": "classes.dex",
     "class": "com/shilapi/xcertplay/E01SmoothVideo.smali",
     "method": "configure(Landroid/media/MediaCodec;Landroid/media/MediaFormat;Landroid/view/Surface;Z)V",
-    "sha256": "aaa5a6c0afc930c58206dd26692e79953e35f49c51007dfd1328b05853e99581"
+    "sha256": "15bfbde2854ef8c490be607d772cae1ade7df7b7d8c6dc9a3649851bd5c73e4b"
   },
   "fps-connection": {
     "dex": "classes.dex",
@@ -735,13 +735,13 @@
     "dex": "classes.dex",
     "class": "com/shilapi/xcertplay/orchestration/CarPlayController.smali",
     "method": "markWiredSessionActive()V",
-    "sha256": "8be60306de6d8431a3d14c38e62e953fdb790f9a5e8cb01eb0ca2fe7ca3487bd"
+    "sha256": "9c60e4a57741c7d9ab3e18f43d48dd1a9bae189ea125e282092370460c72e956"
   },
   "wired-start-incoming": {
     "dex": "classes.dex",
     "class": "com/shilapi/xcertplay/network/Ipv6NcmBridge.smali",
     "method": "runNcmToTun()V",
-    "sha256": "06d07776839fbfbef8bd2283dd5e132a63ac983b1f11a1469ac9cbb280a31fce"
+    "sha256": "d5d6e2160855e4efd422538f75942e6a3045038134f7de17fbfadd958875d799"
   },
   "wired-start-close": {
     "dex": "classes.dex",

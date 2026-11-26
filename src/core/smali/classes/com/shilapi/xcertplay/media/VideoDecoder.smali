@@ -2867,15 +2867,21 @@
 
     iget-object v2, p0, Lcom/shilapi/xcertplay/media/VideoDecoder;->e01Backlog:Lcom/shilapi/xcertplay/E01BacklogRecovery;
 
+    move-object v4, v0
+
+    check-cast v4, Lcom/shilapi/xcertplay/media/VideoJob$Frame;
+
+    invoke-virtual {v2, v4}, Lcom/shilapi/xcertplay/E01BacklogRecovery;->needsSnapshot(Lcom/shilapi/xcertplay/media/VideoJob$Frame;)Z
+
+    move-result v3
+
+    if-eqz v3, :cond_3
+
     iget-object v3, p0, Lcom/shilapi/xcertplay/media/VideoDecoder;->queue:Lcom/shilapi/xcertplay/media/VideoDecodeQueue;
 
     invoke-virtual {v3}, Lcom/shilapi/xcertplay/media/VideoDecodeQueue;->e01BacklogAfterCurrent()Lcom/shilapi/xcertplay/E01BacklogRecovery$Snapshot;
 
     move-result-object v3
-
-    move-object v4, v0
-
-    check-cast v4, Lcom/shilapi/xcertplay/media/VideoJob$Frame;
 
     invoke-virtual {v2, v3, v4}, Lcom/shilapi/xcertplay/E01BacklogRecovery;->check(Lcom/shilapi/xcertplay/E01BacklogRecovery$Snapshot;Lcom/shilapi/xcertplay/media/VideoJob$Frame;)Z
 

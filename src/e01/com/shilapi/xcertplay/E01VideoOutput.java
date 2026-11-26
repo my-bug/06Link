@@ -104,7 +104,7 @@ public final class E01VideoOutput {
         if (session == null || session.owner != owner) return 5L;
         if (session.failure != null) return 0L;
         E01SmoothVideo.State state = E01SmoothVideo.STATES.get(codec);
-        if (state == null || !state.boundedRender || state.retired || session.stopping
+        if (state == null || !E01SmoothVideo.dedicated(codec) || state.retired || session.stopping
                 || !session.thread.isAlive()) return 5L;
         return 20L;
     }

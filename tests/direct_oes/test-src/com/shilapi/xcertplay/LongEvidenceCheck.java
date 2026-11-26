@@ -3,6 +3,55 @@ import java.lang.reflect.*;
 public final class LongEvidenceCheck {
  static int checks;
  static final class Host extends android.app.Activity{private boolean wirelessEnabled;Host(boolean b){wirelessEnabled=b;}}
+ // Any storage access once the session is ready would block on a busy mount.
+ static final class StorageHost extends android.app.Activity {
+  boolean mediaStarted;
+  int externalReads,internalReads;
+  final boolean internal;
+  StorageHost(boolean internal){this.internal=internal;}
+  public java.io.File getExternalFilesDir(String type){
+   if(mediaStarted)throw new AssertionError("storage lookup on the frame path");
+   externalReads++;
+   return internal?null:super.getExternalFilesDir(type);
+  }
+  public java.io.File getFilesDir(){
+   if(mediaStarted)throw new AssertionError("internal storage lookup on the frame path");
+   internalReads++;
+   return super.getFilesDir();
+  }
+ }
+ static final class FrameOwner {
+  final android.media.MediaCodec decoder=new android.media.MediaCodec();
+  long e01ReceivedNs;
+ }
+ static void storageDuringPlayback(boolean internal){
+  StorageHost host=new StorageHost(internal);
+  E01VideoEvidence.begin(host,60);
+  host.mediaStarted=true;
+  FrameOwner owner=new FrameOwner();
+  E01SmoothVideo.State state=new E01SmoothVideo.State(new E01SmoothVideo.Output(host,60,true));
+  E01SmoothVideo.STATES.put(owner.decoder,state);
+  final int[] logCount={0};
+  android.util.Log.onInfo=line->{
+   ok(!Thread.holdsLock(state),"source-rate Logcat call cannot block the output monitor");
+   ok(line.contains("sourceMedianStepUs=16666"),"original source-rate diagnostic retained");
+   logCount[0]++;
+  };
+  try{
+   for(int i=0;i<60;i++){
+    byte[] picture=new byte[1];
+    E01SmoothVideo.STAMPS.put(picture,new E01SmoothVideo.Stamp(1_000_000_000L+i*16_666_667L,System.nanoTime()));
+    E01SmoothVideo.presentation(owner,picture);
+   }
+   ok(logCount[0]==1,"one source-rate message per codec");
+   E01LogPolicy.messages.clear();
+   E01VideoEvidence.ingress("ingress");
+   E01VideoEvidence.audioPriority("ok");
+   E01SmoothVideo.report(state,state.reportAt+10_000_000_000L);
+   ok(E01LogPolicy.messages.size()==5,"audio, ingress, sample and both timing summaries retained");
+   ok(host.externalReads==1 && host.internalReads==(internal?1:0),"each connection resolves its target once");
+  } finally {android.util.Log.onInfo=null;E01SmoothVideo.STATES.remove(owner.decoder);}
+ }
  static void ok(boolean b,String s){checks++;if(!b)throw new AssertionError(s);}
  public static void main(String[] args)throws Exception{
   Host host=new Host(true);E01VideoEvidence.begin(host,60);String wireless=E01VideoEvidence.identity();
@@ -30,6 +79,7 @@ public final class LongEvidenceCheck {
   synchronized(isolated){Thread formatting=new Thread(()->formatted.set(snapshot.format()));formatting.start();formatting.join(2000);ok(!formatting.isAlive(),"snapshot formatting never needs playback state lock");}
   String value=formatted.get();ok(value.contains("submittedFps=60.0")&&value.contains("recentQueueP90Ms=2")&&value.contains("recentInputP90Ms=4")&&value.contains("recentResidenceP90Ms=5"),"immutable snapshot keeps same counter/percentile window after producer advances");
   ok(isolated.recentQueueAge[0]==99000000L&&isolated.recentQueueAge[1]==1000000L,"sorting a snapshot never reorders producer ring");
+  storageDuringPlayback(false);storageDuringPlayback(true);
   System.out.println("PASS "+checks+" prolonged output evidence and snapshot isolation checks");
  }
 }

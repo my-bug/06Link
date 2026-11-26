@@ -1,1 +1,1 @@
-package com.shilapi.xcertplay.media; public class VideoJob { public static class Frame {public long getReceivedNs(){return 0;}} public static class Resync {} }
+package com.shilapi.xcertplay.media; public class VideoJob { public static class Frame {public byte[] getNalus(){return null;}public long getReceivedNs(){return 0;}} public static class Resync {} }

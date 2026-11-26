@@ -57,6 +57,44 @@ public class LogPolicyTest {
   E01LogPolicy.session(session,"wired start: repeated request after USB network opened");
   check(read(session).contains("wired start: repeated request"),"once-only wired restart retained");
 
+  String[] milestones={
+   "STEP usb/discover: searching for an iPhone USB device",
+   "STEP usb/reenum: waiting for the CarPlay USB configuration",
+   "STEP usb/config: selecting the iPhone CarPlay configuration",
+   "STEP usb/data: opening iAP2 and NCM USB data paths",
+   "STEP network/attach: attaching the AirPlay network transport",
+   "STEP iap2/wired: wired iAP2 control loop running",
+   "wired iap2 identification accepted", "wired iap2 power/subscriptions sent",
+   "wired iap2 rx=0x4300 carplay-availability", "wired iap2 tx=0x4301 carplay-start-session",
+   "wired VPN service bound; attaching NCM transport", "wired VPN/NCM transport attach result=started",
+   "wired VPN/NCM transport attach result=already-started", "wired NCM/VPN AirPlay transport attached",
+   "wired iAP2 control starting",
+   "Video: decoder=c2.qti.avc.decoder mime=video/avc size=1920x1080",
+   "Video: decoder=ffmpeg-h264 (software) mime=video/avc size=800x480",
+   "video decoder configured name=c2.qti.avc.decoder mime=video/avc size=1920x1080",
+   "video decoder configured name=ffmpeg-h264 (software) size=800x480"
+  };
+  for(String event:milestones){
+   String timestamped="2026-11-25 10:28:22 10:28:22.346 "+event;
+   E01LogPolicy.session(session,timestamped);check(read(session).contains(timestamped),"exact connection/configuration milestone retained: "+event);
+   long one=session.length();E01LogPolicy.session(session,timestamped);check(session.length()==one,"identical milestone remains deduplicated: "+event);
+  }
+  long milestoneBytes=session.length();
+  String[] packetTraces={
+   "wired iap2 rx=0xaa00 payload=PRIVATE_FRAME", "wired iap2 rx=0x4300 payload=PRIVATE_FRAME",
+   "wired iap2 rx=0x4300 carplay-availability payload=PRIVATE_FRAME",
+   "wired iap2 tx=0x4301 carplay-start-session payload=PRIVATE_FRAME",
+   "wired iap2 identification accepted payload=PRIVATE_FRAME",
+   "wired link RX PRIVATE_FRAME", "iap2 tx seq=100 packet=PRIVATE_FRAME",
+   "STEP protocol/payload: PRIVATE_FRAME", "STEP usb/reenum-extra: PRIVATE_FRAME",
+   "STEP usb/reenum: stage\nPRIVATE_FRAME", "STEP usb/reenum: stage\rPRIVATE_FRAME",
+   "Video: decoder=PRIVATE_FRAME", "Video: decoder=c2.qti.avc.decoder mime=video/avc size=1920x1080 csd=PRIVATE_FRAME",
+   "video decoder configured name=c2.qti.avc.decoder mime=video/avc size=1920x1080 payload=PRIVATE_FRAME",
+   "video decoder first input avcc=PRIVATE_FRAME", "video decoder config unchanged; keeping existing decoder"
+  };
+  for(String trace:packetTraces)E01LogPolicy.session(session,trace);
+  check(session.length()==milestoneBytes&&!read(session).contains("PRIVATE_FRAME"),"new whitelist never admits protocol bodies, malformed stages, per-frame traces or multiline content");
+
   android.os.Build.VERSION.SDK_INT=22;
   E01LogPolicy.session(session,"00:43:50.561  audio stats audioType=media channel=MEDIA codec=LPCM sampleRate=48000 rx=736 dropped=0 underruns=+0 queue=41 maxGapMs=35 maxWriteMs=311 estimatedQueuedFrames=16654 writeErrors=0 lastWriteError=none rebuffers=3");
   String stats=read(session);check(stats.contains("audio stats sample=point")&&stats.contains("rebuffers=3")&&stats.contains("underruns=unknown"),"compact sampled stats retain refill evidence without unsupported API22 zero");

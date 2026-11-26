@@ -69,8 +69,9 @@ with tempfile.TemporaryDirectory(prefix='06link-debug-guard-') as directory:
                  *map(str,sources),str(ROOT/'src/e01/com/shilapi/xcertplay/E01BuildVariant.java')],check=True)
  subprocess.run([str(java['java']),'-cp',str(p/'classes'),'DebugVariantTest'],check=True)
 
-# Remove only the new debug branch, then compare the entire original release
-# method against its previous source hash. Guards must not rewrite any protocol.
+# Remove only the debug branch, then compare the entire reviewed release body.
+# Controller start includes wired attach registration; its preview guard still
+# returns before the lifecycle lock, OEM port setup and USB listener registration.
 entries=[
  ('DiPlayBootstrap.smali','ensure(Landroid/content/Context;)V',
   r'\n    invoke-static \{p1\}, Lcom/shilapi/xcertplay/E01BuildVariant;.*?^    :cond_0\n',
@@ -80,7 +81,7 @@ entries=[
   '16a8c474a09f03e9faea75b8223aa186bce8fc5f4544af617234ac8828a22e8a'),
  ('orchestration/CarPlayController.smali','start()V',
   r'\n    iget-object v0, p0, Lcom/shilapi/xcertplay/orchestration/CarPlayController;->appContext:.*?^    :cond_0\n',
-  'c464c768e6cf624cdcd1584bb03ed608e4ea9910200df0c1bfa43dd3ac2272e7')]
+  '0a686051a4bf222814c61c24056623dc490437b9e5e26f47c05d23b7e6faf3b6')]
 for rel,signature,pattern,expected in entries:
  text=methods((ROOT/'src/core/smali/classes/com/shilapi/xcertplay'/rel).read_text())[signature]
  text,count=re.subn(pattern,'\n',text,count=1,flags=re.M|re.S)
