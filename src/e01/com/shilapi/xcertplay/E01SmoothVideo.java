@@ -68,6 +68,8 @@ public final class E01SmoothVideo {
  final String codecIdentity=Long.toHexString(System.nanoTime());
  final E01FrameTiming decodeGaps=new E01FrameTiming(),releaseGaps=new E01FrameTiming(),queueAges=new E01FrameTiming(),inputWaits=new E01FrameTiming(),residences=new E01FrameTiming();
  final SlowPair slowPair=new SlowPair();
+ final E01SwipePacing swipePacing=new E01SwipePacing();
+ volatile long firstSwipeMoveNs;
  Entry lastPrepared;
  long longestPollNs,pollMisses;
  long lastDecodeNs,lastReleaseNs,reportCapWaitNs;
@@ -81,6 +83,19 @@ public final class E01SmoothVideo {
  long inputPollMaxNs,inputPollTimeouts,inputPollCalls,reportPollTimeouts;
  long cappedTargets,maxAheadNs,reportAt=System.nanoTime(),reportSubmitted,reportOutput,reportSkipped,reportDecoded;int reports;
  final long[] steps=new long[30];boolean logged;State(Output o){output=o;clock=new E01PacingClock(o.fps);}}
+ // Input and visibility callbacks run on the UI thread. Output reads the gesture
+ // time only for the matching main screen and retains its own submission history.
+ static void swipe(Activity owner,long firstMoveNs){
+  if(owner==null)return;
+  Surface surface=E01VideoVisibility.currentSurface(owner);
+  if(surface==null||(firstMoveNs>0&&!E01VideoVisibility.visible(owner,surface)))return;
+  synchronized(STATES){
+   for(State state:STATES.values()){
+    if(!state.retired&&state.surface==surface&&state.output.owner.get()==owner)
+     state.firstSwipeMoveNs=firstMoveNs;
+   }
+  }
+ }
  public static boolean smooth(Context c){return c.getSharedPreferences(PREF,0).getBoolean("smooth",false);}
  public static void negotiatedFps(Activity a,int value){NEGOTIATED.put(a,value>=60?60:30);Binding b=binding(a);if(b!=null)b.refreshRoute(false);E01SurfaceFrameRate.refresh(a);}
  static Binding binding(Activity a){java.lang.ref.WeakReference<Binding> ref=BINDINGS.get(a);return ref==null?null:ref.get();}
@@ -158,6 +173,10 @@ public final class E01SmoothVideo {
  public static boolean recreateIfNeeded(Activity a){try{Object view=get(a,"videoView");if(view instanceof View&&smooth(a)!=Boolean.TRUE.equals(((View)view).getTag())){a.recreate();return true;}Binding b=binding(a);if(b!=null)b.refreshRoute(false);}catch(Exception e){android.util.Log.w("06Link-video","View mode check failed",e);}return false;}
  public static void releaseSurface(Surface s){if(s!=null){Output o=OUTPUTS.get(s);if(o!=null){Activity a=o.owner.get();if(a!=null)E01VideoVisibility.surfaceLost(a,s);}if(o!=null&&o.gl!=null){OUTPUTS.remove(s);o.gl.close();}else if(!OWNED_INPUTS.containsKey(s)&&!RETIRED_INPUTS.containsKey(s)&&(o==null||!o.smooth))s.release();}}
  public static void packet(byte[] header){PACKET.set(new Stamp(E01PacingClock.senderNanos(header),System.nanoTime()));}
+ // Called only for a complete main-screen frame in an active gesture sample.
+ static void swipeReceived(Object reader,long preceding,long previousSender){
+  Stamp stamp=PACKET.get();if(stamp!=null)E01SwipeTiming.received(reader,stamp,stamp.arrival,preceding,previousSender,stamp.sender);
+ }
  public static void stamp(byte[] bytes){Stamp s=PACKET.get();PACKET.remove();if(s!=null&&s.sender>0)STAMPS.put(bytes,s);}
  public static void converted(byte[] original,byte[] converted){
   if(original==converted)return;Stamp stamp=STAMPS.get(original);if(stamp!=null)STAMPS.put(converted,stamp);
@@ -271,7 +290,11 @@ public final class E01SmoothVideo {
  public static void registerTexture(Activity a,Surface s){if(s!=null){OUTPUTS.put(s,new Output(a,fps(a),false));E01VideoVisibility.surfaceReady(a,s);}}
  public static long presentation(Object decoder,byte[] bytes){
   long now=System.nanoTime();Stamp stamp=STAMPS.remove(bytes);
-  try{Field f=decoderField;if(f==null){f=field(decoder,"decoder");decoderField=f;}MediaCodec codec=(MediaCodec)f.get(decoder);State state=STATES.get(codec);if(state==null)return now/1000;
+  try{Field f=decoderField;if(f==null){f=field(decoder,"decoder");decoderField=f;}MediaCodec codec=(MediaCodec)f.get(decoder);State state=STATES.get(codec);
+   if(state==null){
+    if(E01SwipeTiming.collecting())E01SwipeTiming.prepared(stamp,codec,now/1000,now);
+    return now/1000;
+   }
    final long pts;final boolean reportSource;
    synchronized(state){state.submitted++;if(stamp==null)state.missing++;
    if(state.directCap4&&(state.inputOwner==null||state.inputOwner.get()!=decoder))state.inputOwner=new java.lang.ref.WeakReference<Object>(decoder);
@@ -292,6 +315,7 @@ public final class E01SmoothVideo {
    reportSource=state.samples==state.steps.length&&!state.logged;
    if(reportSource)state.logged=true;
    }
+   if(E01SwipeTiming.collecting())E01SwipeTiming.prepared(stamp,codec,pts,now);
    if(reportSource)logSourceRate(state);
    return pts;
   }catch(Exception e){return now/1000;}
@@ -308,7 +332,11 @@ public final class E01SmoothVideo {
  /** Coalesce only decoded, late outputs when a strictly newer decoded output is ready.
   * Never discard compressed frames, the last available image, EOS, or format changes. */
  public static int take(MediaCodec codec,MediaCodec.BufferInfo info){
-  State s=STATES.get(codec);if(s==null)return LatestVideoOutput.take(codec,info);
+  State s=STATES.get(codec);if(s==null){
+   int index=LatestVideoOutput.take(codec,info);
+   if(index>=0&&(info.flags&6)==0&&E01SwipeTiming.collecting())E01SwipeTiming.decoded(codec,info.presentationTimeUs,System.nanoTime());
+   return index;
+  }
   synchronized(s){if(s.pendingSignal!=Integer.MIN_VALUE){int signal=s.pendingSignal;s.pendingSignal=Integer.MIN_VALUE;return signal;}}
   // Only the output owner waits here. Do not hold the lock needed by presentation/input.
   int index=dequeue(codec,info,s,E01VideoOutput.timeoutUs(codec));
@@ -345,6 +373,7 @@ public final class E01SmoothVideo {
   synchronized(s){if(s.heldIndex>=0){int index=s.heldIndex;s.heldIndex=-1;info.set(s.heldInfo.offset,s.heldInfo.size,s.heldInfo.presentationTimeUs,s.heldInfo.flags);return index;}}
   long start=System.nanoTime();int index=c.dequeueOutputBuffer(info,timeout);
   long end=System.nanoTime();
+  if(index>=0&&(info.flags&6)==0&&E01SwipeTiming.collecting())E01SwipeTiming.decoded(c,info.presentationTimeUs,end);
   synchronized(s){s.dequeueMax=Math.max(s.dequeueMax,end-start);
    s.longestPollNs=Math.max(s.longestPollNs,end-start);
    if(index==-1)s.pollMisses++;
@@ -375,31 +404,54 @@ public final class E01SmoothVideo {
  private static void measureRelease(State s,long n){s.releaseMax=Math.max(s.releaseMax,n);s.recentRelease[s.releaseSlot++%120]=n;}
 
  public static void release(MediaCodec codec,int index,boolean render,MediaCodec.BufferInfo info){
-  State state=STATES.get(codec);if(state==null){codec.releaseOutputBuffer(index,render);return;}
+  State state=STATES.get(codec);if(state==null){
+   codec.releaseOutputBuffer(index,render);
+   if(render&&(info.flags&6)==0&&E01SwipeTiming.collecting())E01SwipeTiming.submitted(codec,info.presentationTimeUs,System.nanoTime(),0);
+   return;
+  }
   long now=System.nanoTime(),target=0;
   final Entry entry;
+  final long normalAt,steadyAt;
+  final boolean pacedPicture=render&&(info.flags&6)==0&&state.output.smooth
+      &&state.output.gl==null&&!state.directCap4&&!state.boundedRender;
   synchronized(state){
    entry=state.entries.remove(info.presentationTimeUs);
    measureResidence(state,entry,now);
    if(render&&state.output.gl==null&&!state.directCap4&&entry!=null&&entry.local>0){if(!entry.ignore)state.clock.sample(now-entry.local);target=entry.local+state.clock.delay();}
    target=limitTarget(state,target,now);
+   normalAt=pacedPicture&&target>now&&target-now<=500000000L?target:0;
+   if(pacedPicture&&!state.retired&&entry!=null&&!entry.ignore&&entry.stamp!=null){
+    target=state.swipePacing.target(state.firstSwipeMoveNs,entry.stamp.arrival,target,now,state.output.fps);
+    steadyAt=state.swipePacing.steadyTargetNs();
+   }else steadyAt=0;
    if(render&&target>now&&target-now<=500000000L)state.maxAheadNs=Math.max(state.maxAheadNs,target-now);
   }
   long start=System.nanoTime();
+  long requestedAt=0;
   if(render&&(state.output.gl!=null||state.directCap4)){
    // Explicit unique monotonic timestamps reach SurfaceTexture without future display scheduling.
+   requestedAt=start;
    codec.releaseOutputBuffer(index,start);
    synchronized(state){state.immediateTargets++;}
   }else if(render&&state.boundedRender){
    // API 22 has no defined default Surface timestamp. Late/missing times use
    // explicit monotonic now; valid future targets keep the existing 17ms cap.
    long timestamp=target>start&&target-start<=500000000L?target:start;
+   requestedAt=timestamp;
    codec.releaseOutputBuffer(index,timestamp);
    if(timestamp==start)synchronized(state){state.immediateTargets++;}
-  }else if(render&&target>now&&target-now<=500000000L)codec.releaseOutputBuffer(index,target);
+  }else if(normalAt>0&&steadyAt>0&&target==now){
+   // A valid future reservation has been brought all the way to immediate display.
+   requestedAt=start;
+   codec.releaseOutputBuffer(index,start);
+   synchronized(state){state.immediateTargets++;}
+  }else if(render&&target>now&&target-now<=500000000L){requestedAt=target;codec.releaseOutputBuffer(index,target);}
   else codec.releaseOutputBuffer(index,render);
   long end=System.nanoTime();
-  synchronized(state){measureRelease(state,end-start);if(render){state.outputCount++;
+  if(render&&(info.flags&6)==0&&E01SwipeTiming.collecting())E01SwipeTiming.submitted(codec,info.presentationTimeUs,end,requestedAt,normalAt,steadyAt);
+  synchronized(state){
+   if(pacedPicture)state.swipePacing.noteSubmitted(requestedAt>0?requestedAt:end);
+   measureRelease(state,end-start);if(render){state.outputCount++;
    if((info.flags&6)==0){state.slowPair.released(entry,end);if(state.lastReleaseNs>0)state.releaseGaps.add(end-state.lastReleaseNs);state.lastReleaseNs=end;}}}
   report(state,end);
  }

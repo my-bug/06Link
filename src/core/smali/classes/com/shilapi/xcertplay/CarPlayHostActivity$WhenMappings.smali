@@ -41,8 +41,6 @@
 
 .field public static final synthetic $EnumSwitchMapping$7:[I
 
-.field public static final synthetic $EnumSwitchMapping$8:[I
-
 
 # direct methods
 .method static constructor <clinit>()V
@@ -497,104 +495,6 @@
 
     :catch_1d
     sput-object v0, Lcom/shilapi/xcertplay/CarPlayHostActivity$WhenMappings;->$EnumSwitchMapping$7:[I
-
-    invoke-static {}, Lcom/shilapi/xcertplay/CarPlayGestures$Action;->values()[Lcom/shilapi/xcertplay/CarPlayGestures$Action;
-
-    move-result-object v0
-
-    array-length v0, v0
-
-    new-array v0, v0, [I
-
-    :try_start_1e
-    sget-object v6, Lcom/shilapi/xcertplay/CarPlayGestures$Action;->FORWARD:Lcom/shilapi/xcertplay/CarPlayGestures$Action;
-
-    invoke-virtual {v6}, Lcom/shilapi/xcertplay/CarPlayGestures$Action;->ordinal()I
-
-    move-result v6
-
-    aput v1, v0, v6
-    :try_end_1e
-    .catch Ljava/lang/NoSuchFieldError; {:try_start_1e .. :try_end_1e} :catch_1e
-
-    :catch_1e
-    :try_start_1f
-    sget-object v1, Lcom/shilapi/xcertplay/CarPlayGestures$Action;->HOLD:Lcom/shilapi/xcertplay/CarPlayGestures$Action;
-
-    invoke-virtual {v1}, Lcom/shilapi/xcertplay/CarPlayGestures$Action;->ordinal()I
-
-    move-result v1
-
-    aput v2, v0, v1
-    :try_end_1f
-    .catch Ljava/lang/NoSuchFieldError; {:try_start_1f .. :try_end_1f} :catch_1f
-
-    :catch_1f
-    :try_start_20
-    sget-object v1, Lcom/shilapi/xcertplay/CarPlayGestures$Action;->FLUSH:Lcom/shilapi/xcertplay/CarPlayGestures$Action;
-
-    invoke-virtual {v1}, Lcom/shilapi/xcertplay/CarPlayGestures$Action;->ordinal()I
-
-    move-result v1
-
-    aput v3, v0, v1
-    :try_end_20
-    .catch Ljava/lang/NoSuchFieldError; {:try_start_20 .. :try_end_20} :catch_20
-
-    :catch_20
-    :try_start_21
-    sget-object v1, Lcom/shilapi/xcertplay/CarPlayGestures$Action;->FLUSH_AND_FORWARD:Lcom/shilapi/xcertplay/CarPlayGestures$Action;
-
-    invoke-virtual {v1}, Lcom/shilapi/xcertplay/CarPlayGestures$Action;->ordinal()I
-
-    move-result v1
-
-    aput v4, v0, v1
-    :try_end_21
-    .catch Ljava/lang/NoSuchFieldError; {:try_start_21 .. :try_end_21} :catch_21
-
-    :catch_21
-    :try_start_22
-    sget-object v1, Lcom/shilapi/xcertplay/CarPlayGestures$Action;->DROP:Lcom/shilapi/xcertplay/CarPlayGestures$Action;
-
-    invoke-virtual {v1}, Lcom/shilapi/xcertplay/CarPlayGestures$Action;->ordinal()I
-
-    move-result v1
-
-    aput v5, v0, v1
-    :try_end_22
-    .catch Ljava/lang/NoSuchFieldError; {:try_start_22 .. :try_end_22} :catch_22
-
-    :catch_22
-    :try_start_23
-    sget-object v1, Lcom/shilapi/xcertplay/CarPlayGestures$Action;->RELEASE_CARPLAY:Lcom/shilapi/xcertplay/CarPlayGestures$Action;
-
-    invoke-virtual {v1}, Lcom/shilapi/xcertplay/CarPlayGestures$Action;->ordinal()I
-
-    move-result v1
-
-    const/4 v2, 0x6
-
-    aput v2, v0, v1
-    :try_end_23
-    .catch Ljava/lang/NoSuchFieldError; {:try_start_23 .. :try_end_23} :catch_23
-
-    :catch_23
-    :try_start_24
-    sget-object v1, Lcom/shilapi/xcertplay/CarPlayGestures$Action;->OPEN_MENU:Lcom/shilapi/xcertplay/CarPlayGestures$Action;
-
-    invoke-virtual {v1}, Lcom/shilapi/xcertplay/CarPlayGestures$Action;->ordinal()I
-
-    move-result v1
-
-    const/4 v2, 0x7
-
-    aput v2, v0, v1
-    :try_end_24
-    .catch Ljava/lang/NoSuchFieldError; {:try_start_24 .. :try_end_24} :catch_24
-
-    :catch_24
-    sput-object v0, Lcom/shilapi/xcertplay/CarPlayHostActivity$WhenMappings;->$EnumSwitchMapping$8:[I
 
     return-void
 .end method

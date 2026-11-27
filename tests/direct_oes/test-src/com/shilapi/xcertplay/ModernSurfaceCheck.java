@@ -51,9 +51,92 @@ public final class ModernSurfaceCheck {
             }
         }
     }
+    static final class SwipeOutput {
+        final Activity owner = new Activity();
+        final Surface surface = new Surface();
+        final MediaCodec decoder;
+        long e01ReceivedNs;
+
+        SwipeOutput(int fps) { decoder = configure(owner, surface, fps); }
+
+        long release(long arrival) {
+            // Give the real presentation hook an exact, valid receive/sender timestamp.
+            // Only PTS mapping uses these two stamps. Release runs on the real monotonic clock.
+            byte[] frame = new byte[]{0, 0, 0, 1, 101};
+            E01SmoothVideo.STAMPS.put(frame, new E01SmoothVideo.Stamp(arrival, arrival));
+            e01ReceivedNs = arrival;
+            long pts = E01SmoothVideo.presentation(this, frame);
+            MediaCodec.BufferInfo info = new MediaCodec.BufferInfo();
+            info.set(0, frame.length, pts, 0);
+            int before = decoder.outputReleases.size();
+            E01SmoothVideo.release(decoder, 1, true, info);
+            ok(decoder.outputReleases.size() == before + 1, "each gesture frame is submitted exactly once");
+            long[] recorded = decoder.outputReleases.get(before);
+            ok(recorded[1] == 1, "valid gesture frame remains visible");
+            return recorded[2]; // A boolean/immediate render has no explicit target.
+        }
+
+        void close() { E01SmoothVideo.forget(decoder); }
+    }
+
+    static void swipeScheduling(int api, int fps) {
+        Build.VERSION.SDK_INT = api;
+        long sourceLead = (40 + 3000 / fps) * 1000000L;
+        long ordinaryLead = sourceLead - 1000000000L / 60;
+        SwipeOutput out = new SwipeOutput(fps);
+        long moved = System.nanoTime();
+        E01SmoothVideo.swipe(out.owner, moved);
+        long earlier = moved - 1000000L;
+        ok(out.release(earlier) == earlier + ordinaryLead, "pre-touch arrival gets only the ordinary display advance");
+        out.close();
+
+        out = new SwipeOutput(fps);
+        E01SmoothVideo.swipe(out.owner, System.nanoTime());
+        long arrival = System.nanoTime();
+        long target = out.release(arrival);
+        ok(target > 0 && target < arrival + ordinaryLead - 16000000L, "an empty queue allows extra swipe advance beyond ordinary playback");
+        out.close();
+
+        out = new SwipeOutput(fps);
+        // Two known source/arrival times one frame apart. Both pictures are ready
+        // while the first one's display slot is still in the future.
+        long secondArrival = System.nanoTime() - 2000000L;
+        long period = 1000000000L / fps;
+        long firstArrival = secondArrival - period;
+        long queued = out.release(firstArrival);
+        ok(queued == firstArrival + ordinaryLead, "first ordinary frame starts with the shorter display lead");
+        E01SmoothVideo.swipe(out.owner, secondArrival - 1000000L);
+        long following = out.release(secondArrival);
+        ok(following == secondArrival + ordinaryLead && following - queued == period,
+                "a full cadence keeps both the ordinary advance and the previous display slot");
+        out.close();
+
+        out = new SwipeOutput(fps);
+        E01SmoothVideo.swipe(new Activity(), System.nanoTime());
+        arrival = System.nanoTime();
+        ok(out.release(arrival) == arrival + ordinaryLead, "a different activity does not change the current codec timing");
+        out.close();
+
+        out = new SwipeOutput(fps);
+        E01VideoVisibility.paused.add(out.owner);
+        E01SmoothVideo.swipe(out.owner, System.nanoTime());
+        E01VideoVisibility.paused.remove(out.owner);
+        arrival = System.nanoTime();
+        ok(out.release(arrival) == arrival + ordinaryLead, "a gesture from a hidden surface does not arm later rendering");
+        out.close();
+
+        out = new SwipeOutput(fps);
+        E01SmoothVideo.swipe(out.owner, System.nanoTime());
+        E01SmoothVideo.swipe(out.owner, 0L);
+        arrival = System.nanoTime();
+        ok(out.release(arrival) == arrival + ordinaryLead, "cancelled gesture restores ordinary pacing");
+        out.close();
+    }
+
     public static void main(String[] args) throws Exception {
         decoderRateHint();
         Build.MODEL = "tablet"; Build.DEVICE = "tablet"; Build.VERSION.SDK_INT = 31;
+        swipeScheduling(29, 60); swipeScheduling(31, 60); swipeScheduling(31, 30);
         Activity activity = new Activity(); Surface surface = new Surface();
         MediaCodec codec = configure(activity, surface, 60);
         E01SmoothVideo.State state = E01SmoothVideo.STATES.get(codec); ui();
@@ -67,7 +150,7 @@ public final class ModernSurfaceCheck {
         MediaCodec.BufferInfo info = new MediaCodec.BufferInfo(); info.presentationTimeUs = 42;
         long now = System.nanoTime(); state.entries.put(42L, new E01SmoothVideo.Entry(now, now));
         E01SmoothVideo.release(codec, 1, true, info);
-        ok(codec.timedReleases == 1 && codec.target >= now + 80000000L, "actual render still uses paced source time");
+        ok(codec.timedReleases == 1 && codec.target == now + 90000000L, "a frame without a receiver stamp keeps its original source deadline");
         E01SmoothVideo.negotiatedFps(activity, 30); ui(); ok(surface.rate == 30, "renegotiation updates existing Surface");
         E01SmoothVideo.negotiatedFps(activity, 60); ui();
         // Reconfiguring the same native codec replaces its exact state token.

@@ -8,7 +8,7 @@ SUITE=[
  'tests/test_build.py','tests/debug_variant/run.py','tests/toolchain/test_toolchain.py',
  'tests/source_cleanup/run.py','tests/boot_startup/run.py',
  'tests/frame_timing/run.py','tests/video_stats/run.py',
- 'tests/hotspot_snapshot/run.py','tests/settings_timing/run.py',
+ 'tests/hotspot_snapshot/run.py','tests/settings_timing/run.py','tests/swipe_input/run.py','tests/swipe_pacing/run.py',
  'tests/upstream_core/run.py',
  'tests/audio_scene/run.py','tests/audio_scene/test_hooks.py','tests/audio_scene/test_prompt_hooks.py',
  'tests/wireless_audio_handoff/run.py','tests/navigation_audio_probe/run.py','tests/navigation_voice/run.py',

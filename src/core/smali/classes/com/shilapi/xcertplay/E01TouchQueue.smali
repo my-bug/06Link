@@ -49,7 +49,7 @@
 .end method
 
 .method public static enqueue(Ljava/util/concurrent/ExecutorService;Lcom/shilapi/xcertplay/airplay/AirPlaySession;Ljava/util/List;)Z
-    .locals 5
+    .locals 6
     .annotation system Ldalvik/annotation/Signature;
         value = {
             "(",
@@ -60,6 +60,8 @@
             ">;)Z"
         }
     .end annotation
+
+    move-object v5, p2
 
     .line 15
     new-instance v0, Ljava/util/ArrayList;
@@ -162,6 +164,12 @@
     new-instance p0, Lcom/shilapi/xcertplay/E01TouchQueue$Snapshot;
 
     invoke-direct {p0, p1, v0, p2}, Lcom/shilapi/xcertplay/E01TouchQueue$Snapshot;-><init>(Lcom/shilapi/xcertplay/airplay/AirPlaySession;Ljava/util/ArrayList;[I)V
+
+    invoke-static {v5}, Lcom/shilapi/xcertplay/E01SwipeInput;->tokenFor(Ljava/lang/Object;)J
+
+    move-result-wide v3
+
+    iput-wide v3, p0, Lcom/shilapi/xcertplay/E01TouchQueue$Snapshot;->swipeToken:J
 
     invoke-virtual {v2, p0}, Lcom/shilapi/xcertplay/E01TouchDispatch;->enqueue(Lcom/shilapi/xcertplay/E01TouchDispatch$Item;)Z
 

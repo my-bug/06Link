@@ -286,24 +286,11 @@
 
 .field private gestureOverlay:Landroid/view/View;
 
-.field private final gestureTimer:Ljava/lang/Runnable;
-
 .field private final gestures:Lcom/shilapi/xcertplay/CarPlayGestures;
 
 .field private handedToHomeAt:J
 
 .field private handshakeResetInProgress:Z
-
-.field private final heldTouches:Ljava/util/ArrayList;
-    .annotation system Ldalvik/annotation/Signature;
-        value = {
-            "Ljava/util/ArrayList<",
-            "Ljava/util/List<",
-            "Lcom/shilapi/xcertplay/airplay/AirPlayContact;",
-            ">;>;"
-        }
-    .end annotation
-.end field
 
 .field private hevcEnabled:Z
 
@@ -1105,14 +1092,6 @@
     return-object p0
 .end method
 
-.method public static synthetic $r8$lambda$jh7AXLrmZ4Rh_Uu3uwxbETxTHuQ(Lcom/shilapi/xcertplay/CarPlayHostActivity;)V
-    .locals 0
-
-    invoke-static {p0}, Lcom/shilapi/xcertplay/CarPlayHostActivity;->gestureTimer$lambda$416(Lcom/shilapi/xcertplay/CarPlayHostActivity;)V
-
-    return-void
-.end method
-
 .method public static synthetic $r8$lambda$nkMviS5yogfZzF44TAXJChABzKU(Lcom/shilapi/xcertplay/CarPlayHostActivity;Lkotlin/jvm/functions/Function0;)Lkotlin/Unit;
     .locals 0
 
@@ -1723,49 +1702,9 @@
     .line 5388
     new-instance v0, Lcom/shilapi/xcertplay/CarPlayGestures;
 
-    new-instance v1, Lcom/shilapi/xcertplay/CarPlayGestures$Metrics;
-
-    const/16 v12, 0xc0
-
-    const/4 v13, 0x0
-
-    const/4 v2, 0x0
-
-    const/4 v3, 0x0
-
-    const/4 v4, 0x0
-
-    const/4 v5, 0x0
-
-    const/4 v6, 0x0
-
-    const/4 v7, 0x0
-
-    const-wide/16 v8, 0x0
-
-    const-wide/16 v10, 0x0
-
-    invoke-direct/range {v1 .. v13}, Lcom/shilapi/xcertplay/CarPlayGestures$Metrics;-><init>(FFFFFFJJILkotlin/jvm/internal/DefaultConstructorMarker;)V
-
-    invoke-direct {v0, v1}, Lcom/shilapi/xcertplay/CarPlayGestures;-><init>(Lcom/shilapi/xcertplay/CarPlayGestures$Metrics;)V
+    invoke-direct {v0}, Lcom/shilapi/xcertplay/CarPlayGestures;-><init>()V
 
     iput-object v0, p0, Lcom/shilapi/xcertplay/CarPlayHostActivity;->gestures:Lcom/shilapi/xcertplay/CarPlayGestures;
-
-    .line 5389
-    new-instance v0, Ljava/util/ArrayList;
-
-    const/4 v1, 0x2
-
-    invoke-direct {v0, v1}, Ljava/util/ArrayList;-><init>(I)V
-
-    iput-object v0, p0, Lcom/shilapi/xcertplay/CarPlayHostActivity;->heldTouches:Ljava/util/ArrayList;
-
-    .line 5390
-    new-instance v0, Lcom/shilapi/xcertplay/CarPlayHostActivity$$ExternalSyntheticLambda150;
-
-    invoke-direct {v0, p0}, Lcom/shilapi/xcertplay/CarPlayHostActivity$$ExternalSyntheticLambda150;-><init>(Lcom/shilapi/xcertplay/CarPlayHostActivity;)V
-
-    iput-object v0, p0, Lcom/shilapi/xcertplay/CarPlayHostActivity;->gestureTimer:Ljava/lang/Runnable;
 
     const-wide/16 v0, -0x2710
 
@@ -3144,335 +3083,56 @@
 .end method
 
 .method private final applyGesture(Lcom/shilapi/xcertplay/CarPlayGestures$Decision;Ljava/util/List;)Z
-    .locals 4
-    .annotation system Ldalvik/annotation/Signature;
-        value = {
-            "(",
-            "Lcom/shilapi/xcertplay/CarPlayGestures$Decision;",
-            "Ljava/util/List<",
-            "Lcom/shilapi/xcertplay/airplay/AirPlayContact;",
-            ">;)Z"
-        }
-    .end annotation
+    .locals 1
 
-    .line 5449
-    invoke-virtual {p1}, Lcom/shilapi/xcertplay/CarPlayGestures$Decision;->getAction()Lcom/shilapi/xcertplay/CarPlayGestures$Action;
+    sget-object v0, Lcom/shilapi/xcertplay/CarPlayGestures$Decision;->OPEN_MENU:Lcom/shilapi/xcertplay/CarPlayGestures$Decision;
 
-    move-result-object v0
+    if-ne p1, v0, :cond_0
 
-    sget-object v1, Lcom/shilapi/xcertplay/CarPlayHostActivity$WhenMappings;->$EnumSwitchMapping$8:[I
+    const-string v0, "three-finger swipe: opening the 06Link menu"
 
-    invoke-virtual {v0}, Lcom/shilapi/xcertplay/CarPlayGestures$Action;->ordinal()I
+    invoke-direct {p0, v0}, Lcom/shilapi/xcertplay/CarPlayHostActivity;->appendLog(Ljava/lang/String;)V
 
-    move-result v0
-
-    aget v0, v1, v0
-
-    const/4 v1, 0x0
-
-    const/4 v2, 0x1
-
-    const/4 v3, 0x0
-
-    packed-switch v0, :pswitch_data_0
-
-    new-instance p1, Lkotlin/NoWhenBranchMatchedException;
-
-    invoke-direct {p1}, Lkotlin/NoWhenBranchMatchedException;-><init>()V
-
-    throw p1
-
-    .line 5472
-    :pswitch_0
-    iget-object p2, p0, Lcom/shilapi/xcertplay/CarPlayHostActivity;->heldTouches:Ljava/util/ArrayList;
-
-    invoke-virtual {p2}, Ljava/util/ArrayList;->clear()V
-
-    .line 5473
-    invoke-virtual {p1}, Lcom/shilapi/xcertplay/CarPlayGestures$Decision;->getWhy()Ljava/lang/String;
-
-    move-result-object p1
-
-    new-instance p2, Ljava/lang/StringBuilder;
-
-    invoke-direct {p2}, Ljava/lang/StringBuilder;-><init>()V
-
-    invoke-virtual {p2, p1}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
-
-    const-string p1, ": opening the 06Link menu"
-
-    invoke-virtual {p2, p1}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
-
-    invoke-virtual {p2}, Ljava/lang/StringBuilder;->toString()Ljava/lang/String;
-
-    move-result-object p1
-
-    invoke-direct {p0, p1}, Lcom/shilapi/xcertplay/CarPlayHostActivity;->appendLog(Ljava/lang/String;)V
-
-    .line 5474
     invoke-direct {p0}, Lcom/shilapi/xcertplay/CarPlayHostActivity;->openSettingsMenu()V
 
-    return v3
+    goto :goto_1
 
-    .line 5467
-    :pswitch_1
-    iget-object p1, p0, Lcom/shilapi/xcertplay/CarPlayHostActivity;->heldTouches:Ljava/util/ArrayList;
+    :cond_0
+    sget-object v0, Lcom/shilapi/xcertplay/CarPlayGestures$Decision;->RELEASE_CARPLAY:Lcom/shilapi/xcertplay/CarPlayGestures$Decision;
 
-    invoke-virtual {p1}, Ljava/util/ArrayList;->clear()V
+    if-ne p1, v0, :cond_1
 
-    .line 5468
-    const-string p1, "Three-finger swipe tracking started"
+    const-string v0, "Three-finger swipe tracking started"
 
-    invoke-direct {p0, p1}, Lcom/shilapi/xcertplay/CarPlayHostActivity;->appendLog(Ljava/lang/String;)V
-
-    .line 5469
-    iget-object p1, p0, Lcom/shilapi/xcertplay/CarPlayHostActivity;->controller:Lcom/shilapi/xcertplay/orchestration/CarPlayController;
-
-    if-eqz p1, :cond_0
+    invoke-direct {p0, v0}, Lcom/shilapi/xcertplay/CarPlayHostActivity;->appendLog(Ljava/lang/String;)V
 
     invoke-static {}, Lkotlin/collections/CollectionsKt;->emptyList()Ljava/util/List;
 
     move-result-object p2
 
-    invoke-virtual {p1, p2}, Lcom/shilapi/xcertplay/orchestration/CarPlayController;->sendTouch(Ljava/util/List;)Z
+    goto :goto_0
 
-    move-result p1
+    :cond_1
+    sget-object v0, Lcom/shilapi/xcertplay/CarPlayGestures$Decision;->FORWARD:Lcom/shilapi/xcertplay/CarPlayGestures$Decision;
 
-    return p1
+    if-ne p1, v0, :cond_2
 
-    :cond_0
-    return v3
-
-    .line 5465
-    :pswitch_2
-    iget-object p1, p0, Lcom/shilapi/xcertplay/CarPlayHostActivity;->heldTouches:Ljava/util/ArrayList;
-
-    invoke-virtual {p1}, Ljava/util/ArrayList;->clear()V
-
-    return v3
-
-    .line 5464
-    :pswitch_3
-    invoke-static {p0}, Lcom/shilapi/xcertplay/CarPlayHostActivity;->applyGesture$flush(Lcom/shilapi/xcertplay/CarPlayHostActivity;)Z
-
-    move-result p1
-
-    if-eqz p2, :cond_2
-
+    :goto_0
     iget-object v0, p0, Lcom/shilapi/xcertplay/CarPlayHostActivity;->controller:Lcom/shilapi/xcertplay/orchestration/CarPlayController;
 
-    if-eqz v0, :cond_1
+    if-eqz v0, :cond_2
 
     invoke-virtual {v0, p2}, Lcom/shilapi/xcertplay/orchestration/CarPlayController;->sendTouch(Ljava/util/List;)Z
 
-    move-result p2
+    move-result v0
 
-    invoke-static {p2}, Ljava/lang/Boolean;->valueOf(Z)Ljava/lang/Boolean;
-
-    move-result-object v1
-
-    :cond_1
-    if-eqz v1, :cond_2
-
-    invoke-virtual {v1}, Ljava/lang/Boolean;->booleanValue()Z
-
-    move-result p2
-
-    goto :goto_0
+    return v0
 
     :cond_2
-    const/4 p2, 0x0
-
-    :goto_0
-    if-nez p2, :cond_4
-
-    if-eqz p1, :cond_3
-
-    goto :goto_1
-
-    :cond_3
-    return v3
-
-    :cond_4
     :goto_1
-    return v2
+    const/4 v0, 0x0
 
-    .line 5458
-    :pswitch_4
-    iget-object p1, p0, Lcom/shilapi/xcertplay/CarPlayHostActivity;->heldTouches:Ljava/util/ArrayList;
-
-    invoke-virtual {p1}, Ljava/util/ArrayList;->size()I
-
-    move-result p1
-
-    if-le p1, v2, :cond_6
-
-    .line 5459
-    iget-object p1, p0, Lcom/shilapi/xcertplay/CarPlayHostActivity;->heldTouches:Ljava/util/ArrayList;
-
-    check-cast p1, Ljava/util/List;
-
-    invoke-static {p1}, Lkotlin/collections/CollectionsKt;->last(Ljava/util/List;)Ljava/lang/Object;
-
-    move-result-object p1
-
-    check-cast p1, Ljava/util/List;
-
-    .line 5460
-    iget-object p2, p0, Lcom/shilapi/xcertplay/CarPlayHostActivity;->heldTouches:Ljava/util/ArrayList;
-
-    invoke-virtual {p2}, Ljava/util/ArrayList;->clear()V
-
-    .line 5461
-    iget-object p2, p0, Lcom/shilapi/xcertplay/CarPlayHostActivity;->controller:Lcom/shilapi/xcertplay/orchestration/CarPlayController;
-
-    if-eqz p2, :cond_5
-
-    invoke-virtual {p2, p1}, Lcom/shilapi/xcertplay/orchestration/CarPlayController;->sendTouch(Ljava/util/List;)Z
-
-    move-result p1
-
-    return p1
-
-    :cond_5
-    return v3
-
-    .line 5462
-    :cond_6
-    invoke-static {p0}, Lcom/shilapi/xcertplay/CarPlayHostActivity;->applyGesture$flush(Lcom/shilapi/xcertplay/CarPlayHostActivity;)Z
-
-    move-result p1
-
-    return p1
-
-    :pswitch_5
-    if-eqz p2, :cond_8
-
-    .line 5452
-    iget-object p1, p0, Lcom/shilapi/xcertplay/CarPlayHostActivity;->heldTouches:Ljava/util/ArrayList;
-
-    invoke-virtual {p1}, Ljava/util/ArrayList;->size()I
-
-    move-result p1
-
-    const/4 v0, 0x2
-
-    if-lt p1, v0, :cond_7
-
-    iget-object p1, p0, Lcom/shilapi/xcertplay/CarPlayHostActivity;->heldTouches:Ljava/util/ArrayList;
-
-    invoke-virtual {p1, v2}, Ljava/util/ArrayList;->remove(I)Ljava/lang/Object;
-
-    :cond_7
-    iget-object p1, p0, Lcom/shilapi/xcertplay/CarPlayHostActivity;->heldTouches:Ljava/util/ArrayList;
-
-    invoke-virtual {p1, p2}, Ljava/util/ArrayList;->add(Ljava/lang/Object;)Z
-
-    :cond_8
-    return v3
-
-    :pswitch_6
-    if-eqz p2, :cond_a
-
-    .line 5450
-    iget-object p1, p0, Lcom/shilapi/xcertplay/CarPlayHostActivity;->controller:Lcom/shilapi/xcertplay/orchestration/CarPlayController;
-
-    if-eqz p1, :cond_9
-
-    invoke-virtual {p1, p2}, Lcom/shilapi/xcertplay/orchestration/CarPlayController;->sendTouch(Ljava/util/List;)Z
-
-    move-result p1
-
-    invoke-static {p1}, Ljava/lang/Boolean;->valueOf(Z)Ljava/lang/Boolean;
-
-    move-result-object v1
-
-    :cond_9
-    if-eqz v1, :cond_a
-
-    invoke-virtual {v1}, Ljava/lang/Boolean;->booleanValue()Z
-
-    move-result p1
-
-    return p1
-
-    :cond_a
-    return v3
-
-    :pswitch_data_0
-    .packed-switch 0x1
-        :pswitch_6
-        :pswitch_5
-        :pswitch_4
-        :pswitch_3
-        :pswitch_2
-        :pswitch_1
-        :pswitch_0
-    .end packed-switch
-.end method
-
-.method private static final applyGesture$flush(Lcom/shilapi/xcertplay/CarPlayHostActivity;)Z
-    .locals 5
-
-    .line 5445
-    iget-object v0, p0, Lcom/shilapi/xcertplay/CarPlayHostActivity;->heldTouches:Ljava/util/ArrayList;
-
-    check-cast v0, Ljava/lang/Iterable;
-
-    .line 6049
-    invoke-interface {v0}, Ljava/lang/Iterable;->iterator()Ljava/util/Iterator;
-
-    move-result-object v0
-
-    const/4 v1, 0x0
-
-    :cond_0
-    const/4 v2, 0x0
-
-    :goto_0
-    invoke-interface {v0}, Ljava/util/Iterator;->hasNext()Z
-
-    move-result v3
-
-    if-eqz v3, :cond_3
-
-    invoke-interface {v0}, Ljava/util/Iterator;->next()Ljava/lang/Object;
-
-    move-result-object v3
-
-    check-cast v3, Ljava/util/List;
-
-    .line 5445
-    iget-object v4, p0, Lcom/shilapi/xcertplay/CarPlayHostActivity;->controller:Lcom/shilapi/xcertplay/orchestration/CarPlayController;
-
-    if-eqz v4, :cond_1
-
-    invoke-virtual {v4, v3}, Lcom/shilapi/xcertplay/orchestration/CarPlayController;->sendTouch(Ljava/util/List;)Z
-
-    move-result v3
-
-    goto :goto_1
-
-    :cond_1
-    const/4 v3, 0x0
-
-    :goto_1
-    if-nez v3, :cond_2
-
-    if-eqz v2, :cond_0
-
-    :cond_2
-    const/4 v2, 0x1
-
-    goto :goto_0
-
-    .line 5446
-    :cond_3
-    iget-object p0, p0, Lcom/shilapi/xcertplay/CarPlayHostActivity;->heldTouches:Ljava/util/ArrayList;
-
-    invoke-virtual {p0}, Ljava/util/ArrayList;->clear()V
-
-    return v2
+    return v0
 .end method
 
 .method private final armFirstFrameWatch()V
@@ -11932,95 +11592,6 @@
     return-object v0
 .end method
 
-.method private final gestureMetrics(Landroid/view/View;)Lcom/shilapi/xcertplay/CarPlayGestures$Metrics;
-    .locals 13
-
-    .line 5392
-    new-instance v0, Lcom/shilapi/xcertplay/CarPlayGestures$Metrics;
-
-    .line 5393
-    invoke-virtual {p1}, Landroid/view/View;->getHeight()I
-
-    move-result p1
-
-    int-to-float p1, p1
-
-    const/high16 v1, 0x40c00000    # 6.0f
-
-    div-float v1, p1, v1
-
-    const/16 p1, 0x18
-
-    .line 5394
-    invoke-direct {p0, p1}, Lcom/shilapi/xcertplay/CarPlayHostActivity;->dp(I)I
-
-    move-result p1
-
-    int-to-float v2, p1
-
-    const/16 p1, 0x48
-
-    .line 5395
-    invoke-direct {p0, p1}, Lcom/shilapi/xcertplay/CarPlayHostActivity;->dp(I)I
-
-    move-result v3
-
-    int-to-float v3, v3
-
-    .line 5396
-    invoke-direct {p0, p1}, Lcom/shilapi/xcertplay/CarPlayHostActivity;->dp(I)I
-
-    move-result p1
-
-    int-to-float v4, p1
-
-    const/16 p1, 0x1e
-
-    .line 5397
-    invoke-direct {p0, p1}, Lcom/shilapi/xcertplay/CarPlayHostActivity;->dp(I)I
-
-    move-result p1
-
-    int-to-float v5, p1
-
-    .line 5398
-    move-object p1, p0
-
-    check-cast p1, Landroid/content/Context;
-
-    invoke-static {p1}, Landroid/view/ViewConfiguration;->get(Landroid/content/Context;)Landroid/view/ViewConfiguration;
-
-    move-result-object p1
-
-    invoke-virtual {p1}, Landroid/view/ViewConfiguration;->getScaledTouchSlop()I
-
-    move-result p1
-
-    int-to-float v6, p1
-
-    const/16 v11, 0xc0
-
-    const/4 v12, 0x0
-
-    const-wide/16 v7, 0x0
-
-    const-wide/16 v9, 0x0
-
-    .line 5392
-    invoke-direct/range {v0 .. v12}, Lcom/shilapi/xcertplay/CarPlayGestures$Metrics;-><init>(FFFFFFJJILkotlin/jvm/internal/DefaultConstructorMarker;)V
-
-    return-object v0
-.end method
-
-.method private static final gestureTimer$lambda$416(Lcom/shilapi/xcertplay/CarPlayHostActivity;)V
-    .locals 0
-
-    .line 5390
-    invoke-direct {p0}, Lcom/shilapi/xcertplay/CarPlayHostActivity;->onGestureTimer()V
-
-    return-void
-.end method
-
 .method private final goBehindHome(Z)V
     .locals 4
 
@@ -15997,398 +15568,51 @@
     return-void
 .end method
 
-.method private final onGestureTimer()V
-    .locals 4
+.method private final onHostTouch(Landroid/view/View;Landroid/view/MotionEvent;)Z
+    .locals 5
 
-    .line 5426
     iget-object v0, p0, Lcom/shilapi/xcertplay/CarPlayHostActivity;->gestures:Lcom/shilapi/xcertplay/CarPlayGestures;
 
-    invoke-static {}, Landroid/os/SystemClock;->uptimeMillis()J
-
-    move-result-wide v1
-
-    invoke-virtual {v0, v1, v2}, Lcom/shilapi/xcertplay/CarPlayGestures;->onTimer(J)Lcom/shilapi/xcertplay/CarPlayGestures$Decision;
+    invoke-virtual {v0, p2, p1}, Lcom/shilapi/xcertplay/CarPlayGestures;->onTouch(Landroid/view/MotionEvent;Landroid/view/View;)Lcom/shilapi/xcertplay/CarPlayGestures$Decision;
 
     move-result-object v0
 
-    if-eqz v0, :cond_1
+    sget-object v1, Lcom/shilapi/xcertplay/CarPlayGestures$Decision;->OPEN_MENU:Lcom/shilapi/xcertplay/CarPlayGestures$Decision;
 
-    .line 5428
-    iget-object v1, p0, Lcom/shilapi/xcertplay/CarPlayHostActivity;->shuttingDown:Ljava/util/concurrent/atomic/AtomicBoolean;
-
-    invoke-virtual {v1}, Ljava/util/concurrent/atomic/AtomicBoolean;->get()Z
-
-    move-result v1
-
-    if-eqz v1, :cond_0
-
-    goto :goto_0
-
-    :cond_0
-    const/4 v1, 0x0
-
-    invoke-direct {p0, v0, v1}, Lcom/shilapi/xcertplay/CarPlayHostActivity;->applyGesture(Lcom/shilapi/xcertplay/CarPlayGestures$Decision;Ljava/util/List;)Z
-
-    goto :goto_1
-
-    :goto_0
-    iget-object v1, p0, Lcom/shilapi/xcertplay/CarPlayHostActivity;->heldTouches:Ljava/util/ArrayList;
-
-    invoke-virtual {v1}, Ljava/util/ArrayList;->clear()V
-
-    .line 5429
-    :goto_1
-    invoke-virtual {v0}, Lcom/shilapi/xcertplay/CarPlayGestures$Decision;->getAction()Lcom/shilapi/xcertplay/CarPlayGestures$Action;
-
-    move-result-object v1
-
-    invoke-virtual {v0}, Lcom/shilapi/xcertplay/CarPlayGestures$Decision;->getWhy()Ljava/lang/String;
-
-    move-result-object v0
-
-    new-instance v2, Ljava/lang/StringBuilder;
-
-    const-string/jumbo v3, "touch timer decision="
-
-    invoke-direct {v2, v3}, Ljava/lang/StringBuilder;-><init>(Ljava/lang/String;)V
-
-    invoke-virtual {v2, v1}, Ljava/lang/StringBuilder;->append(Ljava/lang/Object;)Ljava/lang/StringBuilder;
-
-    const-string v1, " ("
-
-    invoke-virtual {v2, v1}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
-
-    invoke-virtual {v2, v0}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
-
-    const-string v0, ")"
-
-    invoke-virtual {v2, v0}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
-
-    invoke-virtual {v2}, Ljava/lang/StringBuilder;->toString()Ljava/lang/String;
-
-    move-result-object v0
-
-    const-string/jumbo v1, "xcertplay-usb"
-
-    invoke-static {v1, v0}, Landroid/util/Log;->i(Ljava/lang/String;Ljava/lang/String;)I
-
-    .line 5431
-    :cond_1
-    invoke-direct {p0}, Lcom/shilapi/xcertplay/CarPlayHostActivity;->scheduleGestureTimer()V
-
-    return-void
-.end method
-
-.method private final onHostTouch(Landroid/view/View;Landroid/view/MotionEvent;)Z
-    .locals 8
-
-    .line 5402
-    const/4 v1, 0x1
-
-    invoke-virtual {p2}, Landroid/view/MotionEvent;->getActionMasked()I
-
-    move-result v0
-
-    if-eqz v0, :cond_5
-
-    if-eq v0, v1, :cond_4
-
-    const/4 v2, 0x2
-
-    if-eq v0, v2, :cond_3
-
-    const/4 v2, 0x3
-
-    if-eq v0, v2, :cond_2
-
-    const/4 v2, 0x5
-
-    if-eq v0, v2, :cond_1
-
-    const/4 v2, 0x6
-
-    if-eq v0, v2, :cond_0
-
-    return v1
-
-    .line 5407
-    :cond_0
-    sget-object v0, Lcom/shilapi/xcertplay/CarPlayGestures$Phase;->POINTER_UP:Lcom/shilapi/xcertplay/CarPlayGestures$Phase;
-
-    goto :goto_0
-
-    .line 5405
-    :cond_1
-    sget-object v0, Lcom/shilapi/xcertplay/CarPlayGestures$Phase;->POINTER_DOWN:Lcom/shilapi/xcertplay/CarPlayGestures$Phase;
-
-    goto :goto_0
-
-    .line 5409
-    :cond_2
-    sget-object v0, Lcom/shilapi/xcertplay/CarPlayGestures$Phase;->CANCEL:Lcom/shilapi/xcertplay/CarPlayGestures$Phase;
-
-    goto :goto_0
-
-    .line 5406
-    :cond_3
-    sget-object v0, Lcom/shilapi/xcertplay/CarPlayGestures$Phase;->MOVE:Lcom/shilapi/xcertplay/CarPlayGestures$Phase;
-
-    goto :goto_0
-
-    .line 5408
-    :cond_4
-    sget-object v0, Lcom/shilapi/xcertplay/CarPlayGestures$Phase;->UP:Lcom/shilapi/xcertplay/CarPlayGestures$Phase;
-
-    goto :goto_0
-
-    .line 5404
-    :cond_5
-    sget-object v0, Lcom/shilapi/xcertplay/CarPlayGestures$Phase;->DOWN:Lcom/shilapi/xcertplay/CarPlayGestures$Phase;
-
-    .line 5412
-    :goto_0
-    sget-object v2, Lcom/shilapi/xcertplay/CarPlayGestures$Phase;->DOWN:Lcom/shilapi/xcertplay/CarPlayGestures$Phase;
-
-    if-ne v0, v2, :cond_6
-
-    iget-object v2, p0, Lcom/shilapi/xcertplay/CarPlayHostActivity;->gestures:Lcom/shilapi/xcertplay/CarPlayGestures;
-
-    invoke-direct {p0, p1}, Lcom/shilapi/xcertplay/CarPlayHostActivity;->gestureMetrics(Landroid/view/View;)Lcom/shilapi/xcertplay/CarPlayGestures$Metrics;
-
-    move-result-object v3
-
-    invoke-virtual {v2, v3}, Lcom/shilapi/xcertplay/CarPlayGestures;->setMetrics(Lcom/shilapi/xcertplay/CarPlayGestures$Metrics;)V
-
-    iget-object v2, p0, Lcom/shilapi/xcertplay/CarPlayHostActivity;->heldTouches:Ljava/util/ArrayList;
-
-    invoke-virtual {v2}, Ljava/util/ArrayList;->clear()V
-
-    :cond_6
-    const/4 v2, 0x0
-
-    .line 5413
-    invoke-virtual {p2}, Landroid/view/MotionEvent;->getPointerCount()I
-
-    move-result v3
-
-    invoke-static {v2, v3}, Lkotlin/ranges/RangesKt;->until(II)Lkotlin/ranges/IntRange;
-
-    move-result-object v2
-
-    check-cast v2, Ljava/lang/Iterable;
-
-    .line 6043
-    new-instance v3, Ljava/util/ArrayList;
-
-    const/16 v4, 0xa
-
-    invoke-static {v2, v4}, Lkotlin/collections/CollectionsKt;->collectionSizeOrDefault(Ljava/lang/Iterable;I)I
-
-    move-result v4
-
-    invoke-direct {v3, v4}, Ljava/util/ArrayList;-><init>(I)V
-
-    check-cast v3, Ljava/util/Collection;
-
-    .line 6044
-    invoke-interface {v2}, Ljava/lang/Iterable;->iterator()Ljava/util/Iterator;
-
-    move-result-object v2
-
-    :goto_1
-    invoke-interface {v2}, Ljava/util/Iterator;->hasNext()Z
-
-    move-result v4
-
-    if-eqz v4, :cond_7
-
-    move-object v4, v2
-
-    check-cast v4, Lkotlin/collections/IntIterator;
-
-    invoke-virtual {v4}, Lkotlin/collections/IntIterator;->nextInt()I
-
-    move-result v4
-
-    .line 5413
-    new-instance v5, Lcom/shilapi/xcertplay/CarPlayGestures$Finger;
-
-    invoke-virtual {p2, v4}, Landroid/view/MotionEvent;->getPointerId(I)I
-
-    move-result v6
-
-    invoke-virtual {p2, v4}, Landroid/view/MotionEvent;->getX(I)F
-
-    move-result v7
-
-    invoke-virtual {p2, v4}, Landroid/view/MotionEvent;->getY(I)F
-
-    move-result v4
-
-    invoke-direct {v5, v6, v7, v4}, Lcom/shilapi/xcertplay/CarPlayGestures$Finger;-><init>(IFF)V
-
-    .line 6045
-    invoke-interface {v3, v5}, Ljava/util/Collection;->add(Ljava/lang/Object;)Z
-
-    goto :goto_1
-
-    .line 6046
-    :cond_7
-    check-cast v3, Ljava/util/List;
-
-    .line 5414
-    iget-object v2, p0, Lcom/shilapi/xcertplay/CarPlayHostActivity;->gestures:Lcom/shilapi/xcertplay/CarPlayGestures;
+    if-ne v0, v1, :cond_0
 
     invoke-virtual {p2}, Landroid/view/MotionEvent;->getEventTime()J
 
-    move-result-wide v4
+    move-result-wide v2
 
-    invoke-virtual {v2, v0, v3, v4, v5}, Lcom/shilapi/xcertplay/CarPlayGestures;->onTouch(Lcom/shilapi/xcertplay/CarPlayGestures$Phase;Ljava/util/List;J)Lcom/shilapi/xcertplay/CarPlayGestures$Decision;
+    invoke-static {p0, v2, v3}, Lcom/shilapi/xcertplay/E01SettingsTiming;->gesture(Landroid/app/Activity;J)V
 
-    move-result-object v2
-
-    invoke-virtual {v2}, Lcom/shilapi/xcertplay/CarPlayGestures$Decision;->getAction()Lcom/shilapi/xcertplay/CarPlayGestures$Action;
-
-    move-result-object v3
-
-    sget-object v6, Lcom/shilapi/xcertplay/CarPlayGestures$Action;->OPEN_MENU:Lcom/shilapi/xcertplay/CarPlayGestures$Action;
-
-    if-ne v3, v6, :cond_8
-
-    invoke-static {p0, v4, v5}, Lcom/shilapi/xcertplay/E01SettingsTiming;->gesture(Landroid/app/Activity;J)V
-
-    .line 5415
-    :cond_8
-    sget-object v3, Lcom/shilapi/xcertplay/media/CarPlayTouchMapper;->INSTANCE:Lcom/shilapi/xcertplay/media/CarPlayTouchMapper;
+    :cond_0
+    sget-object v1, Lcom/shilapi/xcertplay/media/CarPlayTouchMapper;->INSTANCE:Lcom/shilapi/xcertplay/media/CarPlayTouchMapper;
 
     invoke-virtual {p1}, Landroid/view/View;->getWidth()I
 
-    move-result v4
+    move-result v2
 
     invoke-virtual {p1}, Landroid/view/View;->getHeight()I
 
-    move-result p1
+    move-result v3
 
-    invoke-virtual {v3, p2, v4, p1}, Lcom/shilapi/xcertplay/media/CarPlayTouchMapper;->contacts(Landroid/view/MotionEvent;II)Ljava/util/List;
-
-    move-result-object p1
-
-    .line 5416
-    invoke-direct {p0, v2, p1}, Lcom/shilapi/xcertplay/CarPlayHostActivity;->applyGesture(Lcom/shilapi/xcertplay/CarPlayGestures$Decision;Ljava/util/List;)Z
-
-    move-result p1
-
-    .line 5417
-    invoke-direct {p0}, Lcom/shilapi/xcertplay/CarPlayHostActivity;->scheduleGestureTimer()V
-
-    .line 5418
-    sget-object v3, Lcom/shilapi/xcertplay/CarPlayGestures$Phase;->MOVE:Lcom/shilapi/xcertplay/CarPlayGestures$Phase;
-
-    if-eq v0, v3, :cond_c
-
-    .line 5419
-    sget v0, Landroid/os/Build$VERSION;->SDK_INT:I
-
-    const/16 v3, 0x13
-
-    if-lt v0, v3, :cond_9
-
-    invoke-virtual {p2}, Landroid/view/MotionEvent;->getActionMasked()I
-
-    move-result v0
-
-    invoke-static {v0}, Lcom/shilapi/xcertplay/ChipFlow$$ExternalSyntheticApiModelOutline0;->m(I)Ljava/lang/String;
-
-    move-result-object v0
-
-    goto :goto_2
-
-    :cond_9
-    invoke-virtual {p2}, Landroid/view/MotionEvent;->getActionMasked()I
-
-    move-result v0
-
-    invoke-static {v0}, Ljava/lang/String;->valueOf(I)Ljava/lang/String;
-
-    move-result-object v0
-
-    .line 5420
-    :goto_2
-    invoke-virtual {p2}, Landroid/view/MotionEvent;->getPointerCount()I
-
-    move-result p2
-
-    invoke-virtual {v2}, Lcom/shilapi/xcertplay/CarPlayGestures$Decision;->getAction()Lcom/shilapi/xcertplay/CarPlayGestures$Action;
-
-    move-result-object v3
-
-    invoke-virtual {v2}, Lcom/shilapi/xcertplay/CarPlayGestures$Decision;->getWhy()Ljava/lang/String;
-
-    move-result-object v2
-
-    if-eqz v2, :cond_a
-
-    new-instance v4, Ljava/lang/StringBuilder;
-
-    const-string v5, " ("
-
-    invoke-direct {v4, v5}, Ljava/lang/StringBuilder;-><init>(Ljava/lang/String;)V
-
-    invoke-virtual {v4, v2}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
-
-    const-string v2, ")"
-
-    invoke-virtual {v4, v2}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
-
-    invoke-virtual {v4}, Ljava/lang/StringBuilder;->toString()Ljava/lang/String;
-
-    move-result-object v2
-
-    if-nez v2, :cond_b
-
-    :cond_a
-    const-string v2, ""
-
-    :cond_b
-    new-instance v4, Ljava/lang/StringBuilder;
-
-    const-string/jumbo v5, "touch action="
-
-    invoke-direct {v4, v5}, Ljava/lang/StringBuilder;-><init>(Ljava/lang/String;)V
-
-    invoke-virtual {v4, v0}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
-
-    const-string v0, " pointers="
-
-    invoke-virtual {v4, v0}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
-
-    invoke-virtual {v4, p2}, Ljava/lang/StringBuilder;->append(I)Ljava/lang/StringBuilder;
-
-    const-string p2, " decision="
-
-    invoke-virtual {v4, p2}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
-
-    invoke-virtual {v4, v3}, Ljava/lang/StringBuilder;->append(Ljava/lang/Object;)Ljava/lang/StringBuilder;
-
-    invoke-virtual {v4, v2}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
-
-    const-string p2, " queued="
-
-    invoke-virtual {v4, p2}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
-
-    invoke-virtual {v4, p1}, Ljava/lang/StringBuilder;->append(Z)Ljava/lang/StringBuilder;
-
-    invoke-virtual {v4}, Ljava/lang/StringBuilder;->toString()Ljava/lang/String;
+    invoke-virtual {v1, p2, v2, v3}, Lcom/shilapi/xcertplay/media/CarPlayTouchMapper;->contacts(Landroid/view/MotionEvent;II)Ljava/util/List;
 
     move-result-object p1
 
-    .line 5419
-    const-string/jumbo p2, "xcertplay-usb"
+    invoke-static {p2, p1, p0}, Lcom/shilapi/xcertplay/E01SwipeInput;->observe(Landroid/view/MotionEvent;Ljava/lang/Object;Landroid/app/Activity;)V
 
-    invoke-static {p2, p1}, Landroid/util/Log;->i(Ljava/lang/String;Ljava/lang/String;)I
+    invoke-direct {p0, v0, p1}, Lcom/shilapi/xcertplay/CarPlayHostActivity;->applyGesture(Lcom/shilapi/xcertplay/CarPlayGestures$Decision;Ljava/util/List;)Z
 
-    :cond_c
-    return v1
+    move-result v1
+
+    invoke-static {p2, v0, v1}, Lcom/shilapi/xcertplay/CarPlayGestures;->logTransition(Landroid/view/MotionEvent;Lcom/shilapi/xcertplay/CarPlayGestures$Decision;Z)V
+
+    const/4 v0, 0x1
+
+    return v0
 .end method
 
 .method private final onIphoneUsbAttached()V
@@ -21090,52 +20314,6 @@
 
     :cond_6
     :goto_0
-    return-void
-.end method
-
-.method private final scheduleGestureTimer()V
-    .locals 6
-
-    .line 5435
-    iget-object v0, p0, Lcom/shilapi/xcertplay/CarPlayHostActivity;->mainHandler:Landroid/os/Handler;
-
-    iget-object v1, p0, Lcom/shilapi/xcertplay/CarPlayHostActivity;->gestureTimer:Ljava/lang/Runnable;
-
-    invoke-virtual {v0, v1}, Landroid/os/Handler;->removeCallbacks(Ljava/lang/Runnable;)V
-
-    .line 5436
-    iget-object v0, p0, Lcom/shilapi/xcertplay/CarPlayHostActivity;->gestures:Lcom/shilapi/xcertplay/CarPlayGestures;
-
-    invoke-virtual {v0}, Lcom/shilapi/xcertplay/CarPlayGestures;->nextDeadline()Ljava/lang/Long;
-
-    move-result-object v0
-
-    if-eqz v0, :cond_0
-
-    invoke-virtual {v0}, Ljava/lang/Long;->longValue()J
-
-    move-result-wide v0
-
-    .line 5438
-    iget-object v2, p0, Lcom/shilapi/xcertplay/CarPlayHostActivity;->mainHandler:Landroid/os/Handler;
-
-    iget-object v3, p0, Lcom/shilapi/xcertplay/CarPlayHostActivity;->gestureTimer:Ljava/lang/Runnable;
-
-    invoke-static {}, Landroid/os/SystemClock;->uptimeMillis()J
-
-    move-result-wide v4
-
-    sub-long/2addr v0, v4
-
-    const-wide/16 v4, 0x0
-
-    invoke-static {v0, v1, v4, v5}, Lkotlin/ranges/RangesKt;->coerceAtLeast(JJ)J
-
-    move-result-wide v0
-
-    invoke-virtual {v2, v3, v0, v1}, Landroid/os/Handler;->postDelayed(Ljava/lang/Runnable;J)Z
-
-    :cond_0
     return-void
 .end method
 
@@ -26987,13 +26165,6 @@
     iget-object v1, p0, Lcom/shilapi/xcertplay/CarPlayHostActivity;->appearanceCheck:Lcom/shilapi/xcertplay/CarPlayHostActivity$appearanceCheck$1;
 
     check-cast v1, Ljava/lang/Runnable;
-
-    invoke-virtual {v0, v1}, Landroid/os/Handler;->removeCallbacks(Ljava/lang/Runnable;)V
-
-    .line 1224
-    iget-object v0, p0, Lcom/shilapi/xcertplay/CarPlayHostActivity;->mainHandler:Landroid/os/Handler;
-
-    iget-object v1, p0, Lcom/shilapi/xcertplay/CarPlayHostActivity;->gestureTimer:Ljava/lang/Runnable;
 
     invoke-virtual {v0, v1}, Landroid/os/Handler;->removeCallbacks(Ljava/lang/Runnable;)V
 

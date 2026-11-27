@@ -16,7 +16,7 @@ public final class E01VideoIngress {
         Ahead stream = new Ahead(socket.getInputStream(), 32 * 1024, screenType);
         Ahead previous = ACTIVE.putIfAbsent(socket, stream);
         if (previous != null) return previous;
-        try { stream.start(); return stream; }
+        try { stream.evidence.opened(); stream.start(); return stream; }
         catch (RuntimeException error) { ACTIVE.remove(socket, stream); stream.close(); throw error; }
     }
     /** Complete protocol message, before decryption; never pass media contents. */
@@ -143,6 +143,7 @@ public final class E01VideoIngress {
                 count = 0;
                 notifyAll();
             }
+            E01SwipeTiming.closed(evidence);
             worker.interrupt();
             source.close();
         }

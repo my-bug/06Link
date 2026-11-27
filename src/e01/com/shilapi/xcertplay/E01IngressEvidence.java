@@ -46,6 +46,7 @@ public final class E01IngressEvidence {
     E01IngressEvidence(int screenType){this(android.os.Process.myTid(),System.nanoTime(),BASE_NS,screenType);}
     E01IngressEvidence(int tid,long now,long epoch){this(tid,now,epoch,0);}
     E01IngressEvidence(int tid,long now,long epoch,int screenType){consumerTid=tid;started=window=summaryWindow=now;base=epoch;screen=screenType==110||screenType==111?Integer.toString(screenType):"unknown";}
+    void opened() { if ("110".equals(screen)) E01SwipeTiming.opened(this, identity); }
     private boolean collecting(long now){return now>=started;}
     public synchronized void sourceRead(long begin,long end,int count){
         if(!collecting(end))return;
@@ -61,6 +62,8 @@ public final class E01IngressEvidence {
         if(!collecting(now))return;
         packets++;bodyMax=Math.max(bodyMax,Math.max(0,bodyLength));
         if(type==1){configs++;return;}if(type!=0){other++;return;}frames++;
+        if ("110".equals(screen) && E01SwipeTiming.collecting())
+            E01SmoothVideo.swipeReceived(this, lastFrame, lastSender);
         long step=-1;
         if(sender<=0)missingPts++;
         else if(lastSender>0){if(sender<=lastSender)reversePts++;else{step=sender-lastSender;senderStepMax=Math.max(senderStepMax,step);}}

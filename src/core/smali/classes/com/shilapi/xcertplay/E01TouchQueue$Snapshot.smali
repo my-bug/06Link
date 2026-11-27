@@ -32,6 +32,8 @@
 
 .field final shape:[I
 
+.field swipeToken:J
+
 
 # direct methods
 .method constructor <init>(Lcom/shilapi/xcertplay/airplay/AirPlaySession;Ljava/util/ArrayList;[I)V
@@ -61,14 +63,16 @@
 
 # virtual methods
 .method public send()V
-    .locals 2
+    .locals 4
 
     .line 25
     iget-object v0, p0, Lcom/shilapi/xcertplay/E01TouchQueue$Snapshot;->session:Lcom/shilapi/xcertplay/airplay/AirPlaySession;
 
     iget-object v1, p0, Lcom/shilapi/xcertplay/E01TouchQueue$Snapshot;->contacts:Ljava/util/ArrayList;
 
-    invoke-virtual {v0, v1}, Lcom/shilapi/xcertplay/airplay/AirPlaySession;->sendTouch(Ljava/util/List;)Z
+    iget-wide v2, p0, Lcom/shilapi/xcertplay/E01TouchQueue$Snapshot;->swipeToken:J
+
+    invoke-virtual {v0, v1, v2, v3}, Lcom/shilapi/xcertplay/airplay/AirPlaySession;->sendTouch(Ljava/util/List;J)Z
 
     return-void
 .end method

@@ -7790,13 +7790,25 @@
 .end method
 
 .method public final sendTouch(Ljava/util/List;)Z
+    .locals 2
+
+    const-wide/16 v0, 0x0
+
+    invoke-virtual {p0, p1, v0, v1}, Lcom/shilapi/xcertplay/airplay/AirPlaySession;->sendTouch(Ljava/util/List;J)Z
+
+    move-result p1
+
+    return p1
+.end method
+
+.method public final sendTouch(Ljava/util/List;J)Z
     .locals 11
     .annotation system Ldalvik/annotation/Signature;
         value = {
             "(",
             "Ljava/util/List<",
             "Lcom/shilapi/xcertplay/airplay/AirPlayContact;",
-            ">;)Z"
+            ">;J)Z"
         }
     .end annotation
 
@@ -7932,6 +7944,8 @@
     move-result p1
 
     if-eqz p1, :cond_1
+
+    invoke-static {p2, p3, v2, v3}, Lcom/shilapi/xcertplay/E01SwipeInput;->sent(JJ)V
 
     .line 266
     sget-object v4, Lcom/shilapi/xcertplay/media/TouchLatencyProbe;->INSTANCE:Lcom/shilapi/xcertplay/media/TouchLatencyProbe;

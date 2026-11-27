@@ -8,9 +8,10 @@ parser=argparse.ArgumentParser();parser.add_argument('--root',type=Path,default=
 ROOT=args.root.resolve();STAGED=args.staged.resolve() if args.staged else None
 JAVA=find_java()['java_home'] / 'bin'
 hashes={}
-PRODUCTION=['E01FrameRatePolicy','E01SmoothVideo','E01VideoOutput','E01VideoEvidence','E01MtkRuntime','E01BacklogRecovery','E01PacingClock','E01MtkTuning','E01GlOutput']
+PRODUCTION=['E01SwipeTiming','E01FrameRatePolicy','E01SmoothVideo','E01VideoOutput','E01VideoEvidence','E01MtkRuntime','E01BacklogRecovery','E01PacingClock','E01MtkTuning','E01GlOutput']
 with tempfile.TemporaryDirectory() as temporary:
  work=Path(temporary);sources=work/'src';shutil.copytree(HERE/'test-src',sources)
+ shutil.copy2(ROOT/'tests/video_visibility/test-src/android/os/SystemClock.java',sources/'android/os/SystemClock.java')
  for name in PRODUCTION:
   source=STAGED/(name+'.java') if STAGED else ROOT/'src/e01/com/shilapi/xcertplay'/(name+'.java')
   if not source.exists():source=ROOT/'src/e01/com/shilapi/xcertplay'/(name+'.java')

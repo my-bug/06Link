@@ -7,7 +7,7 @@ import hashlib, json, shutil, subprocess, tempfile
 HERE = Path(__file__).resolve().parent
 ROOT = HERE.parents[1]
 JAVA = find_java()['java_home'] / 'bin'
-sources = [ROOT / 'src/e01/com/shilapi/xcertplay' / (name + '.java') for name in ('E01VideoVisibility', 'E01DirectOutputClock', 'E01SurfaceFrameRate')]
+sources = [ROOT / 'src/e01/com/shilapi/xcertplay' / (name + '.java') for name in ('E01SwipeTiming', 'E01VideoVisibility', 'E01DirectOutputClock', 'E01SurfaceFrameRate')]
 with tempfile.TemporaryDirectory() as temporary:
     work = Path(temporary)
     shutil.copytree(HERE / 'test-src', work / 'src')

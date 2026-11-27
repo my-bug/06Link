@@ -33,7 +33,7 @@
     "dex": "classes.dex",
     "class": "com/shilapi/xcertplay/CarPlayHostActivity.smali",
     "method": "onIphoneUsbDetached()V",
-    "sha256": "dbd831a91260cd011183ab67618b7d9e0440af6203f8d44188a750893958db2a"
+    "sha256": "7303a7ad0bbcd24aa68c1cab4897b3f045ba1d5a1e4e013d68e01d3f30dd6281"
   },
   "wired-shutdown-order": {
     "dex": "classes.dex",
@@ -297,7 +297,7 @@
     "dex": "classes.dex",
     "class": "com/shilapi/xcertplay/CarPlayHostActivity.smali",
     "method": "onDestroy()V",
-    "sha256": "aaec72adcbf9fae58ffec728ba50110b1d8a6d7440cc88f51a177a91e9f56973"
+    "sha256": "1745c7f0090bfb266bfb18b5ded256e5562231864ef86daf343ffaf91623f6ff"
   },
   "video-visibility-resume": {
     "dex": "classes.dex",
@@ -615,7 +615,7 @@
     "dex": "classes.dex",
     "class": "com/shilapi/xcertplay/E01SmoothVideo.smali",
     "method": "configure(Landroid/media/MediaCodec;Landroid/media/MediaFormat;Landroid/view/Surface;Z)V",
-    "sha256": "15bfbde2854ef8c490be607d772cae1ade7df7b7d8c6dc9a3649851bd5c73e4b"
+    "sha256": "cb35aaf39f020e2624881e28992f2587a6cd95354bef6d96c08797db81811884"
   },
   "fps-connection": {
     "dex": "classes.dex",

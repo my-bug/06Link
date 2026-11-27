@@ -41,7 +41,7 @@ public final class E01VideoVisibility {
         E01SurfaceFrameRate.refresh(a);
     }
     public static synchronized void paused(Activity a) {
-        State s = state(a); if (s.foreground) { s.foreground = false; changed(s); }
+        State s = state(a); if (s.foreground) { s.foreground = false; changed(s); E01SmoothVideo.swipe(a, 0); E01SwipeTiming.hidden(a); }
         for (java.util.Iterator<Map.Entry<Object, Ticket>> it = DECISIONS.entrySet().iterator(); it.hasNext();) {
             Activity owner = it.next().getValue().owner.get(); if (owner == null || owner == a) it.remove();
         }
@@ -49,14 +49,20 @@ public final class E01VideoVisibility {
         E01SurfaceFrameRate.refresh(a);
     }
     public static synchronized void surfaceReady(Activity a, Surface surface) {
-        State s = state(a); if (s.surface != surface) { s.surface = surface; changed(s); }
+        State s = state(a); if (s.surface != surface) {
+            if (s.surface != null) E01SmoothVideo.swipe(a, 0);
+            s.surface = surface; changed(s);
+        }
         E01DirectOutputClock.refresh(a);
         E01SurfaceFrameRate.refresh(a);
     }
     public static synchronized void surfaceLost(Activity a, Surface surface) {
         State s = STATES.get(a);
         // A retiring old Surface must not invalidate a replacement Surface.
-        if (s != null && s.surface == surface) { s.surface = null; changed(s); }
+        if (s != null && s.surface == surface) {
+            E01SmoothVideo.swipe(a, 0);
+            s.surface = null; changed(s); E01SwipeTiming.hidden(a);
+        }
         E01DirectOutputClock.refresh(a);
         E01SurfaceFrameRate.refresh(a);
     }

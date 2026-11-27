@@ -19,6 +19,15 @@ public final class E01VideoEvidence {
         try { Field f=owner.getClass().getDeclaredField("wirelessEnabled");f.setAccessible(true);transport=f.getBoolean(owner)?"wireless":"wired"; }
         catch (ReflectiveOperationException | RuntimeException unavailable) { }
         identity = "run=" + Long.toHexString(started) + " configured=" + transport;
+        final String swipeIdentity = identity;
+        final Context swipeContext = owner.getApplicationContext();
+        E01SwipeTiming.begin(owner, swipeIdentity, new E01SwipeTiming.Sink() {
+            public boolean schedule(Runnable finish, long delayMs) {
+                return new android.os.Handler(android.os.Looper.getMainLooper()).postDelayed(finish, delayMs);
+            }
+            public long elapsedMs() { return android.os.SystemClock.elapsedRealtime(); }
+            public void write(String text) { timing(swipeContext, swipeIdentity, text); }
+        });
         SharedPreferences v = owner.getSharedPreferences("06link-video", 0);
         write(owner, "config " + identity + " maxFPS=" + maxFps + " selected=" + E01FrameRatePolicy.selectedFps(owner)
             + " smooth=" + v.getBoolean("smooth", false) + " mtk=" + v.getBoolean("mtk", true)

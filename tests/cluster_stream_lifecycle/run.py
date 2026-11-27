@@ -39,8 +39,11 @@ class Machine:
         self.methods, self.logs, self.monitors = {}, [], []
         for cls, rel in [(ENGINE,'airplay/CarPlayMediaEngine.smali'),
                          (LISTENER,'airplay/CarPlayMediaEngine$onScreen$port$1.smali'),
+                         (STREAM,'airplay/ScreenStream.smali'),
                          (SINK,'media/AndroidMediaSink.smali'),(DECODER,'media/VideoDecoder.smali')]:
             for header, body in re.findall(r'^\.method ([^\n]+)\n(.*?)^\.end method', (CORE/rel).read_text(), re.M|re.S):
+                if cls == STREAM and header.split()[-1] != 'setE01DiagnosticScreenType(I)V':
+                    continue
                 body = re.sub(r'\s*\.annotation.*?\.end annotation', '', body, flags=re.S)
                 self.methods[cls, header.split()[-1]] = body
         self.sink = Obj(SINK, videoDecoders={}, pendingVideoCodec={}, videoRecoveryHandlers={},
@@ -198,6 +201,15 @@ class Machine:
 
 class LifecycleTests(unittest.TestCase):
     def setUp(self):self.m=Machine();self.session=Obj('session')
+    def test_cluster_type_reaches_stream_before_listen(self):
+        types_at_listen = []
+        def observe(cls, name, args):
+            if cls == STREAM and name == 'listen':
+                types_at_listen.append(args[0].f.get('e01DiagnosticScreenType'))
+        self.m.hook = observe
+        self.m.start(self.session)
+        self.assertEqual(types_at_listen, [111])
+
     def test_replace_same_config_keeps_surface_but_retires_decoder(self):
         m=self.m;a=m.start(self.session);m.configure(a);old=m.sink.f['videoDecoders'][111]
         b=m.start(self.session);m.configure(b);new=m.sink.f['videoDecoders'][111]

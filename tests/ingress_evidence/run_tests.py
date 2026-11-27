@@ -6,7 +6,7 @@ import subprocess,tempfile,hashlib,json
 r=Path(__file__).resolve().parent
 j=find_java()['java_home'] / 'bin'
 root=r.parents[1]
-sources=[root/'src/e01/com/shilapi/xcertplay'/n for n in ['E01VideoIngress.java','E01IngressEvidence.java','E01FrameTiming.java']]+list((r/'test-src').rglob('*.java'))
+sources=[root/'src/e01/com/shilapi/xcertplay'/n for n in ['E01SwipeTiming.java','E01VideoIngress.java','E01IngressEvidence.java','E01FrameTiming.java']]+list((r/'test-src').rglob('*.java'))
 with tempfile.TemporaryDirectory() as t:
  subprocess.run([str(j/'javac'),'--release','8','-d',t,*map(str,sources)],check=True)
  p=subprocess.run([str(j/'java'),'-cp',t,'com.shilapi.xcertplay.IngressCheck'],capture_output=True,text=True,timeout=30)

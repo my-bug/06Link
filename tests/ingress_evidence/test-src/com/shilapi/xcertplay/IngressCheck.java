@@ -37,6 +37,27 @@ public final class IngressCheck {
   a.close();ok(a.terminated(2000)&&sourceClosed.get(),"priority denial never prevents cancellation/source close");
   ok(android.os.Process.totalCalls()==1,"cancelled worker has one priority attempt");android.os.Process.reset();
  }
+ static void priorSwipeFrame(){
+  Object owner = new Object();
+  long start = System.nanoTime();
+  E01IngressEvidence main = new E01IngressEvidence(1,start,start,110), cluster = new E01IngressEvidence(2,start,start,111);
+  E01SwipeTiming.begin(owner,E01VideoEvidence.identity(),new E01SwipeTiming.Sink(){
+   public boolean schedule(Runnable r,long delay){return true;}
+   public long elapsedMs(){return 0;}
+   public void write(String s){}
+  });
+  main.opened();
+  main.packet(0,121,1,start+1);
+  ok(E01SwipeTiming.start(start)!=0,"swipe with established primary reader");
+  main.packet(1,999,1,start+2);
+  main.packet(0,137,1,start+3);
+  cluster.packet(0,800,1,start+4);
+  ok(E01SmoothVideo.lastSource==main && E01SmoothVideo.lastArrival==start+1 && E01SmoothVideo.lastSender==121,
+      "first swipe frame sees preceding frame from same reader, excludes config and cluster");
+  main.packet(0,0,1,start+5); main.packet(0,152,1,start+6);
+  ok(E01SmoothVideo.lastSender==0,"missing preceding stamp must not reuse an older stamp");
+  E01SwipeTiming.closed(main);
+ }
  static void timing(){
   long base=1000000000L;E01IngressEvidence e=new E01IngressEvidence(77,base,base);
   e.sourceRead(base+1000000L,base+21000000L,100);e.sourceRead(base+21000000L,base+1021000000L,200);
@@ -211,5 +232,5 @@ public final class IngressCheck {
   ok(E01VideoEvidence.samples.size()==2,"additional frames never trigger per-frame persistent records");
   a.close();android.util.Log.forbiddenRing=android.util.Log.forbiddenStats=null;
  }
- public static void main(String[] args)throws Exception{workerPriority();timing();startupWindows();pairedSummary();frameDistributions();socketScreenIdentity();byteEquality();waitsAndErrors();closeAndLogs();minuteEmission();System.out.println("PASS "+checks+" ingress evidence priority/denial/caller-isolation/timing/distribution/screen/quotas/type/byte-order/wrap/EOF/error/wait/close/log-lock checks (fake Android, no vehicle)");}
+ public static void main(String[] args)throws Exception{workerPriority();priorSwipeFrame();timing();startupWindows();pairedSummary();frameDistributions();socketScreenIdentity();byteEquality();waitsAndErrors();closeAndLogs();minuteEmission();System.out.println("PASS "+checks+" ingress evidence priority/denial/caller-isolation/timing/distribution/screen/quotas/type/byte-order/wrap/EOF/error/wait/close/log-lock checks (fake Android, no vehicle)");}
 }
