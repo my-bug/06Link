@@ -3,11 +3,14 @@ package com.shilapi.xcertplay;
 public final class SwipeTimingCheck {
     static final class Log implements E01SwipeTiming.Sink {
         Runnable timer;
-        String line;
+        String line, detail;
         long elapsed;
         public boolean schedule(Runnable r, long delay) { timer = r; return true; }
         public long elapsedMs() { return elapsed; }
-        public void write(String text) { line = text; }
+        public void write(String text) {
+            if (text.startsWith("起滑分段=")) detail = text;
+            else line = text;
+        }
     }
     static void check(boolean ok, String message) { if (!ok) throw new AssertionError(message); }
     static void renderer(boolean smooth, boolean direct) {
@@ -103,7 +106,50 @@ public final class SwipeTimingCheck {
                 "first successful reservation wins, capped at four: " + log.line);
     }
 
+    static void stageDetails() {
+        final long ms = 1000000L;
+        Log log = new Log();
+        Object host = new Object(), reader = new Object(), event = new Object(), other = new Object();
+        Object first = new Object(), second = new Object();
+        E01SwipeTiming.begin(host, "detail", log);
+        E01SwipeTiming.opened(reader, "detail");
+        long move = System.nanoTime() - 25 * ms;
+        long token = E01SwipeTiming.start(move);
+        E01SwipeTiming.command(token + 1, other, 31);
+        check(!E01SwipeTiming.awaitingReply(other), "ignore another gesture");
+        E01SwipeTiming.command(token, event, 31);
+        E01SwipeTiming.reply(other, 31);
+        E01SwipeTiming.reply(event, 32);
+        check(E01SwipeTiming.awaitingReply(event), "different connection or sequence cannot consume the response");
+        E01SwipeTiming.reply(event, 31); // Reader wins the race with the writer completion callback.
+        check(!E01SwipeTiming.awaitingReply(event), "one matching response per gesture");
+        E01SwipeTiming.sent(token, move + ms, System.nanoTime());
+        E01SwipeTiming.received(reader, first, move + 10*ms, 0, 0, 0, move + 4*ms, move + 6*ms);
+        E01SwipeTiming.received(reader, second, move + 20*ms, 0, 0, 0, move - ms, move + 19*ms);
+        E01SwipeTiming.decoderStages(other, move + 10*ms, move + 11*ms, move + 12*ms, ms);
+        E01SwipeTiming.decoderStages(first, move + 11*ms, 0, 0, -1);
+        E01SwipeTiming.decoderStages(first, 0, move + 13*ms, 0, -1);
+        E01SwipeTiming.decoderStages(first, 0, 0, move + 17*ms, 2*ms);
+        E01SwipeTiming.decoderStages(second, move + 21*ms, move + 12*ms, move + 1700*ms, -1);
+        log.timer.run();
+        String detail = log.detail;
+        check(detail.matches(".*手机回执=[0-9]+ .*"), "early reply retained after successful write: " + detail);
+        check(detail.contains("读头首字节/头齐/帧齐=4/6/10,-1/19/20"), "separate headers including an in-progress message");
+        check(detail.contains("入队/取出/取得解码槽=11/13/17,21/-1/-1"), "partial and mismatched decode steps");
+        check(detail.contains("其中等解码名额耗时毫秒=2,-1"), "cap duration reported separately");
+        E01SwipeTiming.begin(host, "reconnect", log);
+        E01SwipeTiming.opened(reader, "reconnect");
+        token = E01SwipeTiming.start(System.nanoTime());
+        E01SwipeTiming.command(token, other, 31);
+        E01SwipeTiming.reply(event, 31); // Same sequence reused on another connection.
+        check(E01SwipeTiming.awaitingReply(other), "late response from previous session ignored");
+        E01SwipeTiming.reply(other, 31);
+        log.timer.run(); // Local send failed, so no completed command to report.
+        check(log.detail.contains("手机回执=-1 "), "unconfirmed write must stay unknown");
+    }
+
     public static void main(String[] args) {
+        stageDetails();
         immediateReservation();
         reservations();
         renderer(false, false); renderer(true, false); renderer(true, true);

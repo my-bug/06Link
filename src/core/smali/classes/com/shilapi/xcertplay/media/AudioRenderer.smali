@@ -312,6 +312,8 @@
 
 .field private final mediaChannel:I
 
+.field private musicGap:Lcom/shilapi/xcertplay/media/WirelessMusicGap;
+
 .field private final navigationChannel:I
 
 .field private final navigationStreamType:I
@@ -3013,7 +3015,7 @@
     :goto_0
     iget-boolean v1, p0, Lcom/shilapi/xcertplay/media/AudioRenderer;->running:Z
 
-    if-eqz v1, :cond_7
+    if-eqz v1, :cond_8
 
     const-wide/16 v1, 0x0
 
@@ -3040,7 +3042,7 @@
     goto :goto_0
 
     :cond_2
-    if-ltz v1, :cond_7
+    if-ltz v1, :cond_8
 
     .line 1498
     invoke-static {v0}, Lcom/shilapi/xcertplay/ChipFlow$$ExternalSyntheticApiModelOutline0;->m(Landroid/media/MediaCodec$BufferInfo;)I
@@ -3125,7 +3127,7 @@
     :cond_4
     const/4 v3, 0x0
 
-    if-lez v2, :cond_6
+    if-lez v2, :cond_7
 
     .line 1511
     sget-object v4, Lcom/shilapi/xcertplay/compat/MediaCodecCompat;->INSTANCE:Lcom/shilapi/xcertplay/compat/MediaCodecCompat;
@@ -3134,7 +3136,7 @@
 
     move-result-object v4
 
-    if-eqz v4, :cond_6
+    if-eqz v4, :cond_7
 
     .line 1513
     iget-object v5, p0, Lcom/shilapi/xcertplay/media/AudioRenderer;->pcm:[B
@@ -3169,13 +3171,28 @@
 
     invoke-virtual {v4, v5, v3, v2}, Ljava/nio/ByteBuffer;->get([BII)Ljava/nio/ByteBuffer;
 
+    iget-object v4, p0, Lcom/shilapi/xcertplay/media/AudioRenderer;->musicGap:Lcom/shilapi/xcertplay/media/WirelessMusicGap;
+
+    if-eqz v4, :cond_6
+
+    iget-wide v5, v0, Landroid/media/MediaCodec$BufferInfo;->presentationTimeUs:J
+
+    invoke-virtual {v4, v5, v6, v2}, Lcom/shilapi/xcertplay/media/WirelessMusicGap;->beforeDecoded(JI)I
+
+    move-result v5
+
+    if-lez v5, :cond_6
+
+    invoke-direct {p0, v4, v5, v2}, Lcom/shilapi/xcertplay/media/AudioRenderer;->writeMusicGap(Lcom/shilapi/xcertplay/media/WirelessMusicGap;II)V
+
     .line 1517
+    :cond_6
     iget-object v4, p0, Lcom/shilapi/xcertplay/media/AudioRenderer;->pcm:[B
 
     invoke-direct {p0, v4, v3, v2}, Lcom/shilapi/xcertplay/media/AudioRenderer;->writePcm([BII)V
 
     .line 1520
-    :cond_6
+    :cond_7
     invoke-static {p1, v1, v3}, Lcom/shilapi/xcertplay/ChipFlow$$ExternalSyntheticApiModelOutline0;->m(Landroid/media/MediaCodec;IZ)V
 
     .line 1521
@@ -3187,7 +3204,7 @@
 
     if-eqz v1, :cond_0
 
-    :cond_7
+    :cond_8
     :goto_1
     return-void
 .end method
@@ -4455,11 +4472,18 @@
 
     move-result v1
 
-    if-eqz v1, :cond_2
+    if-eqz v1, :cond_3
 
     .line 1612
     invoke-virtual {v0}, Landroid/media/AudioTrack;->pause()V
 
+    iget-object v1, p0, Lcom/shilapi/xcertplay/media/AudioRenderer;->musicGap:Lcom/shilapi/xcertplay/media/WirelessMusicGap;
+
+    if-eqz v1, :cond_1
+
+    invoke-virtual {v1}, Lcom/shilapi/xcertplay/media/WirelessMusicGap;->reset()V
+
+    :cond_1
     const/4 v1, 0x0
 
     .line 1613
@@ -4477,15 +4501,15 @@
 
     const/4 v2, 0x3
 
-    if-le v1, v2, :cond_1
+    if-le v1, v2, :cond_2
 
     .line 1617
     rem-int/lit8 v1, v1, 0x32
 
-    if-nez v1, :cond_2
+    if-nez v1, :cond_3
 
     .line 1618
-    :cond_1
+    :cond_2
     iget-object v1, p0, Lcom/shilapi/xcertplay/media/AudioRenderer;->report:Lkotlin/jvm/functions/Function1;
 
     iget-object v2, p0, Lcom/shilapi/xcertplay/media/AudioRenderer;->format:Lcom/shilapi/xcertplay/airplay/AudioFormat;
@@ -4547,14 +4571,14 @@
     invoke-interface {v1, v2}, Lkotlin/jvm/functions/Function1;->invoke(Ljava/lang/Object;)Ljava/lang/Object;
 
     .line 1623
-    :cond_2
+    :cond_3
     iget-boolean v1, p0, Lcom/shilapi/xcertplay/media/AudioRenderer;->playbackStarted:Z
 
-    if-nez v1, :cond_3
+    if-nez v1, :cond_4
 
     iget v1, p0, Lcom/shilapi/xcertplay/media/AudioRenderer;->prebufferBytes:I
 
-    if-lez v1, :cond_3
+    if-lez v1, :cond_4
 
     iget-object v1, p0, Lcom/shilapi/xcertplay/media/AudioRenderer;->queue:Ljava/util/concurrent/LinkedBlockingQueue;
 
@@ -4562,7 +4586,7 @@
 
     move-result v1
 
-    if-eqz v1, :cond_3
+    if-eqz v1, :cond_4
 
     .line 1624
     invoke-static {}, Ljava/lang/System;->nanoTime()J
@@ -4577,12 +4601,12 @@
 
     cmp-long v5, v1, v3
 
-    if-ltz v5, :cond_3
+    if-ltz v5, :cond_4
 
     .line 1625
     invoke-direct {p0, v0}, Lcom/shilapi/xcertplay/media/AudioRenderer;->startPlayback(Landroid/media/AudioTrack;)V
 
-    :cond_3
+    :cond_4
     :goto_0
     return-void
 .end method
@@ -4869,6 +4893,25 @@
     move-result-object p1
 
     return-object p1
+.end method
+
+.method private final recordPcmWrite(I)V
+    .locals 5
+    iget-object v0, p0, Lcom/shilapi/xcertplay/media/AudioRenderer;->bufferProgress:Lcom/shilapi/xcertplay/media/AudioBufferProgress;
+    invoke-virtual {v0, p1}, Lcom/shilapi/xcertplay/media/AudioBufferProgress;->written(I)V
+    iget v0, p0, Lcom/shilapi/xcertplay/media/AudioRenderer;->frameBytes:I
+    div-int v0, p1, v0
+    int-to-long v0, v0
+    iget-wide v2, p0, Lcom/shilapi/xcertplay/media/AudioRenderer;->totalWrittenFrames:J
+    add-long/2addr v2, v0
+    iput-wide v2, p0, Lcom/shilapi/xcertplay/media/AudioRenderer;->totalWrittenFrames:J
+    iget-wide v2, p0, Lcom/shilapi/xcertplay/media/AudioRenderer;->writtenFramesThisWindow:J
+    add-long/2addr v2, v0
+    iput-wide v2, p0, Lcom/shilapi/xcertplay/media/AudioRenderer;->writtenFramesThisWindow:J
+    invoke-static {}, Ljava/lang/System;->nanoTime()J
+    move-result-wide v2
+    iput-wide v2, p0, Lcom/shilapi/xcertplay/media/AudioRenderer;->lastPcmWriteNs:J
+    return-void
 .end method
 
 .method private final declared-synchronized release()V
@@ -5702,6 +5745,61 @@
     return v0
 .end method
 
+.method private final writeMusicGap(Lcom/shilapi/xcertplay/media/WirelessMusicGap;II)V
+    .locals 4
+
+    iget-boolean v0, p0, Lcom/shilapi/xcertplay/media/AudioRenderer;->playbackStarted:Z
+
+    if-eqz v0, :cond_0
+
+    iget-object v0, p0, Lcom/shilapi/xcertplay/media/AudioRenderer;->track:Landroid/media/AudioTrack;
+
+    if-eqz v0, :cond_0
+
+    move-object v3, v0
+
+    invoke-direct {p0, v0}, Lcom/shilapi/xcertplay/media/AudioRenderer;->underranSinceStart(Landroid/media/AudioTrack;)Z
+
+    move-result v1
+
+    if-nez v1, :cond_0
+
+    invoke-virtual {v0}, Landroid/media/AudioTrack;->getPlaybackHeadPosition()I
+
+    move-result v1
+
+    iget-object v2, p0, Lcom/shilapi/xcertplay/media/AudioRenderer;->bufferProgress:Lcom/shilapi/xcertplay/media/AudioBufferProgress;
+
+    invoke-virtual {v2, v1}, Lcom/shilapi/xcertplay/media/AudioBufferProgress;->queuedBytes(I)J
+
+    move-result-wide v0
+
+    iget v2, p0, Lcom/shilapi/xcertplay/media/AudioRenderer;->startThresholdBytes:I
+
+    invoke-static {v0, v1, v2, p2, p3}, Lcom/shilapi/xcertplay/media/WirelessMusicGap;->hasRoom(JIII)Z
+
+    move-result v2
+
+    if-eqz v2, :cond_0
+
+    invoke-virtual {p1, p2}, Lcom/shilapi/xcertplay/media/WirelessMusicGap;->silence(I)Ljava/nio/ByteBuffer;
+
+    move-result-object v2
+
+    invoke-static {v3, v2, p2}, Lcom/shilapi/xcertplay/media/AudioTrackApi21;->writeNonBlocking(Landroid/media/AudioTrack;Ljava/nio/ByteBuffer;I)I
+
+    move-result v0
+
+    if-lez v0, :cond_0
+
+    invoke-static {v3, v0}, Lcom/shilapi/xcertplay/E01AudioScene;->paddingWritten(Landroid/media/AudioTrack;I)V
+
+    invoke-direct {p0, v0}, Lcom/shilapi/xcertplay/media/AudioRenderer;->recordPcmWrite(I)V
+
+    :cond_0
+    return-void
+.end method
+
 .method private final writePcm([BII)V
     .locals 12
 
@@ -5937,38 +6035,7 @@
     :cond_8
     add-int/2addr v1, v7
 
-    .line 1568
-    iget v4, p0, Lcom/shilapi/xcertplay/media/AudioRenderer;->frameBytes:I
-
-    div-int v4, v7, v4
-
-    .line 1569
-    iget-wide v5, p0, Lcom/shilapi/xcertplay/media/AudioRenderer;->totalWrittenFrames:J
-
-    int-to-long v8, v4
-
-    add-long/2addr v5, v8
-
-    iput-wide v5, p0, Lcom/shilapi/xcertplay/media/AudioRenderer;->totalWrittenFrames:J
-
-    .line 1570
-    iget-wide v4, p0, Lcom/shilapi/xcertplay/media/AudioRenderer;->writtenFramesThisWindow:J
-
-    add-long/2addr v4, v8
-
-    iput-wide v4, p0, Lcom/shilapi/xcertplay/media/AudioRenderer;->writtenFramesThisWindow:J
-
-    .line 1571
-    iget-object v4, p0, Lcom/shilapi/xcertplay/media/AudioRenderer;->bufferProgress:Lcom/shilapi/xcertplay/media/AudioBufferProgress;
-
-    invoke-virtual {v4, v7}, Lcom/shilapi/xcertplay/media/AudioBufferProgress;->written(I)V
-
-    .line 1572
-    invoke-static {}, Ljava/lang/System;->nanoTime()J
-
-    move-result-wide v4
-
-    iput-wide v4, p0, Lcom/shilapi/xcertplay/media/AudioRenderer;->lastPcmWriteNs:J
+    invoke-direct {p0, v7}, Lcom/shilapi/xcertplay/media/AudioRenderer;->recordPcmWrite(I)V
 
     .line 1573
     iget-boolean v4, p0, Lcom/shilapi/xcertplay/media/AudioRenderer;->playbackStarted:Z
@@ -6089,6 +6156,61 @@
     return-void
 .end method
 
+.method public final enableWirelessMusicFill()V
+    .locals 5
+
+    sget v0, Landroid/os/Build$VERSION;->SDK_INT:I
+
+    const/16 v1, 0x15
+
+    if-lt v0, v1, :cond_0
+
+    iget-object v0, p0, Lcom/shilapi/xcertplay/media/AudioRenderer;->format:Lcom/shilapi/xcertplay/airplay/AudioFormat;
+
+    invoke-virtual {v0}, Lcom/shilapi/xcertplay/airplay/AudioFormat;->getAudioType()Ljava/lang/String;
+
+    move-result-object v1
+
+    const-string v2, "media"
+
+    invoke-virtual {v2, v1}, Ljava/lang/String;->equals(Ljava/lang/Object;)Z
+
+    move-result v1
+
+    if-eqz v1, :cond_0
+
+    invoke-virtual {v0}, Lcom/shilapi/xcertplay/airplay/AudioFormat;->getCodec()Lcom/shilapi/xcertplay/airplay/AudioCodecKind;
+
+    move-result-object v1
+
+    sget-object v2, Lcom/shilapi/xcertplay/airplay/AudioCodecKind;->AAC_LC:Lcom/shilapi/xcertplay/airplay/AudioCodecKind;
+
+    if-ne v1, v2, :cond_0
+
+    invoke-virtual {v0}, Lcom/shilapi/xcertplay/airplay/AudioFormat;->getSampleRate()I
+
+    move-result v1
+
+    if-lez v1, :cond_0
+
+    invoke-virtual {v0}, Lcom/shilapi/xcertplay/airplay/AudioFormat;->getRtpClockRate()I
+
+    move-result v2
+
+    if-ne v1, v2, :cond_0
+
+    iget v3, p0, Lcom/shilapi/xcertplay/media/AudioRenderer;->frameBytes:I
+
+    new-instance v4, Lcom/shilapi/xcertplay/media/WirelessMusicGap;
+
+    invoke-direct {v4, v1, v3}, Lcom/shilapi/xcertplay/media/WirelessMusicGap;-><init>(II)V
+
+    iput-object v4, p0, Lcom/shilapi/xcertplay/media/AudioRenderer;->musicGap:Lcom/shilapi/xcertplay/media/WirelessMusicGap;
+
+    :cond_0
+    return-void
+.end method
+
 .method public final getFormat()Lcom/shilapi/xcertplay/airplay/AudioFormat;
     .locals 1
 
@@ -6206,10 +6328,17 @@
     :cond_0
     iget-boolean v0, p0, Lcom/shilapi/xcertplay/media/AudioRenderer;->started:Z
 
-    if-eqz v0, :cond_1
+    if-eqz v0, :cond_2
 
     iget-object v0, p0, Lcom/shilapi/xcertplay/media/AudioRenderer;->queue:Ljava/util/concurrent/LinkedBlockingQueue;
 
+    iget-object v1, p0, Lcom/shilapi/xcertplay/media/AudioRenderer;->musicGap:Lcom/shilapi/xcertplay/media/WirelessMusicGap;
+
+    if-eqz v1, :cond_1
+
+    invoke-virtual {v1, p1, p2}, Lcom/shilapi/xcertplay/media/WirelessMusicGap;->received([BI)V
+
+    :cond_1
     new-instance v1, Lcom/shilapi/xcertplay/media/AudioRenderer$AudioPacket;
 
     invoke-direct {v1, p1, p2}, Lcom/shilapi/xcertplay/media/AudioRenderer$AudioPacket;-><init>([BI)V
@@ -6218,27 +6347,27 @@
 
     move-result p1
 
-    if-nez p1, :cond_3
+    if-nez p1, :cond_4
 
     .line 1052
-    :cond_1
+    :cond_2
     iget-boolean p1, p0, Lcom/shilapi/xcertplay/media/AudioRenderer;->started:Z
 
-    if-eqz p1, :cond_2
+    if-eqz p1, :cond_3
 
     iget-object p1, p0, Lcom/shilapi/xcertplay/media/AudioRenderer;->packetsDropped:Ljava/util/concurrent/atomic/AtomicInteger;
 
     invoke-virtual {p1}, Ljava/util/concurrent/atomic/AtomicInteger;->incrementAndGet()I
 
     .line 1053
-    :cond_2
+    :cond_3
     iget-boolean p1, p0, Lcom/shilapi/xcertplay/media/AudioRenderer;->started:Z
 
-    if-eqz p1, :cond_3
+    if-eqz p1, :cond_4
 
     iget-boolean p1, p0, Lcom/shilapi/xcertplay/media/AudioRenderer;->droppedPacketsLogged:Z
 
-    if-nez p1, :cond_3
+    if-nez p1, :cond_4
 
     const/4 p1, 0x1
 
@@ -6275,6 +6404,6 @@
 
     invoke-interface {p1, p2}, Lkotlin/jvm/functions/Function1;->invoke(Ljava/lang/Object;)Ljava/lang/Object;
 
-    :cond_3
+    :cond_4
     return-void
 .end method

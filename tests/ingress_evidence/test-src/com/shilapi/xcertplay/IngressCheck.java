@@ -58,6 +58,44 @@ public final class IngressCheck {
   ok(E01SmoothVideo.lastSender==0,"missing preceding stamp must not reuse an older stamp");
   E01SwipeTiming.closed(main);
  }
+ static void swipeHeaderBytes() throws Exception {
+  E01VideoIngress.Ahead in = new E01VideoIngress.Ahead(new ByteArrayInputStream(new byte[24]), 24, 110);
+  Object owner = new Object();
+  E01SwipeTiming.begin(owner,E01VideoEvidence.identity(),new E01SwipeTiming.Sink() {
+   public boolean schedule(Runnable r,long delay){return true;}
+   public long elapsedMs(){return 0;}
+   public void write(String s){}
+  });
+  in.evidence.opened();
+  in.start();
+  await(()->in.available()==24,"prefetched test messages");
+  byte[] header = new byte[4], body = new byte[2];
+  E01VideoIngress.beginHeader(in, header.length);
+  ok(in.read(header,0,2)==2,"first half read before gesture");
+  ok(E01SwipeTiming.start(System.nanoTime())!=0,"gesture starts mid-header");
+  long beforeEnd = System.nanoTime();
+  ok(in.read(header,2,2)==2 && in.read(body)==2,"read remaining header and body");
+  E01VideoIngress.message(in,0,100,2);
+  ok(E01SmoothVideo.firstHeader==0 && E01SmoothVideo.completeHeader>=beforeEnd,
+      "unknown first header timestamp stays missing when gesture starts mid-header");
+  E01VideoIngress.beginHeader(in, header.length);
+  long beforeFirst = System.nanoTime();
+  ok(in.read(header,0,2)==2,"first chunk of sampled header");
+  long afterFirst = System.nanoTime();
+  ok(in.read(header,2,2)==2,"last chunk of sampled header");
+  long afterHeader = System.nanoTime();
+  ok(in.read(body)==2,"body read");
+  E01VideoIngress.message(in,0,200,2);
+  ok(E01SmoothVideo.firstHeader>=beforeFirst && E01SmoothVideo.firstHeader<=afterFirst
+     && E01SmoothVideo.completeHeader>=afterFirst && E01SmoothVideo.completeHeader<=afterHeader,
+      "both timestamps belong to this frame and exclude body bytes");
+  E01VideoIngress.beginHeader(in, header.length);
+  ok(in.read(header)==4 && in.read(body)==2,"unsplit header and body");
+  E01VideoIngress.message(in,0,300,2);
+  ok(E01SmoothVideo.firstHeader>=afterHeader && E01SmoothVideo.firstHeader==E01SmoothVideo.completeHeader,
+      "one read supplies both endpoints for a complete header");
+  in.close();
+ }
  static void timing(){
   long base=1000000000L;E01IngressEvidence e=new E01IngressEvidence(77,base,base);
   e.sourceRead(base+1000000L,base+21000000L,100);e.sourceRead(base+21000000L,base+1021000000L,200);
@@ -232,5 +270,5 @@ public final class IngressCheck {
   ok(E01VideoEvidence.samples.size()==2,"additional frames never trigger per-frame persistent records");
   a.close();android.util.Log.forbiddenRing=android.util.Log.forbiddenStats=null;
  }
- public static void main(String[] args)throws Exception{workerPriority();priorSwipeFrame();timing();startupWindows();pairedSummary();frameDistributions();socketScreenIdentity();byteEquality();waitsAndErrors();closeAndLogs();minuteEmission();System.out.println("PASS "+checks+" ingress evidence priority/denial/caller-isolation/timing/distribution/screen/quotas/type/byte-order/wrap/EOF/error/wait/close/log-lock checks (fake Android, no vehicle)");}
+ public static void main(String[] args)throws Exception{workerPriority();priorSwipeFrame();swipeHeaderBytes();timing();startupWindows();pairedSummary();frameDistributions();socketScreenIdentity();byteEquality();waitsAndErrors();closeAndLogs();minuteEmission();System.out.println("PASS "+checks+" ingress evidence priority/denial/caller-isolation/timing/distribution/screen/quotas/type/byte-order/wrap/EOF/error/wait/close/log-lock checks (fake Android, no vehicle)");}
 }

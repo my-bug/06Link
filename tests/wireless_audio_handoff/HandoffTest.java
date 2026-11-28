@@ -55,6 +55,17 @@ public final class HandoffTest {
         public void audioEnable() { enables++; android.os.SystemProperties.state="1"; }
     }
     public static final class Adapter {
+        int state=12, hardware=302, disables, enables, reads;
+        boolean accept=true, delayed;
+        public int getState(){return state;}
+        public int getBtState(){reads++;return hardware;}
+        public boolean disable(boolean persist){
+            check(!persist,"temporary OEM shutdown must retain boot preference");
+            disables++;
+            if(accept&&!delayed){state=10;hardware=300;}
+            return accept;
+        }
+        public boolean enable(){enables++;state=12;hardware=302;return true;}
         Device[] paired={first,second};
         public Device[] getBondedDevices() { return paired; }
     }
@@ -84,6 +95,24 @@ public final class HandoffTest {
     void start(boolean full) { E01WirelessAudioHandoff.start(owner,7,A,full); }
     void stop() { E01WirelessAudioHandoff.stop(owner); }
     void profiles() { music.devices.add(first); call.devices.add(first); }
+
+    void pollingLifecycle() {
+        check(!E01WirelessAudioHandoff.wirelessHandoffComplete(), "prepare connections while idle");
+        start(false);
+        check(!E01WirelessAudioHandoff.wirelessHandoffComplete(), "keep checking while Bluetooth carries setup");
+        start(true);
+        check(E01WirelessAudioHandoff.wirelessHandoffComplete(), "Wi-Fi took over the selected session");
+        start(false);
+        E01WirelessAudioHandoff.stop(otherOwner);
+        check(E01WirelessAudioHandoff.wirelessHandoffComplete(), "late setup or unrelated stop cannot resume preparation");
+        E01WirelessAudioHandoff.start(otherOwner, 8, B, false);
+        check(!E01WirelessAudioHandoff.wirelessHandoffComplete(), "a replacement session must finish its own handoff");
+        E01WirelessAudioHandoff.start(otherOwner, 8, B, true);
+        E01WirelessAudioHandoff.stop(otherOwner);
+        check(!E01WirelessAudioHandoff.wirelessHandoffComplete(), "session exit immediately resumes preparation");
+        E01WirelessAudioHandoff.start(owner, -1, A, true);
+        check(!E01WirelessAudioHandoff.wirelessHandoffComplete(), "wired projection keeps normal readiness checks");
+    }
 
     void exclusive() {
         profiles(); tick(0); check(music.exits+call.exits==0,"waiting for phone");
@@ -260,6 +289,86 @@ public final class HandoffTest {
         gate.close();check(!gate.allows(primary,a,A)&&!gate.discovered(a,A),"retired generation ignores late events");
         E01WirelessPeers fresh=new E01WirelessPeers(A,Collections.<String>emptySet());
         check(fresh.discovered(a,null)&&fresh.record(primary,a,null),"single phone without discovery TXT");
+    }
+    void provideRadio(){context.manager=adapter;context.radio=adapter;}
+    boolean owns(){return context.getSharedPreferences("06link-audio-handoff",0).getBoolean("restore_oem_radio",false);}
+    void radioHandoff(){
+        provideRadio();profiles();start(false);tick(0);
+        check(adapter.disables==0,"handshake still needs radio");
+        start(true);tick(1);tick(500);int reads=adapter.reads;
+        tick(2000);tick(2000);
+        check(adapter.disables==1 && owns() && reads==adapter.reads,"verified pause is quiet");
+        check(call.exits==0,"full pause replaces per-profile disconnect");
+        stop();tick(1);tick(100);tick(2000);
+        check(!owns() && adapter.enables==1,"session exit restores once");
+    }
+    void radioManualOff(){
+        provideRadio();adapter.state=10;adapter.hardware=300;start(true);tick(0);stop();tick(2000);
+        check(!owns() && adapter.enables+adapter.disables==0,"user-owned off state preserved");
+        adapter.enable();start(true);tick(1000);
+        check(owns() && adapter.disables==1,"new session reads actual initial state");
+    }
+    void radioRecovery(){
+        provideRadio();adapter.state=10;adapter.hardware=300;
+        context.getSharedPreferences("06link-audio-handoff",0).edit().putBoolean("restore_oem_radio",true).commit();
+        check(E01WirelessAudioHandoff.restoringRadio(context),"next startup / wireless click waits for recovery");
+        tick(0);tick(100);tick(2000);
+        check(!owns()&&adapter.enables==1,"process restart restores only journaled pause");
+    }
+    void radioRejected(){
+        provideRadio();adapter.accept=false;profiles();start(true);tick(0);tick(5000);
+        check(!owns() && adapter.disables==1 && music.exits==1 && call.exits==1,"refused pause keeps legacy handoff");
+        stop();tick(1000);check(adapter.enables==0,"refused pause is never restored");
+    }
+    void radioRapidExit(){
+        provideRadio();adapter.delayed=true;start(true);tick(0);stop();tick(50);
+        check(owns(),"delayed disable not mistaken for restored radio");
+        adapter.state=13;adapter.hardware=300;tick(100);
+        check(adapter.enables==0,"closing is not off");
+        adapter.state=10;tick(300);tick(200);tick(5000);
+        check(adapter.enables==1&&!owns(),"quick stop while disable in flight");
+    }
+    void radioRestoredByDriver(){
+        provideRadio();start(true);tick(0);tick(100);
+        adapter.state=12;adapter.hardware=302;E01WirelessAudioHandoff.radioStateChanged();tick(100);
+        stop();tick(100);check(adapter.disables==1 && adapter.enables==0 && !owns(),"respect manual re-enable");
+    }
+    void radioLostBroadcast(){
+        provideRadio();start(true);tick(0);tick(100);
+        adapter.state=12;adapter.hardware=302;tick(31000);
+        check(adapter.disables==1 && !owns(),"missed factory broadcast still notices manual re-enable");
+    }
+    void radioPreference(){
+        provideRadio();E01WirelessAudioHandoff.start(owner,-1,A,true);tick(0);stop();tick(100);
+        check(adapter.disables==0,"wired projection never affects the radio");
+        start(true);tick(100);tick(100);
+        context.getSharedPreferences("06link-video",0).edit().putBoolean("pause_oem_bluetooth",false).commit();
+        tick(500);tick(100);tick(5000);
+        check(adapter.enables==1&&!owns(),"turning option off restores active pause");
+        stop();start(true);tick(1000);check(adapter.disables==1,"disabled preference survives reconnect");
+    }
+    void radioTransitions(){
+        provideRadio();start(true);adapter.state=11;adapter.hardware=300;tick(0);
+        check(!owns()&&adapter.disables==0,"turning on is not stable OFF");
+        adapter.state=12;adapter.hardware=302;tick(500);check(owns(),"stable ready radio can pause");
+    }
+    void radioBinding(){
+        provideRadio();start(true);profiles();context.delayRadioBinding=true;
+        tick(0);check(call.exits+music.exits==0,"do not race first asynchronous radio binding with profile commands");
+        context.delayRadioBinding=false;context.reconnectBindings();tick(100);
+        check(adapter.disables==1 && call.exits+music.exits==0,"bound radio performs the only disconnect");
+    }
+    void radioRetoggle(){
+        provideRadio();start(true);tick(0);tick(100);
+        android.content.SharedPreferences settings=context.getSharedPreferences("06link-video",0);
+        settings.edit().putBoolean("pause_oem_bluetooth",false).commit();tick(200);
+        check(adapter.enables==1,"first restore has been sent");
+        settings.edit().putBoolean("pause_oem_bluetooth",true).commit();tick(5000);
+        check(adapter.disables==2,"re-enabled option honored before the restore cleared its journal");
+    }
+    void radioWrongReadback(){
+        provideRadio();adapter.delayed=true;profiles();start(true);tick(0);
+        tick(5000);check(music.exits==1 && call.exits==1 && adapter.disables==1,"accepted but ineffective pause falls back");
     }
     public static void main(String[] args) throws Exception {
         HandoffTest test=new HandoffTest();

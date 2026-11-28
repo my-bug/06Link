@@ -88,6 +88,12 @@ public final class E01AudioScene {
         if(!e.committed && e.active){e.active=false;e.blocked=false;reconcile();}
     }
 
+    /** Keep the playback-head timeline aligned without letting silence acquire focus. */
+    public static synchronized void paddingWritten(AudioTrack track, int bytes) {
+        Entry entry = tracks.get(track);
+        if (entry != null && bytes > 0) entry.bytes += bytes;
+    }
+
     /** Uses the renderer's existing maintenance loop; no extra thread or recurring timer. */
     public static synchronized void tick(AudioTrack t){
         if(retryAbandons())reconcile();

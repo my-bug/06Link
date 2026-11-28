@@ -119,6 +119,9 @@ public class LogPolicyTest {
 
   E01LogPolicy.session(session,"00:44:06.001 [接收摘要] video transport=wireless frames=3500");
   E01LogPolicy.session(session,"00:44:06.002 Audio RX priority=video");
+  String hotspotBand="[热点频段] 手机已连上，实测 5 GHz（信道 149，5745 MHz）";
+  E01LogPolicy.session(session,"00:44:07.003 "+hotspotBand);
+  check(read(session).contains(hotspotBand),"hotspot radio confirmation remains in the app log");
   check(read(session).contains("VIDEO sample")&&read(session).contains("[接收摘要]")&&read(session).contains("Audio RX priority="),"producer-limited media summaries and scheduler selection retained");
   android.content.Context ui=new android.content.Context(){public File getFilesDir(){return root;}public File getExternalFilesDir(String ignored){return null;}};
   E01LogPolicy.UiSnapshot snapshot=E01LogPolicy.readUiSnapshot(ui);

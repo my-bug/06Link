@@ -232,6 +232,35 @@
     return-object v0
 .end method
 
+.method public final getStatusChannel()I
+    .locals 2
+
+    iget-object v0, p0, Lcom/shilapi/xcertplay/network/WirelessHotspotInfo;->backend:Lcom/shilapi/xcertplay/network/WirelessHotspotBackend;
+
+    sget-object v1, Lcom/shilapi/xcertplay/network/WirelessHotspotBackend;->MANUAL_HOTSPOT:Lcom/shilapi/xcertplay/network/WirelessHotspotBackend;
+
+    if-ne v0, v1, :cond_0
+
+    invoke-static {}, Lcom/shilapi/xcertplay/E01HotspotBand;->isSupported()Z
+
+    move-result v0
+
+    if-eqz v0, :cond_0
+
+    iget-object v0, p0, Lcom/shilapi/xcertplay/network/WirelessHotspotInfo;->frequencyMHz:Ljava/lang/Integer;
+
+    invoke-static {v0}, Lcom/shilapi/xcertplay/network/E01HotspotReading;->statusChannel(Ljava/lang/Integer;)I
+
+    move-result v0
+
+    return v0
+
+    :cond_0
+    iget v0, p0, Lcom/shilapi/xcertplay/network/WirelessHotspotInfo;->channel:I
+
+    return v0
+.end method
+
 .method public toString()Ljava/lang/String;
     .locals 11
 

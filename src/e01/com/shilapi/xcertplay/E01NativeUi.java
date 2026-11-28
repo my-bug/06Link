@@ -192,9 +192,39 @@ public final class E01NativeUi extends android.view.ContextThemeWrapper {
     private void connectionSettings(){
         section("连接偏好",null);LinearLayout g=group();toggle(g,"开机自启","auto_start_on_boot",true,"车机启动时打开 06Link");choice(g,"默认连接","default_connection","无线",new String[]{"无线","有线","每次选择"},null);valueRow(g,"连接的手机",null,getValue("phone",""),()->E01OemBluetooth.choosePhone(host));
         toggle(g,"启动自动连接","auto_connect",false,"按默认方式连接；每次选择时由你启动");
+        if(E01WirelessAudioHandoff.supported())
+            toggle(g,"无线投屏时暂停原车蓝牙","pause_oem_bluetooth",true,"无线交接完成后关闭车机蓝牙，退出投屏后恢复。");
         section("车机热点","无线连接时自动开启，点击停止后不再重试。");LinearLayout hotspot=group();
+        if(E01HotspotBand.isSupported())hotspotBand(hotspot);
         inputHotspot(hotspot);
         section("有线连接",null);g=group();choice(g,"使用接口","wired_port","扶手箱 USB",new String[]{"扶手箱 USB","点烟器旁 USB","原生 USB"},"平板等设备选择原生 USB，下次连接生效");choice(g,"USB 电流","current","默认",new String[]{"0.5 A","1.5 A","2.4 A"},"选择连接时使用的电流档位");
+    }
+    private void hotspotBand(LinearLayout group) {
+        LinearLayout row=setting(group,"热点频段","下次开启车机热点时生效");
+        String[] labels={"自动","5 GHz"};
+        TextView[] options=new TextView[labels.length];
+        Runnable update=()->{
+            int selected=E01HotspotBand.prefers5Ghz(host)?1:0;
+            for(int i=0;i<options.length;i++){
+                boolean active=i==selected;
+                options[i].setSelected(active);
+                options[i].setTextColor(active?accent:ink);
+                touch(options[i],active?tint:control,9);
+            }
+        };
+        for(int i=0;i<labels.length;i++){
+            final boolean prefer5Ghz=i==1;
+            TextView option=button(labels[i],false,()->{
+                if(prefer5Ghz==E01HotspotBand.prefers5Ghz(host))return;
+                E01HotspotBand.setPrefers5Ghz(host,prefer5Ghz);
+                update.run();
+            });
+            options[i]=option;
+            option.setPadding(dp(12),0,dp(12),0);
+            if(i>0)horizontalGap(row,6);
+            row.addView(option,lp(-2,48));
+        }
+        update.run();
     }
     private void inputHotspot(LinearLayout g){
         EditText ssid=editor(getValue("ssid","06Link"),"热点名称",false),pass=editor(getValue("password","06Link2026"),"热点密码",true);
@@ -252,8 +282,8 @@ public final class E01NativeUi extends android.view.ContextThemeWrapper {
         body.addView(text("日夜地图仅为预览，实际跟随手机导航；原厂信息由车机控制。",12,muted,false));update.run();updateTheme.run();
         showDialog("仪表样式预览",body,"取消",null,"应用样式",()->{String label=E01InstrumentStyle.label(selected[0]);store("layout",label);notice=selectionNotice("layout",label);refresh();},true);
     }
-    private void displaySettings(){section("CarPlay 画面","更改画面参数后，需要重新连接。");LinearLayout g=group();valueRow(g,"帧率",null,getValue("fps","30 帧"),()->frameRate());choice(g,"画质","quality","原始分辨率",new String[]{"原始分辨率","均衡","低负载"},null);choice(g,"界面大小","size","标准",new String[]{"较小","标准","较大"},null);section("视频优化",null);g=group();toggle(g,"流畅视频","smooth",true,"调整后重连生效");toggle(g,"MTK 低延迟","mtk",true,"自动检查视频参数，重连后生效");if(E01PrivilegedShell.supported())toggle(g,"中控 60Hz 输出","display60",true,"配合流畅视频及60帧，退出画面后恢复");section("外观",null);g=group();valueRow(g,"日夜模式",null,getValue("appearance","跟随系统"),()->appearance());section("更多",null);g=group();valueRow(g,"更多显示设置",null,"",()->navigate("display-more"));}
-    private void frameRate(){choose("帧率","fps","30 帧",new String[]{"30 帧","60 帧"},null);}
+    private void displaySettings(){section("CarPlay 画面","更改画面参数后，需要重新连接。");LinearLayout g=group();valueRow(g,"帧率",null,getValue("fps","60 帧"),()->frameRate());choice(g,"画质","quality","原始分辨率",new String[]{"原始分辨率","均衡","低负载"},null);choice(g,"界面大小","size","标准",new String[]{"较小","标准","较大"},null);section("视频优化",null);g=group();toggle(g,"流畅视频","smooth",true,"调整后重连生效");toggle(g,"MTK 低延迟","mtk",true,"自动检查视频参数，重连后生效");if(E01PrivilegedShell.supported())toggle(g,"中控 60Hz 输出","display60",true,"配合流畅视频及60帧，退出画面后恢复");section("外观",null);g=group();valueRow(g,"日夜模式",null,getValue("appearance","跟随系统"),()->appearance());section("更多",null);g=group();valueRow(g,"更多显示设置",null,"",()->navigate("display-more"));}
+    private void frameRate(){choose("帧率","fps","60 帧",new String[]{"30 帧","60 帧"},null);}
     private void appearance(){choose("日夜模式","appearance","跟随系统",new String[]{"跟随系统","白天","夜间"},null);}
     private void displayMore(){section("布局",null);LinearLayout g=group();choice(g,"驾驶位","driver","左侧",new String[]{"左侧","右侧"},null);valueRow(g,"屏幕方向",null,getValue("rotation","自动"),()->choose("屏幕方向","rotation","自动",new String[]{"自动","0°","90°","180°","270°"},null));toggle(g,"隐藏系统栏","immersive",true,null);section("视频",null);g=group();toggle(g,"高效视频 HEVC","hevc",false,"需要设备支持，重新连接后生效");}
     private void audioSettings(){section("声音","音乐、导航、语音和通话使用各自的原车声道。");LinearLayout g=group();valueRow(g,"原车声道",null,"查看",()->navigate("audio-routes"));if(!E01AudioRoute.supported())toggle(g,"音频焦点","audio_focus",true,"重新连接后生效");choice(g,"音乐缓冲","buffer","标准",new String[]{"最低","标准","较大"},null);toggle(g,"有线导航高清语音","wired_navigation_hd",false,"改善播报沉闷，重新连接后生效");section("方向盘按键",null);g=group();toggle(g,"上下首切换","tracks",true,null);toggle(g,"播放 / 暂停","play",true,null);toggle(g,"语音键唤起 Siri","siri",false,null);}

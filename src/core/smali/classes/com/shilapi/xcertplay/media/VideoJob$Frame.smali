@@ -57,6 +57,8 @@
 
 
 # instance fields
+.field e01TimingStamp:Ljava/lang/Object;
+
 .field private final nalus:[B
 
 .field private final receivedNs:J

@@ -109,7 +109,7 @@
 
 .field private closed:Z
 
-.field private delegate:Lcom/shilapi/xcertplay/network/ManualHotspotManager;
+.field private volatile delegate:Lcom/shilapi/xcertplay/network/ManualHotspotManager;
 
 .field private final lock:Ljava/lang/Object;
 
@@ -555,7 +555,20 @@
 .method private final setAp(Landroid/net/wifi/WifiConfiguration;Z)Z
     .locals 6
 
+    if-eqz p2, :cond_0
+
+    iget-object v0, p0, Lcom/shilapi/xcertplay/network/LegacySoftApManager;->appContext:Landroid/content/Context;
+
+    iget-object v1, p0, Lcom/shilapi/xcertplay/network/LegacySoftApManager;->wifiManager:Landroid/net/wifi/WifiManager;
+
+    invoke-static {v0, v1, p1}, Lcom/shilapi/xcertplay/E01HotspotBand;->enableHotspot(Landroid/content/Context;Landroid/net/wifi/WifiManager;Landroid/net/wifi/WifiConfiguration;)Z
+
+    move-result v0
+
+    return v0
+
     .line 155
+    :cond_0
     const-class v0, Landroid/net/wifi/WifiManager;
 
     const/4 v1, 0x2
@@ -601,17 +614,17 @@
     .line 155
     instance-of p2, p1, Ljava/lang/Boolean;
 
-    if-eqz p2, :cond_0
+    if-eqz p2, :cond_1
 
     check-cast p1, Ljava/lang/Boolean;
 
     goto :goto_0
 
-    :cond_0
+    :cond_1
     const/4 p1, 0x0
 
     :goto_0
-    if-eqz p1, :cond_1
+    if-eqz p1, :cond_2
 
     invoke-virtual {p1}, Ljava/lang/Boolean;->booleanValue()Z
 
@@ -619,7 +632,7 @@
 
     return p1
 
-    :cond_1
+    :cond_2
     return v4
 .end method
 
@@ -695,11 +708,15 @@
 .end method
 
 .method public onCarPlayConfirmed()V
-    .locals 0
+    .locals 1
 
-    .line 38
-    invoke-static {p0}, Lcom/shilapi/xcertplay/network/WirelessHotspotManager$-CC;->$default$onCarPlayConfirmed(Lcom/shilapi/xcertplay/network/WirelessHotspotManager;)V
+    iget-object v0, p0, Lcom/shilapi/xcertplay/network/LegacySoftApManager;->delegate:Lcom/shilapi/xcertplay/network/ManualHotspotManager;
 
+    if-eqz v0, :cond_0
+
+    invoke-virtual {v0}, Lcom/shilapi/xcertplay/network/ManualHotspotManager;->onCarPlayConfirmed()V
+
+    :cond_0
     return-void
 .end method
 
@@ -1039,7 +1056,7 @@
     .line 84
     iget-object v6, v1, Lcom/shilapi/xcertplay/network/LegacySoftApManager;->onDiagnostic:Lkotlin/jvm/functions/Function1;
 
-    const-string v9, "Automatic hotspot: the system refused the 06Link-\u2026 name and password; switching on with the saved configuration as it is"
+    const-string v9, "Automatic hotspot: the start request with 06Link credentials failed; retrying with saved credentials"
 
     invoke-interface {v6, v9}, Lkotlin/jvm/functions/Function1;->invoke(Ljava/lang/Object;)Ljava/lang/Object;
 

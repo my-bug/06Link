@@ -237,7 +237,7 @@
     "dex": "classes.dex",
     "class": "com/shilapi/xcertplay/orchestration/CarPlayController.smali",
     "method": "runWireless(I)V",
-    "sha256": "9e3b2f7e05dce1d1fda60133313a61e82fa3b491c96712e3188ca7b818b2ba0f"
+    "sha256": "17efb3b4ac1d5dc4b4bb32f3511d3a2caa4dc39507b4a3c8d0512636157aeaa5"
   },
   "e01-input-pump": {
     "dex": "classes.dex",
@@ -327,7 +327,7 @@
     "dex": "classes.dex",
     "class": "com/shilapi/xcertplay/airplay/ScreenStream.smali",
     "method": "run(Ljava/net/Socket;)V",
-    "sha256": "7d04a134d60f520e6437e8673f37bcf80b48555fa14b17c8e4e0557d8b9af9c2"
+    "sha256": "37766a9d39e3cecff4e226354259273aecdc858c17c853b3472d905b0fb23a26"
   },
   "gps-diagnostic-provider-attached": {
     "dex": "classes.dex",
@@ -525,13 +525,13 @@
     "dex": "classes.dex",
     "class": "com/shilapi/xcertplay/media/AudioRenderer.smali",
     "method": "writePcm([BII)V",
-    "sha256": "6b4e9695b9eaa0e4a93cf00afd003c36d2a269543b4545c1341273dff72a5be7"
+    "sha256": "3a4635a4bb3c4b3349ed4203fc4e790aa2a91b28c502c63a3cb49583993e487b"
   },
   "audio-scene-drain": {
     "dex": "classes.dex",
     "class": "com/shilapi/xcertplay/media/AudioRenderer.smali",
     "method": "maintainPlaybackBuffer()V",
-    "sha256": "44087bc8c7dea1dcd5bfe745b9346b274d1f66d6c883088a04d2857145f92492"
+    "sha256": "87df1664639015a6feaa3d7dd936206711614d3ca0ef0c1aab11f55db18e3e81"
   },
   "audio-scene-media-keys": {
     "dex": "classes.dex",
@@ -561,7 +561,7 @@
     "dex": "classes.dex",
     "class": "com/shilapi/xcertplay/media/AudioRenderer.smali",
     "method": "drainCodec(Landroid/media/MediaCodec;)V",
-    "sha256": "851572533bf7194565c1447c01a35ebb30bcbc84b8c9c9c416b6e522449cee06"
+    "sha256": "94bee7a87b5c604c2e427f5a924394b374f259c813b508d2ae5d3cb318157caa"
   },
   "navigation-audio-probe-session-close": {
     "dex": "classes.dex",
@@ -633,7 +633,7 @@
     "dex": "classes.dex",
     "class": "com/shilapi/xcertplay/network/CarPlayVpnService.smali",
     "method": "acceptUntilError(ILjava/net/ServerSocket;)Ljava/io/IOException;",
-    "sha256": "bdcda056bd3f2e7a0ff890c31726590a4abb18d0f8a7b54c4a4e63f0fbd9e843"
+    "sha256": "d1415dc020bb7503edb6b0c62e6b18e99e44dbf61257509634a065ea01b502ac"
   },
   "navigation-voice-session": {
     "dex": "classes.dex",

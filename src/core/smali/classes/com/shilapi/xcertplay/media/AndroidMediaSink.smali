@@ -200,6 +200,8 @@
     .end annotation
 .end field
 
+.field private audioTransport:Lcom/shilapi/xcertplay/orchestration/CarPlayTransport;
+
 .field private final callAudioMode:Lcom/shilapi/xcertplay/media/CallAudioMode;
 
 .field private final defaultSurface:Landroid/view/Surface;
@@ -1301,13 +1303,22 @@
     invoke-direct/range {v7 .. v18}, Lcom/shilapi/xcertplay/media/AudioRenderer;-><init>(Lcom/shilapi/xcertplay/airplay/AudioFormat;ZZIILcom/shilapi/xcertplay/media/AudioFocusCoordinator;IILkotlin/jvm/functions/Function1;ZZ)V
 
     .line 542
+    iget-object v4, v1, Lcom/shilapi/xcertplay/media/AndroidMediaSink;->audioTransport:Lcom/shilapi/xcertplay/orchestration/CarPlayTransport;
+
+    sget-object v5, Lcom/shilapi/xcertplay/orchestration/CarPlayTransport;->WIRELESS:Lcom/shilapi/xcertplay/orchestration/CarPlayTransport;
+
+    if-ne v4, v5, :cond_7
+
+    invoke-virtual {v7}, Lcom/shilapi/xcertplay/media/AudioRenderer;->enableWirelessMusicFill()V
+
+    :cond_7
     iget-object v3, v1, Lcom/shilapi/xcertplay/media/AndroidMediaSink;->audioRenderers:Lj$/util/concurrent/ConcurrentHashMap;
 
     check-cast v3, Ljava/util/Map;
 
     invoke-interface {v3, v0, v7}, Ljava/util/Map;->put(Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;
 
-    if-eqz v2, :cond_7
+    if-eqz v2, :cond_8
 
     .line 543
     invoke-virtual {v7}, Lcom/shilapi/xcertplay/media/AudioRenderer;->start()V
@@ -1315,7 +1326,7 @@
     .catchall {:try_start_2 .. :try_end_2} :catchall_0
 
     .line 528
-    :cond_7
+    :cond_8
     monitor-exit p0
 
     return-object v7
@@ -2961,6 +2972,12 @@
 
     invoke-virtual {v0, v1}, Lj$/util/concurrent/ConcurrentHashMap;->remove(Ljava/lang/Object;)Ljava/lang/Object;
 
+    return-void
+.end method
+
+.method public final setAudioTransport(Lcom/shilapi/xcertplay/orchestration/CarPlayTransport;)V
+    .locals 0
+    iput-object p1, p0, Lcom/shilapi/xcertplay/media/AndroidMediaSink;->audioTransport:Lcom/shilapi/xcertplay/orchestration/CarPlayTransport;
     return-void
 .end method
 

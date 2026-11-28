@@ -322,6 +322,8 @@
 
 .field private deviceBtMac:Ljava/lang/String;
 
+.field private e01WirelessTransport:Z
+
 .field private encBuf:[B
 
 .field private eventCipher:Lcom/shilapi/xcertplay/airplay/ControlCipher;
@@ -5533,14 +5535,14 @@
 
     move-result v10
 
-    if-nez v10, :cond_5
+    if-nez v10, :cond_6
 
     .line 829
     invoke-virtual {v0, v9}, Ljava/io/BufferedInputStream;->read([B)I
 
     move-result v10
 
-    if-ltz v10, :cond_5
+    if-ltz v10, :cond_6
 
     .line 831
     iget-object v11, v1, Lcom/shilapi/xcertplay/airplay/AirPlaySession;->eventCipher:Lcom/shilapi/xcertplay/airplay/ControlCipher;
@@ -5617,7 +5619,7 @@
 
     move-result v12
 
-    if-eqz v12, :cond_4
+    if-eqz v12, :cond_5
 
     invoke-interface {v7}, Ljava/util/Iterator;->next()Ljava/lang/Object;
 
@@ -5636,7 +5638,7 @@
 
     move-result v13
 
-    if-nez v13, :cond_1
+    if-nez v13, :cond_2
 
     invoke-virtual {v12}, Lcom/shilapi/xcertplay/airplay/RtspMessage$Request;->getMethod()Ljava/lang/String;
 
@@ -5648,12 +5650,45 @@
 
     move-result v13
 
-    if-eqz v13, :cond_2
+    if-eqz v13, :cond_3
+
+    :cond_2
+    invoke-static {v2}, Lcom/shilapi/xcertplay/E01SwipeTiming;->awaitingReply(Ljava/lang/Object;)Z
+
+    move-result v13
+
+    if-eqz v13, :cond_1
+
+    invoke-virtual {v12}, Lcom/shilapi/xcertplay/airplay/RtspMessage$Request;->getHeaders()Ljava/util/Map;
+
+    move-result-object v13
+
+    const-string v14, "cseq"
+
+    invoke-interface {v13, v14}, Ljava/util/Map;->get(Ljava/lang/Object;)Ljava/lang/Object;
+
+    move-result-object v13
+
+    check-cast v13, Ljava/lang/String;
+
+    if-eqz v13, :cond_1
+
+    invoke-static {v13}, Lkotlin/text/StringsKt;->toIntOrNull(Ljava/lang/String;)Ljava/lang/Integer;
+
+    move-result-object v13
+
+    if-eqz v13, :cond_1
+
+    invoke-virtual {v13}, Ljava/lang/Integer;->intValue()I
+
+    move-result v13
+
+    invoke-static {v2, v13}, Lcom/shilapi/xcertplay/E01SwipeTiming;->reply(Ljava/lang/Object;I)V
 
     goto :goto_1
 
     .line 846
-    :cond_2
+    :cond_3
     invoke-virtual {v12}, Lcom/shilapi/xcertplay/airplay/RtspMessage$Request;->getMethod()Ljava/lang/String;
 
     move-result-object v13
@@ -5674,11 +5709,11 @@
 
     check-cast v3, Ljava/lang/String;
 
-    if-nez v3, :cond_3
+    if-nez v3, :cond_4
 
     const-string v3, "-"
 
-    :cond_3
+    :cond_4
     invoke-virtual {v12}, Lcom/shilapi/xcertplay/airplay/RtspMessage$Request;->getBody()[B
 
     move-result-object v15
@@ -5800,7 +5835,7 @@
 
     throw v0
 
-    :cond_4
+    :cond_5
     move-object v7, v10
 
     goto/16 :goto_0
@@ -5835,7 +5870,7 @@
     .catchall {:try_start_4 .. :try_end_4} :catchall_1
 
     .line 863
-    :cond_5
+    :cond_6
     :goto_2
     const-string v0, "airplay event connection closed"
 
@@ -5850,12 +5885,12 @@
     .line 864
     iget-object v0, v1, Lcom/shilapi/xcertplay/airplay/AirPlaySession;->eventSocket:Ljava/net/Socket;
 
-    if-ne v0, v2, :cond_6
+    if-ne v0, v2, :cond_7
 
     iput-object v13, v1, Lcom/shilapi/xcertplay/airplay/AirPlaySession;->eventSocket:Ljava/net/Socket;
 
     .line 865
-    :cond_6
+    :cond_7
     iput-object v13, v1, Lcom/shilapi/xcertplay/airplay/AirPlaySession;->eventCipher:Lcom/shilapi/xcertplay/airplay/ControlCipher;
 
     .line 866
@@ -5872,7 +5907,7 @@
 
     move-result v0
 
-    if-nez v0, :cond_9
+    if-nez v0, :cond_a
 
     :goto_3
     invoke-virtual {v1}, Lcom/shilapi/xcertplay/airplay/AirPlaySession;->close()V
@@ -5895,7 +5930,7 @@
 
     move-result v3
 
-    if-nez v3, :cond_7
+    if-nez v3, :cond_8
 
     const-string/jumbo v3, "xcertplay-usb"
 
@@ -5908,7 +5943,7 @@
     .catchall {:try_start_5 .. :try_end_5} :catchall_1
 
     .line 863
-    :cond_7
+    :cond_8
     const-string v0, "airplay event connection closed"
 
     const/4 v4, 0x2
@@ -5922,12 +5957,12 @@
     .line 864
     iget-object v0, v1, Lcom/shilapi/xcertplay/airplay/AirPlaySession;->eventSocket:Ljava/net/Socket;
 
-    if-ne v0, v2, :cond_8
+    if-ne v0, v2, :cond_9
 
     iput-object v13, v1, Lcom/shilapi/xcertplay/airplay/AirPlaySession;->eventSocket:Ljava/net/Socket;
 
     .line 865
-    :cond_8
+    :cond_9
     iput-object v13, v1, Lcom/shilapi/xcertplay/airplay/AirPlaySession;->eventCipher:Lcom/shilapi/xcertplay/airplay/ControlCipher;
 
     .line 866
@@ -5944,11 +5979,11 @@
 
     move-result v0
 
-    if-nez v0, :cond_9
+    if-nez v0, :cond_a
 
     goto :goto_3
 
-    :cond_9
+    :cond_a
     :goto_4
     return-void
 
@@ -5967,12 +6002,12 @@
     .line 864
     iget-object v3, v1, Lcom/shilapi/xcertplay/airplay/AirPlaySession;->eventSocket:Ljava/net/Socket;
 
-    if-ne v3, v2, :cond_a
+    if-ne v3, v2, :cond_b
 
     iput-object v13, v1, Lcom/shilapi/xcertplay/airplay/AirPlaySession;->eventSocket:Ljava/net/Socket;
 
     .line 865
-    :cond_a
+    :cond_b
     iput-object v13, v1, Lcom/shilapi/xcertplay/airplay/AirPlaySession;->eventCipher:Lcom/shilapi/xcertplay/airplay/ControlCipher;
 
     .line 866
@@ -5987,11 +6022,11 @@
 
     move-result v2
 
-    if-nez v2, :cond_b
+    if-nez v2, :cond_c
 
     invoke-virtual {v1}, Lcom/shilapi/xcertplay/airplay/AirPlaySession;->close()V
 
-    :cond_b
+    :cond_c
     goto :goto_7
 
     :goto_6
@@ -6195,8 +6230,43 @@
     return-void
 .end method
 
+.method private final sendCommand(Ljava/util/Map;J)Z
+    .locals 2
+
+    const-string v0, "command"
+
+    invoke-static {p1, v0}, Lkotlin/jvm/internal/Intrinsics;->checkNotNullParameter(Ljava/lang/Object;Ljava/lang/String;)V
+
+    .line 212
+    iget-object v0, p0, Lcom/shilapi/xcertplay/airplay/AirPlaySession;->eventWriteLock:Ljava/lang/Object;
+
+    monitor-enter v0
+
+    const-string v1, ""
+
+    .line 213
+    :try_start_0
+    invoke-direct {p0, p1, v1, p2, p3}, Lcom/shilapi/xcertplay/airplay/AirPlaySession;->sendCommandLocked(Ljava/util/Map;Ljava/lang/String;J)Z
+
+    move-result p1
+    :try_end_0
+    .catchall {:try_start_0 .. :try_end_0} :catchall_0
+
+    .line 212
+    monitor-exit v0
+
+    return p1
+
+    :catchall_0
+    move-exception p1
+
+    monitor-exit v0
+
+    throw p1
+.end method
+
 .method private final sendCommandLocked(Ljava/util/Map;Ljava/lang/String;)Z
-    .locals 9
+    .locals 2
     .annotation system Ldalvik/annotation/Signature;
         value = {
             "(",
@@ -6209,6 +6279,18 @@
             ")Z"
         }
     .end annotation
+
+    const-wide/16 v0, 0x0
+
+    invoke-direct {p0, p1, p2, v0, v1}, Lcom/shilapi/xcertplay/airplay/AirPlaySession;->sendCommandLocked(Ljava/util/Map;Ljava/lang/String;J)Z
+
+    move-result p1
+
+    return p1
+.end method
+
+.method private final sendCommandLocked(Ljava/util/Map;Ljava/lang/String;J)Z
+    .locals 9
 
     .line 236
     iget-object v0, p0, Lcom/shilapi/xcertplay/airplay/AirPlaySession;->eventSocket:Ljava/net/Socket;
@@ -6301,13 +6383,22 @@
     .line 247
     invoke-virtual {v0}, Ljava/net/Socket;->getOutputStream()Ljava/io/OutputStream;
 
-    move-result-object v0
+    move-result-object v3
 
+    const-wide/16 v7, 0x0
+
+    cmp-long v5, p3, v7
+
+    if-eqz v5, :cond_2
+
+    invoke-static {p3, p4, v0, v6}, Lcom/shilapi/xcertplay/E01SwipeTiming;->command(JLjava/lang/Object;I)V
+
+    :cond_2
     .line 248
-    invoke-virtual {v0, p2}, Ljava/io/OutputStream;->write([B)V
+    invoke-virtual {v3, p2}, Ljava/io/OutputStream;->write([B)V
 
     .line 249
-    invoke-virtual {v0}, Ljava/io/OutputStream;->flush()V
+    invoke-virtual {v3}, Ljava/io/OutputStream;->flush()V
     :try_end_0
     .catch Ljava/lang/Exception; {:try_start_0 .. :try_end_0} :catch_0
 
@@ -6366,6 +6457,18 @@
 .end method
 
 .method private final sendHidReport(I[B)Z
+    .locals 2
+
+    const-wide/16 v0, 0x0
+
+    invoke-direct {p0, p1, p2, v0, v1}, Lcom/shilapi/xcertplay/airplay/AirPlaySession;->sendHidReport(I[BJ)Z
+
+    move-result p1
+
+    return p1
+.end method
+
+.method private final sendHidReport(I[BJ)Z
     .locals 3
 
     const/4 v0, 0x3
@@ -6429,7 +6532,7 @@
     check-cast p1, Ljava/util/Map;
 
     .line 368
-    invoke-virtual {p0, p1}, Lcom/shilapi/xcertplay/airplay/AirPlaySession;->sendCommand(Ljava/util/Map;)Z
+    invoke-direct {p0, p1, p3, p4}, Lcom/shilapi/xcertplay/airplay/AirPlaySession;->sendCommand(Ljava/util/Map;J)Z
 
     move-result p1
 
@@ -7139,6 +7242,14 @@
     return-void
 .end method
 
+.method public final isE01WirelessTransport()Z
+    .locals 1
+
+    iget-boolean v0, p0, Lcom/shilapi/xcertplay/airplay/AirPlaySession;->e01WirelessTransport:Z
+
+    return v0
+.end method
+
 .method public final logDebug$shared_release(Ljava/lang/String;)V
     .locals 3
 
@@ -7248,7 +7359,7 @@
 .end method
 
 .method public final sendCommand(Ljava/util/Map;)Z
-    .locals 3
+    .locals 2
     .annotation system Ldalvik/annotation/Signature;
         value = {
             "(",
@@ -7260,38 +7371,13 @@
         }
     .end annotation
 
-    const-string v0, "command"
+    const-wide/16 v0, 0x0
 
-    invoke-static {p1, v0}, Lkotlin/jvm/internal/Intrinsics;->checkNotNullParameter(Ljava/lang/Object;Ljava/lang/String;)V
-
-    .line 212
-    iget-object v0, p0, Lcom/shilapi/xcertplay/airplay/AirPlaySession;->eventWriteLock:Ljava/lang/Object;
-
-    monitor-enter v0
-
-    const/4 v1, 0x2
-
-    const/4 v2, 0x0
-
-    .line 213
-    :try_start_0
-    invoke-static {p0, p1, v2, v1, v2}, Lcom/shilapi/xcertplay/airplay/AirPlaySession;->sendCommandLocked$default(Lcom/shilapi/xcertplay/airplay/AirPlaySession;Ljava/util/Map;Ljava/lang/String;ILjava/lang/Object;)Z
+    invoke-direct {p0, p1, v0, v1}, Lcom/shilapi/xcertplay/airplay/AirPlaySession;->sendCommand(Ljava/util/Map;J)Z
 
     move-result p1
-    :try_end_0
-    .catchall {:try_start_0 .. :try_end_0} :catchall_0
-
-    .line 212
-    monitor-exit v0
 
     return p1
-
-    :catchall_0
-    move-exception p1
-
-    monitor-exit v0
-
-    throw p1
 .end method
 
 .method public final sendIapMessage([BJ)Z
@@ -7939,7 +8025,7 @@
     const p1, 0x2a2a2a2a
 
     .line 265
-    invoke-direct {p0, p1, v1}, Lcom/shilapi/xcertplay/airplay/AirPlaySession;->sendHidReport(I[B)Z
+    invoke-direct {p0, p1, v1, p2, p3}, Lcom/shilapi/xcertplay/airplay/AirPlaySession;->sendHidReport(I[BJ)Z
 
     move-result p1
 
@@ -8297,6 +8383,14 @@
 
     .line 86
     iput-object p1, p0, Lcom/shilapi/xcertplay/airplay/AirPlaySession;->deviceBtMac:Ljava/lang/String;
+
+    return-void
+.end method
+
+.method public final setE01WirelessTransport(Z)V
+    .locals 0
+
+    iput-boolean p1, p0, Lcom/shilapi/xcertplay/airplay/AirPlaySession;->e01WirelessTransport:Z
 
     return-void
 .end method

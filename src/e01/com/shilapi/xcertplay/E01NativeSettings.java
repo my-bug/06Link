@@ -39,7 +39,8 @@ public final class E01NativeSettings {
         case "immersive":return (Boolean)load("HideTopBar")&&(Boolean)load("HideBottomBar");
         case "audio_focus":return (Boolean)load("AudioFocusEnabled");
         case "wired_navigation_hd":return E01NavigationVoice.enabled(host);
-        case "smooth":return video().getBoolean("smooth",false);
+        case "smooth":return E01SmoothVideo.smooth(host);
+        case "pause_oem_bluetooth":return E01WirelessAudioHandoff.pauseEnabled(host);
         case "mtk":return video().getBoolean("mtk",true);
         case "display60":return E01DisplayClock.enabled(host);
         case "intro":return E01InstrumentStyle.introEnabled(host);
@@ -78,7 +79,7 @@ public final class E01NativeSettings {
         case "audio_focus":save("AudioFocusEnabled",v);break;
         case "wired_navigation_hd":ok=E01NavigationVoice.save(host,(Boolean)v);break;
         case "immersive":save("HideTopBar",v);save("HideBottomBar",v);call(singleton("CarDisplay"),"fullScreen",host);break;
-        case "smooth":case "mtk":case "display60":ok=video().edit().putBoolean(key,(Boolean)v).commit();break;
+        case "pause_oem_bluetooth":case "smooth":case "mtk":case "display60":ok=video().edit().putBoolean(key,(Boolean)v).commit();break;
         case "intro":ok=instrument().edit().putBoolean("transition_enabled",(Boolean)v).commit();break;
         case "music":ok=instrument().edit().putBoolean("music_enabled",(Boolean)v).commit();break;
         case "tracks":ok=E01WheelKeys.setEnabled(host,(Boolean)v);break;

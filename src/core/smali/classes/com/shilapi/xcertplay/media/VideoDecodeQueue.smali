@@ -43,6 +43,8 @@
 
 
 # instance fields
+.field e01ScreenType:I
+
 .field private final jobs:Ljava/util/concurrent/LinkedBlockingQueue;
     .annotation system Ldalvik/annotation/Signature;
         value = {
@@ -228,7 +230,7 @@
 
     instance-of v1, p1, Lcom/shilapi/xcertplay/media/VideoJob$Frame;
 
-    if-eqz v1, :cond_0
+    if-eqz v1, :cond_1
 
     move-object v1, p1
 
@@ -256,14 +258,27 @@
 
     invoke-virtual {v0, v4}, Ljava/util/concurrent/LinkedBlockingQueue;->offer(Ljava/lang/Object;)Z
 
-    if-gt v1, v3, :cond_1
+    if-gt v1, v3, :cond_2
 
     :cond_0
+    iget v1, p0, Lcom/shilapi/xcertplay/media/VideoDecodeQueue;->e01ScreenType:I
+    const/16 v2, 0x6e
+    if-ne v1, v2, :cond_1
+
+    move-object v1, p1
+    check-cast v1, Lcom/shilapi/xcertplay/media/VideoJob$Frame;
+    invoke-virtual {v1}, Lcom/shilapi/xcertplay/media/VideoJob$Frame;->getNalus()[B
+    move-result-object v2
+    invoke-static {v2}, Lcom/shilapi/xcertplay/E01SmoothVideo;->frameEnqueued([B)Ljava/lang/Object;
+    move-result-object v2
+    iput-object v2, v1, Lcom/shilapi/xcertplay/media/VideoJob$Frame;->e01TimingStamp:Ljava/lang/Object;
+
+    :cond_1
     invoke-virtual {v0, p1}, Ljava/util/concurrent/LinkedBlockingQueue;->offer(Ljava/lang/Object;)Z
     :try_end_0
     .catchall {:try_start_0 .. :try_end_0} :catchall_0
 
-    :cond_1
+    :cond_2
     monitor-exit p0
 
     return-void

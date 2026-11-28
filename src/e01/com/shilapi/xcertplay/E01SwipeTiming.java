@@ -69,6 +69,30 @@ public final class E01SwipeTiming {
         }
     }
 
+    /** Bind the first tagged MOVE to the sequence on its actual event connection before write. */
+    public static synchronized void command(long token, Object eventConnection, int sequence) {
+        Window w = active;
+        if (w == null || w.token != token || eventConnection == null || w.eventConnection != null || w.sentEnd != 0 || w.replyNs != 0) return;
+        w.commandSequence = sequence;
+        w.eventConnection = eventConnection;
+    }
+
+    public static boolean awaitingReply(Object eventConnection) {
+        Window w = active;
+        return w != null && eventConnection != null && w.eventConnection == eventConnection;
+    }
+
+    /** The event reader can observe a reply before the writer reports a successful flush. */
+    public static synchronized void reply(Object eventConnection, int sequence) {
+        Window w = active;
+        if (w == null || eventConnection == null || w.eventConnection != eventConnection || w.commandSequence != sequence) return;
+        long now = System.nanoTime();
+        if (w.inWindow(now)) {
+            w.replyNs = now;
+            w.eventConnection = null;
+        }
+    }
+
     /** A multi-touch gesture or ACTION_CANCEL invalidates its single-finger sample. */
     public static synchronized void cancel(long token) {
         if (active != null && active.token == token) active = null;
@@ -76,7 +100,12 @@ public final class E01SwipeTiming {
 
     static boolean collecting() { return active != null; }
 
-    static synchronized void received(Object source, Object stamp, long at, long preceding, long previousSender, long sender) {
+    static void received(Object source, Object stamp, long at, long preceding, long previousSender, long sender) {
+        received(source, stamp, at, preceding, previousSender, sender, 0, 0);
+    }
+
+    static synchronized void received(Object source, Object stamp, long at, long preceding, long previousSender,
+                                      long sender, long headerFirst, long headerComplete) {
         Window w = active;
         if (w == null || source != reader || !w.inWindow(at) || w.count == FRAME_COUNT || stamp == null) return;
         if (w.count == 0 && preceding > 0 && at >= preceding) {
@@ -85,8 +114,31 @@ public final class E01SwipeTiming {
         }
         Frame f = w.frames[w.count++];
         f.stamp = stamp;
+        if (w.inWindow(headerComplete) && headerComplete <= at) {
+            f.headerComplete = headerComplete;
+            if (w.inWindow(headerFirst) && headerFirst <= headerComplete) f.headerFirst = headerFirst;
+        }
         f.receive = at;
         f.sender = sender;
+    }
+
+    /** Each callback may carry only the stages completed by this exact frame so far. */
+    static synchronized void decoderStages(Object stamp, long enqueuedNs, long takenNs, long slotNs, long capWaitNs) {
+        Window w = active;
+        if (w == null || stamp == null) return;
+        for (int i = 0; i < w.count; i++) {
+            Frame f = w.frames[i];
+            if (f.stamp != stamp) continue;
+            if (f.enqueued == 0 && w.inWindow(enqueuedNs) && enqueuedNs >= f.receive
+                    && (f.taken == 0 || enqueuedNs <= f.taken)) f.enqueued = enqueuedNs;
+            if (f.taken == 0 && w.inWindow(takenNs) && takenNs >= Math.max(f.enqueued, f.receive)
+                    && (f.slot == 0 || takenNs <= f.slot)) f.taken = takenNs;
+            if (f.slot == 0 && w.inWindow(slotNs) && slotNs >= Math.max(f.taken, f.receive)) {
+                f.slot = slotNs;
+                if (f.taken > 0 && capWaitNs >= 0 && capWaitNs <= slotNs - f.taken) f.capWaitNs = capWaitNs;
+            }
+            return;
+        }
     }
 
     static synchronized void prepared(Object stamp, Object codec, long pts, long at) {
@@ -140,13 +192,17 @@ public final class E01SwipeTiming {
 
     private static final class Frame {
         Object stamp, codec;
-        long pts, sender, receive, prepare, decode, submit, displayRequest;
-        long advanceMs = -1, swipeAdvanceMs = -1;
+        long pts, sender, headerFirst, headerComplete, receive, prepare, decode, submit, displayRequest;
+        long enqueued, taken, slot;
+        long capWaitNs = -1, advanceMs = -1, swipeAdvanceMs = -1;
     }
 
     private static final class Window implements Runnable {
         final long token, move, elapsed;
         final Frame[] frames = new Frame[FRAME_COUNT];
+        volatile Object eventConnection;
+        int commandSequence;
+        long replyNs;
         long sentBegin, sentEnd, precedingGap = -1, firstSenderGapMs = -1;
         int count;
         Window(long token, long move, long elapsed) {
@@ -185,13 +241,41 @@ public final class E01SwipeTiming {
             }
             return text.toString();
         }
+        String detail() {
+            StringBuilder text = new StringBuilder("起滑分段=").append(token)
+                    .append(" 相对首次移动毫秒（未测=-1） 手机回执=").append(sentEnd > 0 ? millis(replyNs) : -1);
+            text.append(" 读头首字节/头齐/帧齐=");
+            for (int i = 0; i < count; i++) {
+                Frame f = frames[i];
+                if (i != 0) text.append(',');
+                text.append(millis(f.headerFirst)).append('/').append(millis(f.headerComplete)).append('/').append(millis(f.receive));
+            }
+            text.append(" 入队/取出/取得解码槽=");
+            for (int i = 0; i < count; i++) {
+                Frame f = frames[i];
+                if (i != 0) text.append(',');
+                text.append(millis(f.enqueued)).append('/').append(millis(f.taken)).append('/').append(millis(f.slot));
+            }
+            text.append(" 其中等解码名额耗时毫秒=");
+            for (int i = 0; i < count; i++) {
+                if (i != 0) text.append(',');
+                long wait = frames[i].capWaitNs;
+                text.append(wait < 0 ? -1 : wait / 1000000L);
+            }
+            return text.toString();
+        }
         public void run() {
+            Sink writer;
             synchronized (E01SwipeTiming.class) {
                 if (active != this) return;
                 active = null;
                 // Handler time pauses during suspend. Expired callbacks must not mix wake periods.
-                if (sink.elapsedMs() - elapsed <= WINDOW_MS + 1000 && owner.get() != null) sink.write(format());
+                if (sink.elapsedMs() - elapsed > WINDOW_MS + 1000 || owner.get() == null) return;
+                writer = sink;
             }
+            // No worker can add another observation once this window is detached.
+            writer.write(format());
+            writer.write(detail());
         }
     }
     private E01SwipeTiming() { }

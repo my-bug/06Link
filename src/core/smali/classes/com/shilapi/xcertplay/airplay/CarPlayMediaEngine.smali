@@ -861,6 +861,12 @@
 
     invoke-virtual {v3, v2}, Lcom/shilapi/xcertplay/airplay/ScreenStream;->setE01DiagnosticScreenType(I)V
 
+    invoke-virtual {v5}, Lcom/shilapi/xcertplay/airplay/AirPlaySession;->isE01WirelessTransport()Z
+
+    move-result p1
+
+    invoke-virtual {v3, p1}, Lcom/shilapi/xcertplay/airplay/ScreenStream;->setE01WirelessTransport(Z)V
+
     const/16 p1, 0x6f
 
     if-ne v2, p1, :cond_1

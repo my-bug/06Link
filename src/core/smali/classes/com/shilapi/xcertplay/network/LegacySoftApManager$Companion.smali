@@ -776,17 +776,6 @@
     return-object v0
 .end method
 
-.method private static final switchOnSystemHotspot$switchOn(Landroid/net/wifi/WifiManager;Landroid/net/wifi/WifiConfiguration;)Z
-    .locals 1
-
-    invoke-static {p0, p1}, Lcom/shilapi/xcertplay/E01HotspotControl;->enableHotspot(Landroid/net/wifi/WifiManager;Landroid/net/wifi/WifiConfiguration;)Z
-
-    move-result v0
-
-    return v0
-.end method
-
-
 # virtual methods
 .method public final applyNameRule$shared_release(Lcom/shilapi/xcertplay/network/LegacySoftApManager$SoftApControl;Landroid/content/Context;JLkotlin/jvm/functions/Function1;Lkotlin/jvm/functions/Function0;)Lcom/shilapi/xcertplay/network/LegacySoftApManager$Companion$NameResult;
     .locals 20
@@ -1072,7 +1061,7 @@
 
     invoke-virtual {v9, v12}, Ljava/lang/StringBuilder;->append(Ljava/lang/Object;)Ljava/lang/StringBuilder;
 
-    const-string v12, "; person asked for a new password \u2014 restarting once with 06Link-\u2026 name and this install\'s password (security and band unchanged; connected devices drop briefly)"
+    const-string v12, "; person asked for a new password \u2014 restarting once with 06Link-\u2026 name and this install\'s password (security unchanged; connected devices drop briefly)"
 
     invoke-virtual {v9, v12}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
 
@@ -1107,7 +1096,7 @@
 
     invoke-virtual {v9, v12}, Ljava/lang/StringBuilder;->append(Ljava/lang/Object;)Ljava/lang/StringBuilder;
 
-    const-string v12, "; restarting once with 06Link-\u2026 name only (system password/security/band unchanged; connected devices drop briefly)"
+    const-string v12, "; restarting once with 06Link-\u2026 name only (system password and security unchanged; connected devices drop briefly)"
 
     invoke-virtual {v9, v12}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
 
@@ -1204,13 +1193,13 @@
     :goto_4
     new-instance v0, Ljava/lang/StringBuilder;
 
-    const-string v1, "Hotspot name rule: the system refused the 06Link-\u2026 name (off="
+    const-string v1, "Hotspot name rule: the start request with 06Link credentials failed (off="
 
     invoke-direct {v0, v1}, Ljava/lang/StringBuilder;-><init>(Ljava/lang/String;)V
 
     invoke-virtual {v0, v9}, Ljava/lang/StringBuilder;->append(Z)Ljava/lang/StringBuilder;
 
-    const-string v1, "); switched back on as it was on="
+    const-string v1, "); restarted with saved credentials="
 
     invoke-virtual {v0, v1}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
 
@@ -1915,7 +1904,7 @@
 
     invoke-virtual {v2, v5}, Ljava/lang/StringBuilder;->append(Ljava/lang/Object;)Ljava/lang/StringBuilder;
 
-    const-string v4, "; person asked for a new password \u2014 switching on with 06Link-\u2026 name and this install\'s password (security and band unchanged)"
+    const-string v4, "; person asked for a new password \u2014 switching on with 06Link-\u2026 name and this install\'s password (security unchanged)"
 
     invoke-virtual {v2, v4}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
 
@@ -1950,7 +1939,7 @@
 
     invoke-virtual {p1, v5}, Ljava/lang/StringBuilder;->append(Ljava/lang/Object;)Ljava/lang/StringBuilder;
 
-    const-string v0, "; switching on with 06Link-\u2026 name only (system password/security/band unchanged)"
+    const-string v0, "; switching on with 06Link-\u2026 name only (system password and security unchanged)"
 
     invoke-virtual {p1, v0}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
 
@@ -2244,7 +2233,7 @@
     move-result-object p2
 
     .line 415
-    invoke-static {v0, p2}, Lcom/shilapi/xcertplay/network/LegacySoftApManager$Companion;->switchOnSystemHotspot$switchOn(Landroid/net/wifi/WifiManager;Landroid/net/wifi/WifiConfiguration;)Z
+    invoke-static {p1, v0, p2}, Lcom/shilapi/xcertplay/E01HotspotBand;->enableHotspot(Landroid/content/Context;Landroid/net/wifi/WifiManager;Landroid/net/wifi/WifiConfiguration;)Z
 
     move-result p3
 
@@ -2252,7 +2241,7 @@
 
     if-eqz p2, :cond_9
 
-    invoke-static {v0, v2}, Lcom/shilapi/xcertplay/network/LegacySoftApManager$Companion;->switchOnSystemHotspot$switchOn(Landroid/net/wifi/WifiManager;Landroid/net/wifi/WifiConfiguration;)Z
+    invoke-static {p1, v0, v2}, Lcom/shilapi/xcertplay/E01HotspotBand;->enableHotspot(Landroid/content/Context;Landroid/net/wifi/WifiManager;Landroid/net/wifi/WifiConfiguration;)Z
 
     move-result p2
 

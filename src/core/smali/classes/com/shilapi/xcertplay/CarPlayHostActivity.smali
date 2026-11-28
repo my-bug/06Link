@@ -7593,7 +7593,7 @@
 
     move-result p1
 
-    invoke-static {p1}, Ljava/lang/String;->valueOf(I)Ljava/lang/String;
+    invoke-static {p1}, Lcom/shilapi/xcertplay/network/E01HotspotReading;->statusChannelText(I)Ljava/lang/String;
 
     move-result-object p1
 
@@ -22004,6 +22004,10 @@
 
     move-result-object v2
 
+    invoke-virtual/range {v21 .. v21}, Lcom/shilapi/xcertplay/orchestration/CarPlayRuntimeConfig;->getTransport()Lcom/shilapi/xcertplay/orchestration/CarPlayTransport;
+    move-result-object v0
+    invoke-virtual {v2, v0}, Lcom/shilapi/xcertplay/media/AndroidMediaSink;->setAudioTransport(Lcom/shilapi/xcertplay/orchestration/CarPlayTransport;)V
+
     .line 4621
     iput-object v2, v1, Lcom/shilapi/xcertplay/CarPlayHostActivity;->sink:Lcom/shilapi/xcertplay/media/AndroidMediaSink;
 
@@ -24024,7 +24028,7 @@
     goto :goto_0
 
     :cond_4
-    invoke-static {v0}, Ljava/lang/String;->valueOf(I)Ljava/lang/String;
+    invoke-static {v0}, Lcom/shilapi/xcertplay/network/E01HotspotReading;->statusChannelText(I)Ljava/lang/String;
 
     move-result-object v0
 

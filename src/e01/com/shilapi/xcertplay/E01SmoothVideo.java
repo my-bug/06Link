@@ -14,7 +14,15 @@ public final class E01SmoothVideo {
  static final Map<Surface,Boolean> RETIRED_INPUTS=Collections.synchronizedMap(new WeakHashMap<Surface,Boolean>());
  private static volatile Field decoderField,receivedField;
  static final ThreadLocal<Stamp> PACKET=new ThreadLocal<Stamp>();
- static final class Stamp{final long sender,arrival;Stamp(long s,long a){sender=s;arrival=a;}}
+ static final class Stamp {
+  final long sender, arrival;
+  // Written before queue publication, then by the frame's single decoder-input owner.
+  long enqueued, taken, slot, capWait = -1;
+  Stamp(long s,long a){sender=s;arrival=a;}
+  void reportStages() {
+   if(E01SwipeTiming.collecting()) E01SwipeTiming.decoderStages(this,enqueued,taken,slot,capWait);
+  }
+ }
  static final class Output{final Context context;final java.lang.ref.WeakReference<Activity> owner;final int fps;final boolean smooth;final E01GlOutput gl;final java.lang.ref.WeakReference<Binding> binding;final boolean nativeCandidate;volatile boolean retired;
  Output(Context c,int f,boolean s){this(c,f,s,null);}Output(Context c,int f,boolean s,E01GlOutput g){this(c,f,s,g,null,false);}
  Output(Context c,int f,boolean s,E01GlOutput g,Binding b,boolean n){context=c.getApplicationContext();owner=new java.lang.ref.WeakReference<Activity>(c instanceof Activity?(Activity)c:null);fps=f;smooth=s;gl=g;binding=new java.lang.ref.WeakReference<Binding>(b);nativeCandidate=n;}
@@ -60,7 +68,16 @@ public final class E01SmoothVideo {
        +" released="+releaseGap/1000
        +" nextInput="+(second.nextInputAt>0?(second.nextInputAt-second.queued)/1000:-1)
        +" afterNext="+(second.nextInputAt>0?(second.decodedAt-second.nextInputAt)/1000:-1)
-       +" longestPoll="+second.longestPollNs/1000+" pollMisses="+second.pollMisses;
+       +" longestPoll="+second.longestPollNs/1000+" pollMisses="+second.pollMisses
+       +" queueUs="+elapsedUs(first.stamp.enqueued,first.stamp.taken)+"/"+elapsedUs(second.stamp.enqueued,second.stamp.taken)
+       +" takeToSlotUs="+elapsedUs(first.stamp.taken,first.stamp.slot)+"/"+elapsedUs(second.stamp.taken,second.stamp.slot)
+       +" capUs="+waitUs(first.stamp.capWait)+"/"+waitUs(second.stamp.capWait);
+  }
+  private static long elapsedUs(long begin,long end) {
+   return begin>0 && end>=begin ? (end-begin)/1000 : -1;
+  }
+  private static long waitUs(long duration) {
+   return duration>=0 ? duration/1000 : -1;
   }
  }
  static final class State{final Output output;final E01PacingClock clock;final LinkedHashMap<Long,Entry> entries=new LinkedHashMap<Long,Entry>();long lastSender,lastQueued,lastPts;int samples;int pendingSignal=Integer.MIN_VALUE;
@@ -78,7 +95,7 @@ public final class E01SmoothVideo {
  final long[] recentWait=new long[120],recentRelease=new long[120],recentResidence=new long[120],recentQueueAge=new long[120];int waitSlot,releaseSlot,residenceSlot,queueAgeSlot;
  boolean boundedRender,modernOutput,directCap4;volatile boolean retired;Surface surface;E01DirectOutputClock.Lease directClock;
  final E01DirectInFlight inFlight=new E01DirectInFlight(4);java.lang.ref.WeakReference<Object> inputOwner;
- long capPolls,capWaitNs,capBlockedSince;int capMax;
+ long capPolls,capWaitNs,capBlockedSince,inputCapBaseline;int capMax;
  long directLateSkipped,directLateAgeMaxNs,directLateBatches;int directLateBatchMax;
  long inputPollMaxNs,inputPollTimeouts,inputPollCalls,reportPollTimeouts;
  long cappedTargets,maxAheadNs,reportAt=System.nanoTime(),reportSubmitted,reportOutput,reportSkipped,reportDecoded;int reports;
@@ -96,7 +113,7 @@ public final class E01SmoothVideo {
    }
   }
  }
- public static boolean smooth(Context c){return c.getSharedPreferences(PREF,0).getBoolean("smooth",false);}
+ public static boolean smooth(Context c){return c.getSharedPreferences(PREF,0).getBoolean("smooth",true);}
  public static void negotiatedFps(Activity a,int value){NEGOTIATED.put(a,value>=60?60:30);Binding b=binding(a);if(b!=null)b.refreshRoute(false);E01SurfaceFrameRate.refresh(a);}
  static Binding binding(Activity a){java.lang.ref.WeakReference<Binding> ref=BINDINGS.get(a);return ref==null?null:ref.get();}
  static int selectedFps(Activity a){Integer negotiated=NEGOTIATED.get(a);return negotiated==null?fps(a):negotiated;}
@@ -175,13 +192,40 @@ public final class E01SmoothVideo {
  public static void packet(byte[] header){PACKET.set(new Stamp(E01PacingClock.senderNanos(header),System.nanoTime()));}
  // Called only for a complete main-screen frame in an active gesture sample.
  static void swipeReceived(Object reader,long preceding,long previousSender){
-  Stamp stamp=PACKET.get();if(stamp!=null)E01SwipeTiming.received(reader,stamp,stamp.arrival,preceding,previousSender,stamp.sender);
+  swipeReceived(reader, preceding, previousSender, 0, 0);
+ }
+ static void swipeReceived(Object reader, long preceding, long previousSender, long headerFirst, long headerComplete) {
+  Stamp stamp = PACKET.get();
+  if (stamp != null) E01SwipeTiming.received(reader, stamp, stamp.arrival, preceding, previousSender,
+      stamp.sender, headerFirst, headerComplete);
  }
  public static void stamp(byte[] bytes){Stamp s=PACKET.get();PACKET.remove();if(s!=null&&s.sender>0)STAMPS.put(bytes,s);}
  public static void converted(byte[] original,byte[] converted){
   if(original==converted)return;Stamp stamp=STAMPS.get(original);if(stamp!=null)STAMPS.put(converted,stamp);
  }
- public static void inputStart(MediaCodec codec){State s=STATES.get(codec);if(s!=null)synchronized(s){s.inputStart=System.nanoTime();}}
+ // Called immediately before a main picture is published to the decode queue.
+ // Holding the identity on the job also covers early discard and byte-array conversion.
+ public static Object frameEnqueued(byte[] bytes) {
+  Stamp stamp=STAMPS.get(bytes);
+  if(stamp!=null) {
+   stamp.enqueued=System.nanoTime();
+   stamp.reportStages();
+  }
+  return stamp;
+ }
+ public static void frameTaken(Object marker) {
+  if(marker==null)return;
+  Stamp stamp=(Stamp)marker;
+  stamp.taken=System.nanoTime();
+  stamp.reportStages();
+ }
+ public static void inputStart(MediaCodec codec) {
+  State s=STATES.get(codec);
+  if(s!=null) synchronized(s) {
+   s.inputStart=System.nanoTime();
+   s.inputCapBaseline=s.capWaitNs;
+  }
+ }
  // A full direct cap waits for decoded credit. wait() releases the state monitor;
  // native codec calls stay outside it, and periodic returns preserve pump cancellation.
  public static int dequeueInput(MediaCodec codec){
@@ -213,11 +257,38 @@ public final class E01SmoothVideo {
   }
   finally{synchronized(s){s.inputPollMaxNs=Math.max(s.inputPollMaxNs,System.nanoTime()-start);}}
  }
- public static void inputEnd(MediaCodec codec){State s=STATES.get(codec);if(s==null)return;boolean stalled=false;
-  synchronized(s){long now=System.nanoTime();if(s.inputStart>0){long n=now-s.inputStart;s.inputWaitMax=Math.max(s.inputWaitMax,n);s.recentWait[s.waitSlot++%120]=n;s.inputWaits.add(n);s.inputStart=0;}
-   stalled=s.directCap4&&!s.retired&&s.inFlight.full()&&s.capBlockedSince>0&&now-s.capBlockedSince>=400000000L;}
-  Activity activity=s.output.owner.get();
-  if(stalled&&activity!=null&&E01VideoVisibility.visible(activity,s.surface)&&inputOwnerActive(s,codec)){E01VideoEvidence.decision(s.output.context,"Direct output input stalled; switching to GL");configureFailed(codec);}
+ public static void inputEnd(MediaCodec codec){inputEnd(codec,-1,null);}
+ public static void inputEnd(MediaCodec codec,int index,Object marker) {
+  final long slotAt=marker!=null && index>=0 ? System.nanoTime() : 0;
+  State s=STATES.get(codec);
+  long capWait=-1;
+  boolean stalled=false;
+  if(s!=null) synchronized(s) {
+   long now=System.nanoTime();
+   if(s.inputStart>0) {
+    long n=now-s.inputStart;
+    s.inputWaitMax=Math.max(s.inputWaitMax,n);
+    s.recentWait[s.waitSlot++%120]=n;
+    s.inputWaits.add(n);
+    if(s.directCap4) capWait=s.capWaitNs-s.inputCapBaseline;
+    s.inputStart=0;
+   }
+   stalled=s.directCap4&&!s.retired&&s.inFlight.full()&&s.capBlockedSince>0&&now-s.capBlockedSince>=400000000L;
+  }
+  // An unsuccessful acquire is not a slot. Never transfer its wait to a later frame.
+  if(slotAt!=0) {
+   Stamp stamp=(Stamp)marker;
+   stamp.slot=slotAt;
+   stamp.capWait=capWait;
+   stamp.reportStages();
+  }
+  if(stalled) {
+   Activity activity=s.output.owner.get();
+   if(activity!=null&&E01VideoVisibility.visible(activity,s.surface)&&inputOwnerActive(s,codec)) {
+    E01VideoEvidence.decision(s.output.context,"Direct output input stalled; switching to GL");
+    configureFailed(codec);
+   }
+  }
  }
  static boolean inputOwnerActive(State s,MediaCodec codec){Object owner=s.inputOwner==null?null:s.inputOwner.get();if(owner==null)return false;
   try{return Boolean.TRUE.equals(get(owner,"running"))&&get(owner,"decoder")==codec;}catch(Exception ignored){return false;}}

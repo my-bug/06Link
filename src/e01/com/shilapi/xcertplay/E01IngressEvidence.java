@@ -8,16 +8,17 @@ public final class E01IngressEvidence {
     private final long started, base;
     private final String identity=E01VideoEvidence.identity();
     private final String screen;
+    private final boolean direct;
     private final E01FrameTiming arrivalTiming=new E01FrameTiming(), senderTiming=new E01FrameTiming();
     private long summaryWindow, summaryFrames, summaryBytes, summaryReadMax, summaryArrivalMax, summarySenderMax, summaryEmpty, summaryFull;
     private long summarySenderAtGap=-1, summaryOver50, summaryOver100;
     private int summaryReadBytes, summaryReports;
     private Summary summary,timingSummary;
     static final class Summary {
-        final String identity,screen;final int tid,readBytes;final long span,frames,bytes,arrival,sender,read,empty,full,senderAtGap,over50,over100;
+        final String identity,screen;final boolean direct;final int tid,readBytes;final long span,frames,bytes,arrival,sender,read,empty,full,senderAtGap,over50,over100;
         final E01FrameTiming.Snapshot arrivalTiming,senderTiming;
         Summary(E01IngressEvidence e,long now){
-            identity=e.identity;screen=e.screen;tid=e.consumerTid;span=now-e.summaryWindow;frames=e.summaryFrames;bytes=e.summaryBytes;
+            identity=e.identity;screen=e.screen;direct=e.direct;tid=e.consumerTid;span=now-e.summaryWindow;frames=e.summaryFrames;bytes=e.summaryBytes;
             arrival=e.summaryArrivalMax;sender=e.summarySenderMax;read=e.summaryReadMax;empty=e.summaryEmpty;full=e.summaryFull;
             senderAtGap=e.summarySenderAtGap;over50=e.summaryOver50;over100=e.summaryOver100;readBytes=e.summaryReadBytes;
             arrivalTiming=e.arrivalTiming.snapshotAndReset();senderTiming=e.senderTiming.snapshotAndReset();
@@ -25,7 +26,7 @@ public final class E01IngressEvidence {
         String format(){return identity+" reader="+tid+" spanMs="+millis(span)+" frames="+frames
             +" fps="+String.format(java.util.Locale.US,"%.1f",frames*1e9/span)
             +" bytes="+bytes+" arrivalMaxMs="+millis(arrival)+" senderStepMaxMs="+millis(sender)
-            +" readMaxMs="+millis(read)+" emptyMs="+millis(empty)+" fullMs="+millis(full)
+            +" readMaxMs="+millis(read)+(direct?" readMode=direct":" emptyMs="+millis(empty)+" fullMs="+millis(full))
             +" senderAtGapMs="+millis(senderAtGap)+" gapsOver50="+over50+" gapsOver100="+over100+" readMaxBytes="+readBytes+" screen="+screen;}
         String timing(){return "timing "+identity+" reader="+tid+" screen="+screen+" spanMs="+millis(span)
             +" histUs=n/p95u/p99u/max/gt50/gt100 "+arrivalTiming.format("arrival")+" "+senderTiming.format("sender")
@@ -43,9 +44,11 @@ public final class E01IngressEvidence {
         void reset(){count=total=max=from=to=0;}
     }
     public E01IngressEvidence(){this(0);}
-    E01IngressEvidence(int screenType){this(android.os.Process.myTid(),System.nanoTime(),BASE_NS,screenType);}
+    E01IngressEvidence(int screenType){this(screenType,false);}
+    E01IngressEvidence(int screenType,boolean direct){this(android.os.Process.myTid(),System.nanoTime(),BASE_NS,screenType,direct);}
     E01IngressEvidence(int tid,long now,long epoch){this(tid,now,epoch,0);}
-    E01IngressEvidence(int tid,long now,long epoch,int screenType){consumerTid=tid;started=window=summaryWindow=now;base=epoch;screen=screenType==110||screenType==111?Integer.toString(screenType):"unknown";}
+    E01IngressEvidence(int tid,long now,long epoch,int screenType){this(tid,now,epoch,screenType,false);}
+    private E01IngressEvidence(int tid,long now,long epoch,int screenType,boolean direct){this.direct=direct;consumerTid=tid;started=window=summaryWindow=now;base=epoch;screen=screenType==110||screenType==111?Integer.toString(screenType):"unknown";}
     void opened() { if ("110".equals(screen)) E01SwipeTiming.opened(this, identity); }
     private boolean collecting(long now){return now>=started;}
     public synchronized void sourceRead(long begin,long end,int count){
@@ -58,12 +61,15 @@ public final class E01IngressEvidence {
     }
     public synchronized void emptyWait(long begin,long end){if(collecting(end)){empty.add(begin,end);if(end>=begin)summaryEmpty+=end-begin;}}
     public synchronized void fullWait(long begin,long end){if(collecting(end)){full.add(begin,end);if(end>=begin)summaryFull+=end-begin;}}
-    public synchronized void packet(int type,long sender,int bodyLength,long now){
+    public void packet(int type,long sender,int bodyLength,long now){
+        packet(type, sender, bodyLength, now, 0, 0);
+    }
+    synchronized void packet(int type,long sender,int bodyLength,long now,long headerFirstNs,long headerCompleteNs){
         if(!collecting(now))return;
         packets++;bodyMax=Math.max(bodyMax,Math.max(0,bodyLength));
         if(type==1){configs++;return;}if(type!=0){other++;return;}frames++;
         if ("110".equals(screen) && E01SwipeTiming.collecting())
-            E01SmoothVideo.swipeReceived(this, lastFrame, lastSender);
+            E01SmoothVideo.swipeReceived(this, lastFrame, lastSender, headerFirstNs, headerCompleteNs);
         long step=-1;
         if(sender<=0)missingPts++;
         else if(lastSender>0){if(sender<=lastSender)reversePts++;else{step=sender-lastSender;senderStepMax=Math.max(senderStepMax,step);}}
@@ -104,7 +110,7 @@ public final class E01IngressEvidence {
         return "ingress tid="+consumerTid+" sample="+sample+" baseNs="+base+" winMs="+relative(values[0])+".."+relative(values[1])
             +" readCalls="+values[2]+" bytes="+values[3]+" readErrors="+values[4]
             +" readTotalMs="+millis(r[1])+" readMax="+range(r)+" sourceGap="+range(g)
-            +" empty="+waits(e)+" full="+waits(f)
+            +(direct?" readMode=direct":" empty="+waits(e)+" full="+waits(f))
             +" packets="+values[5]+" frames="+values[6]+" configs="+values[7]+" other="+values[8]+" bodyMax="+values[9]
             +" frameGap="+range(v)+" senderStepAtGapMs="+millis(values[13])+" senderStepMaxMs="+millis(values[12])
             +" missingPts="+values[10]+" nonIncreasingPts="+values[11];

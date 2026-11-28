@@ -15,9 +15,9 @@ public final class FrameRateCheck {
     }
     public static void main(String[] args) {
         Context c = new Context();
-        check(fps(c) == 30, "fresh install keeps default 30");
+        check(fps(c) == 60, "fresh install selects 60");
         int writes = air(c).writes;
-        for (int i=0;i<100;i++) check(fps(c)==30, "stable default");
+        for (int i=0;i<100;i++) check(fps(c)==60, "stable default");
         check(air(c).writes == writes, "normal reads never rewrite preferences");
         for (String mode : new String[]{null,"auto","manual"}) {
             for (int selected : new int[]{30,60}) for (boolean forced : new boolean[]{false,true}) {
@@ -30,7 +30,7 @@ public final class FrameRateCheck {
                 air(c).values.put("fix7_power_policy_applied",false);
                 video(c).values.put("force60",forced);
                 video(c).values.put("smooth",true); video(c).values.put("mtk",true);
-                int expected = forced ? 60 : "auto".equals(mode) ? 30 : selected;
+                int expected = forced || "auto".equals(mode) ? 60 : selected;
                 check(fps(c)==expected,"legacy choice migrated: "+mode+" "+selected+" forced="+forced);
                 check(!air(c).contains("display_fps_mode") && !air(c).contains("display_fps60_unsustainable")
                     && !air(c).contains("display_fps_auto_last") && !video(c).contains("force60"),"retired settings removed");

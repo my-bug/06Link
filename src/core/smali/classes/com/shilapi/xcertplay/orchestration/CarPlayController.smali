@@ -6395,7 +6395,10 @@
 
     invoke-virtual {v5, v0}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
 
-    invoke-virtual {v5, v3}, Ljava/lang/StringBuilder;->append(I)Ljava/lang/StringBuilder;
+    invoke-static {v3}, Lcom/shilapi/xcertplay/network/E01HotspotReading;->statusChannelText(I)Ljava/lang/String;
+    move-result-object v3
+
+    invoke-virtual {v5, v3}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
 
     const-string v0, " bssid="
 
@@ -14979,7 +14982,7 @@
 
     invoke-virtual {v14, v10}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
 
-    const-string v0, " channel="
+    const-string v0, " iap2Channel="
 
     invoke-virtual {v14, v0}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
 
@@ -15022,7 +15025,7 @@
     move-result-object v51
 
     .line 1275
-    invoke-virtual/range {v37 .. v37}, Lcom/shilapi/xcertplay/network/WirelessHotspotInfo;->getChannel()I
+    invoke-virtual/range {v37 .. v37}, Lcom/shilapi/xcertplay/network/WirelessHotspotInfo;->getStatusChannel()I
 
     move-result v52
 

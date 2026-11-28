@@ -25,6 +25,13 @@ def main():
     assert 'syncManualHotspotFromSystem' not in strings
     assert 'FreeAutoHotspotName' not in strings
     ui = (source / "E01NativeUi.java").read_text()
+    # The OEM-only band choice saves in place while the credential editor is active.
+    assert 'if(E01HotspotBand.isSupported())hotspotBand(hotspot);' in ui
+    band = ui[ui.index('private void hotspotBand('):ui.index('private void inputHotspot(')]
+    assert '"自动","5 GHz"' in band and '下次开启车机热点时生效' in band
+    assert 'E01HotspotBand.prefers5Ghz(host)?1:0' in band and 'prefer5Ghz=i==1' in band
+    assert band.index('if(prefer5Ghz==E01HotspotBand.prefers5Ghz(host))return;') < band.index('E01HotspotBand.setPrefers5Ghz(host,prefer5Ghz)')
+    assert 'refresh();' not in band and 'E01HotspotSettings.save' not in band
     refresh = ui[ui.index('private void refreshHotspot('):ui.index('private EditText editor(')]
     assert 'hotspotTarget==this&&root==pageRoot' in refresh
     assert 'ssid.addTextChangedListener(edits);pass.addTextChangedListener(edits)' in refresh

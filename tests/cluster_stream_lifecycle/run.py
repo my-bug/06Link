@@ -39,6 +39,8 @@ class Machine:
         self.methods, self.logs, self.monitors = {}, [], []
         for cls, rel in [(ENGINE,'airplay/CarPlayMediaEngine.smali'),
                          (LISTENER,'airplay/CarPlayMediaEngine$onScreen$port$1.smali'),
+                         (STREAM,'airplay/ScreenStream.smali'),
+                         (PREFIX+'airplay/AirPlaySession;','airplay/AirPlaySession.smali'),
                          (SINK,'media/AndroidMediaSink.smali'),(DECODER,'media/VideoDecoder.smali')]:
             for header, body in re.findall(r'^\.method ([^\n]+)\n(.*?)^\.end method', (CORE/rel).read_text(), re.M|re.S):
                 body = re.sub(r'\s*\.annotation.*?\.end annotation', '', body, flags=re.S)

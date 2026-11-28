@@ -8,7 +8,10 @@ public class IntegrationCheck{
  static void prefs(Owner o,int fps){E01FrameRatePolicy.save(o,fps);}
  static byte[] header(){long n=2000000000L;byte[] b=new byte[128];for(int i=0;i<8;i++)b[8+i]=(byte)(n>>>(i*8));return b;}
  public static void main(String[] args){
-  Owner owner=new Owner();prefs(owner,30);E01SmoothVideo.negotiatedFps(owner,30);View old=E01SmoothVideo.create(owner);owner.videoView=old;ok(old instanceof TextureView);ok(((TextureView)old).listener==owner.textureListener);ok(!E01SmoothVideo.recreateIfNeeded(owner));
+  Owner owner=new Owner();
+  ok(E01SmoothVideo.smooth(owner));
+  owner.getSharedPreferences(E01SmoothVideo.PREF,0).values.put("smooth",false);
+  prefs(owner,30);E01SmoothVideo.negotiatedFps(owner,30);View old=E01SmoothVideo.create(owner);owner.videoView=old;ok(old instanceof TextureView);ok(((TextureView)old).listener==owner.textureListener);ok(!E01SmoothVideo.recreateIfNeeded(owner));
   Surface texture=new Surface();E01SmoothVideo.registerTexture(owner,texture);MediaCodec normal=new MediaCodec();MediaFormat tuned=new MediaFormat();E01SmoothVideo.configure(normal,tuned,texture,true);ok(tuned.values.get("vdec-lowlatency")==1);ok(!E01SmoothVideo.STATES.containsKey(normal));E01SmoothVideo.releaseSurface(texture);ok(texture.released==1);
   MediaFormat minimal=new MediaFormat();E01SmoothVideo.configure(new MediaCodec(),minimal,texture,false);ok(minimal.values.isEmpty());MediaCodec qcom=new MediaCodec();qcom.name="OMX.qcom.video.decoder.avc";MediaFormat other=new MediaFormat();E01SmoothVideo.configure(qcom,other,texture,true);ok(other.values.isEmpty());
   owner.getSharedPreferences(E01SmoothVideo.PREF,0).values.put("smooth",true);ok(E01SmoothVideo.recreateIfNeeded(owner));ok(owner.recreates==1);

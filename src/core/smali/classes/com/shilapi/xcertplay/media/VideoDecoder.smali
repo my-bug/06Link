@@ -143,6 +143,8 @@
 
 .field private final e01Backlog:Lcom/shilapi/xcertplay/E01BacklogRecovery;
 
+.field private e01InputStamp:Ljava/lang/Object;
+
 .field private e01ReceivedNs:J
 
 .field private final height:I
@@ -349,6 +351,8 @@
     const/4 p6, 0x0
 
     invoke-direct {p3, p6, p6, p4, p5}, Lcom/shilapi/xcertplay/media/VideoDecodeQueue;-><init>(IIILkotlin/jvm/internal/DefaultConstructorMarker;)V
+
+    iput p1, p3, Lcom/shilapi/xcertplay/media/VideoDecodeQueue;->e01ScreenType:I
 
     iput-object p3, p0, Lcom/shilapi/xcertplay/media/VideoDecoder;->queue:Lcom/shilapi/xcertplay/media/VideoDecodeQueue;
 
@@ -2157,7 +2161,8 @@
 
     move-result v9
 
-    invoke-static {v8}, Lcom/shilapi/xcertplay/E01SmoothVideo;->inputEnd(Landroid/media/MediaCodec;)V
+    iget-object v3, v0, Lcom/shilapi/xcertplay/media/VideoDecoder;->e01InputStamp:Ljava/lang/Object;
+    invoke-static {v8, v9, v3}, Lcom/shilapi/xcertplay/E01SmoothVideo;->inputEnd(Landroid/media/MediaCodec;ILjava/lang/Object;)V
 
     iget-boolean v1, v0, Lcom/shilapi/xcertplay/media/VideoDecoder;->running:Z
 
@@ -2856,6 +2861,12 @@
     instance-of v2, v0, Lcom/shilapi/xcertplay/media/VideoJob$Frame;
 
     if-eqz v2, :cond_4
+
+    move-object v2, v0
+    check-cast v2, Lcom/shilapi/xcertplay/media/VideoJob$Frame;
+    iget-object v2, v2, Lcom/shilapi/xcertplay/media/VideoJob$Frame;->e01TimingStamp:Ljava/lang/Object;
+    iput-object v2, p0, Lcom/shilapi/xcertplay/media/VideoDecoder;->e01InputStamp:Ljava/lang/Object;
+    invoke-static {v2}, Lcom/shilapi/xcertplay/E01SmoothVideo;->frameTaken(Ljava/lang/Object;)V
 
     iget-object v2, p0, Lcom/shilapi/xcertplay/media/VideoDecoder;->referenceChain:Lcom/shilapi/xcertplay/media/VideoReferenceChain;
 

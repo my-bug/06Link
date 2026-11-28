@@ -5,6 +5,7 @@ import android.content.SharedPreferences;
 
 /** One saved rate for settings, negotiation and rendering; no automatic downgrade. */
 public final class E01FrameRatePolicy {
+    private static final int DEFAULT_FPS = 60;
     private static final String AIRPLAY = "xcertplay_airplay";
     private static final String MIGRATED = "fixed_fps_selection";
 
@@ -12,15 +13,15 @@ public final class E01FrameRatePolicy {
         SharedPreferences prefs = context.getSharedPreferences(AIRPLAY, 0);
         if (!prefs.getBoolean(MIGRATED, false)) {
             SharedPreferences video = context.getSharedPreferences("06link-video", 0);
-            int fps = video.getBoolean("force60", false) ? 60
-                : "auto".equals(prefs.getString("display_fps_mode", null)) ? 30
-                : normalize(prefs.getInt("display_fps", 30));
+            int fps = video.getBoolean("force60", false) || "auto".equals(prefs.getString("display_fps_mode", null))
+                ? DEFAULT_FPS
+                : normalize(prefs.getInt("display_fps", DEFAULT_FPS));
             // Store the migrated selection before retiring the old override.
             editor(prefs, fps).apply();
             video.edit().remove("force60").apply();
             return fps;
         }
-        return normalize(prefs.getInt("display_fps", 30));
+        return normalize(prefs.getInt("display_fps", DEFAULT_FPS));
     }
 
     public static synchronized boolean save(Context context, int fps) {

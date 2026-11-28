@@ -21,20 +21,30 @@ STUBS={
 'android/content/SharedPreferences.java':'''package android.content;public class SharedPreferences{final java.util.Map<String,Object> values=new java.util.HashMap<>();public boolean getBoolean(String k,boolean d){return (Boolean)values.getOrDefault(k,d);}public String getString(String k,String d){return (String)values.getOrDefault(k,d);}public Editor edit(){return new Editor();}public class Editor{public Editor putString(String k,String v){values.put(k,v);return this;}public Editor putBoolean(String k,boolean v){values.put(k,v);return this;}public Editor remove(String k){values.remove(k);return this;}public boolean commit(){return true;}}}''',
 'android/content/Context.java':'''package android.content; public class Context{
 public static final int BIND_AUTO_CREATE=1,CONTEXT_INCLUDE_CODE=1,CONTEXT_IGNORE_SECURITY=2;
-public Object music,call;final java.util.Map<ServiceConnection,ComponentName> bindings=new java.util.HashMap<>();
+public Object music,call,manager,radio;public boolean delayRadioBinding;
+Object service(ComponentName c){
+ if(c.cls.equals("ecarx.bluetooth.service.BtService"))return manager;
+ if(c.cls.equals("com.nforetek.bt.service.NfServiceBluetooth"))return radio;
+ if(c.cls.endsWith("A2dp"))return music;
+ if(c.cls.endsWith("Hfp"))return call;
+ throw new AssertionError(c.cls);
+}final java.util.Map<ServiceConnection,ComponentName> bindings=new java.util.HashMap<>();
 public Context getApplicationContext(){return this;}public Context createPackageContext(String n,int flags){return this;}
 public ClassLoader getClassLoader(){return getClass().getClassLoader();}
-public boolean bindService(Intent intent,ServiceConnection c,int flags){Object api=intent.component.cls.endsWith("A2dp")?music:call;if(api==null)return false;bindings.put(c,intent.component);c.onServiceConnected(intent.component,new TestBinder(api));return true;}
+public boolean bindService(Intent intent,ServiceConnection c,int flags){Object api=service(intent.component);if(api==null)return false;bindings.put(c,intent.component);if(delayRadioBinding && (api==radio || api==manager)) return true;c.onServiceConnected(intent.component,new TestBinder(api));return true;}
 public void unbindService(ServiceConnection c){bindings.remove(c);}
 public void disconnectBindings(){for(java.util.Map.Entry<ServiceConnection,ComponentName> e:bindings.entrySet())e.getKey().onServiceDisconnected(e.getValue());}
-public void reconnectBindings(){for(java.util.Map.Entry<ServiceConnection,ComponentName> e:bindings.entrySet())e.getKey().onServiceConnected(e.getValue(),new TestBinder(e.getValue().cls.endsWith("A2dp")?music:call));}
+public void reconnectBindings(){for(java.util.Map.Entry<ServiceConnection,ComponentName> e:bindings.entrySet())e.getKey().onServiceConnected(e.getValue(),new TestBinder(service(e.getValue())));}
 final java.util.Map<String,SharedPreferences> stores=new java.util.HashMap<>();public SharedPreferences getSharedPreferences(String n,int m){return stores.computeIfAbsent(n,k->new SharedPreferences());}public java.io.File getExternalFilesDir(String t){return null;}public java.io.File getFilesDir(){return new java.io.File("/tmp");}}''',
-'com/shilapi/xcertplay/E01OemBluetooth.java':'package com.shilapi.xcertplay; class E01OemBluetooth{static boolean validMac(String s){return s!=null && s.matches("(?i)([0-9a-f]{2}:){5}[0-9a-f]{2}");}}',
+'com/shilapi/xcertplay/E01OemBluetooth.java':'package com.shilapi.xcertplay; class E01OemBluetooth{static void wakePoller(){}static boolean validMac(String s){return s!=null && s.matches("(?i)([0-9a-f]{2}:){5}[0-9a-f]{2}");}}',
 'com/shilapi/xcertplay/E01LogPolicy.java':'package com.shilapi.xcertplay;public class E01LogPolicy{public static void session(java.io.File f,String s){}}'}
+for namespace, name in [('ecarx.bluetooth', 'IBluetoothManager'), ('com.nforetek.bt.aidl', 'INfCommandBluetooth')]:
+    STUBS[namespace.replace('.', '/') + '/' + name + '.java'] = ('package ' + namespace + ';public interface ' + name
+        + '{class Stub{public static Object asInterface(android.os.IBinder b){return ((android.content.TestBinder)b).api;}}}')
 CASES = ['exclusive','bootstrap','nativeReturn','asynchronous','priorState','selection','noStealing','lateDisconnect','unpaired',
          'cancelled','generations','serviceAndUpgrade','unsupported','peers','hardwareReadback','serviceRestart',
          'nativeReadiness','partialReadiness','reconnectAfterEnd','reconnectLateService','reconnectBackoff',
-         'reconnectDuringRestore','reconnectCancelled']
+         'reconnectDuringRestore','reconnectCancelled','pollingLifecycle','radioHandoff','radioManualOff','radioRecovery','radioRejected','radioRapidExit','radioRestoredByDriver','radioPreference','radioTransitions','radioWrongReadback','radioLostBroadcast','radioBinding','radioRetoggle']
 with tempfile.TemporaryDirectory(prefix='06link-handoff-') as folder:
  d=Path(folder)
  for name,text in STUBS.items():

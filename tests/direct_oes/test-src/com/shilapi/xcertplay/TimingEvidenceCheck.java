@@ -13,13 +13,16 @@ public final class TimingEvidenceCheck {
  }
  static void matchedPair(){
   E01SmoothVideo.SlowPair pairs=new E01SmoothVideo.SlowPair();
-  pairs.released(frame(100,110,112,130),135000000L);
+  E01SmoothVideo.Entry a=frame(100,110,112,130), b=frame(116,155,160,195);
+  a.stamp.enqueued=110000000L; a.stamp.taken=111000000L; a.stamp.slot=111500000L; a.stamp.capWait=0;
+  b.stamp.enqueued=155000000L; b.stamp.taken=158000000L; b.stamp.slot=159800000L; b.stamp.capWait=200000L;
+  pairs.released(a,135000000L);
   ok(pairs.take()==null,"first output has no previous frame");
-  pairs.released(frame(116,155,160,195),205000000L);
+  pairs.released(b,205000000L);
   pairs.released(frame(132,176,180,250),261000000L);
   // A long pause at the phone must not replace the slower of the two animated pairs.
   pairs.released(frame(2132,2176,2180,2250),2261000000L);
-  ok(pairs.take().format().equals("pairUs sender=16000 arrival=45000 input=48000 decoded=65000 released=70000 nextInput=-1 afterNext=-1 longestPoll=0 pollMisses=0"),
+  ok(pairs.take().format().equals("pairUs sender=16000 arrival=45000 input=48000 decoded=65000 released=70000 nextInput=-1 afterNext=-1 longestPoll=0 pollMisses=0 queueUs=1000/3000 takeToSlotUs=500/1800 capUs=0/200"),
      "all deltas refer to the same two frames even when stage maxima differ");
   ok(pairs.take()==null,"no duplicate on an empty reporting window");
   pairs.released(frame(2148,2240,2250,2320),2330000000L);
@@ -27,6 +30,36 @@ public final class TimingEvidenceCheck {
   pairs.released(null,2340000000L);
   pairs.released(frame(2164,2360,2370,2390),2450000000L);
   ok(pairs.take()==null,"a missing timestamp cannot connect unrelated pictures");
+ }
+ static void decoderStages() {
+  MediaCodec codec=new MediaCodec();
+  E01SmoothVideo.State state=new E01SmoothVideo.State(new E01SmoothVideo.Output(new Activity(),60,true));
+  state.directCap4=true;
+  E01SmoothVideo.STATES.put(codec,state);
+  byte[] source={1,2}, converted={0,1,2};
+  E01SmoothVideo.Stamp stamp=new E01SmoothVideo.Stamp(1,System.nanoTime());
+  E01SmoothVideo.STAMPS.put(source,stamp);
+  ok(E01SmoothVideo.frameEnqueued(source)==stamp,"the job carries its original packet identity");
+  E01SmoothVideo.frameTaken(stamp);
+  E01SmoothVideo.converted(source,converted);
+  ok(E01SmoothVideo.STAMPS.get(converted)==stamp,"Annex-B conversion preserves queue-stage evidence");
+  state.capWaitNs=5000000L;
+  E01SmoothVideo.inputStart(codec);
+  state.capWaitNs+=1000L;
+  E01SmoothVideo.inputEnd(codec,-1,stamp);
+  ok(state.inputStart==0,"a failed acquisition closes the input-wait interval");
+  ok(stamp.slot==0 && stamp.capWait==-1,"failed input cannot invent an acquired slot");
+  E01SmoothVideo.inputStart(codec);
+  state.capWaitNs+=2000L;
+  E01SmoothVideo.inputEnd(codec,0,stamp);
+  ok(stamp.enqueued>0 && stamp.taken>=stamp.enqueued && stamp.slot>=stamp.taken,"ordered monotonic stages");
+  ok(state.inputStart==0,"a successful acquisition also closes the input-wait interval");
+  ok(stamp.capWait==2000L,"only waits in the successful acquire, regardless of buffer index");
+  MediaCodec fallback=new MediaCodec();
+  E01SmoothVideo.inputEnd(fallback,1,stamp);
+  ok(stamp.capWait==-1,"a codec without cap evidence is unavailable rather than zero");
+  ok(E01SmoothVideo.frameEnqueued(new byte[1])==null,"untracked pictures do not create evidence");
+  E01SmoothVideo.STATES.remove(codec);
  }
  static void followingInput(){
   MediaCodec codec=new MediaCodec();codec.queued=true;
@@ -48,6 +81,7 @@ public final class TimingEvidenceCheck {
  }
  public static void main(String[] args)throws Exception{
   followingInput();
+  decoderStages();
   matchedPair();
   E01VideoEvidence.begin(new LongEvidenceCheck.Host(true),60);
   E01SmoothVideo.State s=new E01SmoothVideo.State(new E01SmoothVideo.Output(new Activity(),60,true));

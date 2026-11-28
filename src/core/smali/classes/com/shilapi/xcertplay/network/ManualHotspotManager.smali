@@ -152,6 +152,8 @@
 
 .field private final connectivityManager:Landroid/net/ConnectivityManager;
 
+.field private volatile e01Radio:Lcom/shilapi/xcertplay/network/E01HotspotReading;
+
 .field private final expectedBand:Lcom/shilapi/xcertplay/orchestration/ManualHotspotBand;
 
 .field private final expectedChannel:I
@@ -2342,8 +2344,20 @@
     :try_start_1
     const-class v2, Landroid/net/wifi/WifiConfiguration;
 
+    invoke-static {}, Lcom/shilapi/xcertplay/E01HotspotBand;->isSupported()Z
+
+    move-result v3
+
+    if-eqz v3, :cond_3
+
+    const-string v3, "channel"
+
+    goto :goto_1
+
+    :cond_3
     const-string v3, "apChannel"
 
+    :goto_1
     invoke-virtual {v2, v3}, Ljava/lang/Class;->getField(Ljava/lang/String;)Ljava/lang/reflect/Field;
 
     move-result-object v2
@@ -2357,7 +2371,7 @@
 
     move v6, v2
 
-    goto :goto_1
+    goto :goto_2
 
     :catch_0
     const/4 v2, 0x0
@@ -2365,7 +2379,7 @@
     const/4 v6, 0x0
 
     .line 424
-    :goto_1
+    :goto_2
     :try_start_2
     const-class v2, Landroid/net/wifi/WifiConfiguration;
 
@@ -2392,13 +2406,13 @@
 
     move-object v5, v2
 
-    goto :goto_2
+    goto :goto_3
 
     :catch_1
     move-object v5, v0
 
     .line 428
-    :goto_2
+    :goto_3
     :try_start_3
     new-instance v3, Lcom/shilapi/xcertplay/network/ManualHotspotManager$ManualApConfiguration;
 
@@ -3260,11 +3274,21 @@
 .end method
 
 .method public onCarPlayConfirmed()V
-    .locals 0
+    .locals 2
 
-    .line 35
-    invoke-static {p0}, Lcom/shilapi/xcertplay/network/WirelessHotspotManager$-CC;->$default$onCarPlayConfirmed(Lcom/shilapi/xcertplay/network/WirelessHotspotManager;)V
+    iget-boolean v0, p0, Lcom/shilapi/xcertplay/network/ManualHotspotManager;->closed:Z
 
+    if-nez v0, :cond_0
+
+    iget-object v0, p0, Lcom/shilapi/xcertplay/network/ManualHotspotManager;->e01Radio:Lcom/shilapi/xcertplay/network/E01HotspotReading;
+
+    if-eqz v0, :cond_0
+
+    iget-object v1, p0, Lcom/shilapi/xcertplay/network/ManualHotspotManager;->onDiagnostic:Lkotlin/jvm/functions/Function1;
+
+    invoke-virtual {v0, v1}, Lcom/shilapi/xcertplay/network/E01HotspotReading;->onCarPlayConfirmed(Lkotlin/jvm/functions/Function1;)V
+
+    :cond_0
     return-void
 .end method
 
@@ -3288,13 +3312,13 @@
 
     move-result v0
 
-    if-nez v0, :cond_29
+    if-nez v0, :cond_2d
 
     const-wide/16 v4, 0x0
 
     cmp-long v0, v2, v4
 
-    if-lez v0, :cond_28
+    if-lez v0, :cond_2c
 
     .line 80
     invoke-direct/range {p0 .. p2}, Lcom/shilapi/xcertplay/network/ManualHotspotManager;->deadlineAfter(J)J
@@ -3450,7 +3474,7 @@
     :goto_1
     iget-boolean v11, v1, Lcom/shilapi/xcertplay/network/ManualHotspotManager;->closed:Z
 
-    if-nez v11, :cond_27
+    if-nez v11, :cond_2b
 
     .line 99
     invoke-direct {v1}, Lcom/shilapi/xcertplay/network/ManualHotspotManager;->findLocalHotspotInterface()Lcom/shilapi/xcertplay/network/ManualHotspotManager$LocalHotspotInterface;
@@ -3563,9 +3587,47 @@
     :cond_4
     move-wide/from16 v18, v4
 
-    if-eqz v11, :cond_25
+    if-eqz v11, :cond_29
+
+    invoke-static {}, Lcom/shilapi/xcertplay/E01HotspotBand;->isSupported()Z
+
+    move-result v0
+
+    if-eqz v0, :cond_6
+
+    const/4 v2, 0x0
+
+    if-eqz v8, :cond_5
+
+    invoke-virtual {v8}, Lcom/shilapi/xcertplay/network/ManualHotspotManager$ManualApConfiguration;->getChannel()I
+
+    move-result v2
+
+    invoke-static {v2}, Ljava/lang/Integer;->valueOf(I)Ljava/lang/Integer;
+
+    move-result-object v2
+
+    :cond_5
+    invoke-virtual {v11}, Lcom/shilapi/xcertplay/network/ManualHotspotManager$LocalHotspotInterface;->getName()Ljava/lang/String;
+
+    move-result-object v0
+
+    iget-object v3, v1, Lcom/shilapi/xcertplay/network/ManualHotspotManager;->onDiagnostic:Lkotlin/jvm/functions/Function1;
+
+    invoke-static {v0, v2, v3}, Lcom/shilapi/xcertplay/network/E01HotspotReading;->read(Ljava/lang/String;Ljava/lang/Integer;Lkotlin/jvm/functions/Function1;)Lcom/shilapi/xcertplay/network/E01HotspotReading;
+
+    move-result-object v0
+
+    iput-object v0, v1, Lcom/shilapi/xcertplay/network/ManualHotspotManager;->e01Radio:Lcom/shilapi/xcertplay/network/E01HotspotReading;
+
+    iget v13, v0, Lcom/shilapi/xcertplay/network/E01HotspotReading;->iap2Channel:I
+
+    iget-object v14, v0, Lcom/shilapi/xcertplay/network/E01HotspotReading;->frequencyMHz:Ljava/lang/Integer;
+
+    goto :goto_6
 
     .line 112
+    :cond_6
     invoke-direct {v1}, Lcom/shilapi/xcertplay/network/ManualHotspotManager;->frequencyFromConnectionInfo()Ljava/lang/Integer;
 
     move-result-object v0
@@ -3575,15 +3637,15 @@
 
     move-result-object v2
 
-    if-nez v2, :cond_5
+    if-nez v2, :cond_7
 
     .line 116
     invoke-direct {v1, v11, v8}, Lcom/shilapi/xcertplay/network/ManualHotspotManager;->radioFrequency(Lcom/shilapi/xcertplay/network/ManualHotspotManager$LocalHotspotInterface;Lcom/shilapi/xcertplay/network/ManualHotspotManager$ManualApConfiguration;)Ljava/lang/Integer;
 
     move-result-object v2
 
-    :cond_5
-    if-eqz v8, :cond_6
+    :cond_7
+    if-eqz v8, :cond_8
 
     .line 118
     invoke-virtual {v8}, Lcom/shilapi/xcertplay/network/ManualHotspotManager$ManualApConfiguration;->getChannel()I
@@ -3592,11 +3654,11 @@
 
     goto :goto_2
 
-    :cond_6
+    :cond_8
     const/4 v3, 0x0
 
     :goto_2
-    if-eqz v8, :cond_7
+    if-eqz v8, :cond_9
 
     .line 121
     invoke-virtual {v8}, Lcom/shilapi/xcertplay/network/ManualHotspotManager$ManualApConfiguration;->getFrequencyMHz()Ljava/lang/Integer;
@@ -3605,7 +3667,7 @@
 
     goto :goto_3
 
-    :cond_7
+    :cond_9
     const/4 v5, 0x0
 
     .line 117
@@ -3614,7 +3676,7 @@
 
     move-result v13
 
-    if-eqz v8, :cond_8
+    if-eqz v8, :cond_a
 
     .line 124
     invoke-virtual {v8}, Lcom/shilapi/xcertplay/network/ManualHotspotManager$ManualApConfiguration;->getFrequencyMHz()Ljava/lang/Integer;
@@ -3623,11 +3685,11 @@
 
     goto :goto_4
 
-    :cond_8
+    :cond_a
     const/4 v3, 0x0
 
     :goto_4
-    if-eqz v3, :cond_9
+    if-eqz v3, :cond_b
 
     invoke-virtual {v8}, Lcom/shilapi/xcertplay/network/ManualHotspotManager$ManualApConfiguration;->getFrequencyMHz()Ljava/lang/Integer;
 
@@ -3635,52 +3697,52 @@
 
     goto :goto_5
 
-    :cond_9
-    if-nez v0, :cond_b
+    :cond_b
+    if-nez v0, :cond_d
 
-    if-nez v2, :cond_a
+    if-nez v2, :cond_c
 
     const/4 v14, 0x0
 
     goto :goto_6
 
-    :cond_a
+    :cond_c
     move-object v14, v2
 
     goto :goto_6
 
-    :cond_b
+    :cond_d
     :goto_5
     move-object v14, v0
 
     :goto_6
-    if-eqz v8, :cond_c
+    if-eqz v8, :cond_e
 
     .line 129
     invoke-virtual {v8}, Lcom/shilapi/xcertplay/network/ManualHotspotManager$ManualApConfiguration;->getSecurity()Lcom/shilapi/xcertplay/transport/Iap2WirelessSecurity;
 
     move-result-object v0
 
-    if-nez v0, :cond_d
+    if-nez v0, :cond_f
 
-    :cond_c
+    :cond_e
     iget-object v0, v1, Lcom/shilapi/xcertplay/network/ManualHotspotManager;->expectedSecurity:Lcom/shilapi/xcertplay/transport/Iap2WirelessSecurity;
 
-    :cond_d
+    :cond_f
     move-object v12, v0
 
-    if-eqz v8, :cond_10
+    if-eqz v8, :cond_12
 
     .line 130
     sget-object v0, Lcom/shilapi/xcertplay/transport/Iap2WirelessSecurity;->NONE:Lcom/shilapi/xcertplay/transport/Iap2WirelessSecurity;
 
-    if-ne v12, v0, :cond_e
+    if-ne v12, v0, :cond_10
 
     const/4 v0, 0x1
 
     goto :goto_7
 
-    :cond_e
+    :cond_10
     const/4 v0, 0x0
 
     :goto_7
@@ -3688,17 +3750,17 @@
 
     sget-object v3, Lcom/shilapi/xcertplay/transport/Iap2WirelessSecurity;->NONE:Lcom/shilapi/xcertplay/transport/Iap2WirelessSecurity;
 
-    if-ne v2, v3, :cond_f
+    if-ne v2, v3, :cond_11
 
     const/4 v2, 0x1
 
     goto :goto_8
 
-    :cond_f
+    :cond_11
     const/4 v2, 0x0
 
     :goto_8
-    if-eq v0, v2, :cond_10
+    if-eq v0, v2, :cond_12
 
     .line 131
     iget-object v0, v1, Lcom/shilapi/xcertplay/network/ManualHotspotManager;->onDiagnostic:Lkotlin/jvm/functions/Function1;
@@ -3729,15 +3791,15 @@
 
     invoke-interface {v0, v2}, Lkotlin/jvm/functions/Function1;->invoke(Ljava/lang/Object;)Ljava/lang/Object;
 
-    :cond_10
-    if-eqz v8, :cond_11
+    :cond_12
+    if-eqz v8, :cond_13
 
     .line 137
     invoke-virtual {v8}, Lcom/shilapi/xcertplay/network/ManualHotspotManager$ManualApConfiguration;->getPassphrase()Ljava/lang/String;
 
     move-result-object v0
 
-    if-eqz v0, :cond_11
+    if-eqz v0, :cond_13
 
     invoke-virtual {v0}, Ljava/lang/String;->length()I
 
@@ -3745,32 +3807,32 @@
 
     const/16 v3, 0x8
 
-    if-gt v3, v2, :cond_11
+    if-gt v3, v2, :cond_13
 
     const/16 v3, 0x40
 
-    if-ge v2, v3, :cond_11
+    if-ge v2, v3, :cond_13
 
     goto :goto_9
 
-    :cond_11
+    :cond_13
     const/4 v0, 0x0
 
     :goto_9
-    if-eqz v8, :cond_12
+    if-eqz v8, :cond_14
 
     .line 138
     sget-object v2, Lcom/shilapi/xcertplay/transport/Iap2WirelessSecurity;->NONE:Lcom/shilapi/xcertplay/transport/Iap2WirelessSecurity;
 
-    if-ne v12, v2, :cond_12
+    if-ne v12, v2, :cond_14
 
     .line 139
     const-string v2, ""
 
     goto :goto_a
 
-    :cond_12
-    if-eqz v0, :cond_13
+    :cond_14
+    if-eqz v0, :cond_15
 
     .line 140
     iget-object v2, v1, Lcom/shilapi/xcertplay/network/ManualHotspotManager;->passphrase:Ljava/lang/String;
@@ -3779,7 +3841,7 @@
 
     move-result v2
 
-    if-nez v2, :cond_13
+    if-nez v2, :cond_15
 
     .line 141
     iget-object v2, v1, Lcom/shilapi/xcertplay/network/ManualHotspotManager;->onDiagnostic:Lkotlin/jvm/functions/Function1;
@@ -3793,40 +3855,40 @@
     goto :goto_a
 
     .line 145
-    :cond_13
+    :cond_15
     iget-object v2, v1, Lcom/shilapi/xcertplay/network/ManualHotspotManager;->passphrase:Ljava/lang/String;
 
     .line 147
     :goto_a
     iget-object v3, v1, Lcom/shilapi/xcertplay/network/ManualHotspotManager;->onDiagnostic:Lkotlin/jvm/functions/Function1;
 
-    if-eqz v8, :cond_14
+    if-eqz v8, :cond_16
 
     const/4 v5, 0x1
 
     goto :goto_b
 
-    :cond_14
+    :cond_16
     const/4 v5, 0x0
 
     :goto_b
-    if-eqz v0, :cond_15
+    if-eqz v0, :cond_17
 
     const/4 v6, 0x1
 
     goto :goto_c
 
-    :cond_15
+    :cond_17
     const/4 v6, 0x0
 
     :goto_c
-    if-lez v13, :cond_16
+    if-lez v13, :cond_18
 
     const/4 v7, 0x1
 
     goto :goto_d
 
-    :cond_16
+    :cond_18
     const/4 v7, 0x0
 
     .line 150
@@ -3835,13 +3897,13 @@
 
     move-result-object v0
 
-    if-eqz v0, :cond_17
+    if-eqz v0, :cond_19
 
     const/4 v9, 0x1
 
     goto :goto_e
 
-    :cond_17
+    :cond_19
     const/4 v9, 0x0
 
     .line 153
@@ -3863,7 +3925,7 @@
 
     move-result-object v0
 
-    if-eqz v0, :cond_18
+    if-eqz v0, :cond_1a
 
     invoke-virtual {v11}, Lcom/shilapi/xcertplay/network/ManualHotspotManager$LocalHotspotInterface;->getHardwareAddress()Ljava/lang/String;
 
@@ -3881,7 +3943,7 @@
 
     goto :goto_f
 
-    :cond_18
+    :cond_1a
     const/4 v0, 0x0
 
     :goto_f
@@ -3911,12 +3973,12 @@
 
     move-result v4
 
-    if-eqz v4, :cond_19
+    if-eqz v4, :cond_1b
 
     const/4 v0, 0x0
 
     .line 154
-    :cond_19
+    :cond_1b
     invoke-virtual {v11}, Lcom/shilapi/xcertplay/network/ManualHotspotManager$LocalHotspotInterface;->getName()Ljava/lang/String;
 
     move-result-object v4
@@ -3928,13 +3990,13 @@
 
     instance-of v15, v15, Ljava/net/Inet6Address;
 
-    if-eqz v15, :cond_1a
+    if-eqz v15, :cond_1c
 
     const-string v15, "IPv6"
 
     goto :goto_11
 
-    :cond_1a
+    :cond_1c
     const-string v15, "IPv4"
 
     :goto_11
@@ -3962,7 +4024,7 @@
 
     invoke-virtual {v2, v12}, Ljava/lang/StringBuilder;->append(Ljava/lang/Object;)Ljava/lang/StringBuilder;
 
-    const-string v5, " channelKnown="
+    const-string v5, " iap2ChannelKnown="
 
     invoke-virtual {v2, v5}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
 
@@ -4002,7 +4064,7 @@
     .line 156
     sget-object v0, Lcom/shilapi/xcertplay/transport/Iap2WirelessSecurity;->NONE:Lcom/shilapi/xcertplay/transport/Iap2WirelessSecurity;
 
-    if-eq v12, v0, :cond_1c
+    if-eq v12, v0, :cond_1e
 
     move-object/from16 v2, v16
 
@@ -4012,12 +4074,12 @@
 
     move-result v0
 
-    if-eqz v0, :cond_1b
+    if-eqz v0, :cond_1d
 
     goto :goto_12
 
     .line 157
-    :cond_1b
+    :cond_1d
     new-instance v0, Ljava/io/IOException;
 
     const-string v2, "Manual hotspot is secured but no passphrase was provided"
@@ -4026,9 +4088,9 @@
 
     throw v0
 
-    :cond_1c
+    :cond_1e
     :goto_12
-    if-nez v13, :cond_1d
+    if-nez v13, :cond_1f
 
     .line 165
     iget v0, v1, Lcom/shilapi/xcertplay/network/ManualHotspotManager;->expectedChannel:I
@@ -4050,8 +4112,8 @@
 
     invoke-static {v2, v0}, Landroid/util/Log;->w(Ljava/lang/String;Ljava/lang/String;)I
 
-    :cond_1d
-    if-eqz v20, :cond_1e
+    :cond_1f
+    if-eqz v20, :cond_20
 
     .line 168
     invoke-virtual/range {v20 .. v20}, Lcom/shilapi/xcertplay/network/ManualHotspotManager$ManualApConfiguration;->getBand()Ljava/lang/Integer;
@@ -4060,7 +4122,7 @@
 
     goto :goto_13
 
-    :cond_1e
+    :cond_20
     const/4 v4, 0x0
 
     :goto_13
@@ -4087,7 +4149,31 @@
 
     move-result-object v17
 
+    invoke-static {}, Lcom/shilapi/xcertplay/E01HotspotBand;->isSupported()Z
+
+    move-result v2
+
+    if-eqz v2, :cond_22
+
+    if-eqz v14, :cond_21
+
+    invoke-virtual {v14}, Ljava/lang/Integer;->intValue()I
+
+    move-result v2
+
+    invoke-direct {v1, v2}, Lcom/shilapi/xcertplay/network/ManualHotspotManager;->bandLabel(I)Ljava/lang/String;
+
+    move-result-object v0
+
+    goto :goto_15
+
+    :cond_21
+    const-string v0, "unknown"
+
+    goto :goto_15
+
     .line 178
+    :cond_22
     iget-object v2, v1, Lcom/shilapi/xcertplay/network/ManualHotspotManager;->expectedBand:Lcom/shilapi/xcertplay/orchestration/ManualHotspotBand;
 
     sget-object v3, Lcom/shilapi/xcertplay/network/ManualHotspotManager$WhenMappings;->$EnumSwitchMapping$0:[I
@@ -4100,17 +4186,17 @@
 
     const/4 v3, 0x1
 
-    if-eq v2, v3, :cond_23
+    if-eq v2, v3, :cond_27
 
     const/4 v3, 0x2
 
-    if-eq v2, v3, :cond_22
+    if-eq v2, v3, :cond_26
 
     const/4 v3, 0x3
 
-    if-ne v2, v3, :cond_21
+    if-ne v2, v3, :cond_25
 
-    if-eqz v14, :cond_20
+    if-eqz v14, :cond_24
 
     .line 182
     move-object v2, v14
@@ -4125,25 +4211,25 @@
 
     move-result-object v2
 
-    if-nez v2, :cond_1f
+    if-nez v2, :cond_23
 
     goto :goto_14
 
-    :cond_1f
+    :cond_23
     move-object/from16 v18, v2
 
     goto :goto_16
 
-    :cond_20
+    :cond_24
     :goto_14
-    if-nez v0, :cond_24
+    if-nez v0, :cond_28
 
     const-string v0, "Auto"
 
     goto :goto_15
 
     .line 178
-    :cond_21
+    :cond_25
     new-instance v0, Lkotlin/NoWhenBranchMatchedException;
 
     invoke-direct {v0}, Lkotlin/NoWhenBranchMatchedException;-><init>()V
@@ -4151,16 +4237,16 @@
     throw v0
 
     .line 180
-    :cond_22
+    :cond_26
     const-string v0, "5 GHz"
 
     goto :goto_15
 
     .line 179
-    :cond_23
+    :cond_27
     const-string v0, "2.4 GHz"
 
-    :cond_24
+    :cond_28
     :goto_15
     move-object/from16 v18, v0
 
@@ -4175,7 +4261,7 @@
 
     return-object v9
 
-    :cond_25
+    :cond_29
     move-object/from16 v20, v8
 
     .line 188
@@ -4185,7 +4271,7 @@
 
     cmp-long v0, v4, v18
 
-    if-lez v0, :cond_26
+    if-lez v0, :cond_2a
 
     .line 195
     sget-wide v11, Lcom/shilapi/xcertplay/network/ManualHotspotManager;->INTERFACE_POLL_NANOS:J
@@ -4203,7 +4289,7 @@
     goto/16 :goto_1
 
     .line 190
-    :cond_26
+    :cond_2a
     new-instance v0, Ljava/io/IOException;
 
     .line 192
@@ -4229,7 +4315,7 @@
     throw v0
 
     .line 98
-    :cond_27
+    :cond_2b
     new-instance v0, Ljava/lang/IllegalStateException;
 
     const-string v2, "ManualHotspotManager is closed"
@@ -4243,7 +4329,7 @@
     throw v0
 
     .line 78
-    :cond_28
+    :cond_2c
     new-instance v0, Ljava/lang/IllegalArgumentException;
 
     const-string/jumbo v2, "timeoutMillis must be positive"
@@ -4257,7 +4343,7 @@
     throw v0
 
     .line 75
-    :cond_29
+    :cond_2d
     new-instance v0, Ljava/lang/IllegalStateException;
 
     const-string v2, "ManualHotspotManager.start must not run on the main thread"

@@ -30,7 +30,7 @@ public final class E01VideoEvidence {
         });
         SharedPreferences v = owner.getSharedPreferences("06link-video", 0);
         write(owner, "config " + identity + " maxFPS=" + maxFps + " selected=" + E01FrameRatePolicy.selectedFps(owner)
-            + " smooth=" + v.getBoolean("smooth", false) + " mtk=" + v.getBoolean("mtk", true)
+            + " smooth=" + E01SmoothVideo.smooth(owner) + " mtk=" + v.getBoolean("mtk", true)
             + " display60Requested=" + v.getBoolean("display60", true));
     }
     /** Routine frame samples are disabled in release builds; decoder behavior is unchanged. */

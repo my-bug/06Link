@@ -128,6 +128,19 @@
 .method public setEnabled(Landroid/net/wifi/WifiConfiguration;Z)Z
     .locals 8
 
+    if-eqz p2, :cond_0
+
+    iget-object v0, p0, Lcom/shilapi/xcertplay/network/LegacySoftApManager$SystemSoftApControl;->context:Landroid/content/Context;
+
+    iget-object v1, p0, Lcom/shilapi/xcertplay/network/LegacySoftApManager$SystemSoftApControl;->wifi:Landroid/net/wifi/WifiManager;
+
+    invoke-static {v0, v1, p1}, Lcom/shilapi/xcertplay/E01HotspotBand;->enableHotspot(Landroid/content/Context;Landroid/net/wifi/WifiManager;Landroid/net/wifi/WifiConfiguration;)Z
+
+    move-result v0
+
+    return v0
+
+    :cond_0
     const/4 v0, 0x0
 
     const/4 v1, 0x1
@@ -184,13 +197,13 @@
     .line 183
     instance-of p2, p1, Ljava/lang/Boolean;
 
-    if-eqz p2, :cond_0
+    if-eqz p2, :cond_1
 
     check-cast p1, Ljava/lang/Boolean;
 
     goto :goto_0
 
-    :cond_0
+    :cond_1
     move-object p1, v0
 
     .line 182
@@ -222,11 +235,11 @@
 
     move-result p2
 
-    if-eqz p2, :cond_1
+    if-eqz p2, :cond_2
 
     goto :goto_2
 
-    :cond_1
+    :cond_2
     move-object v0, p1
 
     :goto_2

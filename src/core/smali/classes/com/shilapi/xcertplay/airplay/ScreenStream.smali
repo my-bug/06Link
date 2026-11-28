@@ -115,6 +115,8 @@
 
 .field private e01DiagnosticScreenType:I
 
+.field private e01WirelessTransport:Z
+
 .field private final firstFrameLogged:Ljava/util/concurrent/atomic/AtomicBoolean;
 
 .field private final frameCounter:Ljava/util/concurrent/atomic/AtomicLong;
@@ -660,7 +662,9 @@
     :try_start_0
     iget v2, p0, Lcom/shilapi/xcertplay/airplay/ScreenStream;->e01DiagnosticScreenType:I
 
-    invoke-static {p1, v2}, Lcom/shilapi/xcertplay/E01VideoIngress;->wrap(Ljava/net/Socket;I)Ljava/io/InputStream;
+    iget-boolean v3, p0, Lcom/shilapi/xcertplay/airplay/ScreenStream;->e01WirelessTransport:Z
+
+    invoke-static {p1, v2, v3}, Lcom/shilapi/xcertplay/E01VideoIngress;->wrap(Ljava/net/Socket;IZ)Ljava/io/InputStream;
 
     move-result-object v0
 
@@ -681,6 +685,8 @@
     invoke-static {v0}, Lkotlin/jvm/internal/Intrinsics;->checkNotNull(Ljava/lang/Object;)V
 
     const/16 v2, 0x80
+
+    invoke-static {v0, v2}, Lcom/shilapi/xcertplay/E01VideoIngress;->beginHeader(Ljava/io/InputStream;I)V
 
     invoke-direct {p0, v0, v2}, Lcom/shilapi/xcertplay/airplay/ScreenStream;->readFully(Ljava/io/InputStream;I)[B
 
@@ -992,6 +998,14 @@
     .locals 0
 
     iput p1, p0, Lcom/shilapi/xcertplay/airplay/ScreenStream;->e01DiagnosticScreenType:I
+
+    return-void
+.end method
+
+.method public final setE01WirelessTransport(Z)V
+    .locals 0
+
+    iput-boolean p1, p0, Lcom/shilapi/xcertplay/airplay/ScreenStream;->e01WirelessTransport:Z
 
     return-void
 .end method

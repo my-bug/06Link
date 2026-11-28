@@ -33,7 +33,11 @@ public final class E01WirelessAudioHandoff {
 
     private static final Coordinator coordinator = new Coordinator();
 
-    private static boolean supported() {
+    static boolean pauseEnabled(Context context) {
+        return context.getSharedPreferences("06link-video", 0).getBoolean("pause_oem_bluetooth", true);
+    }
+
+    static boolean supported() {
         return Build.VERSION.SDK_INT == 22 && "E01".equals(Build.MODEL) && "BX11QJ".equals(Build.DEVICE);
     }
 
@@ -43,6 +47,17 @@ public final class E01WirelessAudioHandoff {
     public static void stop(Object owner) {
         if (supported()) coordinator.stop(owner);
     }
+    static boolean wirelessHandoffComplete() {
+        Session current = coordinator.desired;
+        return current != null && current.generation != -1 && current.handoffComplete;
+    }
+    static boolean restoringRadio(Context context) {
+        return supported() && !wirelessHandoffComplete()
+                && context.getSharedPreferences("06link-audio-handoff", 0).getBoolean("restore_oem_radio", false);
+    }
+
+    static void radioStateChanged() { coordinator.radioChanged.incrementAndGet(); }
+
     public static void maintain(Context context, Object lookup) {
         if (supported() && context != null && lookup != null)
             coordinator.maintain(new OemPort(context, lookup), SystemClock.elapsedRealtime());
@@ -65,7 +80,7 @@ public final class E01WirelessAudioHandoff {
 
     static void reconnectSelected(Context context, Object lookup, String phone, boolean explicitSwitch,
             Callable<Boolean> current) {
-        if (!supported() || context == null || lookup == null) return;
+        if (!supported() || context == null || lookup == null || restoringRadio(context)) return;
         OemPort port = new OemPort(context, lookup);
         try {
             coordinator.reconnectSelected(port, phone, explicitSwitch, SystemClock.elapsedRealtime(), current);
@@ -75,6 +90,11 @@ public final class E01WirelessAudioHandoff {
     }
 
     interface Port {
+        boolean pauseSelected();
+        boolean ownsRadio();
+        boolean recordRadioOwnership(boolean owned);
+        int radioState() throws Exception;
+        boolean setRadio(boolean enabled) throws Exception;
         void restoreLegacyRenderer() throws Exception;
         List<?> connected(Profile profile) throws Exception;
         String address(Object device) throws Exception;
@@ -109,6 +129,94 @@ public final class E01WirelessAudioHandoff {
         private long restoreUntil;
         private final String[] lastStatus = new String[Profile.values().length];
         private boolean legacyChecked;
+        // command -> OEM state broadcast -> independent controller and GOC readback
+        private final java.util.concurrent.atomic.AtomicInteger radioChanged = new java.util.concurrent.atomic.AtomicInteger();
+        private int confirmedAtChange;
+        private Session radioSession;
+        private boolean attemptedPause, confirmedOff;
+        private long settleUntil, nextRestore, nextRadioCheck, bindUntil, stableOnSince = -1;
+        private String radioStatus;
+
+        private void radioLog(Port port, String message) {
+            if (!message.equals(radioStatus)) port.log(message);
+            radioStatus = message;
+        }
+
+        private boolean maintainRadio(Port port, Session session, long now) {
+            boolean want = session != null && session.generation != -1 && session.handoffComplete && port.pauseSelected();
+            Session active = want ? session : null;
+            if (radioSession != active) {
+                radioSession = active;
+                attemptedPause = false;
+                confirmedOff = false;
+                radioStatus = null;
+                bindUntil = now + 4000;
+                stableOnSince = -1;
+                nextRestore = 0;
+            }
+            boolean owned = port.ownsRadio();
+            if (!want && !owned) return false;
+            int change = radioChanged.get();
+            if (want && confirmedOff && change == confirmedAtChange && now < nextRadioCheck) return true;
+            if (want && attemptedPause && !owned && !confirmedOff) return false;
+            try {
+                int state = port.radioState();
+                if (!want) {
+                    confirmedOff = false;
+                    if (state == RADIO_ON) {
+                        // An exit or process death can happen before the queued disable runs.
+                        if (stableOnSince < 0) stableOnSince = now;
+                        if (now < settleUntil || now - stableOnSince < 1500) return true;
+                        if (!port.recordRadioOwnership(false)) return true;
+                        radioLog(port, "原车蓝牙已恢复");
+                        restoreUntil = now + 8000;
+                        return false;
+                    }
+                    stableOnSince = -1;
+                    if (state == RADIO_OFF && now >= nextRestore) {
+                        nextRestore = now + 5000;
+                        boolean sent = port.setRadio(true);
+                        radioLog(port, sent ? "已请求恢复原车蓝牙" : "原车蓝牙恢复待重试");
+                    }
+                    return true;
+                }
+                if (state == RADIO_OFF) {
+                    confirmedOff = true;
+                    confirmedAtChange = change;
+                    nextRadioCheck = now + 30000;
+                    attemptedPause = true;
+                    radioLog(port, owned ? "已确认原车蓝牙暂停" : "原车蓝牙原本已关闭");
+                    return true;
+                }
+                if (state != RADIO_ON) return owned && now < settleUntil;
+                if (confirmedOff) {
+                    // A driver turned it back on during projection. Respect the switch.
+                    if (owned && !port.recordRadioOwnership(false)) return true;
+                    confirmedOff = false;
+                    radioLog(port, "原车蓝牙已手动开启，保留音频交接");
+                    return false;
+                }
+                if (owned && now < settleUntil) return true;
+                if (attemptedPause) {
+                    radioLog(port, "未确认原车蓝牙关闭，使用音频交接");
+                    return false;
+                }
+                // The journal must survive process death between the request and readback.
+                if (desired != session || !port.recordRadioOwnership(true)) return false;
+                attemptedPause = true;
+                settleUntil = now + 4000;
+                if (!port.setRadio(false)) {
+                    port.recordRadioOwnership(false);
+                    radioLog(port, "原车拒绝暂停蓝牙，使用音频交接");
+                    return false;
+                }
+                radioLog(port, "Wi-Fi 已接管，已请求暂停原车蓝牙");
+                return true;
+            } catch (Exception unavailable) {
+                radioLog(port, "原车蓝牙总开关暂不可用 " + unavailable.getClass().getSimpleName());
+                return (!want && owned) || (want && unavailable instanceof BindingPending && now < bindUntil);
+            }
+        }
 
         synchronized void start(Object owner, int generation, String phone, boolean handoffComplete) {
             if (desired != null && desired.owner == owner && desired.generation == generation
@@ -156,6 +264,7 @@ public final class E01WirelessAudioHandoff {
                 }
                 previous = session;
             }
+            if (maintainRadio(port, session, now)) return;
             for (Profile profile : Profile.values()) {
                 int i = profile.ordinal();
                 if (desired != session || (session == null && restore[i] == null)) continue;
@@ -232,18 +341,29 @@ public final class E01WirelessAudioHandoff {
         }
     }
 
+    /** The original service accepted bindService and has yet to deliver its Binder. */
+    private static final class BindingPending extends IllegalStateException { }
+
     /** The public Ecarx A2DP Binder is a no-op on this firmware. Bind the same
      * hardware service used by the factory phone app; callbacks stay on Android's
      * main loop and the existing OEM worker performs the requests/readback.
      */
     private static final class NativeBinding implements ServiceConnection {
-        final String name;
+        final String pkg, component, stub;
         Object service;
         Method asInterface;
         Context context;
         boolean bound;
         long retryAt;
-        NativeBinding(String name) { this.name = name; }
+        NativeBinding(String profile) {
+            this("com.nforetek.bt", "com.nforetek.bt.service.NfService" + profile,
+                    "com.nforetek.bt.aidl.INfCommand" + profile + "$Stub");
+        }
+        NativeBinding(String pkg, String component, String stub) {
+            this.pkg = pkg;
+            this.component = component;
+            this.stub = stub;
+        }
 
         synchronized Object api(Context source) throws Exception {
             if (service != null) return service;
@@ -251,19 +371,22 @@ public final class E01WirelessAudioHandoff {
             if (!bound && now >= retryAt) {
                 retryAt = now + 5000;
                 context = source.getApplicationContext();
-                ClassLoader loader = context.createPackageContext("com.nforetek.bt",
+                ClassLoader loader = context.createPackageContext(pkg,
                         Context.CONTEXT_INCLUDE_CODE | Context.CONTEXT_IGNORE_SECURITY).getClassLoader();
-                asInterface = Class.forName("com.nforetek.bt.aidl.INfCommand" + name + "$Stub", true, loader)
+                asInterface = Class.forName(stub, true, loader)
                         .getMethod("asInterface", IBinder.class);
-                Intent intent = new Intent().setComponent(new ComponentName("com.nforetek.bt",
-                        "com.nforetek.bt.service.NfService" + name));
+                Intent intent = new Intent().setComponent(new ComponentName(pkg, component));
                 bound = context.bindService(intent, this, Context.BIND_AUTO_CREATE);
             }
-            if (service == null) throw new IllegalStateException("原车蓝牙音频服务尚未连接");
+            if (service == null && bound) throw new BindingPending();
+            if (service == null) throw new IllegalStateException("原车蓝牙服务尚未连接");
             return service;
         }
         public synchronized void onServiceConnected(ComponentName component, IBinder binder) {
-            try { service = asInterface.invoke(null, binder); }
+            try {
+                service = asInterface.invoke(null, binder);
+                E01OemBluetooth.wakePoller();
+            }
             catch (Exception unavailable) {
                 service = null;
                 try { context.unbindService(this); } catch (RuntimeException ignored) { }
@@ -275,6 +398,10 @@ public final class E01WirelessAudioHandoff {
         }
     }
 
+    private static final int RADIO_OFF = 10, RADIO_ON = 12;
+    private static final NativeBinding manager = new NativeBinding("ecarx.bluetooth.service",
+            "ecarx.bluetooth.service.BtService", "ecarx.bluetooth.IBluetoothManager$Stub");
+    private static final NativeBinding controller = new NativeBinding("Bluetooth");
     private static final class OemPort implements Port {
         final Context context;
         final Object lookup;
@@ -298,6 +425,37 @@ public final class E01WirelessAudioHandoff {
         }
         private Object hardware(Profile profile) throws Exception {
             return profile.hardware.api(context);
+        }
+        public boolean pauseSelected() { return pauseEnabled(context); }
+        public boolean ownsRadio() {
+            return context.getSharedPreferences("06link-audio-handoff", 0).getBoolean("restore_oem_radio", false);
+        }
+        public boolean recordRadioOwnership(boolean owned) {
+            SharedPreferences.Editor edit = context.getSharedPreferences("06link-audio-handoff", 0).edit();
+            return (owned ? edit.putBoolean("restore_oem_radio", true) : edit.remove("restore_oem_radio")).commit();
+        }
+        public int radioState() throws Exception {
+            int hardware = (Integer)call(controller.api(context), "getBtState");
+            manager.api(context); // Bind the command service before journaling a change.
+            int adapter = (Integer)call(api("adapterConnection"), "getState");
+            // GOC reports 300 even while opening/closing. Require the factory adapter's
+            // matching stable state; its transitional states are 11 and 13.
+            if (hardware == 302 && adapter == RADIO_ON) return RADIO_ON;
+            if (hardware == 300 && adapter == RADIO_OFF) return RADIO_OFF;
+            return -1;
+        }
+        public boolean setRadio(boolean enabled) throws Exception {
+            Object service = manager.api(context);
+            if (enabled) return Boolean.TRUE.equals(call(service, "enable"));
+            // Ecarx IBluetoothManager.disable(false) is temporary: preserve the OEM boot setting.
+            Method disable = service.getClass().getMethod("disable", Boolean.TYPE);
+            disable.setAccessible(true);
+            try {
+                return Boolean.TRUE.equals(disable.invoke(service, false));
+            } catch (java.lang.reflect.InvocationTargetException failure) {
+                if (failure.getCause() instanceof SecurityException) return false;
+                throw failure; // An interrupted IPC can still have delivered the request.
+            }
         }
         public List<?> connected(Profile profile) throws Exception {
             Object service = hardware(profile);
